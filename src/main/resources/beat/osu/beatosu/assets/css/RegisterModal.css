@@ -1,0 +1,83 @@
+.root-register {
+    -fx-background-color: rgba(0, 0, 0);
+    -fx-padding: 30;
+    -fx-spacing: 15;
+ }
+
+.title {
+    -fx-font-size: 32px;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 20 0;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.input-box {
+    -fx-padding: 10;
+    -fx-spacing: 20;
+}
+
+.label {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-min-width: 120px;
+}
+
+.hint {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 12px;
+    -fx-max-width: 640;
+    -fx-opacity: 0.8;
+}
+
+.hbox {
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 10;
+}
+
+.text-field, .password-field {
+    -fx-pref-width: 400px;
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: white;
+    -fx-border-color: #333333;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 8 10;
+}
+
+.button-box {
+    -fx-alignment: CENTER;
+    -fx-spacing: 10;
+}
+
+.button {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 0;
+    -fx-cursor: hand;
+    -fx-text-fill: white;
+    -fx-padding: 10 20;
+    -fx-min-width: 250px;
+    -fx-alignment: CENTER;
+}
+
+.create-button {
+    -fx-background-color: #225f22;
+    -fx-border-color: #4caf50;
+    -fx-border-width: 2;
+}
+
+.create-button:hover {
+    -fx-background-color: #4caf50;
+}
+
+.cancel-button {
+    -fx-background-color: #424242;
+    -fx-border-color: #6c757d;
+    -fx-border-width: 2;
+}
+
+.cancel-button:hover {
+    -fx-background-color: #6c757d;
+}

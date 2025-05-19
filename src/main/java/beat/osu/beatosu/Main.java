@@ -1,6 +1,7 @@
 package beat.osu.beatosu;
 
-import beat.osu.beatosu.model.User;
+import beat.osu.beatosu.helper.StageManager;
+import beat.osu.beatosu.view.landing.LandingView;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -8,10 +9,9 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage)  {
-//        User user = new User("liman", 19);
+        StageManager.setStage(stage);
 
-        stage.setTitle("Hello!");
-        stage.show();
+        new LandingView(StageManager.getStage());
     }
 
     public static void main(String[] args) {
