@@ -1,0 +1,84 @@
+/*Login Section*/
+.login-modal-background {
+    -fx-background-color: rgba(0, 0, 0, 0.65); /* Semi-transparent black overlay */
+    -fx-alignment: center-left; /* Center the form container */
+    -fx-max-width: 500px;
+}
+
+.login-form-container {
+    -fx-padding: 30px;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 15, 0.1, 0, 5); /* Subtle shadow */
+    -fx-max-width: 400px; /* Control form width */
+    -fx-spacing: 15px; /* Spacing between vertical elements */
+    -fx-border-color: transparent transparent transparent rgb(189, 189, 189);
+    -fx-border-width: 2px;
+}
+
+.login-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #E0E0E0; /* Light text color */
+    -fx-alignment: center-left;
+    -fx-padding-bottom: 10px; /* Space below title */
+}
+
+.login-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #B0B0B0; /* Slightly dimmer text for labels */
+    -fx-padding: 0 0 0 2px; /* Small left padding */
+}
+
+.login-input {
+    -fx-background-color: transparent;
+    -fx-text-fill: #FFFFFF; /* White text */
+    -fx-font-size: 14px;
+    -fx-border-color: #b1b1b1; /* Subtle border */
+    -fx-border-width: 2px;
+    -fx-max-height: 5px;
+    -fx-min-width: 400px;
+    -fx-padding: 8px 12px;
+}
+
+.login-input:focused {
+    -fx-border-color: #FF66AA; /* Highlight border on focus (osu! pink) */
+    -fx-background-color: transparent;
+    -fx-border-color: #eeeeee;
+}
+
+.login-button {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-padding: 10px 20px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+    -fx-min-height: 5px;
+    -fx-max-height: 40px;
+    -fx-background-color: #0d84a4;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 5, 0.0, 0, 2);
+}
+
+.login-button:hover {
+    -fx-background-color: #109ec5;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 8, 0.0, 0, 3);
+}
+
+.login-button:pressed {
+    -fx-background-color: #0c7794;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 3, 0.0, 0, 1);
+}
+
+/* Optional Back button style */
+.back-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #AAAAAA;
+    -fx-font-size: 14px;
+    -fx-padding: 5px;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+}
+.back-button:hover {
+    -fx-text-fill: #DDDDDD;
+}

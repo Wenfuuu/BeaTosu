@@ -8,6 +8,7 @@ module beat.osu.beatosu {
     requires org.kordamp.bootstrapfx.core;
     requires static lombok;
     requires java.sql;
+    requires javafx.media;
 
     opens beat.osu.beatosu to javafx.fxml;
 

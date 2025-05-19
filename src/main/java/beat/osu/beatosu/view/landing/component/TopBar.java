@@ -1,5 +1,7 @@
 package beat.osu.beatosu.view.landing.component;
 
+import beat.osu.beatosu.Main;
+import beat.osu.beatosu.helper.CssManager;
 import beat.osu.beatosu.model.User;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -9,11 +11,14 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import lombok.Getter;
 
+import java.net.URL;
 import java.util.Objects;
 
 public class TopBar extends HBox {
 
+    @Getter
     private HBox userInfoBox;
     private ImageView profilePic;
     private VBox userStats;
@@ -59,7 +64,7 @@ public class TopBar extends HBox {
 
         // Try to load a placeholder profile image
         try {
-            profilePic.setImage(new Image(Objects.requireNonNull(getClass()
+            profilePic.setImage(new Image(Objects.requireNonNull(Main.class
                     .getResource("/assets/images/avatar-guest.png")).toExternalForm()));
         } catch (Exception e) {
             // If image loading fails, create a colored rectangle as placeholder
@@ -116,8 +121,12 @@ public class TopBar extends HBox {
     }
 
     private void loadStyles() {
-        this.getStylesheets().add(Objects.requireNonNull(getClass()
-                .getResource("/assets/css/TopBar.css")).toExternalForm());
+        URL cssUrl = CssManager.getCssURL("TopBar.css");
+        if (cssUrl != null) {
+            this.getStylesheets().add(cssUrl.toExternalForm());
+        } else {
+            System.err.println("CSS file not found!");
+        }
     }
 
     // Add media controls
@@ -134,11 +143,6 @@ public class TopBar extends HBox {
             usernameLbl.setText("Guest");
             signinLbl.setVisible(true);
         }
-    }
-
-    // Get user info box for click handling
-    public HBox getUserInfoBox() {
-        return userInfoBox;
     }
 
     // Set song title

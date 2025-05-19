@@ -1,5 +1,6 @@
 package beat.osu.beatosu.view;
 
+import beat.osu.beatosu.Main;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
@@ -16,8 +17,8 @@ public abstract class Page {
 
     public void showPage(){
         stage.setScene(scene);
-//        stage.getIcons().add(new Image(Objects.requireNonNull(getClass()
-//                .getResource("/assets/logo/osu_logo.png")).toExternalForm()));
+        stage.getIcons().add(new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/logo/osu_logo.png")).toExternalForm()));
         stage.setTitle("BeaTOsu!");
         stage.setFullScreenExitHint("");
 //        stage.setResizable(false);

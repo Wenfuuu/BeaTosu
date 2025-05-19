@@ -1,0 +1,8 @@
+.visualizer {
+    -fx-background-color: transparent;
+    -fx-alignment: center;
+}
+
+.logo-container {
+    -fx-alignment: center;
+}

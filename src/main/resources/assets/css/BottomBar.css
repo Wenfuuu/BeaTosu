@@ -1,0 +1,21 @@
+.bottom-bar {
+    -fx-background-color: rgba(0, 0, 0, 0.8);
+    -fx-padding: 5px 10px;
+    -fx-alignment: center-left;
+}
+
+.ppy-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #cccccc;
+}
+
+.copyright {
+    -fx-font-size: 12px;
+    -fx-text-fill: #999999;
+}
+
+.website {
+    -fx-font-size: 12px;
+    -fx-text-fill: #999999;
+}
