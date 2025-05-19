@@ -48,7 +48,7 @@ public class RegisterModal extends StackPane {
         this.getChildren().add(root);
 
         // Apply stylesheet
-        URL cssUrl = Main.class.getResource("/beat/osu/beatosu/assets/css/RegisterModal.css");
+        URL cssUrl = Main.class.getResource("/assets/css/RegisterModal.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {
