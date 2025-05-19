@@ -6,7 +6,10 @@ module beat.osu.beatosu {
     requires com.dlsc.formsfx;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
+    requires static lombok;
+    requires java.sql;
 
     opens beat.osu.beatosu to javafx.fxml;
+
     exports beat.osu.beatosu;
 }

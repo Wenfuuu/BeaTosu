@@ -41,6 +41,21 @@ dependencies {
   implementation('org.kordamp.ikonli:ikonli-javafx:12.3.1')
   implementation('org.kordamp.bootstrapfx:bootstrapfx-core:0.4.0')
 
+  // 1. JPA API (Jakarta Persistence for modern projects)
+  implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0' // Or latest
+
+  // 2. Hibernate ORM Core (JPA Provider)
+  implementation 'org.hibernate.orm:hibernate-core:6.4.4.Final' // Or latest 6.x for Jakarta, or 5.x for javax
+
+  // mysql java connector
+  implementation 'mysql:mysql-connector-java:8.0.32'
+
+  // --- ADD THIS DEPENDENCY ---
+  implementation 'org.jboss.logging:jboss-logging:3.5.3.Final' // Or a compatible version
+  implementation 'jakarta.transaction:jakarta.transaction-api:2.0.1'
+  implementation 'jakarta.enterprise:jakarta.enterprise.cdi-api:4.0.1'
+  implementation 'org.hibernate.common:hibernate-commons-annotations:6.0.6.Final'
+
   // Lombok
   implementation 'org.projectlombok:lombok:1.18.30'
 
