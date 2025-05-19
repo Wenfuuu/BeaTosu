@@ -1,6 +1,7 @@
 package beat.osu.beatosu.view.landing.component;
 
 import beat.osu.beatosu.Main;
+import beat.osu.beatosu.helper.CssManager;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -46,9 +47,10 @@ public class RegisterModal extends StackPane {
 
         // Add the root VBox to this StackPane
         this.getChildren().add(root);
+//        this.setVisible(false);
 
         // Apply stylesheet
-        URL cssUrl = Main.class.getResource("/assets/css/RegisterModal.css");
+        URL cssUrl = CssManager.getCssURL("RegisterModal.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {
