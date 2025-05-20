@@ -1,6 +1,7 @@
 package beat.osu.beatosu.view.landing;
 
 import beat.osu.beatosu.helper.BackgroundManager;
+import beat.osu.beatosu.helper.BgmManager;
 import beat.osu.beatosu.helper.CssManager;
 import beat.osu.beatosu.helper.ScreenManager;
 import beat.osu.beatosu.view.Page;
@@ -30,8 +31,6 @@ public class LandingView extends Page {
     private MenuButtons menuButtonsComponent;
     private LoginModal loginModalComponent;
     private RegisterModal registerModalComponent;
-
-    private MediaPlayer songMedia;
 
     private boolean isMenuPanelOpen = false;
     private TranslateTransition logoSlideOut;
@@ -102,20 +101,13 @@ public class LandingView extends Page {
         topBarComponent.setSongTitle("Minato Aqua - #Aquairo Palette");
 
         visualizerComponent.setMenuBox(menuButtonsComponent); // Add menu buttons to visualizer
-
-        // --- Initialize Media Player ---
-        File songFile = new File("./src/main/resources/assets/audio/audio.mp3"); // Path to your audio file
-        if (songFile.exists()) {
-            Media song = new Media(songFile.toURI().toString());
-            songMedia = new MediaPlayer(song);
-            songMedia.setAutoPlay(true);
-            songMedia.setVolume(0.2);
-
-            // Configure visualizer with media player
-            visualizerComponent.setupAudioVisualization(songMedia);
-        } else {
-            System.err.println("Audio file not found: " + songFile.getAbsolutePath());
-            // Optionally create a dummy MediaPlayer or handle the absence of audio
+        
+        String bgmPath = "./src/main/resources/assets/audio/audio.mp3";
+        BgmManager.playBgm(bgmPath, 0.2);
+        if(BgmManager.getCurrentPlayer() != null) {
+            visualizerComponent.setupAudioVisualization(BgmManager.getCurrentPlayer());
+        }else {
+            System.err.println("Failed to load BGM: " + bgmPath);
         }
 
         scene = new Scene(root, ScreenManager.SCREEN_WIDTH, ScreenManager.SCREEN_HEIGHT);
@@ -152,10 +144,10 @@ public class LandingView extends Page {
 
     public void handleEvent() {
         // --- Media Controls Events ---
-        if (songMedia != null) {
-            mediaControlsComponent.getPlayButton().setOnAction(e -> songMedia.play());
-            mediaControlsComponent.getPauseButton().setOnAction(e -> songMedia.pause());
-            mediaControlsComponent.getStopButton().setOnAction(e -> songMedia.stop());
+        if (BgmManager.getCurrentPlayer() != null) {
+            mediaControlsComponent.getPlayButton().setOnAction(e -> BgmManager.resumeBgm());
+            mediaControlsComponent.getPauseButton().setOnAction(e -> BgmManager.pauseBgm());
+            mediaControlsComponent.getStopButton().setOnAction(e -> BgmManager.stopBgm());
             // TODO: Add event handlers for prev, next, options, playlist buttons
         } else {
             // Disable media buttons if songMedia is null
