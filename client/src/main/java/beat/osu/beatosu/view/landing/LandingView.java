@@ -127,7 +127,6 @@ public class LandingView extends Page {
         }
 
         try {
-            BackgroundManager.setRandomBackgroundToRegion(root);
             BackgroundManager.setRandomBackground(scene);
         } catch (Exception e) {
             System.err.println("Error setting background: " + e.getMessage());

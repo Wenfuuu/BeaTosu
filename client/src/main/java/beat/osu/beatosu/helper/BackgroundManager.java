@@ -1,15 +1,6 @@
 package beat.osu.beatosu.helper;
 
-import javafx.scene.image.Image;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundPosition;
-import javafx.scene.layout.BackgroundRepeat;
-import javafx.scene.layout.BackgroundSize;
-import javafx.scene.layout.Region;
-
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -80,44 +71,6 @@ public class BackgroundManager {
             scene.getRoot().setStyle(backgroundStyle);
         } catch (Exception e) {
             System.err.println("Error setting background image: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    public static void setRandomBackgroundToRegion(Region region) {
-        try {
-            String randomBg = getRandomBackgroundURL();
-            File imageFile = new File(BACKGROUNDS_DIR + randomBg);
-
-            if (!imageFile.exists()) {
-                System.err.println("Background image not found: " + imageFile.getAbsolutePath());
-                return;
-            }
-
-            Image image = new Image(new FileInputStream(imageFile));
-
-            BackgroundImage backgroundImage = new BackgroundImage(
-                    image,
-                    BackgroundRepeat.NO_REPEAT,
-                    BackgroundRepeat.NO_REPEAT,
-                    BackgroundPosition.CENTER,
-                    new BackgroundSize(
-                            BackgroundSize.AUTO,
-                            BackgroundSize.AUTO,
-                            false,
-                            false,
-                            true,
-                            true
-                    )
-            );
-
-            Background background = new Background(backgroundImage);
-
-            region.setBackground(background);
-
-            System.out.println("Set background image: " + imageFile.getAbsolutePath());
-        } catch (Exception e) {
-            System.err.println("Error setting background image to region: " + e.getMessage());
             e.printStackTrace();
         }
     }
