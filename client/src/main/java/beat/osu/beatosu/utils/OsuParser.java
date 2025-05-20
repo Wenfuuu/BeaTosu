@@ -15,18 +15,26 @@ import java.util.Map;
  * OsuParser is a utility class for parsing .osu files.
  * It extracts information from the file and provides methods to access the parsed data.
  */
-@Getter
 public class OsuParser {
     private static BeatmapController beatmapController;
 
-    private static final Map<String, String> general = new HashMap<>();
-    private static final Map<String, String> metadata = new HashMap<>();
-    private static final Map<String, String> difficulty = new HashMap<>();
-    private static final Map<String, String> colours = new HashMap<>();
-    private static final ArrayList<String> hitObjects = new ArrayList<>();
-    private static final ArrayList<String> timingPoints = new ArrayList<>();
-    private static final ArrayList<String> events = new ArrayList<>();
+    @Getter
+    private static Map<String, String> general = new HashMap<>();
+    @Getter
+    private static Map<String, String> metadata = new HashMap<>();
+    @Getter
+    private static Map<String, String> difficulty = new HashMap<>();
+    @Getter
+    private static Map<String, String> colours = new HashMap<>();
+    @Getter
+    private static ArrayList<String> hitObjects = new ArrayList<>();
+    @Getter
+    private static ArrayList<String> timingPoints = new ArrayList<>();
+    @Getter
+    private static ArrayList<String> events = new ArrayList<>();
+    @Getter
     private static String bgFileName = "";
+    @Getter
     private static double bgm = 0;
 
     public static void init() {
