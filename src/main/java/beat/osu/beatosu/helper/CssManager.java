@@ -12,13 +12,29 @@ public class CssManager {
      * @param filename The CSS filename (e.g., "RegisterModal.css")
      * @return URL to the CSS file, or null if not found
      */
-    public static URL getCssURL(String filename) {
+    public static URL getLandingCssURL(String filename) {
         if (filename == null || filename.isEmpty()) {
             System.err.println("Filename cannot be null or empty.");
             return null;
         }
 
-        String path = "/assets/css/" + filename;
+        String path = "/assets/css/landing/" + filename;
+        URL cssUrl = Main.class.getResource(path);
+
+        if (cssUrl == null) {
+            System.err.println("CSS file not found at path: " + path);
+        }
+
+        return cssUrl;
+    }
+
+    public static URL getHomeCssURL(String filename) {
+        if (filename == null || filename.isEmpty()) {
+            System.err.println("Filename cannot be null or empty.");
+            return null;
+        }
+
+        String path = "/assets/css/home/" + filename;
         URL cssUrl = Main.class.getResource(path);
 
         if (cssUrl == null) {

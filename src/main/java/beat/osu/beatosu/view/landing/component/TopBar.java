@@ -121,7 +121,7 @@ public class TopBar extends HBox {
     }
 
     private void loadStyles() {
-        URL cssUrl = CssManager.getCssURL("TopBar.css");
+        URL cssUrl = CssManager.getLandingCssURL("TopBar.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {

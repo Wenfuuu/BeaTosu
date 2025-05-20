@@ -67,7 +67,7 @@ public class Visualizer extends StackPane {
     }
 
     private void loadStyles() {
-        URL cssUrl = CssManager.getCssURL("Visualizer.css");
+        URL cssUrl = CssManager.getLandingCssURL("Visualizer.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {

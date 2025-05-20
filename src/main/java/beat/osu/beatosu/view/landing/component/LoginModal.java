@@ -49,7 +49,7 @@ public class LoginModal extends StackPane {
         setupAnimations();
         handleComponentEvents();
 
-         URL cssUrl = CssManager.getCssURL("LoginModal.css");
+         URL cssUrl = CssManager.getLandingCssURL("LoginModal.css");
          if (cssUrl != null) {
              this.getStylesheets().add(cssUrl.toExternalForm());
          } else {

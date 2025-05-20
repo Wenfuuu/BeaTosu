@@ -1,0 +1,15 @@
+.bot-bar {
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-max-height: 100px;
+    -fx-padding: 10;
+}
+
+.bot-bar .button {
+    -fx-background-color: #444;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+.bot-bar .button:hover {
+    -fx-background-color: #666;
+}

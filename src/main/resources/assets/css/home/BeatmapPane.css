@@ -1,0 +1,76 @@
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: rgba(20, 20, 20, 0.7);
+}
+
+.scroll-pane .scroll-bar:vertical {
+    -fx-background-color: #222;
+    -fx-background-radius: 0;
+    -fx-pref-width: 10;
+    /* Increase scroll sensitivity by adjusting unit increment */
+    -fx-unit-increment: 20;
+    -fx-block-increment: 100;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #666;
+    -fx-background-radius: 2;
+}
+
+.scroll-pane .scroll-bar:vertical .increment-button,
+.scroll-pane .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 10 0 0;
+}
+
+.scroll-pane .scroll-bar:vertical .increment-arrow,
+.scroll-pane .scroll-bar:vertical .decrement-arrow {
+    -fx-background-color: #888;
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+
+/* Hide horizontal scrollbar completely */
+.scroll-pane .scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+}
+
+.beatmap-list {
+    -fx-background-color: transparent;
+    -fx-spacing: 2;
+    -fx-padding: 2;
+}
+
+.beatmap-entry {
+    -fx-background-radius: 3;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 5, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.beatmap-entry:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.2), 8, 0, 0, 2);
+}
+
+.beatmap-entry .title {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 12;
+}
+
+.beatmap-entry .stars {
+    -fx-text-fill: yellow;
+    -fx-font-size: 12;
+}
+
+.beatmap-entry.selected {
+    -fx-border-color: white;
+    -fx-border-width: 2;
+    -fx-border-radius: 3;
+}

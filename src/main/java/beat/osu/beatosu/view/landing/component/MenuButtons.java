@@ -45,7 +45,7 @@ public class MenuButtons extends VBox {
     }
 
     private void loadStyles() {
-        URL cssUrl = CssManager.getCssURL("MenuButtons.css");
+        URL cssUrl = CssManager.getLandingCssURL("MenuButtons.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {

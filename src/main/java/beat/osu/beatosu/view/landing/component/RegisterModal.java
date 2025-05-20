@@ -55,7 +55,7 @@ public class RegisterModal extends StackPane {
         this.setVisible(false);
 
         // Apply stylesheet
-        URL cssUrl = CssManager.getCssURL("RegisterModal.css");
+        URL cssUrl = CssManager.getLandingCssURL("RegisterModal.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {

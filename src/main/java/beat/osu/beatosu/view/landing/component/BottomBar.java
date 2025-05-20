@@ -50,7 +50,7 @@ public class BottomBar extends HBox {
     }
 
     private void loadStyles() {
-        URL cssUrl = CssManager.getCssURL("BottomBar.css");
+        URL cssUrl = CssManager.getLandingCssURL("BottomBar.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {

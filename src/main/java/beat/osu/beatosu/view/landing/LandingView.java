@@ -118,7 +118,7 @@ public class LandingView extends Page {
         }
 
         scene = new Scene(root, ScreenManager.SCREEN_WIDTH, ScreenManager.SCREEN_HEIGHT);
-        URL cssUrl = CssManager.getCssURL("LandingView.css");
+        URL cssUrl = CssManager.getLandingCssURL("LandingView.css");
         if (cssUrl != null) {
             scene.getStylesheets().add(cssUrl.toExternalForm());
         } else {
