@@ -16,7 +16,7 @@ import java.util.Map;
  * It extracts information from the file and provides methods to access the parsed data.
  */
 public class OsuParser {
-    private static BeatmapController beatmapController;
+    private static BeatmapController beatmapController = new BeatmapController();;
 
     @Getter
     private static Map<String, String> general = new HashMap<>();
@@ -32,14 +32,8 @@ public class OsuParser {
     private static ArrayList<String> timingPoints = new ArrayList<>();
     @Getter
     private static ArrayList<String> events = new ArrayList<>();
-    @Getter
     private static String bgFileName = "";
-    @Getter
     private static double bgm = 0;
-
-    public static void init() {
-        beatmapController = new BeatmapController();
-    }
 
     private static void clearAll() {
         general.clear();

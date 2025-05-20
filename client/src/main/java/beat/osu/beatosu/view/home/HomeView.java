@@ -5,6 +5,7 @@ import beat.osu.beatosu.helper.CssManager;
 import beat.osu.beatosu.helper.ScreenManager;
 import beat.osu.beatosu.model.Beatmap;
 import beat.osu.beatosu.view.Page;
+import beat.osu.beatosu.view.game.GameView;
 import beat.osu.beatosu.view.home.component.BeatmapPane;
 import beat.osu.beatosu.view.home.component.BottomBar;
 import beat.osu.beatosu.view.home.component.TopBar;
@@ -78,9 +79,9 @@ public class HomeView extends Page {
         bottomBar.getLogoView().setOnMouseClicked(e -> {
             System.out.println("clicking play button");
             Beatmap selectedBeatmap = beatmapPane.getSelectedBeatmap();
-//            if (selectedBeatmap != null) {
-//                new PlayPage(stage, selectedBeatmap);
-//            }
+            if (selectedBeatmap != null) {
+                new GameView(stage, selectedBeatmap);
+            }
         });
 
         // You can add back button listener here if needed
