@@ -14,6 +14,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import lombok.Setter;
 
 import java.net.URL;
 import java.util.function.Consumer;
@@ -34,9 +35,10 @@ public class LoginModal extends StackPane {
     private Button backButton;
     private Label titleLabel; // Added for access if needed
 
+    @Setter
     private Consumer<User> onLoginSuccessListener;
+    @Setter
     private Runnable onCreateAccountListener;
-    private Runnable onHideListener; // If MenuPage needs to know when it's hidden by back button
 
     public LoginModal() {
         this.authController = new AuthController();
@@ -122,9 +124,6 @@ public class LoginModal extends StackPane {
             super.setVisible(false); // Use super to avoid recursion if setVisible is overridden
             super.setManaged(false);
             isModalVisible = false;
-            if (onHideListener != null) {
-                onHideListener.run();
-            }
         });
     }
 
@@ -132,6 +131,8 @@ public class LoginModal extends StackPane {
         signInButton.setOnAction(e -> {
             String username = userInput.getText();
             String pass = passInput.getText();
+            String text = authController.login(username, pass);
+            System.out.println(text);
             // Consider moving UserController.loginUser and AuthContext to be passed in or handled by listener
 //            User user = UserController.loginUser(username, pass);
 //            if (user != null) {
@@ -183,19 +184,6 @@ public class LoginModal extends StackPane {
 
     public boolean isShowing() {
         return isModalVisible || (slideIn != null && slideIn.getStatus() == javafx.animation.Animation.Status.RUNNING);
-    }
-
-    // --- Event Listeners ---
-    public void setOnLoginSuccessListener(Consumer<User> listener) {
-        this.onLoginSuccessListener = listener;
-    }
-
-    public void setOnCreateAccountListener(Runnable listener) {
-        this.onCreateAccountListener = listener;
-    }
-
-    public void setOnHideListener(Runnable listener) {
-        this.onHideListener = listener;
     }
 
     // Optional: provide access to internal fields if MenuPage needs to clear them
