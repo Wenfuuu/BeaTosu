@@ -20,6 +20,8 @@ public class Visualizer extends StackPane {
     private ImageView logoView;
     private VBox menuBox;
     private MediaPlayer mediaPlayer;
+    private LightRays lightRays; // Add this field
+    private StackPane logoRayGroup;
 
     public Visualizer() {
         super();
@@ -37,6 +39,12 @@ public class Visualizer extends StackPane {
     }
 
     private void initializeComponents() {
+        // Create light rays first so they appear behind the logo
+        lightRays = new LightRays();
+
+        logoRayGroup = new StackPane();
+        logoRayGroup.setAlignment(Pos.CENTER);
+
         logoContainer = new StackPane();
         logoContainer.setAlignment(Pos.CENTER);
         logoContainer.getStyleClass().add("logo-container");
@@ -49,8 +57,8 @@ public class Visualizer extends StackPane {
             System.err.println("Error loading logo image: " + e.getMessage());
         }
 
-        logoView.setFitWidth(450);
-        logoView.setFitHeight(450);
+        logoView.setFitWidth(550);
+        logoView.setFitHeight(550);
         logoView.setPreserveRatio(true);
 
         // Apply glow effect
@@ -62,9 +70,19 @@ public class Visualizer extends StackPane {
     }
 
     private void setupLayout() {
+        // Add light rays to the logoRayGroup
+        logoRayGroup.getChildren().add(lightRays);
+
+        // Add logo to its container
         logoContainer.getChildren().add(logoView);
-        this.getChildren().add(logoContainer);
+
+        // Add logo container to the group
+        logoRayGroup.getChildren().add(logoContainer);
+
+        // Add the combined group to the main pane
+        this.getChildren().add(logoRayGroup);
     }
+
 
     private void loadStyles() {
         URL cssUrl = CssManager.getLandingCssURL("Visualizer.css");
@@ -81,11 +99,6 @@ public class Visualizer extends StackPane {
         logoContainer.getChildren().clear();
         logoContainer.getChildren().add(menuBox);
         logoContainer.getChildren().add(logoView);
-//        if (logoContainer.getChildren().size() > 1) {
-//            logoContainer.getChildren().set(1, menuBox);
-//        } else {
-//            logoContainer.getChildren().add(menuBox);
-//        }
     }
 
     // Get logo view for animation effects
@@ -121,13 +134,13 @@ public class Visualizer extends StackPane {
                 bassAvg /= bassBands;
 
                 double minScale = 1.0;
-                double maxScale = 1.5;
+                double maxScale = 1.2;
                 double scaleFactor;
 
                 if(bassAvg > 0.03) {
-                    scaleFactor = minScale + Math.min(bassAvg * 5, maxScale - minScale);
+                    scaleFactor = minScale + Math.min(bassAvg * 2, maxScale - minScale);
                 } else {
-                    scaleFactor = minScale + Math.min(bassAvg * 3, maxScale - minScale);
+                    scaleFactor = minScale + Math.min(bassAvg, maxScale - minScale);
                 }
 
                 // apply scale
@@ -138,7 +151,14 @@ public class Visualizer extends StackPane {
                 DropShadow glow = (DropShadow) logoView.getEffect();
                 glow.setRadius(20 + bassAvg * 40); // Make glow stronger with bass
                 glow.setSpread(0.5); // makes the glow look thicker
+
+                // Update light rays with audio intensity
+                lightRays.pulseWithAudio(bassAvg);
             });
         }
+    }
+
+    public StackPane getLogoRayGroup() {
+        return logoRayGroup;
     }
 }

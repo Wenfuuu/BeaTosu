@@ -5,4 +5,10 @@
 
 .logo-container {
     -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, white, 15, 0.2, 0, 0);
+}
+
+.logo-container ImageView {
+    -fx-viewport-size: 450 450;
+    -fx-z-index: 10;
 }

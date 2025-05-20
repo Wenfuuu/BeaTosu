@@ -45,25 +45,25 @@ public class LandingView extends Page {
     }
 
     private void initMenuRevealAnimations() {
-        // Assuming visualizerComponent.getLogoView() and menuButtonsComponent are ready
-        // These values might need to be dynamically calculated based on component sizes if not fixed
-        double logoTranslateX = -150; // How much the logo moves
-        double menuTranslateX = 180;  // How much the menu moves in from the side of the logo
+        double logoTranslateX = -180; // How much the logo+rays group moves
+        double menuTranslateX = 400;  // How much the menu moves in
 
-        // Logo slides out (left)
-        logoSlideOut = new TranslateTransition(Duration.millis(300), visualizerComponent.getLogoView());
+        // Animate the entire logo+rays group instead of just the logo
+        logoSlideOut = new TranslateTransition(Duration.millis(300),
+                visualizerComponent.getLogoRayGroup());
         logoSlideOut.setToX(logoTranslateX);
 
         menuSlideIn = new TranslateTransition(Duration.millis(300), menuButtonsComponent);
-        menuButtonsComponent.setTranslateX(0); // Start behind the logo
+        menuButtonsComponent.setTranslateX(0);
         menuSlideIn.setToX(menuTranslateX);
 
         // Reverse animations
-        logoSlideIn = new TranslateTransition(Duration.millis(300), visualizerComponent.getLogoView());
-        logoSlideIn.setToX(0); // Back to center
+        logoSlideIn = new TranslateTransition(Duration.millis(300),
+                visualizerComponent.getLogoRayGroup());
+        logoSlideIn.setToX(0);
 
         menuSlideOut = new TranslateTransition(Duration.millis(300), menuButtonsComponent);
-        menuSlideOut.setToX(0); // Slide back behind to logo
+        menuSlideOut.setToX(0);
     }
 
     private void toggleMenuPanel() {
@@ -165,7 +165,7 @@ public class LandingView extends Page {
         }
 
         // --- Visualizer Logo Click (for menu reveal) ---
-        visualizerComponent.getLogoView().setOnMouseClicked(e -> toggleMenuPanel());
+        visualizerComponent.getLogoRayGroup().setOnMouseClicked(e -> toggleMenuPanel());
 
         // --- TopBar User Info Click (Show Login Modal) ---
         topBarComponent.getUserInfoBox().setOnMouseClicked(e -> {
