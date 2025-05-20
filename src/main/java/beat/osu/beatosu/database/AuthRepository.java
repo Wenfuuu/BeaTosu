@@ -1,6 +1,8 @@
 package beat.osu.beatosu.database;
 
 import beat.osu.beatosu.database.connection.Connect;
+import beat.osu.beatosu.dto.user.LoginResult;
+import beat.osu.beatosu.dto.user.RegisterResult;
 import beat.osu.beatosu.model.User;
 
 import java.sql.Connection;
@@ -10,10 +12,25 @@ import java.sql.SQLException;
 
 public class AuthRepository {
 
-    private Connection conn;
+    private final Connection conn;
 
     public AuthRepository() {
         this.conn = Connect.getInstance().getConn();
+    }
+
+    public RegisterResult register(String username, String email, String password) {
+        String query = "INSERT INTO users(username, email, password) VALUES(?, ?, ?);";
+        try {
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setString(1, username);
+            statement.setString(2, email);
+            statement.setString(3, password);
+            statement.executeUpdate();
+
+            return new RegisterResult(true, "Register Success!");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public User login(String username, String password) {

@@ -1,6 +1,7 @@
 package beat.osu.beatosu.view.landing.component;
 
 import beat.osu.beatosu.controller.AuthController;
+import beat.osu.beatosu.dto.user.RegisterResult;
 import beat.osu.beatosu.helper.CssManager;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -139,7 +140,15 @@ public class RegisterModal extends StackPane {
             String username = usernameField.getText();
             String email = emailField.getText();
             String password = passwordField.getText();
-//            UserController.createUser(username, email, password);
+
+            RegisterResult result = authController.register(username, email, password);
+            if(result.isSuccess()) {
+                // success toast
+                System.out.println(result.getMessage());
+            }else {
+                // error toast
+                System.out.println(result.getMessage());
+            }
         });
 
         cancelButton.setOnMouseClicked(e -> {
