@@ -48,7 +48,7 @@ public class HomeView extends Page {
 
         // Setup initial state
         if (!beatmaps.isEmpty()) {
-            topBar.updateSongInfo(beatmaps.getFirst());
+            topBar.updateSongInfo(beatmaps.get(0));
         }
 
         scene = new Scene(root, ScreenManager.SCREEN_WIDTH, ScreenManager.SCREEN_HEIGHT);
