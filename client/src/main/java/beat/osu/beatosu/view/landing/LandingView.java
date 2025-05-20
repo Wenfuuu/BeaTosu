@@ -1,5 +1,6 @@
 package beat.osu.beatosu.view.landing;
 
+import beat.osu.beatosu.helper.BackgroundManager;
 import beat.osu.beatosu.helper.CssManager;
 import beat.osu.beatosu.helper.ScreenManager;
 import beat.osu.beatosu.view.Page;
@@ -125,7 +126,15 @@ public class LandingView extends Page {
             System.err.println("Css file not found!");
         }
 
-        // Initialize menu reveal animations
+        try {
+            BackgroundManager.setRandomBackgroundToRegion(root);
+            BackgroundManager.setRandomBackground(scene);
+        } catch (Exception e) {
+            System.err.println("Error setting background: " + e.getMessage());
+            e.printStackTrace();
+            root.setStyle("-fx-background-color: #121212;");
+        }
+
         initMenuRevealAnimations();
     }
 
@@ -203,7 +212,7 @@ public class LandingView extends Page {
                     target = target.getParent();
                 }
                 if (!clickedOnLoginModal) {
-                     loginModalComponent.hide();
+                    loginModalComponent.hide();
                 }
             }
         });
