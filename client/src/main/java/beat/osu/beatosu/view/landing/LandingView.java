@@ -11,12 +11,9 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.io.File;
 import java.net.URL;
 
 public class LandingView extends Page {
@@ -101,7 +98,7 @@ public class LandingView extends Page {
         topBarComponent.setSongTitle("Minato Aqua - #Aquairo Palette");
 
         visualizerComponent.setMenuBox(menuButtonsComponent); // Add menu buttons to visualizer
-        
+
         String bgmPath = "./src/main/resources/assets/audio/audio.mp3";
         BgmManager.playBgm(bgmPath, 0.2);
         if(BgmManager.getCurrentPlayer() != null) {
