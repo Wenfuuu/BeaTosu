@@ -10,18 +10,28 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
+import lombok.Getter;
 
 import java.net.URL;
 import java.util.Objects;
 
 public class Visualizer extends StackPane {
 
+    // Get logo container for positioning
+    @Getter
     private StackPane logoContainer;
+    // Get logo view for animation effects
+    @Getter
     private ImageView logoView;
     private VBox menuBox;
     private MediaPlayer mediaPlayer;
     private LightRays lightRays; // Add this field
+    @Getter
     private StackPane logoRayGroup;
+
+    private double currentScaleFactor = 1.0;
+    private double currentGlowRadius = 20.0;
+    private double smoothingFactor = 0.5;
 
     public Visualizer() {
         super();
@@ -101,16 +111,6 @@ public class Visualizer extends StackPane {
         logoContainer.getChildren().add(logoView);
     }
 
-    // Get logo view for animation effects
-    public ImageView getLogoView() {
-        return logoView;
-    }
-
-    // Get logo container for positioning
-    public StackPane getLogoContainer() {
-        return logoContainer;
-    }
-
     // Set up animation with media player
     public void setupAudioVisualization(MediaPlayer player) {
         this.mediaPlayer = player;
@@ -133,32 +133,40 @@ public class Visualizer extends StackPane {
                 }
                 bassAvg /= bassBands;
 
+                // Apply smoothing for target values
                 double minScale = 1.0;
-                double maxScale = 1.2;
-                double scaleFactor;
+                double maxScale = 1.15; // Reduced from 1.2 for subtler effect
 
+                double targetScaleFactor;
                 if(bassAvg > 0.03) {
-                    scaleFactor = minScale + Math.min(bassAvg * 2, maxScale - minScale);
+                    targetScaleFactor = minScale + Math.min(bassAvg * 1.75, maxScale - minScale);
                 } else {
-                    scaleFactor = minScale + Math.min(bassAvg, maxScale - minScale);
+                    targetScaleFactor = minScale + Math.min(bassAvg * 1.4, maxScale - minScale);
                 }
 
-                // apply scale
-                logoView.setScaleX(scaleFactor);
-                logoView.setScaleY(scaleFactor);
+                double targetGlowRadius = 20 + bassAvg * 30; // Reduced from 40 for subtler effect
 
-                // adjust glow based on the beat
+                currentScaleFactor = currentScaleFactor + (targetScaleFactor - currentScaleFactor) * smoothingFactor;
+                currentGlowRadius = currentGlowRadius + (targetGlowRadius - currentGlowRadius) * smoothingFactor;
+
+                // Apply smoothed values
+                logoView.setScaleX(currentScaleFactor);
+                logoView.setScaleY(currentScaleFactor);
+
+                // Adjust glow based on the beat
                 DropShadow glow = (DropShadow) logoView.getEffect();
-                glow.setRadius(20 + bassAvg * 40); // Make glow stronger with bass
-                glow.setSpread(0.5); // makes the glow look thicker
+                glow.setRadius(currentGlowRadius);
+                glow.setSpread(0.5);
 
-                // Update light rays with audio intensity
-                lightRays.pulseWithAudio(bassAvg);
+                // We also need to smooth the light rays pulsing
+                // This depends on your LightRays implementation
+                lightRays.pulseWithAudio(
+                        // Pass the smoothed value instead of raw bassAvg
+                        currentScaleFactor - 1.0 // Convert scale factor to intensity
+                );
             });
         }
     }
 
-    public StackPane getLogoRayGroup() {
-        return logoRayGroup;
-    }
+
 }

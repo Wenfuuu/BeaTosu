@@ -18,9 +18,12 @@ public class LightRays extends Group {
     private final int NUM_RAYS = 300;
     private final double MIN_LENGTH = 0;
     private final double MAX_LENGTH = 100;
-    private final double CENTER_RADIUS = 275;
+    private final double CENTER_RADIUS = 260;
     private final List<Rectangle> rays = new ArrayList<>();
     private final Random random = new Random();
+
+    private double currentIntensity = 0.0;
+    private double smoothingFactor = 0.5;
 
     public LightRays() {
         createRays();
@@ -71,9 +74,17 @@ public class LightRays extends Group {
     }
 
     public void pulseWithAudio(double intensity) {
-        double scaleFactor = 1.0 + Math.min(intensity * 2.0, 1.0);
+        // Smooth the intensity transitions
+        currentIntensity = currentIntensity + (intensity - currentIntensity) * smoothingFactor;
+
+        // Use the smoothed intensity for scaling
+        double scaleFactor = 1.0 + Math.min(currentIntensity * 1.5, 0.5);
+
+        // Apply the effect to all rays
         for (Rectangle ray : rays) {
-            ray.setWidth(ray.getWidth() * scaleFactor);
+            // Apply a more moderate scaling to prevent rays from disappearing
+            // We're only scaling relative to current state, not absolute
+            ray.setScaleX(scaleFactor);
         }
     }
 }
