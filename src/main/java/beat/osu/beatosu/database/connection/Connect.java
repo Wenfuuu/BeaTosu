@@ -1,4 +1,4 @@
-package beat.osu.beatosu.database;
+package beat.osu.beatosu.database.connection;
 
 import lombok.Getter;
 

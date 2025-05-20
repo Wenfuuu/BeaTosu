@@ -1,5 +1,6 @@
 package beat.osu.beatosu.view.landing.component;
 
+import beat.osu.beatosu.controller.AuthController;
 import beat.osu.beatosu.helper.CssManager;
 import beat.osu.beatosu.model.User;
 import javafx.animation.TranslateTransition;
@@ -19,6 +20,8 @@ import java.util.function.Consumer;
 
 public class LoginModal extends StackPane {
 
+    private AuthController authController;
+
     private VBox formContainer;
     private TranslateTransition slideIn;
     private TranslateTransition slideOut;
@@ -36,6 +39,8 @@ public class LoginModal extends StackPane {
     private Runnable onHideListener; // If MenuPage needs to know when it's hidden by back button
 
     public LoginModal() {
+        this.authController = new AuthController();
+
         initialize();
         setupAnimations();
         handleComponentEvents();

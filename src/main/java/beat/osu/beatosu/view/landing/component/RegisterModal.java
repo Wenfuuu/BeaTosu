@@ -1,5 +1,6 @@
 package beat.osu.beatosu.view.landing.component;
 
+import beat.osu.beatosu.controller.AuthController;
 import beat.osu.beatosu.helper.CssManager;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -12,6 +13,8 @@ import javafx.scene.layout.VBox;
 import java.net.URL;
 
 public class RegisterModal extends StackPane {
+
+    private AuthController authController;
 
     private VBox root;
     private Label title;
@@ -40,6 +43,8 @@ public class RegisterModal extends StackPane {
     private Button cancelButton;
 
     public RegisterModal() {
+        this.authController = new AuthController();
+
         initialize();
         setLayout();
         handleEvents();
