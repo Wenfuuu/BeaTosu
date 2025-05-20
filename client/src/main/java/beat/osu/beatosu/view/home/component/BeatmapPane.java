@@ -28,7 +28,7 @@ public class BeatmapPane extends ScrollPane {
 
     public BeatmapPane(ArrayList<Beatmap> beatmaps) {
         this.beatmaps = beatmaps;
-        this.selectedBeatmap = beatmaps.isEmpty() ? null : beatmaps.getFirst();
+        this.selectedBeatmap = beatmaps.isEmpty() ? null : beatmaps.get(0);
 
         this.getStyleClass().add("scroll-pane");
         this.setHbarPolicy(ScrollBarPolicy.NEVER);
@@ -105,7 +105,7 @@ public class BeatmapPane extends ScrollPane {
 
         // Select first beatmap by default if available
         if (!beatmapListBox.getChildren().isEmpty()) {
-            beatmapListBox.getChildren().getFirst().getStyleClass().add("selected");
+            beatmapListBox.getChildren().get(0).getStyleClass().add("selected");
         }
     }
 
