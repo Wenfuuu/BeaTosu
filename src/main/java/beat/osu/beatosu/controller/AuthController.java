@@ -1,6 +1,7 @@
 package beat.osu.beatosu.controller;
 
 import beat.osu.beatosu.database.AuthRepository;
+import beat.osu.beatosu.dto.user.LoginResult;
 import beat.osu.beatosu.model.User;
 
 public class AuthController {
@@ -11,19 +12,17 @@ public class AuthController {
         this.authRepository = new AuthRepository();
     }
 
-    public String login(String username, String password) {
+    public LoginResult login(String username, String password) {
         if(username.isBlank() || password.isBlank()) {
-            return "There are empty fields!";
+            return new LoginResult(false, "There are empty fields!", null);
         }
 
         User user = authRepository.login(username, password);
         if(user == null) {
-            return "Invalid username or password!";
+            return new LoginResult(false, "Invalid username or password!", null);
         }
 
-        // store auth
-
-        return "Login Success";
+        return new LoginResult(true, "Login Success!", user);
     }
 
 }

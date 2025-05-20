@@ -1,6 +1,8 @@
 package beat.osu.beatosu.view.landing.component;
 
 import beat.osu.beatosu.controller.AuthController;
+import beat.osu.beatosu.dto.user.LoginResult;
+import beat.osu.beatosu.helper.AuthManager;
 import beat.osu.beatosu.helper.CssManager;
 import beat.osu.beatosu.model.User;
 import javafx.animation.TranslateTransition;
@@ -131,20 +133,21 @@ public class LoginModal extends StackPane {
         signInButton.setOnAction(e -> {
             String username = userInput.getText();
             String pass = passInput.getText();
-            String text = authController.login(username, pass);
-            System.out.println(text);
-            // Consider moving UserController.loginUser and AuthContext to be passed in or handled by listener
-//            User user = UserController.loginUser(username, pass);
-//            if (user != null) {
-//                if (onLoginSuccessListener != null) {
-//                    onLoginSuccessListener.accept(AuthContext.getUser()); // Pass logged-in user
-//                }
-//                hide(); // Hide modal on successful login
-//            } else {
-//                // Handle login failure (e.g., show error message within the modal)
-//                System.out.println("Invalid credentials (from LoginModal)");
-//                // You might want to add a label to formContainer to show this error
-//            }
+//            String text = authController.login(username, pass);
+            LoginResult result = authController.login(username, pass);
+            if(result.isSuccess()) {
+                // show success toast later
+                System.out.println(result.getMessage());
+
+                AuthManager.setUser(result.getUser());
+                if (onLoginSuccessListener != null) {
+                    onLoginSuccessListener.accept(result.getUser());
+                }
+                hide();
+            }else {
+                // show error toast later
+                System.out.println(result.getMessage());
+            }
         });
 
         createAccountButton.setOnAction(e -> {

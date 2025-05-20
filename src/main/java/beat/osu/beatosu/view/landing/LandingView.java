@@ -169,7 +169,6 @@ public class LandingView extends Page {
 
         // --- Login Modal Events ---
         loginModalComponent.setOnLoginSuccessListener(user -> {
-            // User is already set in AuthContext by LoginModal's internal handler
             if (user != null) {
                 topBarComponent.updateUserInfo(user); // Update TopBar with logged-in user
                 // LoginModal hides itself on success
