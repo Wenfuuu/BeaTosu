@@ -12,8 +12,8 @@ public class Main extends Application {
     public void start(Stage stage)  {
         StageManager.setStage(stage);
 
-        new LandingView(StageManager.getStage());
-//        new HomeView(StageManager.getStage());
+//        new LandingView(StageManager.getStage());
+        new HomeView(StageManager.getStage());
     }
 
     public static void main(String[] args) {

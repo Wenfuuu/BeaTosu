@@ -1,6 +1,7 @@
 package beat.osu.beatosu.view.home;
 
 import beat.osu.beatosu.controller.BeatmapController;
+import beat.osu.beatosu.helper.BackgroundManager;
 import beat.osu.beatosu.helper.CssManager;
 import beat.osu.beatosu.helper.ScreenManager;
 import beat.osu.beatosu.model.Beatmap;
@@ -58,6 +59,15 @@ public class HomeView extends Page {
             scene.getStylesheets().add(cssUrl.toExternalForm());
         } else {
             System.err.println("Css file not found!");
+        }
+
+        try {
+            BackgroundManager.setRandomBackgroundToRegion(root);
+            BackgroundManager.setRandomBackground(scene);
+        } catch (Exception e) {
+            System.err.println("Error setting background for HomeView: " + e.getMessage());
+            e.printStackTrace();
+            root.setStyle("-fx-background-color: #121212;");
         }
     }
 
