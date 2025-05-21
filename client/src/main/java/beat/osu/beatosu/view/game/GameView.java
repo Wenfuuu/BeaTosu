@@ -56,8 +56,8 @@ public class GameView extends Page {
         }
     }
 
-    private void addHitObject(String data){
-        root.getChildren().add(HitObjectFactory.createHitObject(data).getNode());
+    private void addHitObject(String data, Beatmap selectedBeatmap) {
+        root.getChildren().add(HitObjectFactory.createHitObject(data, selectedBeatmap).getNode());
     }
 
     private void processBeatmap(Beatmap selectedBeatmap) {
@@ -85,11 +85,12 @@ public class GameView extends Page {
             throw new RuntimeException(e);
         }
 
-        Map<String, String> diff = OsuParser.getDifficulty();
-        circleSize = Double.parseDouble(diff.get("CircleSize"));
+//        Map<String, String> diff = OsuParser.getDifficulty();
+//        circleSize = Double.parseDouble(diff.get("CircleSize"));
+        circleSize = selectedBeatmap.getCircleSize();
 
         for(String data: OsuParser.getHitObjects()) {
-            addHitObject(data);
+            addHitObject(data, selectedBeatmap);
         }
     }
 

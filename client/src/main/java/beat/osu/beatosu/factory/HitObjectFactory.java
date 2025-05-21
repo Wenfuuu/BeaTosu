@@ -1,9 +1,9 @@
 package beat.osu.beatosu.factory;
 
+import beat.osu.beatosu.model.Beatmap;
 import beat.osu.beatosu.model.HitCircle;
 import beat.osu.beatosu.model.HitObject;
 import beat.osu.beatosu.model.HitSlider;
-import beat.osu.beatosu.utils.OsuParser;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -33,7 +33,7 @@ public class HitObjectFactory {
         return "spinner";
     }
 
-    public static HitObject createHitObject(String data){
+    public static HitObject createHitObject(String data, Beatmap selectedBeatmap){
         // Circle (length 6) => 382,305,6867,1,2,3:2:0:0:
         // Slider => 59,124,2279,6,0,P|116:91|220:132,1,171.73332756836,2|0,0:2|0:2,0:0:0:0:
 
@@ -62,8 +62,7 @@ public class HitObjectFactory {
 
 //        System.out.println(objectParams);
 //        System.out.println(hitSample);
-        double approachRate = Double.parseDouble(OsuParser.getDifficulty().get("CircleSize"));
-
+        double approachRate = selectedBeatmap.getApproachRate();
         return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate);
 //        if(hitType.equals("circle")){
 //            return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate);
