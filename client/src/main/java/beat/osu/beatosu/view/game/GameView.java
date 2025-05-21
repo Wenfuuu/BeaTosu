@@ -1,6 +1,7 @@
 package beat.osu.beatosu.view.game;
 
 import beat.osu.beatosu.factory.HitObjectFactory;
+import beat.osu.beatosu.helper.BackgroundManager;
 import beat.osu.beatosu.helper.ScreenManager;
 import beat.osu.beatosu.model.Beatmap;
 import beat.osu.beatosu.model.HitObject;
@@ -37,9 +38,20 @@ public class GameView extends Page {
     public GameView(Stage stage, Beatmap selectedBeatmap) {
         super(stage);
         processBeatmap(selectedBeatmap);
+        loadBackground();
 
         updateLayout();
         startGame();
+    }
+
+    private void loadBackground() {
+        try {
+            BackgroundManager.setGameBackground(scene);
+        } catch (Exception e) {
+            System.err.println("Error setting background for HomeView: " + e.getMessage());
+            e.printStackTrace();
+            root.setStyle("-fx-background-color: #121212;");
+        }
     }
 
     private void addHitObject(String data){
@@ -179,7 +191,15 @@ public class GameView extends Page {
     @Override
     public void init() {
         root = new Pane();
-        root.setStyle("-fx-background-color: #2C2C2C;");
+
+        // Create an overlay pane for semi-transparent background
+        Pane backgroundOverlay = new Pane();
+        backgroundOverlay.setStyle("-fx-background-color: rgba(18, 18, 18, 0.5);");
+        backgroundOverlay.prefWidthProperty().bind(root.widthProperty());
+        backgroundOverlay.prefHeightProperty().bind(root.heightProperty());
+
+        // Add the overlay pane to the root
+        root.getChildren().add(backgroundOverlay);
 
         scene = new Scene(root, ScreenManager.SCREEN_WIDTH, ScreenManager.SCREEN_HEIGHT);
     }

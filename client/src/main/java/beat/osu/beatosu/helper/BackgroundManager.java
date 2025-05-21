@@ -1,5 +1,8 @@
 package beat.osu.beatosu.helper;
 
+import beat.osu.beatosu.utils.OsuParser;
+import javafx.scene.Scene;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +10,7 @@ import java.util.Random;
 
 public class BackgroundManager {
     private static final String BACKGROUNDS_DIR = "./src/main/resources/assets/backgrounds/";
+    private static final String TEMP_DIR = "./src/main/resources/assets/temp/";
     private static final Random random = new Random();
     private static List<String> backgroundFiles = null;
 
@@ -50,7 +54,7 @@ public class BackgroundManager {
         }
     }
 
-    public static void setRandomBackground(javafx.scene.Scene scene) {
+    public static void setRandomBackground(Scene scene) {
         String randomBg = getRandomBackgroundURL();
 
         try {
@@ -59,6 +63,33 @@ public class BackgroundManager {
 
             // Convert to URI and then to URL string for JavaFX
             String imageUrl = imageFile.toURI().toURL().toString();
+
+            // Create a style string with the full URL path
+            String backgroundStyle = "-fx-background-image: url('" + imageUrl + "'); " +
+                    "-fx-background-size: cover; " +
+                    "-fx-background-position: center center;";
+
+            System.out.println("Setting background: " + imageUrl);
+
+            // Apply the style directly to the root element
+            scene.getRoot().setStyle(backgroundStyle);
+        } catch (Exception e) {
+            System.err.println("Error setting background image: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public static void setGameBackground(Scene scene) {
+        System.out.println("setting game background");
+        String gameBg = OsuParser.getBgFile();
+
+        try {
+            // Create a File object for the image
+            File imageFile = new File(TEMP_DIR + gameBg);
+
+            // Convert to URI and then to URL string for JavaFX
+            String imageUrl = imageFile.toURI().toURL().toString();
+            System.out.println(imageUrl);
 
             // Create a style string with the full URL path
             String backgroundStyle = "-fx-background-image: url('" + imageUrl + "'); " +
