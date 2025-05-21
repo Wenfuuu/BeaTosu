@@ -2,6 +2,7 @@ package beat.osu.beatosu.view.game;
 
 import beat.osu.beatosu.factory.HitObjectFactory;
 import beat.osu.beatosu.helper.BackgroundManager;
+import beat.osu.beatosu.helper.BgmManager;
 import beat.osu.beatosu.helper.ScreenManager;
 import beat.osu.beatosu.model.Beatmap;
 import beat.osu.beatosu.model.HitObject;
@@ -41,6 +42,7 @@ public class GameView extends Page {
         loadBackground();
 
         updateLayout();
+        BgmManager.playGameBgm();
         startGame();
     }
 

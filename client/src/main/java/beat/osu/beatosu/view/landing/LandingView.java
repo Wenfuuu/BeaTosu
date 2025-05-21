@@ -104,7 +104,7 @@ public class LandingView extends Page {
         visualizerComponent.setMenuBox(menuButtonsComponent); // Add menu buttons to visualizer
 
         String bgmPath = "./src/main/resources/assets/audio/audio.mp3";
-        BgmManager.playBgm(bgmPath, 0.2);
+        BgmManager.playBgm(bgmPath);
         if(BgmManager.getCurrentPlayer() != null) {
             visualizerComponent.setupAudioVisualization(BgmManager.getCurrentPlayer());
         }else {

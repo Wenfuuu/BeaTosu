@@ -7,10 +7,29 @@ import lombok.Getter;
 import java.io.File;
 
 public class BgmManager {
+//    String bgmPath = "./src/main/resources/assets/audio/audio.mp3";
+    private static final String TEMP_DIR = "./src/main/resources/assets/temp/";
+
     @Getter
     private static MediaPlayer currentPlayer;
 
-    public static void playBgm(String filePath, double volume) {
+    public static void playGameBgm() {
+        String bgmPath = TEMP_DIR + "audio.mp3";
+        stopBgm();
+
+        File audioFile = new File(bgmPath);
+        if (!audioFile.exists()) {
+            System.err.println("BGM file not found: " + audioFile.getAbsolutePath());
+            return;
+        }
+
+        Media media = new Media(audioFile.toURI().toString());
+        currentPlayer = new MediaPlayer(media);
+        currentPlayer.setAutoPlay(true);
+        currentPlayer.setVolume(0.2);
+    }
+
+    public static void playBgm(String filePath) {
         stopBgm(); // Stop if already playing
 
         File audioFile = new File(filePath);
@@ -22,7 +41,7 @@ public class BgmManager {
         Media media = new Media(audioFile.toURI().toString());
         currentPlayer = new MediaPlayer(media);
         currentPlayer.setAutoPlay(true);
-        currentPlayer.setVolume(volume);
+        currentPlayer.setVolume(0.2);
     }
 
     public static void pauseBgm() {
