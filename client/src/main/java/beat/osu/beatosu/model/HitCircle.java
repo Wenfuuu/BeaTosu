@@ -100,7 +100,7 @@ public class HitCircle extends HitObject{
 
         // Auto-miss logic (adjust timing as needed)
         if (isVisible() && !isHit() && timeUntilHit < -200) { // Allow some time after hitTime
-            System.out.println("Missed: " + getOsuX() + "," + getOsuY() + " at " + currentTime + "ms");
+//            System.out.println("Missed: " + getOsuX() + "," + getOsuY() + " at " + currentTime + "ms");
             hide();
         }
     }
@@ -113,7 +113,7 @@ public class HitCircle extends HitObject{
                 long timingError = clickTime - getHitTime(); // Calculate hit timing
                 setHit(true);
                 playHitEffect();
-                System.out.println("Hit: " + getOsuX() + "," + getOsuY() + " | Timing: " + timingError + "ms");
+//                System.out.println("Hit: " + getOsuX() + "," + getOsuY() + " | Timing: " + timingError + "ms");
                 // calculate score based on timingError here
             }
         });

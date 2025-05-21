@@ -17,7 +17,7 @@ public class HitSlider extends HitObject {
 
     private final Group group;
     private final Circle headCircle;
-    private Path sliderPath;
+    private final Path sliderPath;
     private final Circle sliderBall;
     private final Circle approachCircle;
 
@@ -72,7 +72,7 @@ public class HitSlider extends HitObject {
             beatLength = uninherited != null ? uninherited.getBeatLength() : 500.0; // Fallback to 120 BPM
         }
 
-        return (pixelLength / (100.0 * SV)) * beatLength;
+        return (pixelLength / (100.0 * SV)) * Math.abs(beatLength);
     }
 
     private void parseSliderParams(String paramsStr, int startX, int startY) {
@@ -147,7 +147,7 @@ public class HitSlider extends HitObject {
          parseSliderParams(objectParams, getOsuX(), getOsuY());
 
         // duration
-        this.duration = calculateSliderDuration(sliderMultiplier, OsuParser.getTimingPointsList());
+        this.duration = calculateSliderDuration(sliderMultiplier, OsuParser.getTimingPointsList()) * 10; // Convert to milliseconds
         this.endTime = getHitTime() + (long) (this.duration * this.repeats);
 
         group = new Group();
@@ -242,6 +242,82 @@ public class HitSlider extends HitObject {
         }
     }
 
+    private double getBallFraction(double timeSinceHit) {
+        double totalDuration = this.duration * this.repeats; // Total time for all slides
+        if (totalDuration <= 0) totalDuration = 1; // Avoid division by zero
+
+        double fractionElapsed = timeSinceHit / totalDuration;
+
+        int currentSegment = (int) Math.floor(fractionElapsed * this.repeats); // Which traversal (0, 1, 2...)
+        // Correct fraction within the current 0-1 traversal
+        double fractionInCurrentTraversal = (fractionElapsed * this.repeats) - currentSegment;
+
+        boolean isReverse = (currentSegment % 2) != 0;
+
+        double ballFraction = isReverse ? (1.0 - fractionInCurrentTraversal) : fractionInCurrentTraversal;
+        ballFraction = Math.max(0.0, Math.min(1.0, ballFraction)); // Clamp
+        return ballFraction;
+    }
+
+    private Point2D getPointOnLinear(Point2D p0, Point2D p1, double t) {
+        if (t < 0) t = 0;
+        if (t > 1) t = 1;
+        double x = (1.0 - t) * p0.getX() + t * p1.getX();
+        double y = (1.0 - t) * p0.getY() + t * p1.getY();
+        return new Point2D(x, y);
+    }
+
+    private Point2D getVisualPointAtFraction(double fraction) {
+        if (controlPoints.size() < 2) return new Point2D(0, 0); // No path
+
+        Point2D sliderStartAbs = controlPoints.get(0);
+        Point2D interpolatedAbsolutePoint;
+
+        // linear paths with multiple segments
+        if (controlPoints.size() > 2) {
+            // Calculate total path length
+            double totalLength = 0;
+            double[] segmentLengths = new double[controlPoints.size() - 1];
+
+            for (int i = 0; i < controlPoints.size() - 1; i++) {
+                double segmentLength = controlPoints.get(i).distance(controlPoints.get(i + 1));
+                segmentLengths[i] = segmentLength;
+                totalLength += segmentLength;
+            }
+
+            // Find which segment the fraction falls on
+            double targetDistance = fraction * totalLength;
+            double distanceAccumulated = 0;
+            int segmentIndex = 0;
+
+            for (int i = 0; i < segmentLengths.length; i++) {
+                if (distanceAccumulated + segmentLengths[i] >= targetDistance) {
+                    segmentIndex = i;
+                    break;
+                }
+                distanceAccumulated += segmentLengths[i];
+            }
+
+            // Calculate fraction within the segment
+            double segmentFraction = segmentIndex < segmentLengths.length ?
+                    (targetDistance - distanceAccumulated) / segmentLengths[segmentIndex] : 1.0;
+
+            // Interpolate within the segment
+            Point2D p0 = controlPoints.get(segmentIndex);
+            Point2D p1 = controlPoints.get(segmentIndex + 1);
+
+            double interpX = p0.getX() * (1 - segmentFraction) + p1.getX() * segmentFraction;
+            double interpY = p0.getY() * (1 - segmentFraction) + p1.getY() * segmentFraction;
+
+            // Return relative to group coordinates
+            return new Point2D(interpX - sliderStartAbs.getX(), interpY - sliderStartAbs.getY());
+        } else {
+            // Simple linear interpolation between first and last point
+            return getPointOnLinear(controlPoints.get(0), controlPoints.get(controlPoints.size()-1), fraction)
+                    .subtract(sliderStartAbs);
+        }
+    }
+
     @Override
     public Node getNode() {
         return group;
@@ -249,7 +325,9 @@ public class HitSlider extends HitObject {
 
     @Override
     public void update(long currentTime) {
-        long timeUntilHit = getHitTime() - currentTime;// time left for perfect hit
+        setCurrTime(currentTime);
+        long timeUntilHit = getHitTime() - getCurrTime();// time left for perfect hit
+        long timeSinceHit = getCurrTime() - getHitTime();
 
         // appear based on preempt time
         if (!isVisible() && timeUntilHit <= getPreempt()) {
@@ -257,17 +335,46 @@ public class HitSlider extends HitObject {
         }
 
         // add ball movement here
+        if (headHit && getCurrTime() <= endTime) {
+            double ballFraction = getBallFraction((double) timeSinceHit);
+
+            Point2D ballPos = getVisualPointAtFraction(ballFraction);
+            sliderBall.setCenterX(ballPos.getX());
+            sliderBall.setCenterY(ballPos.getY());
+        } else if (headHit && currentTime > endTime) {
+            hide(); // Slider finished
+        }
 
         // miss logic (adjust timing later)
         if (isVisible() && !isHit() && timeUntilHit < -200) { // Allow some time after hitTime
-            System.out.println("Missed: " + getOsuX() + "," + getOsuY() + " at " + currentTime + "ms");
+//            System.out.println("Missed: " + getOsuX() + "," + getOsuY() + " at " + currentTime + "ms");
             hide();
         }
     }
 
     @Override
     public void handleEvent() {
-
+        group.setOnMouseClicked(e -> { // Changed to group
+            if (isVisible() && !headHit && e.getTarget() != sliderBall) { // Prevent clicks on ball itself re-triggering
+                long clickTime = getCurrTime();
+                long timingError = clickTime - getHitTime();
+                // Check if click is within hit window AND near the head circle visually
+                Point2D clickInGroup = new Point2D(e.getX(), e.getY());
+                if (Math.abs(timingError) < 200 && clickInGroup.distance(0,0) <= CIRCLE_RADIUS * 1.5) { // Allow slightly larger hit area
+                    System.out.println("hitting the slider");
+                    System.out.println("slider duration is " + this.duration * this.repeats);
+                    headHit = true;
+                    approachCircle.setVisible(false); // Hide approach circle
+                    if (approachAnimation != null) approachAnimation.stop(); // Stop animation if running
+                    headCircle.setVisible(false); // Hide static head circle
+                    sliderBall.setVisible(true);  // Show the moving ball
+//                    System.out.println("Slider Head Hit: " + this.x + "," + this.y + " | Timing: " + timingError + "ms");
+                } else {
+//                    System.out.println("Slider Head Miss (Timing/Position): " + timingError + "ms, Dist: " + clickInGroup.distance(0,0));
+                    hide();
+                }
+            }
+        });
     }
 
     @Override
