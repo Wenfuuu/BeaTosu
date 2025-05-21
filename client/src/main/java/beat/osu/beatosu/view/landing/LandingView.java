@@ -9,6 +9,7 @@ import beat.osu.beatosu.view.home.HomeView;
 import beat.osu.beatosu.view.landing.component.*;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Pos;
+import javafx.scene.CacheHint;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
@@ -48,22 +49,48 @@ public class LandingView extends Page {
         double logoTranslateX = -180; // How much the logo+rays group moves
         double menuTranslateX = 400;  // How much the menu moves in
 
-        // Animate the entire logo+rays group instead of just the logo
+        // Configure nodes for animation - set cache for better performance
+        visualizerComponent.getLogoRayGroup().setCache(true);
+        visualizerComponent.getLogoRayGroup().setCacheHint(CacheHint.SPEED);
+        menuButtonsComponent.setCache(true);
+        menuButtonsComponent.setCacheHint(CacheHint.SPEED);
+
         logoSlideOut = new TranslateTransition(Duration.millis(300),
                 visualizerComponent.getLogoRayGroup());
         logoSlideOut.setToX(logoTranslateX);
+        logoSlideOut.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
+        logoSlideOut.setOnFinished(e -> {
+            visualizerComponent.getLogoRayGroup().setCacheHint(CacheHint.DEFAULT);
+        });
 
         menuSlideIn = new TranslateTransition(Duration.millis(300), menuButtonsComponent);
-        menuButtonsComponent.setTranslateX(0);
+        menuButtonsComponent.setTranslateX(0); // Initial position
         menuSlideIn.setToX(menuTranslateX);
+        menuSlideIn.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
+        menuSlideIn.setOnFinished(e -> {
+            menuButtonsComponent.setCacheHint(CacheHint.DEFAULT);
+        });
 
-        // Reverse animations
+        // Logo slide in animation (when closing menu)
         logoSlideIn = new TranslateTransition(Duration.millis(300),
                 visualizerComponent.getLogoRayGroup());
+        logoSlideIn.setFromX(logoTranslateX); // Make sure it starts from the right position
         logoSlideIn.setToX(0);
+        logoSlideIn.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
+        logoSlideIn.setOnFinished(e -> {
+            // After animation, revert to default cache hint
+            visualizerComponent.getLogoRayGroup().setCacheHint(CacheHint.DEFAULT);
+        });
 
+        // Menu slide out animation (when closing menu)
         menuSlideOut = new TranslateTransition(Duration.millis(300), menuButtonsComponent);
+        menuSlideOut.setFromX(menuTranslateX); // Make sure it starts from the right position
         menuSlideOut.setToX(0);
+        menuSlideOut.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
+        menuSlideOut.setOnFinished(e -> {
+            // After animation, revert to default cache hint
+            menuButtonsComponent.setCacheHint(CacheHint.DEFAULT);
+        });
     }
 
     private void toggleMenuPanel() {
@@ -95,6 +122,9 @@ public class LandingView extends Page {
         bottomBarComponent = new BottomBar();
         loginModalComponent = new LoginModal();
         registerModalComponent = new RegisterModal();
+
+        visualizerComponent.getLogoRayGroup().getStyleClass().add("logo-ray-group");
+        menuButtonsComponent.getStyleClass().add("menu-buttons");
 
         // --- Configure Components ---
         topBarComponent.addControlsToBar(mediaControlsComponent); // Add media controls to top bar

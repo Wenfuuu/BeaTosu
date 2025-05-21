@@ -8,10 +8,14 @@ import beat.osu.beatosu.model.User;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.CacheHint;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -117,16 +121,58 @@ public class LoginModal extends StackPane {
         slideIn = new TranslateTransition(Duration.millis(150), this);
         slideIn.setToX(0);
         slideIn.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
-        slideIn.setOnFinished(e -> isModalVisible = true);
+        slideIn.setOnFinished(e -> {
+            isModalVisible = true;
+            // Switch back to quality after animation
+            formContainer.setCacheHint(CacheHint.DEFAULT);
 
-        // Slide-out animation
+            // Resume light rays if needed
+            LightRays rays = findLightRays();
+            if (rays != null) {
+                rays.startUnifiedAnimation();
+            }
+        });
+
+        // Slide-out animation with similar optimizations
         slideOut = new TranslateTransition(Duration.millis(150), this);
         slideOut.setInterpolator(javafx.animation.Interpolator.EASE_IN);
         slideOut.setOnFinished(event -> {
             super.setVisible(false); // Use super to avoid recursion if setVisible is overridden
             super.setManaged(false);
             isModalVisible = false;
+
+            // Resume light rays if they were paused
+            LightRays rays = findLightRays();
+            if (rays != null) {
+                rays.startUnifiedAnimation();
+            }
         });
+
+        // Cache the form container during animation for better performance
+        formContainer.setCache(true);
+        formContainer.setCacheHint(CacheHint.SPEED);
+    }
+
+    private LightRays findLightRays() {
+        if (getScene() == null || !(getScene().getRoot() instanceof Parent)) {
+            return null;
+        }
+
+        Parent root = (Parent) getScene().getRoot();
+
+        // Try to find the LandingView or Visualizer component
+        for (Node node : root.getChildrenUnmodifiable()) {
+            if (node instanceof StackPane || node instanceof BorderPane) {
+                // Check if this is the main container
+                for (Node child : ((Parent) node).getChildrenUnmodifiable()) {
+                    if (child instanceof Visualizer) {
+                        return ((Visualizer) child).getLightRays();
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     private void handleComponentEvents() {
@@ -162,28 +208,56 @@ public class LoginModal extends StackPane {
     }
 
     public void show() {
-        if (isModalVisible || (slideIn != null && slideIn.getStatus() == javafx.animation.Animation.Status.RUNNING) || (slideOut != null && slideOut.getStatus() == javafx.animation.Animation.Status.RUNNING)) {
+        // Don't show if already visible or animation is in progress
+        if (isModalVisible || (slideIn != null && slideIn.getStatus() == javafx.animation.Animation.Status.RUNNING)
+                || (slideOut != null && slideOut.getStatus() == javafx.animation.Animation.Status.RUNNING)) {
             return;
         }
+
+        // Temporarily pause visualizer animations if possible
+        LightRays rays = findLightRays();
+        if (rays != null) {
+            rays.stopAnimations();
+        }
+
+        // Set initial state for the modal
+        this.setCache(true);
+        this.setCacheHint(CacheHint.SPEED);
         this.setTranslateX(-500); // Initial off-screen position
         super.setManaged(true);
         super.setVisible(true);
         this.toFront();
 
+        // Configure and play the animation
         slideIn.setFromX(this.getTranslateX());
         slideIn.play();
     }
 
     public void hide() {
+        // Don't hide if already hidden or animation is in progress
         if (!isModalVisible || (slideOut != null && slideOut.getStatus() == javafx.animation.Animation.Status.RUNNING)) {
             return;
         }
-        isModalVisible = false; // Mark as not visible conceptually at start of animation
 
+        // Mark as not visible conceptually at start of animation
+        isModalVisible = false;
+
+        // Temporarily pause visualizer animations if possible
+        LightRays rays = findLightRays();
+        if (rays != null) {
+            rays.stopAnimations();
+        }
+
+        // Set cache for better performance during animation
+        this.setCache(true);
+        this.setCacheHint(CacheHint.SPEED);
+
+        // Configure and play the animation
         slideOut.setFromX(this.getTranslateX()); // Should be 0
         slideOut.setToX(-500); // Target off-screen position
         slideOut.play();
     }
+
 
     public boolean isShowing() {
         return isModalVisible || (slideIn != null && slideIn.getStatus() == javafx.animation.Animation.Status.RUNNING);

@@ -1,28 +1,22 @@
 package beat.osu.beatosu.view.landing.component;
 
 import javafx.animation.AnimationTimer;
-// import javafx.animation.KeyFrame; // No longer needed
-// import javafx.animation.KeyValue; // No longer needed
-// import javafx.animation.Timeline; // No longer needed
 import javafx.scene.CacheHint;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Rotate;
-// import javafx.util.Duration; // No longer needed
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class LightRays extends Group {
 
-    private final int NUM_RAYS = 200; // Consider reducing from 300 if still too heavy
+    private final int NUM_RAYS = 200;
     private static final double MIN_LENGTH = 0;
     private static final double MAX_LENGTH = 100;
     private final double CENTER_RADIUS = 260;
     private final List<Rectangle> rays = new ArrayList<>();
-    private final Random random = new Random(); // Shared random for ray creation
+    private final Random random = new Random();
 
     private double currentIntensity = 0.0;
     private double smoothingFactor = 0.5;
@@ -36,7 +30,6 @@ public class LightRays extends Group {
         double targetLength;
         long startTimeNanos;
         long durationNanos;
-        // Each RayState gets its own Random for independent animation timing/targets
         Random random = new Random();
 
         RayState(Rectangle ray) {
@@ -48,7 +41,7 @@ public class LightRays extends Group {
         void setNewTarget() {
             this.targetLength = MIN_LENGTH + random.nextDouble() * (MAX_LENGTH - MIN_LENGTH);
             this.startTimeNanos = System.nanoTime();
-            this.durationNanos = (long) ((250 + random.nextDouble() * 750) * 1_000_000); // millis to nanos
+            this.durationNanos = (long) ((250 + random.nextDouble() * 750) * 1_000_000);
         }
 
         void update(long now) {
@@ -65,11 +58,42 @@ public class LightRays extends Group {
         }
     }
 
+    private void optimizeSceneGraph() {
+        // Clear existing children
+        getChildren().clear();
+
+        // Create groups for rays by angle segments (for example, group by 45-degree segments)
+        Map<Integer, Group> rayGroups = new HashMap<>();
+
+        for (int i = 0; i < rays.size(); i++) {
+            Rectangle ray = rays.get(i);
+            // Group rays by angle segment (0-44, 45-89, etc.)
+            int angleSegment = (i * 360 / NUM_RAYS) / 45;
+
+            Group group = rayGroups.computeIfAbsent(angleSegment, k -> {
+                Group g = new Group();
+                g.setCache(true);
+                g.setCacheHint(CacheHint.SPEED);
+                return g;
+            });
+
+            group.getChildren().add(ray);
+        }
+
+        // Add all groups to the main container
+        getChildren().addAll(rayGroups.values());
+
+        // Set cache on the parent group
+        this.setCache(true);
+        this.setCacheHint(CacheHint.SPEED);
+    }
+
     public LightRays() {
         super();
         this.setCache(true); // Cache the LightRays group
         this.setCacheHint(CacheHint.SPEED);
         createRays();
+        optimizeSceneGraph();
         startUnifiedAnimation();
     }
 
