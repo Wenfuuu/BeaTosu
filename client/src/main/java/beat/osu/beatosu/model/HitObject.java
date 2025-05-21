@@ -19,8 +19,10 @@ public abstract class HitObject {
     private long spawnTime; // Store the spawn time
     private int preempt;   // ms before hitTime when object appears
     private int fadeIn;    // ms for the object to fade in
+    private double circleRadius; // Circle size (CS) for the object
 
-    public HitObject(int osuX, int osuY, long hitTime, int type, int hitSound, String hitSample, double approachRate) {
+    public HitObject(int osuX, int osuY, long hitTime, int type, int hitSound,
+                     String hitSample, double approachRate, double circleSize) {
         this.osuX = osuX;
         this.osuY = osuY;
         this.hitTime = hitTime;
@@ -30,6 +32,11 @@ public abstract class HitObject {
         this.preempt = calculatePreempt(approachRate);
         this.fadeIn = calculateFadeIn(approachRate);
         this.spawnTime = hitTime - preempt;
+        this.circleRadius = calculateCircleRadius(circleSize);
+    }
+
+    private double calculateCircleRadius(double circleSize) {
+        return 54.4 - (4.48 * circleSize);
     }
 
     private int calculatePreempt(double AR) {

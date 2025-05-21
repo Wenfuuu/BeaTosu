@@ -36,19 +36,12 @@ public class HitSlider extends HitObject {
     private ScaleTransition approachAnimation;
 
     // Visual Constants
-    private static final double CIRCLE_RADIUS = 40;
-    private static final double PATH_STROKE_WIDTH = CIRCLE_RADIUS * 2;
-    private static final double BALL_RADIUS = CIRCLE_RADIUS * 0.8;
+//    private static final double CIRCLE_RADIUS = 40;
+    private final double PATH_STROKE_WIDTH;
+    private final double BALL_RADIUS;
     private static final double APPROACH_START_SCALE = 5.0;
     private static final double APPROACH_STROKE_WIDTH = 2.0;
 
-    /**
-     * Calculates the duration of a single traversal of the slider.
-     *
-     * @param baseSliderMultiplier The SliderMultiplier from the beatmap's [Difficulty] section.
-     * @param timingPoints         The list of all timing points in the beatmap.
-     * @return The duration of one pass of the slider in milliseconds.
-     */
     private double calculateSliderDuration(double baseSliderMultiplier, ArrayList<TimingPoint> timingPoints) {
         TimingPoint activeUninheritedTP = null;
         TimingPoint lastRelevantTPForSV = null; // Could be inherited or uninherited, influences SV_Multiplier
@@ -182,38 +175,20 @@ public class HitSlider extends HitObject {
 
     public HitSlider(int osuX, int osuY, long hitTime, int type, int hitSound,
                      String objectParams, String hitSample, double approachRate,
-                     double sliderMultiplier) { // sliderMultiplier is from [Difficulty] section
-        super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate);
+                     double circleSize, double sliderMultiplier) {
+        super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate, circleSize);
+        PATH_STROKE_WIDTH = getCircleRadius() * 2;
+        BALL_RADIUS = getCircleRadius() * 0.8;
 
         parseSliderParams(objectParams, getOsuX(), getOsuY());
 
-        // Calculate duration for a SINGLE pass of the slider
-        // REMOVED THE `* 10`
         this.duration = calculateSliderDuration(sliderMultiplier, OsuParser.getTimingPointsList());
         if (Double.isInfinite(this.duration) || Double.isNaN(this.duration) || this.duration <= 0) {
             System.err.println("Warning: Invalid slider duration calculated (" + this.duration + ") for slider at " + getHitTime() + ". Setting to a fallback value.");
             this.duration = 500; // Fallback duration if calculation fails
         }
 
-
-        // Total number of traversals (initial + repeats)
-        int totalTraversals = this.repeats; // In osu file format, repeat=1 means one full pass (forth) and one repeat (back). So 2 traversals.
-        // If .osu "repeat" means additional traversals, then totalTraversals = this.repeats + 1.
-        // The osu! file format for sliders has "repeat count".
-        // A slider with 1 repeat slides forth, then back (2 traversals).
-        // So `this.repeats` from the file IS the total number of traversals.
-        // Let's stick to common interpretation: this.repeats from file is number of *additional* slides.
-        // So totalTraversals = this.repeats (from file) + 1
-        // But the file format spec for .osu says "Number of times the slider repeats".
-        // If repeats = 1, it goes A -> B -> A. Total 2 traversals.
-        // If repeats = 2, it goes A -> B -> A -> B. Total 3 traversals.
-        // So total traversals is indeed this.repeats read from file, IF that value itself means total traversals.
-        // Standard interpretation: "repeat" field is number of *additional* traversals.
-        // E.g., repeat=1 -> one initial + one repeat = 2 traversals.
-        // Let's assume `this.repeats` is the number of times it repeats *after* the first pass.
-        int numberOfTraversals = this.repeats; // Corrected: initial pass + number of repeats
-        this.endTime = getHitTime() + (long) (this.duration * numberOfTraversals);
-
+        this.endTime = getHitTime() + (long) (this.duration * this.repeats);
 
         group = new Group();
         group.setVisible(false);
@@ -223,13 +198,13 @@ public class HitSlider extends HitObject {
             group.getChildren().add(sliderPath);
         }
 
-        headCircle = new Circle(0, 0, CIRCLE_RADIUS);
+        headCircle = new Circle(0, 0, getCircleRadius());
         headCircle.setFill(Color.rgb(100, 180, 255, 0.8));
         headCircle.setStroke(Color.WHITE);
         headCircle.setStrokeWidth(2);
         group.getChildren().add(headCircle);
 
-        approachCircle = new Circle(0, 0, CIRCLE_RADIUS);
+        approachCircle = new Circle(0, 0, getCircleRadius());
         approachCircle.setFill(Color.TRANSPARENT);
         approachCircle.setStroke(Color.WHITE);
         approachCircle.setStrokeWidth(APPROACH_STROKE_WIDTH);
@@ -462,7 +437,7 @@ public class HitSlider extends HitObject {
                 if (timingError <= getHitWindowGreat()) {
                     Point2D clickInGroup = new Point2D(e.getX(), e.getY());
                     // Check if click is on or near the head circle
-                    if (clickInGroup.distance(0,0) <= CIRCLE_RADIUS * 1.5) { // Generous click area for head
+                    if (clickInGroup.distance(0,0) <= getCircleRadius() * 1.5) { // Generous click area for head
 //                        System.out.println("Slider Head Hit: " + getOsuX() + "," + getOsuY() + " | Timing: " + (clickTime - getHitTime()) + "ms");
                         headHit = true;
                         setHit(true); // Mark the HitObject as hit
@@ -513,7 +488,7 @@ public class HitSlider extends HitObject {
         if(group != null) {
             // The group's origin (0,0) should be the center of the head circle.
             // The path and other elements are positioned relative to this.
-            group.relocate(paneX - CIRCLE_RADIUS, paneY - CIRCLE_RADIUS);
+            group.relocate(paneX - getCircleRadius(), paneY - getCircleRadius());
         }
     }
 

@@ -144,16 +144,18 @@ public class UploadPage extends Page {
 
                 for (int i = 0; i < totalFiles; i++) {
                     File file = files.get(i);
-                    Path destPath = new File(beatmapDir, file.getName()).toPath();
+                    // Use replaceAll with regular expression to remove "[no video]"
+                    String filename = file.getName().replaceAll("\\s*\\[no video\\]", "");
+                    Path destPath = new File(beatmapDir, filename).toPath();
 
                     if(!file.getName().endsWith(".osz")) continue;
 
                     try {
                         Files.copy(file.toPath(), destPath, StandardCopyOption.REPLACE_EXISTING);
-                        System.out.println("Copied: " + file.getName());
+                        System.out.println("Copied: " + filename);
 
                         //extract .osz and store in temp folder
-                        String filePath = String.format("./src/main/resources/assets/beatmap/%s", file.getName());
+                        String filePath = String.format("./src/main/resources/assets/beatmap/%s", filename);
                         File oszFile = new File(filePath);
                         File outputDir = new File("./src/main/resources/assets/temp");
                         OszExtractor.extractOsz(oszFile, outputDir);
