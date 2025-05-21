@@ -85,8 +85,6 @@ public class GameView extends Page {
             throw new RuntimeException(e);
         }
 
-//        Map<String, String> diff = OsuParser.getDifficulty();
-//        circleSize = Double.parseDouble(diff.get("CircleSize"));
         circleSize = selectedBeatmap.getCircleSize();
 
         for(String data: OsuParser.getHitObjects()) {

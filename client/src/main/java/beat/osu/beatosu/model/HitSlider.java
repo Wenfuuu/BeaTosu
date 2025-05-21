@@ -7,8 +7,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Path;
+import javafx.scene.shape.*;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
@@ -40,8 +39,8 @@ public class HitSlider extends HitObject {
     private static final double CIRCLE_RADIUS = 40;
     private static final double PATH_STROKE_WIDTH = CIRCLE_RADIUS * 2;
     private static final double BALL_RADIUS = CIRCLE_RADIUS * 0.8;
-    private static final double APPROACH_START_SCALE = 3.0; // How big approach circle starts
-    private static final double APPROACH_STROKE_WIDTH = 3.0;
+    private static final double APPROACH_START_SCALE = 5.0; // How big approach circle starts
+    private static final double APPROACH_STROKE_WIDTH = 2.0;
 
     private double calculateSliderDuration(double sliderMultiplier, ArrayList<TimingPoint> timingPoints) {
         TimingPoint inherited = null;
@@ -154,10 +153,10 @@ public class HitSlider extends HitObject {
         group = new Group();
         group.setVisible(false);
 
-//        sliderPath = createSliderPathVisual(); // Uses parsed controlPoints
-//        if (sliderPath != null) {
-//            group.getChildren().add(sliderPath);
-//        }
+        sliderPath = createSliderPath(); // Uses parsed controlPoints
+        if (sliderPath != null) {
+            group.getChildren().add(sliderPath);
+        }
 
         headCircle = new Circle(0, 0, CIRCLE_RADIUS);
         headCircle.setFill(Color.rgb(100, 180, 255, 0.8));
@@ -182,6 +181,26 @@ public class HitSlider extends HitObject {
         group.setUserData(this);
 
         handleEvent();
+    }
+
+    private Path createSliderPath() {
+        if (controlPoints.isEmpty()) return null;
+
+        Path path = new Path();
+        path.setStroke(Color.BLUE);
+        path.setStrokeWidth(PATH_STROKE_WIDTH);
+        path.setStrokeLineCap(StrokeLineCap.ROUND);
+        path.setStrokeLineJoin(StrokeLineJoin.ROUND);
+
+        Point2D start = controlPoints.get(0); // The actual start coordinate
+        path.getElements().add(new MoveTo(0, 0)); // Path starts at group origin (0,0)
+
+        // linear first
+        for (int i = 1; i < controlPoints.size(); i++) {
+            Point2D p = controlPoints.get(i);
+            path.getElements().add(new LineTo(p.getX() - start.getX(), p.getY() - start.getY()));
+        }
+        return path;
     }
 
     private void appear() {
@@ -230,7 +249,20 @@ public class HitSlider extends HitObject {
 
     @Override
     public void update(long currentTime) {
+        long timeUntilHit = getHitTime() - currentTime;// time left for perfect hit
 
+        // appear based on preempt time
+        if (!isVisible() && timeUntilHit <= getPreempt()) {
+            appear();
+        }
+
+        // add ball movement here
+
+        // miss logic (adjust timing later)
+        if (isVisible() && !isHit() && timeUntilHit < -200) { // Allow some time after hitTime
+            System.out.println("Missed: " + getOsuX() + "," + getOsuY() + " at " + currentTime + "ms");
+            hide();
+        }
     }
 
     @Override
@@ -241,7 +273,8 @@ public class HitSlider extends HitObject {
     @Override
     public void setPosition(double paneX, double paneY) {
         if(group != null) {
-            group.relocate(paneX, paneY);
+//            group.relocate(paneX, paneY);
+            group.relocate(paneX - CIRCLE_RADIUS * 2, paneY - CIRCLE_RADIUS * 2);
         }
     }
 }
