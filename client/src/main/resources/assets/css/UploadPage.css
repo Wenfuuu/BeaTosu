@@ -1,0 +1,12 @@
+.drop-box {
+    -fx-border-color: #aaa;
+    -fx-border-width: 3;
+    -fx-border-style: dashed;
+    -fx-background-color: #f9f9f9;
+    -fx-padding: 50;
+    -fx-alignment: center;
+    -fx-font-size: 16px;
+}
+.drop-box:hover {
+    -fx-background-color: #e0f7fa;
+}

@@ -5,15 +5,19 @@ import beat.osu.beatosu.helper.BgmManager;
 import beat.osu.beatosu.helper.CssManager;
 import beat.osu.beatosu.helper.ScreenManager;
 import beat.osu.beatosu.view.Page;
+import beat.osu.beatosu.view.home.HomeView;
 import beat.osu.beatosu.view.landing.component.*;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.io.File;
 import java.net.URL;
 
 public class LandingView extends Page {
@@ -209,6 +213,7 @@ public class LandingView extends Page {
         menuButtonsComponent.getPlayButton().setOnAction(e -> {
             System.out.println("Menu: Play clicked");
             // Add navigation or action for Play
+            new HomeView(stage); // Example: Navigate to HomeView
             toggleMenuPanel(); // Hide menu after action
         });
         menuButtonsComponent.getOptionButton().setOnAction(e -> {
