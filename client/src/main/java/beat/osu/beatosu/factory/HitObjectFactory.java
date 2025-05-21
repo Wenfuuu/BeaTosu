@@ -63,15 +63,16 @@ public class HitObjectFactory {
 //        System.out.println(objectParams);
 //        System.out.println(hitSample);
         double approachRate = selectedBeatmap.getApproachRate();
-        return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate);
-//        if(hitType.equals("circle")){
-//            return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate);
-//        }else if(hitType.equals("slider")){
-//            return new HitSlider(x, y, time, type, hitSound, objectParams, hitSample);
-//        }
-//        else{
-//            return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate);
-//        }
+//        return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate);
+        if(hitType.equals("circle")){
+            return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate);
+        }else if(hitType.equals("slider")){
+            return new HitSlider(x, y, time, type, hitSound, objectParams, hitSample,
+                    approachRate, selectedBeatmap.getSlideMultiplier());
+        }
+        else{
+            return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate);
+        }
     }
 
 }

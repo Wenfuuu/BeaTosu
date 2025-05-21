@@ -1,6 +1,7 @@
 package beat.osu.beatosu.utils;
 
 import beat.osu.beatosu.controller.BeatmapController;
+import beat.osu.beatosu.model.TimingPoint;
 import lombok.Getter;
 
 import java.io.BufferedReader;
@@ -32,8 +33,11 @@ public class OsuParser {
     private static ArrayList<String> timingPoints = new ArrayList<>();
     @Getter
     private static ArrayList<String> events = new ArrayList<>();
+
     private static String bgFileName = "";
     private static double bgm = 0;
+    @Getter
+    private static ArrayList<TimingPoint> timingPointsList = new ArrayList<>();
 
     private static void clearAll() {
         general.clear();
@@ -123,6 +127,12 @@ public class OsuParser {
                     events.add(line);
                     break;
             }
+        }
+
+        // Parse timing points
+        for (String timingPointData : timingPoints) {
+            TimingPoint tp = new TimingPoint(timingPointData);
+            timingPointsList.add(tp);
         }
 
         reader.close();
