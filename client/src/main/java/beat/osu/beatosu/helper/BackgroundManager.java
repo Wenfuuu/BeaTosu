@@ -2,6 +2,7 @@ package beat.osu.beatosu.helper;
 
 import beat.osu.beatosu.utils.OsuParser;
 import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -54,25 +55,24 @@ public class BackgroundManager {
         }
     }
 
+    // Modify BackgroundManager to create layered backgrounds
     public static void setRandomBackground(Scene scene) {
         String randomBg = getRandomBackgroundURL();
-
         try {
-            // Create a File object for the image
             File imageFile = new File(BACKGROUNDS_DIR + randomBg);
-
-            // Convert to URI and then to URL string for JavaFX
             String imageUrl = imageFile.toURI().toURL().toString();
 
-            // Create a style string with the full URL path
+            // Apply the background image first
             String backgroundStyle = "-fx-background-image: url('" + imageUrl + "'); " +
                     "-fx-background-size: cover; " +
                     "-fx-background-position: center center;";
 
-            System.out.println("Setting background: " + imageUrl);
-
-            // Apply the style directly to the root element
             scene.getRoot().setStyle(backgroundStyle);
+
+            StackPane overlay = new StackPane();
+            overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.25);");
+            ((StackPane)scene.getRoot()).getChildren().add(0, overlay);
+
         } catch (Exception e) {
             System.err.println("Error setting background image: " + e.getMessage());
             e.printStackTrace();
@@ -92,9 +92,11 @@ public class BackgroundManager {
             System.out.println(imageUrl);
 
             // Create a style string with the full URL path
-            String backgroundStyle = "-fx-background-image: url('" + imageUrl + "'); " +
+            String backgroundStyle =
+                    "-fx-background-image: url('" + imageUrl + "'); " +
                     "-fx-background-size: cover; " +
-                    "-fx-background-position: center center;";
+                    "-fx-background-position: center center; " + // Ensured space after semicolon
+                    "-fx-background-color: rgba(0, 0, 0, 0.25); "; // Added trailing space to match setRandomBackground
 
             System.out.println("Setting background: " + imageUrl);
 

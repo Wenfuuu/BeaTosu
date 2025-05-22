@@ -47,7 +47,7 @@ public class Visualizer extends StackPane {
     }
 
     private void initializeComponents() {
-        lightRays = new LightRays(visualizerSize / 2.0); // Use double visualizerSize
+        lightRays = new LightRays(visualizerSize / 2.0 - 10); // Use double visualizerSize
 
         logoRayGroup = new StackPane();
         logoRayGroup.setAlignment(Pos.CENTER);

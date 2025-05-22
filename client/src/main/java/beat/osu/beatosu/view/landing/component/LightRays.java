@@ -6,7 +6,6 @@ import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Rotate;
-import lombok.Getter;
 
 import java.util.*;
 
@@ -14,7 +13,7 @@ public class LightRays extends Group {
 
     private final int NUM_RAYS = 200;
     private static final double MIN_LENGTH = 0;
-    private static final double MAX_LENGTH = 100;
+    private static final double MAX_LENGTH = 125;
     private final List<Rectangle> rays = new ArrayList<>();
     private final Random random = new Random();
 
