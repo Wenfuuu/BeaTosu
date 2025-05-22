@@ -493,8 +493,6 @@ public class HitSlider extends HitObject {
     @Override
     public void updateVisuals(double centerX, double centerY, double scaledRadius) {
         if(group != null) {
-//            group.relocate(centerX - getCircleRadius(), centerY - getCircleRadius());
-
             group.setLayoutX(centerX);
             group.setLayoutY(centerY);
 

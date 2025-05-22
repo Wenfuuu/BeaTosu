@@ -241,18 +241,18 @@ public class LandingView extends Page {
         });
 
         // --- Menu Buttons Events (from MenuButtons component) ---
-        menuButtonsComponent.getPlayButton().setOnAction(e -> {
+        menuButtonsComponent.getPlayButton().setOnMouseClicked(e -> {
             System.out.println("Menu: Play clicked");
             // Add navigation or action for Play
             new HomeView(stage); // Example: Navigate to HomeView
             toggleMenuPanel(); // Hide menu after action
         });
-        menuButtonsComponent.getOptionButton().setOnAction(e -> {
+        menuButtonsComponent.getOptionButton().setOnMouseClicked(e -> {
             System.out.println("Menu: Options clicked");
             // Add navigation or action for Options
             toggleMenuPanel(); // Hide menu after action
         });
-        menuButtonsComponent.getExitButton().setOnAction(e -> {
+        menuButtonsComponent.getExitButton().setOnMouseClicked(e -> {
             System.out.println("Menu: Exit clicked");
             // Platform.exit(); or stage.close();
             ((Stage) scene.getWindow()).close();

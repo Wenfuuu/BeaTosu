@@ -10,7 +10,9 @@ import beat.osu.beatosu.view.game.GameView;
 import beat.osu.beatosu.view.home.component.BeatmapPane;
 import beat.osu.beatosu.view.home.component.BottomBar;
 import beat.osu.beatosu.view.home.component.TopBar;
+import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -94,9 +96,22 @@ public class HomeView extends Page {
         });
 
         // You can add back button listener here if needed
-        bottomBar.getBackButton().setOnAction(e -> {
+        bottomBar.getBackButton().setOnMouseClicked(e -> {
             System.out.println("Back button clicked");
             // Handle back button action
         });
+
+        AnimationTimer inputChecker = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                if (inputManager.getPressedKeys().contains(KeyCode.Z)) {
+                    System.out.println("Holding Z key");
+                }
+                if (inputManager.getPressedKeys().contains(KeyCode.X)) {
+                    System.out.println("Holding X key");
+                }
+            }
+        };
+        inputChecker.start();
     }
 }
