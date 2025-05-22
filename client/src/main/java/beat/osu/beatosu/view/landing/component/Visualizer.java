@@ -11,6 +11,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
 import lombok.Getter;
 
 import java.net.URL;
@@ -22,13 +24,13 @@ public class Visualizer extends StackPane {
     private StackPane logoContainer;
     @Getter
     private ImageView logoView;
-    private VBox menuBox; // This is set from LandingView
-    private MediaPlayer mediaPlayer;
-    @Getter // Make LightRays accessible if needed from outside, e.g., for stopping its animation
+    private VBox menuBox;
+    @Getter
     private LightRays lightRays;
     @Getter
     private StackPane logoRayGroup;
 
+    private double visualizerSize;
     private double currentScaleFactor = 1.0;
     private double currentGlowRadius = 20.0;
     private double smoothingFactor = 0.5;
@@ -40,13 +42,17 @@ public class Visualizer extends StackPane {
         this.getStyleClass().add("visualizer");
         this.setAlignment(Pos.CENTER);
 
+        Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
+        double screenSize = Math.min(visualBounds.getWidth(), visualBounds.getHeight());
+        this.visualizerSize = screenSize * 0.70;
+
         initializeComponents();
         setupLayout();
         loadStyles();
     }
 
     private void initializeComponents() {
-        lightRays = new LightRays(); // LightRays is already cached internally
+        lightRays = new LightRays(visualizerSize / 2.0); // Use double visualizerSize
 
         logoRayGroup = new StackPane();
         logoRayGroup.setAlignment(Pos.CENTER);
@@ -68,8 +74,8 @@ public class Visualizer extends StackPane {
             // Consider a placeholder or default behavior
         }
 
-        logoView.setFitWidth(600);
-        logoView.setFitHeight(600);
+        logoView.setFitWidth(visualizerSize);
+        logoView.setFitHeight(visualizerSize);
         logoView.setPreserveRatio(true);
 
         DropShadow glow = new DropShadow();
@@ -111,12 +117,7 @@ public class Visualizer extends StackPane {
         }
     }
 
-    public void pauseAudioVisualization(boolean pause) {
-        this.audioVisualizationPaused = pause;
-    }
-
     public void setupAudioVisualization(MediaPlayer player) {
-        this.mediaPlayer = player;
         if (player == null) return;
 
         player.setAudioSpectrumInterval(0.1);
@@ -151,7 +152,6 @@ public class Visualizer extends StackPane {
             if (logoView.getEffect() instanceof DropShadow) {
                 DropShadow glow = (DropShadow) logoView.getEffect();
                 glow.setRadius(currentGlowRadius);
-                // glow.setSpread(0.5); // Spread is usually static, no need to update per frame
             }
 
             if (lightRays != null) {

@@ -46,7 +46,7 @@ public class BottomBar extends HBox {
     }
 
     private void setupLayout() {
-        this.setMaxHeight(60);
+        this.setMaxHeight(65);
         this.getChildren().addAll(ppyLbl, ppyBox);
     }
 

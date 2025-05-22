@@ -40,8 +40,8 @@ public class LandingView extends Page {
     }
 
     private void initMenuRevealAnimations() {
-        double logoTranslateX = -180; // How much the logo+rays group moves
-        double menuTranslateX = 400;  // How much the menu moves in
+        double logoTranslateX = -200; // How much the logo+rays group moves
+        double menuTranslateX = 440;  // How much the menu moves in
 
         // Configure nodes for animation - set cache for better performance
         visualizerComponent.getLogoRayGroup().setCache(true);
@@ -144,7 +144,6 @@ public class LandingView extends Page {
             BackgroundManager.setRandomBackground(scene);
         } catch (Exception e) {
             System.err.println("Error setting background: " + e.getMessage());
-            e.printStackTrace();
             root.setStyle("-fx-background-color: #121212;");
         }
 

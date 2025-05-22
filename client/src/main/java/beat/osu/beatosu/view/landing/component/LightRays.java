@@ -6,6 +6,7 @@ import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Rotate;
+import lombok.Getter;
 
 import java.util.*;
 
@@ -14,10 +15,10 @@ public class LightRays extends Group {
     private final int NUM_RAYS = 200;
     private static final double MIN_LENGTH = 0;
     private static final double MAX_LENGTH = 100;
-    private final double CENTER_RADIUS = 290;
     private final List<Rectangle> rays = new ArrayList<>();
     private final Random random = new Random();
 
+    private double centerRadius;
     private double currentIntensity = 0.0;
     private double smoothingFactor = 0.5;
 
@@ -88,8 +89,9 @@ public class LightRays extends Group {
         this.setCacheHint(CacheHint.SPEED);
     }
 
-    public LightRays() {
+    public LightRays(double centerRadius) {
         super();
+        this.centerRadius = centerRadius;
         this.setCache(true); // Cache the LightRays group
         this.setCacheHint(CacheHint.SPEED);
         createRays();
@@ -104,7 +106,7 @@ public class LightRays extends Group {
             double thickness = 2 + random.nextDouble() * 4; // Use shared random
 
             Rectangle ray = new Rectangle(
-                    CENTER_RADIUS,
+                    centerRadius,
                     -thickness / 2.0,
                     initialLength,
                     thickness
