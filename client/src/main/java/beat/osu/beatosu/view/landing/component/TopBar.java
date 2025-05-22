@@ -116,6 +116,7 @@ public class TopBar extends HBox {
     private void setupLayout() {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
+        this.setMaxHeight(90);
 
         this.getChildren().addAll(userInfoBox, spacer, songBox);
     }

@@ -68,8 +68,8 @@ public class Visualizer extends StackPane {
             // Consider a placeholder or default behavior
         }
 
-        logoView.setFitWidth(550);
-        logoView.setFitHeight(550);
+        logoView.setFitWidth(600);
+        logoView.setFitHeight(600);
         logoView.setPreserveRatio(true);
 
         DropShadow glow = new DropShadow();

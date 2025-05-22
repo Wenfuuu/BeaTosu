@@ -11,21 +11,15 @@ import javafx.animation.TranslateTransition;
 import javafx.geometry.Pos;
 import javafx.scene.CacheHint;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.io.File;
 import java.net.URL;
 
 public class LandingView extends Page {
 
     private StackPane root;
-    private BorderPane mainLayout;
-
     private TopBar topBarComponent;
     private Visualizer visualizerComponent;
     private BottomBar bottomBarComponent;
@@ -109,10 +103,7 @@ public class LandingView extends Page {
     @Override
     public void init() {
         root = new StackPane();
-        root.getStyleClass().add("root");
-
-        mainLayout = new BorderPane();
-        mainLayout.getStyleClass().add("main-layout");
+        root.getStyleClass().add("main-layout");
 
         // --- Initialize Components ---
         mediaControlsComponent = new MediaControls();
@@ -137,7 +128,7 @@ public class LandingView extends Page {
         BgmManager.playBgm(bgmPath);
         if(BgmManager.getCurrentPlayer() != null) {
             visualizerComponent.setupAudioVisualization(BgmManager.getCurrentPlayer());
-        }else {
+        } else {
             System.err.println("Failed to load BGM: " + bgmPath);
         }
 
@@ -162,15 +153,19 @@ public class LandingView extends Page {
 
     @Override
     public void setLayout() {
-        // --- Main Layout Structure ---
-        mainLayout.setTop(topBarComponent);
-        mainLayout.setCenter(visualizerComponent);
-        mainLayout.setBottom(bottomBarComponent);
+        root.getChildren().add(visualizerComponent);
+        topBarComponent.setMaxWidth(Double.MAX_VALUE);
 
-        // --- Root Structure (StackPane for layers) ---
-        root.getChildren().add(mainLayout);
+        root.getChildren().add(topBarComponent);
+        StackPane.setAlignment(topBarComponent, Pos.TOP_CENTER);
+
+        bottomBarComponent.setMaxWidth(Double.MAX_VALUE);
+        root.getChildren().add(bottomBarComponent);
+        StackPane.setAlignment(bottomBarComponent, Pos.BOTTOM_CENTER);
+
         root.getChildren().addAll(loginModalComponent, registerModalComponent);
         StackPane.setAlignment(loginModalComponent, Pos.CENTER_LEFT);
+        StackPane.setAlignment(registerModalComponent, Pos.CENTER);
     }
 
     public void handleEvent() {
@@ -179,7 +174,6 @@ public class LandingView extends Page {
             mediaControlsComponent.getPlayButton().setOnAction(e -> BgmManager.resumeBgm());
             mediaControlsComponent.getPauseButton().setOnAction(e -> BgmManager.pauseBgm());
             mediaControlsComponent.getStopButton().setOnAction(e -> BgmManager.stopBgm());
-            // TODO: Add event handlers for prev, next, options, playlist buttons
         } else {
             // Disable media buttons if songMedia is null
             mediaControlsComponent.getPlayButton().setDisable(true);
@@ -188,7 +182,10 @@ public class LandingView extends Page {
         }
 
         // --- Visualizer Logo Click (for menu reveal) ---
-        visualizerComponent.getLogoRayGroup().setOnMouseClicked(e -> toggleMenuPanel());
+        visualizerComponent.getLogoView().setOnMouseClicked(e -> {
+            System.out.println("Logo Ray Group clicked! Event: " + e);
+            toggleMenuPanel();
+        });
 
         // --- TopBar User Info Click (Show Login Modal) ---
         topBarComponent.getUserInfoBox().setOnMouseClicked(e -> {
@@ -201,8 +198,7 @@ public class LandingView extends Page {
         // --- Login Modal Events ---
         loginModalComponent.setOnLoginSuccessListener(user -> {
             if (user != null) {
-                topBarComponent.updateUserInfo(user); // Update TopBar with logged-in user
-                // LoginModal hides itself on success
+                topBarComponent.updateUserInfo(user);
             }
         });
 
