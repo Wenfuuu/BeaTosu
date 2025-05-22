@@ -7,7 +7,6 @@ import lombok.Getter;
 import java.io.File;
 
 public class BgmManager {
-//    String bgmPath = "./src/main/resources/assets/audio/audio.mp3";
     private static final String TEMP_DIR = "./src/main/resources/assets/temp/";
 
     @Getter

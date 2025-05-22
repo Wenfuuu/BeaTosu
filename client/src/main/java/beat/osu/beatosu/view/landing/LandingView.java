@@ -118,11 +118,11 @@ public class LandingView extends Page {
 
         // --- Configure Components ---
         topBarComponent.addControlsToBar(mediaControlsComponent);
-        topBarComponent.setSongTitle("Minato Aqua - #Aquairo Palette");
+        topBarComponent.setSongTitle("nekodex - circles!");
 
         visualizerComponent.setMenuBox(menuButtonsComponent);
 
-        String bgmPath = "./src/main/resources/assets/audio/audio.mp3";
+        String bgmPath = "./src/main/resources/assets/audio/nekodex-circles.mp3";
         BgmManager.playBgm(bgmPath);
         if(BgmManager.getCurrentPlayer() != null) {
             visualizerComponent.setupAudioVisualization(BgmManager.getCurrentPlayer());
