@@ -9,11 +9,9 @@ import beat.osu.beatosu.view.home.HomeView;
 import beat.osu.beatosu.view.landing.component.*;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.CacheHint;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -44,8 +42,8 @@ public class LandingView extends Page {
     }
 
     private void initMenuRevealAnimations() {
-        double logoTranslateX = -this.visualizerSize / 4.0;
-        double menuTranslateX = this.visualizerSize / 1.4;
+        double logoTranslateX = -this.visualizerSize / 3.7;
+        double menuTranslateX = this.visualizerSize / 1.5;
 
         visualizerComponent.getLogoRayGroup().setCache(true);
         visualizerComponent.getLogoRayGroup().setCacheHint(CacheHint.SPEED);
@@ -68,24 +66,20 @@ public class LandingView extends Page {
             menuButtonsComponent.setCacheHint(CacheHint.DEFAULT);
         });
 
-        // Logo slide in animation (when closing menu)
         logoSlideIn = new TranslateTransition(Duration.millis(300),
                 visualizerComponent.getLogoRayGroup());
-        logoSlideIn.setFromX(logoTranslateX); // Make sure it starts from the right position
+        logoSlideIn.setFromX(logoTranslateX);
         logoSlideIn.setToX(0);
         logoSlideIn.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
         logoSlideIn.setOnFinished(e -> {
-            // After animation, revert to default cache hint
             visualizerComponent.getLogoRayGroup().setCacheHint(CacheHint.DEFAULT);
         });
 
-        // Menu slide out animation (when closing menu)
         menuSlideOut = new TranslateTransition(Duration.millis(300), menuButtonsComponent);
-        menuSlideOut.setFromX(menuTranslateX); // Make sure it starts from the right position
+        menuSlideOut.setFromX(menuTranslateX);
         menuSlideOut.setToX(0);
         menuSlideOut.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
         menuSlideOut.setOnFinished(e -> {
-            // After animation, revert to default cache hint
             menuButtonsComponent.setCacheHint(CacheHint.DEFAULT);
         });
     }
@@ -108,9 +102,7 @@ public class LandingView extends Page {
         root = new StackPane();
         root.getStyleClass().add("main-layout");
 
-        Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
-        double screenSize = Math.min(visualBounds.getWidth(), visualBounds.getHeight());
-        this.visualizerSize = screenSize * 0.67;
+        this.visualizerSize = ScreenManager.SCREEN_HEIGHT * 0.67;
 
         // --- Initialize Components ---
         mediaControlsComponent = new MediaControls();
@@ -125,11 +117,10 @@ public class LandingView extends Page {
         menuButtonsComponent.getStyleClass().add("menu-buttons");
 
         // --- Configure Components ---
-        topBarComponent.addControlsToBar(mediaControlsComponent); // Add media controls to top bar
-        // Set initial song title (or update it when song changes)
+        topBarComponent.addControlsToBar(mediaControlsComponent);
         topBarComponent.setSongTitle("Minato Aqua - #Aquairo Palette");
 
-        visualizerComponent.setMenuBox(menuButtonsComponent); // Add menu buttons to visualizer
+        visualizerComponent.setMenuBox(menuButtonsComponent);
 
         String bgmPath = "./src/main/resources/assets/audio/audio.mp3";
         BgmManager.playBgm(bgmPath);
@@ -220,11 +211,8 @@ public class LandingView extends Page {
         // For now, let's assume RegisterModal handles its own creation logic, or you add a listener.
         // Example: registerModalComponent.getCreateButton().setOnAction(e -> { /* handle registration */ });
 
-        // --- Click outside LoginModal to hide it ---
         root.setOnMouseClicked(e -> {
             if (loginModalComponent.isShowing()) {
-                // Check if the click target is outside the loginModalComponent.
-                // This requires checking if e.getTarget() is a descendant of loginModalComponent.
                 javafx.scene.Node target = (javafx.scene.Node) e.getTarget();
                 boolean clickedOnLoginModal = false;
                 while (target != null) {
@@ -240,21 +228,17 @@ public class LandingView extends Page {
             }
         });
 
-        // --- Menu Buttons Events (from MenuButtons component) ---
         menuButtonsComponent.getPlayButton().setOnMouseClicked(e -> {
             System.out.println("Menu: Play clicked");
-            // Add navigation or action for Play
-            new HomeView(stage); // Example: Navigate to HomeView
-            toggleMenuPanel(); // Hide menu after action
+            new HomeView(stage);
+            toggleMenuPanel();
         });
         menuButtonsComponent.getOptionButton().setOnMouseClicked(e -> {
             System.out.println("Menu: Options clicked");
-            // Add navigation or action for Options
-            toggleMenuPanel(); // Hide menu after action
+            toggleMenuPanel();
         });
         menuButtonsComponent.getExitButton().setOnMouseClicked(e -> {
             System.out.println("Menu: Exit clicked");
-            // Platform.exit(); or stage.close();
             ((Stage) scene.getWindow()).close();
         });
     }
