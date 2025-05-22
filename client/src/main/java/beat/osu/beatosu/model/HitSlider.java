@@ -36,7 +36,6 @@ public class HitSlider extends HitObject {
     private ScaleTransition approachAnimation;
 
     // Visual Constants
-//    private static final double CIRCLE_RADIUS = 40;
     private final double PATH_STROKE_WIDTH;
     private final double BALL_RADIUS;
     private static final double APPROACH_START_SCALE = 5.0;
@@ -234,7 +233,6 @@ public class HitSlider extends HitObject {
             dummyPath.setStrokeWidth(PATH_STROKE_WIDTH);
             return dummyPath;
         }
-
 
         Path path = new Path();
         path.setStroke(Color.BLUE); // TODO: Use colors based on combo
@@ -489,6 +487,22 @@ public class HitSlider extends HitObject {
             // The group's origin (0,0) should be the center of the head circle.
             // The path and other elements are positioned relative to this.
             group.relocate(paneX - getCircleRadius(), paneY - getCircleRadius());
+        }
+    }
+
+    @Override
+    public void updateVisuals(double centerX, double centerY, double scaledRadius) {
+        if(group != null) {
+//            group.relocate(centerX - getCircleRadius(), centerY - getCircleRadius());
+
+            group.setLayoutX(centerX);
+            group.setLayoutY(centerY);
+
+            // Update the radius of the circles based on the scaleFactor
+            headCircle.setRadius(scaledRadius);
+            approachCircle.setRadius(scaledRadius);
+            sliderPath.setStrokeWidth(scaledRadius * 2);
+            sliderBall.setRadius(scaledRadius * 0.8);
         }
     }
 

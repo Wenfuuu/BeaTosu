@@ -12,17 +12,17 @@ import javafx.util.Duration;
 public class HitCircle extends HitObject{
 
     private final Group group;
+    private final Circle innerCircle;
     private final Circle outerCircle;
 
     // Define visual constants (could be based on CS later)
-//    private static final double INNER_RADIUS;
     private static final double OUTER_RADIUS_START_SCALE = 5.0;
 
     public HitCircle(int osuX, int osuY, long hitTime, int type, int hitSound, String hitSample, double approachRate, double circleSize) {
         super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate, circleSize);
 
         // --- CORE CHANGE: Create circles at (0,0) relative to the Group ---
-        Circle innerCircle = new Circle(0, 0, getCircleRadius());
+        innerCircle = new Circle(0, 0, getCircleRadius());
         innerCircle.setFill(Color.rgb(100, 180, 255, 0.8)); // Example color
         innerCircle.setStroke(Color.WHITE);
         innerCircle.setStrokeWidth(2);
@@ -123,6 +123,28 @@ public class HitCircle extends HitObject{
     public void setPosition(double paneX, double paneY) {
         if(group != null) {
             group.relocate(paneX, paneY);
+        }
+    }
+
+    @Override
+    public void updateVisuals(double centerX, double centerY, double scaledRadius) {
+        if (group != null) {
+            // Position the Group so its local (0,0) point (which is the center of the circles)
+            // is at (centerX, centerY) on the pane.
+            group.setLayoutX(centerX);
+            group.setLayoutY(centerY);
+
+            // Update the radius of the circles based on the scaleFactor
+            innerCircle.setRadius(scaledRadius);
+            outerCircle.setRadius(scaledRadius); // Approach circle's base radius is also scaled
+
+            // Optional: Scale stroke width if desired.
+            // For a consistent look, stroke width might also need to be scaled.
+            // E.g., double newStrokeWidth = 2.0 * (scaledRadius / getUnscaledRadius());
+            // if (getUnscaledRadius() > 0) { // Avoid division by zero
+            //     innerCircle.setStrokeWidth(Math.max(1.0, newStrokeWidth));
+            //     outerCircle.setStrokeWidth(Math.max(1.0, newStrokeWidth));
+            // }
         }
     }
 }

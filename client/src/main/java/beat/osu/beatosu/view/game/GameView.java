@@ -23,9 +23,15 @@ import java.util.Map;
 
 public class GameView extends Page {
     // Osu! playfield resolution (4:3)
-    private final double OSU_WIDTH = 512.0;
-    private final double OSU_HEIGHT = 384.0;
+    private final double OSU_WIDTH = 640.0;
+    private final double OSU_HEIGHT = 480.0;
     private final double OSU_ASPECT_RATIO = OSU_WIDTH / OSU_HEIGHT;
+
+    // Offset of the 512x384 playfield's top-left (0,0) within the 640x480 reference system
+    // X: (640 - 512) / 2 = 64
+    // Y: (480 - 384) / 2 + 8 = 48 + 8 = 56 (to account for the 8px downward shift from true center)
+    private final double PLAYFIELD_OFFSET_X_IN_REF = 64.0;
+    private final double PLAYFIELD_OFFSET_Y_IN_REF = 56.0;
 
     private double circleSize; // Default Circle Size (CS) if parsing fails
     private double osuPixelDiameter;   // Diameter in original osu! coordinates
@@ -93,63 +99,122 @@ public class GameView extends Page {
     }
 
     private void updateLayout() {
+//        double paneWidth = ScreenManager.SCREEN_WIDTH;
+//        double paneHeight = ScreenManager.SCREEN_HEIGHT;
         double paneWidth = root.getWidth();
         double paneHeight = root.getHeight();
+        System.out.println("Pane Width: " + paneWidth);
+        System.out.println("Pane Height: " + paneHeight);
         if (paneWidth <= 0 || paneHeight <= 0) {
             return;
         }
 
-        // --- Calculate Hit Object Diameter based on Beatmap CS ---
-        osuPixelDiameter = (54.4 - (4.48 * circleSize)) * 2.0;
+        // 1. Calculate the masterScaleFactor.
+        // This factor determines how 1 game pixel (from the 640x480 reference) scales to your actual screen.
+        double masterScaleFactor;
+        double paneAspectRatio = paneWidth / paneHeight;
 
-        double paneRatio = paneWidth / paneHeight;
-        double scaleFactor;
-        double scaledPlayfieldWidth;
-        double scaledPlayfieldHeight;
-
-        // Determine the scale factor based on the limiting dimension (width or height)
-        // to maintain the 4:3 aspect ratio
-        if (paneRatio > OSU_ASPECT_RATIO) {
-            // Pane is wider than 4:3 (letterboxed), height is the limit
-            scaleFactor = paneHeight / OSU_HEIGHT;
-            scaledPlayfieldHeight = paneHeight;
-            scaledPlayfieldWidth = OSU_WIDTH * scaleFactor;
-        } else {
-            // Pane is narrower than or equal to 4:3 (pillarboxed), width is the limit
-            scaleFactor = paneWidth / OSU_WIDTH;
-            scaledPlayfieldWidth = paneWidth;
-            scaledPlayfieldHeight = OSU_HEIGHT * scaleFactor;
+        if (paneAspectRatio > OSU_ASPECT_RATIO) { // Pane is wider than 4:3 reference (e.g., 16:9 pane)
+            masterScaleFactor = paneHeight / OSU_HEIGHT; // Scale based on height (e.g., 864 / 480 = 1.8)
+        } else { // Pane is narrower or equal to 4:3 reference
+            masterScaleFactor = paneWidth / OSU_WIDTH;   // Scale based on width
         }
 
-        // Calculate the offsets needed to center the scaled playfield within the pane
-        double offsetX = (paneWidth - scaledPlayfieldWidth) / 2.0;
-        double offsetY = (paneHeight - scaledPlayfieldHeight) / 2.0;
+        // 2. Calculate the on-screen dimensions and top-left position of the scaled 640x480 reference viewport.
+        // This viewport will be centered on your pane.
+        double scaledRefScreenWidth = OSU_WIDTH * masterScaleFactor;
+        double scaledRefScreenHeight = OSU_HEIGHT * masterScaleFactor;
 
-        // Calculate the scaled size of the hit object
-        double scaledHitObjectDiameter = osuPixelDiameter * scaleFactor;
-        // The amount to shift left/up to center the node
-        double centerAdjustment = scaledHitObjectDiameter / 2.0;
+        double viewportTopLeftX = (paneWidth - scaledRefScreenWidth) / 2.0;
+        double viewportTopLeftY = (paneHeight - scaledRefScreenHeight) / 2.0;
 
-        // Iterate through the Nodes in the pane
-        for (Node node : root.getChildren()) {
+        // osuPixelDiameter is the diameter in unscaled osu!pixels (relative to 512x384 CS definitions)
+        // This calculation remains the same: (54.4 - (4.48 * CS)) is radius * 2 for diameter.
+        osuPixelDiameter = (54.4 - (4.48 * this.circleSize)) * 2.0;
+        double unscaledOsuPixelRadius = osuPixelDiameter / 2.0;
+
+        for (Node node : root.getChildren()) { // Or iterate a dedicated list of HitObjects
             if (node.getUserData() instanceof HitObject) {
-//                System.out.println(node.getUserData());
                 HitObject hitObject = (HitObject) node.getUserData();
 
-                // Get original osu! coordinates from the HitObject
-                double osuX = hitObject.getOsuX();
-                double osuY = hitObject.getOsuY();
+                double osuX = hitObject.getOsuX(); // Coordinate within 512x384 playfield
+                double osuY = hitObject.getOsuY(); // Coordinate within 512x384 playfield
 
-                // Calculate the final scaled and centered position on the pane
-                double centerX = (osuX * scaleFactor) + offsetX;
-                double centerY = (osuY * scaleFactor) + offsetY;
+                // a. Convert osuX, osuY (from 512x384 playfield) to their position
+                //    within the 640x480 reference coordinate system.
+                double hitObjectX_in_RefScreen = PLAYFIELD_OFFSET_X_IN_REF + osuX;
+                double hitObjectY_in_RefScreen = PLAYFIELD_OFFSET_Y_IN_REF + osuY;
 
-                double finalX = centerX - centerAdjustment;
-                double finalY = centerY - centerAdjustment;
+                // b. Scale these reference coordinates by masterScaleFactor and add viewport offset
+                //    to find the final on-screen center position for the hit object.
+                double finalObjectCenterX_onPane = viewportTopLeftX + (hitObjectX_in_RefScreen * masterScaleFactor);
+                double finalObjectCenterY_onPane = viewportTopLeftY + (hitObjectY_in_RefScreen * masterScaleFactor);
 
-                hitObject.setPosition(finalX, finalY);
+                // c. Calculate the on-screen scaled radius of the hit object.
+                //    The visual size is determined by masterScaleFactor.
+                double screenScaledRadius = unscaledOsuPixelRadius * masterScaleFactor;
+                System.out.println("Scale factor: " + masterScaleFactor);
+                System.out.println("Scaled Radius: " + screenScaledRadius);
+
+                hitObject.updateVisuals(finalObjectCenterX_onPane, finalObjectCenterY_onPane, screenScaledRadius);
             }
         }
+
+//        // --- Calculate Hit Object Diameter based on Beatmap CS ---
+//        osuPixelDiameter = (54.4 - (4.48 * circleSize)) * 2.0;
+//
+//        double paneRatio = paneWidth / paneHeight;
+//        double scaleFactor;
+//        double scaledPlayfieldWidth;
+//        double scaledPlayfieldHeight;
+//
+//        // Determine the scale factor based on the limiting dimension (width or height)
+//        // to maintain the 4:3 aspect ratio
+//        if (paneRatio > OSU_ASPECT_RATIO) {
+//            // Pane is wider than 4:3 (letterboxed), height is the limit
+//            scaleFactor = paneHeight / OSU_HEIGHT;
+//            scaledPlayfieldHeight = paneHeight;
+//            scaledPlayfieldWidth = OSU_WIDTH * scaleFactor;
+//        } else {
+//            // Pane is narrower than or equal to 4:3 (pillarboxed), width is the limit
+//            scaleFactor = paneWidth / OSU_WIDTH;
+//            scaledPlayfieldWidth = paneWidth;
+//            scaledPlayfieldHeight = OSU_HEIGHT * scaleFactor;
+//        }
+//
+//        System.out.println("Scale Factor: " + scaleFactor);
+//        // Calculate the offsets needed to center the scaled playfield within the pane
+//        double offsetX = (paneWidth - scaledPlayfieldWidth) / 2.0;
+//        double offsetY = (paneHeight - scaledPlayfieldHeight) / 2.0;
+//
+//        // Calculate the scaled size of the hit object
+//        double scaledHitObjectDiameter = osuPixelDiameter * scaleFactor;
+//        // The amount to shift left/up to center the node
+//        double centerAdjustment = scaledHitObjectDiameter / 2.0;
+//
+//        // Iterate through the Nodes in the pane
+//        for (Node node : root.getChildren()) {
+//            if (node.getUserData() instanceof HitObject) {
+////                System.out.println(node.getUserData());
+//                HitObject hitObject = (HitObject) node.getUserData();
+//
+//                // Get original osu! coordinates from the HitObject
+//                double osuX = hitObject.getOsuX();
+//                double osuY = hitObject.getOsuY();
+//
+//                // Calculate the final scaled and centered position on the pane
+//                double centerX = (osuX * scaleFactor) + offsetX;
+//                double centerY = (osuY * scaleFactor) + offsetY;
+//
+////                double finalX = centerX - centerAdjustment;
+////                double finalY = centerY - centerAdjustment;
+////                hitObject.setPosition(finalX, finalY);
+//
+//                double scaledRadius = (osuPixelDiameter / 2.0) * scaleFactor;
+//                // Instead of hitObject.setPosition(finalX, finalY), call a new method:
+//                hitObject.updateVisuals(centerX, centerY, scaledRadius);
+//            }
+//        }
     }
 
     private void startGame() {
