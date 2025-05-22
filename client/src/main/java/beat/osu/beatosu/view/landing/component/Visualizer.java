@@ -11,8 +11,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
-import javafx.stage.Screen;
 import lombok.Getter;
 
 import java.net.URL;
@@ -37,14 +35,11 @@ public class Visualizer extends StackPane {
 
     private boolean audioVisualizationPaused = false;
 
-    public Visualizer() {
+    public Visualizer(double visualizerSize) {
         super();
         this.getStyleClass().add("visualizer");
         this.setAlignment(Pos.CENTER);
-
-        Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
-        double screenSize = Math.min(visualBounds.getWidth(), visualBounds.getHeight());
-        this.visualizerSize = screenSize * 0.70;
+        this.visualizerSize = visualizerSize;
 
         initializeComponents();
         setupLayout();
@@ -62,8 +57,6 @@ public class Visualizer extends StackPane {
         logoContainer = new StackPane();
         logoContainer.setAlignment(Pos.CENTER);
         logoContainer.getStyleClass().add("logo-container");
-        // Caching logoContainer might be redundant if logoRayGroup is cached,
-        // but harmless. If logoView is its only complex child, caching logoView is key.
 
         logoView = new ImageView();
         try {
@@ -71,7 +64,6 @@ public class Visualizer extends StackPane {
                     .getResource("/assets/logo/osu_logo.png")).toExternalForm()));
         } catch (Exception e) {
             System.err.println("Error loading logo image: " + e.getMessage());
-            // Consider a placeholder or default behavior
         }
 
         logoView.setFitWidth(visualizerSize);
@@ -81,7 +73,7 @@ public class Visualizer extends StackPane {
         DropShadow glow = new DropShadow();
         glow.setColor(Color.PINK);
         glow.setRadius(30);
-        glow.setSpread(0.5); // Consider reducing spread if still heavy (e.g., 0.2 or 0)
+        glow.setSpread(0.5);
         logoView.setEffect(glow);
 
         logoView.setCache(true); // Crucial for animated effects + transforms

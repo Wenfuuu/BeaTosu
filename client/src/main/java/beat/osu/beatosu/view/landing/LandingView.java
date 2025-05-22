@@ -9,9 +9,11 @@ import beat.osu.beatosu.view.home.HomeView;
 import beat.osu.beatosu.view.landing.component.*;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.CacheHint;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -28,6 +30,8 @@ public class LandingView extends Page {
     private LoginModal loginModalComponent;
     private RegisterModal registerModalComponent;
 
+    private double visualizerSize;
+
     private boolean isMenuPanelOpen = false;
     private TranslateTransition logoSlideOut;
     private TranslateTransition menuSlideIn;
@@ -40,8 +44,8 @@ public class LandingView extends Page {
     }
 
     private void initMenuRevealAnimations() {
-        double logoTranslateX = -200; // How much the logo+rays group moves
-        double menuTranslateX = 440;  // How much the menu moves in
+        double logoTranslateX = -this.visualizerSize / 4.0;
+        double menuTranslateX = this.visualizerSize / 1.5;
 
         // Configure nodes for animation - set cache for better performance
         visualizerComponent.getLogoRayGroup().setCache(true);
@@ -105,11 +109,15 @@ public class LandingView extends Page {
         root = new StackPane();
         root.getStyleClass().add("main-layout");
 
+        Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
+        double screenSize = Math.min(visualBounds.getWidth(), visualBounds.getHeight());
+        this.visualizerSize = screenSize * 0.67;
+
         // --- Initialize Components ---
         mediaControlsComponent = new MediaControls();
         topBarComponent = new TopBar();
         menuButtonsComponent = new MenuButtons();
-        visualizerComponent = new Visualizer();
+        visualizerComponent = new Visualizer(this.visualizerSize);
         bottomBarComponent = new BottomBar();
         loginModalComponent = new LoginModal();
         registerModalComponent = new RegisterModal();
@@ -181,7 +189,7 @@ public class LandingView extends Page {
         }
 
         // --- Visualizer Logo Click (for menu reveal) ---
-        visualizerComponent.getLogoView().setOnMouseClicked(e -> {
+        visualizerComponent.getLogoRayGroup().setOnMouseClicked(e -> {
             System.out.println("Logo Ray Group clicked! Event: " + e);
             toggleMenuPanel();
         });
