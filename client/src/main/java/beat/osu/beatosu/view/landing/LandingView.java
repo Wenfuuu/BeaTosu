@@ -42,8 +42,8 @@ public class LandingView extends Page {
     }
 
     private void initMenuRevealAnimations() {
-        double logoTranslateX = -this.visualizerSize / 3.7;
-        double menuTranslateX = this.visualizerSize / 1.5;
+        double logoTranslateX = -this.visualizerSize / 3.5;
+        double menuTranslateX = this.visualizerSize / 1.4;
 
         visualizerComponent.getLogoRayGroup().setCache(true);
         visualizerComponent.getLogoRayGroup().setCacheHint(CacheHint.SPEED);
@@ -102,7 +102,7 @@ public class LandingView extends Page {
         root = new StackPane();
         root.getStyleClass().add("main-layout");
 
-        this.visualizerSize = ScreenManager.SCREEN_HEIGHT * 0.67;
+        this.visualizerSize = ScreenManager.SCREEN_HEIGHT * 0.6;
 
         // --- Initialize Components ---
         mediaControlsComponent = new MediaControls();
