@@ -11,6 +11,8 @@ public abstract class HitObject {
     private int type;
     private int hitSound;
     private String hitSample;
+    private int comboNumber;
+    private int comboSetIndex;
 
     private boolean hit = false;
     private boolean visible = false;
@@ -26,7 +28,8 @@ public abstract class HitObject {
     private double screenRadius;
 
     public HitObject(int osuX, int osuY, long hitTime, int type, int hitSound,
-                     String hitSample, double approachRate, double circleSize) {
+                     String hitSample, double approachRate, double circleSize,
+                     int comboNumber, int comboSetIndex) {
         this.osuX = osuX;
         this.osuY = osuY;
         this.hitTime = hitTime;
@@ -37,6 +40,8 @@ public abstract class HitObject {
         this.fadeIn = calculateFadeIn(approachRate);
         this.spawnTime = hitTime - preempt;
         this.circleRadius = calculateCircleRadius(circleSize);
+        this.comboNumber = comboNumber;
+        this.comboSetIndex = comboSetIndex;
     }
 
     public void updateVisuals(double centerX, double centerY, double scaledRadius) {

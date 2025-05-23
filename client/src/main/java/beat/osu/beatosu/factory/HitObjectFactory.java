@@ -10,14 +10,26 @@ import java.util.Map;
 
 public class HitObjectFactory {
 
+    public static int getComboSkipCount(String data) {
+        String[] parts = data.split(",");
+        int type = Integer.parseInt(parts[3]);
+        return (type >> 4) & 7;
+    }
+
+    public static boolean checkNewCombo(String data) {
+        String[] parts = data.split(",");
+        int type = Integer.parseInt(parts[3]);
+        return (type & 4) != 0;
+    }
+
     private static String decodeType(int type){
         boolean isHitCircle = (type & 1) != 0;
         boolean isSlider = (type & 2) != 0;
-        boolean isNewCombo = (type & 4) != 0;
+//        boolean isNewCombo = (type & 4) != 0;
         boolean isSpinner = (type & 8) != 0;
         boolean isHold = (type & 128) != 0;
 
-        int comboSkip = (type >> 4) & 7;
+//        int comboSkip = (type >> 4) & 7;
 
 //        System.out.println("Type: " + type);
 //        System.out.println(" - Hit Circle: " + isHitCircle);
@@ -33,7 +45,8 @@ public class HitObjectFactory {
         return "spinner";
     }
 
-    public static HitObject createHitObject(String data, Beatmap selectedBeatmap){
+    public static HitObject createHitObject(String data, Beatmap selectedBeatmap,
+                                            int comboNumber, int comboSetIndex){
         // Circle (length 6) => 382,305,6867,1,2,3:2:0:0:
         // Slider => 59,124,2279,6,0,P|116:91|220:132,1,171.73332756836,2|0,0:2|0:2,0:0:0:0:
 
@@ -66,13 +79,16 @@ public class HitObjectFactory {
         double circleSize = selectedBeatmap.getCircleSize();
 //        return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate);
         if(hitType.equals("circle")){
-            return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate, circleSize);
+            return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate, circleSize,
+                    comboNumber, comboSetIndex);
         }else if(hitType.equals("slider")){
             return new HitSlider(x, y, time, type, hitSound, objectParams, hitSample,
-                    approachRate, circleSize, selectedBeatmap.getSlideMultiplier());
+                    approachRate, circleSize, selectedBeatmap.getSlideMultiplier(),
+                    comboNumber, comboSetIndex);
         }
         else{
-            return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate, circleSize);
+            return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate, circleSize,
+                    comboNumber, comboSetIndex);
         }
     }
 

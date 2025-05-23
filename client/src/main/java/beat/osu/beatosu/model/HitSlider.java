@@ -179,8 +179,9 @@ public class HitSlider extends HitObject {
 
     public HitSlider(int osuX, int osuY, long hitTime, int type, int hitSound,
                      String objectParams, String hitSample, double approachRate,
-                     double circleSize, double sliderMultiplier) {
-        super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate, circleSize);
+                     double circleSize, double sliderMultiplier,
+                     int comboNumber, int comboSetIndex) {
+        super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate, circleSize, comboNumber, comboSetIndex);
         PATH_STROKE_WIDTH = getCircleRadius() * 2;
         BALL_RADIUS = getCircleRadius() * 0.8;
 
@@ -207,7 +208,7 @@ public class HitSlider extends HitObject {
         headCircle.setStroke(Color.WHITE);
         headCircle.setStrokeWidth(2);
 
-        comboLabel = new Label("1");
+        comboLabel = new Label(String.valueOf(getComboNumber()));
         comboLabel.setFont(new Font(50));
         comboLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
         comboLabel.layoutBoundsProperty().addListener((obs, oldBounds, newBounds) -> {

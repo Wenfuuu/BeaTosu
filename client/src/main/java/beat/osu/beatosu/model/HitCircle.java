@@ -21,8 +21,11 @@ public class HitCircle extends HitObject{
     // Define visual constants (could be based on CS later)
     private static final double OUTER_RADIUS_START_SCALE = 5.0;
 
-    public HitCircle(int osuX, int osuY, long hitTime, int type, int hitSound, String hitSample, double approachRate, double circleSize) {
-        super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate, circleSize);
+    public HitCircle(int osuX, int osuY, long hitTime,
+                     int type, int hitSound, String hitSample,
+                     double approachRate, double circleSize,
+                     int comboNumber, int comboSetIndex) {
+        super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate, circleSize, comboNumber, comboSetIndex);
 
         // --- CORE CHANGE: Create circles at (0,0) relative to the Group ---
         innerCircle = new Circle(0, 0, getCircleRadius());
@@ -35,7 +38,7 @@ public class HitCircle extends HitObject{
         outerCircle.setStroke(Color.WHITE); // Approach circle color
         outerCircle.setStrokeWidth(2);
 
-        comboLabel = new Label("1");
+        comboLabel = new Label(String.valueOf(getComboNumber()));
         comboLabel.setFont(new Font(50));
         comboLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
         comboLabel.layoutBoundsProperty().addListener((obs, oldBounds, newBounds) -> {

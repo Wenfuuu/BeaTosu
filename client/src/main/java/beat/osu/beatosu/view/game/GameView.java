@@ -51,6 +51,11 @@ public class GameView extends Page {
     private double currentMouseX;
     private double currentMouseY;
 
+    private int masterComboNumber = 0; // Overall combo for score, not directly displayed on circles
+    private int currentComboNumberInSet = 0; // The 1,2,3... on circles, resets with new combo
+    private int currentComboSetIndex = 0; // Index for combo colors (0,1,2,3...)
+    private int comboSkipCounter = 0; // For handling the combo skip bits
+
     public GameView(Stage stage, Beatmap selectedBeatmap) {
         super(stage);
         this.beatmap = selectedBeatmap;
@@ -81,7 +86,21 @@ public class GameView extends Page {
     }
 
     private void addHitObject(String data) {
-        root.getChildren().add(HitObjectFactory.createHitObject(data, beatmap).getNode());
+        boolean isThisObjectANewCombo = HitObjectFactory.checkNewCombo(data);
+        int comboSkipFromThisObject = HitObjectFactory.getComboSkipCount(data);
+
+        if (isThisObjectANewCombo) {
+            currentComboNumberInSet = 1; // Reset number for this new combo set
+            // Apply combo skip from the *previous* new combo object, or this one if it's the first.
+            // The comboSetIndex is incremented by 1 + the number of colors to skip.
+            currentComboSetIndex = (currentComboSetIndex + 1 + comboSkipCounter) % OsuParser.getColours().size(); // Modulo beatmap's combo color count
+            comboSkipCounter = comboSkipFromThisObject; // Store skip for NEXT new combo
+        } else {
+            currentComboNumberInSet++;
+        }
+
+        HitObject newHitObject = HitObjectFactory.createHitObject(data, beatmap, currentComboNumberInSet, currentComboSetIndex);
+        root.getChildren().add(newHitObject.getNode());
     }
 
     private void processBeatmap() {
@@ -110,6 +129,12 @@ public class GameView extends Page {
         }
 
         circleSize = beatmap.getCircleSize();
+
+        // Reset combo counters before processing a new beatmap
+        masterComboNumber = 0;
+        currentComboNumberInSet = 0; // Will be incremented to 1 for the first object if not new combo
+        currentComboSetIndex = 0;    // Start with the first combo color
+        comboSkipCounter = 0;        // No skips pending for the first combo set initially
 
         for(String data: OsuParser.getHitObjects()) {
             addHitObject(data);
