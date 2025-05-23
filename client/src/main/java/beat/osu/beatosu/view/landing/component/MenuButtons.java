@@ -150,7 +150,6 @@ public class MenuButtons extends VBox {
         return button;
     }
 
-    // Getters for the buttons
     public Button getPlayButton() {
         return menuPlayButton;
     }

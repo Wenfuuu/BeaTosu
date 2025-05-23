@@ -8,10 +8,12 @@ import beat.osu.beatosu.view.Page;
 import beat.osu.beatosu.view.home.HomeView;
 import beat.osu.beatosu.view.landing.component.*;
 import javafx.animation.FadeTransition;
+import javafx.animation.Interpolator;
 import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Pos;
 import javafx.scene.CacheHint;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -64,7 +66,7 @@ public class LandingView extends Page {
         logoSlideOut = new TranslateTransition(Duration.millis(300),
                 visualizerComponent.getLogoRayGroup());
         logoSlideOut.setToX(logoTranslateX);
-        logoSlideOut.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
+        logoSlideOut.setInterpolator(Interpolator.EASE_OUT);
         logoSlideOut.setOnFinished(e -> {
             visualizerComponent.getLogoRayGroup().setCacheHint(CacheHint.DEFAULT);
         });
@@ -72,7 +74,7 @@ public class LandingView extends Page {
         menuSlideIn = new TranslateTransition(Duration.millis(300), menuButtonsComponent);
         menuButtonsComponent.setTranslateX(0);
         menuSlideIn.setToX(menuTranslateX);
-        menuSlideIn.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
+        menuSlideIn.setInterpolator(Interpolator.EASE_OUT);
         menuSlideIn.setOnFinished(e -> {
             menuButtonsComponent.setCacheHint(CacheHint.DEFAULT);
         });
@@ -81,7 +83,7 @@ public class LandingView extends Page {
                 visualizerComponent.getLogoRayGroup());
         logoSlideIn.setFromX(logoTranslateX);
         logoSlideIn.setToX(0);
-        logoSlideIn.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
+        logoSlideIn.setInterpolator(Interpolator.EASE_OUT);
         logoSlideIn.setOnFinished(e -> {
             visualizerComponent.getLogoRayGroup().setCacheHint(CacheHint.DEFAULT);
         });
@@ -89,7 +91,7 @@ public class LandingView extends Page {
         menuSlideOut = new TranslateTransition(Duration.millis(300), menuButtonsComponent);
         menuSlideOut.setFromX(menuTranslateX);
         menuSlideOut.setToX(0);
-        menuSlideOut.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
+        menuSlideOut.setInterpolator(Interpolator.EASE_OUT);
         menuSlideOut.setOnFinished(e -> {
             menuButtonsComponent.setCacheHint(CacheHint.DEFAULT);
         });
@@ -271,7 +273,7 @@ public class LandingView extends Page {
 
         root.setOnMouseClicked(e -> {
             if (loginModalComponent.isShowing()) {
-                javafx.scene.Node target = (javafx.scene.Node) e.getTarget();
+                Node target = (Node) e.getTarget();
                 boolean clickedOnLoginModal = false;
                 while (target != null) {
                     if (target == loginModalComponent) {

@@ -150,11 +150,9 @@ public class SubMenuButtons extends VBox {
         return button;
     }
 
-    // Getters for the buttons
     public Button getSoloButton() {
         return menuSoloButton;
     }
-
     public Button getMultiButton() {
         return menuMultiButton;
     }
