@@ -1,6 +1,7 @@
 package beat.osu.beatosu.model;
 
 import beat.osu.beatosu.utils.OsuParser;
+import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -424,6 +425,25 @@ public class HitSlider extends HitObject {
     }
 
     @Override
+    public void playHitEffect() {
+        headHit = true;
+        if (approachAnimation != null) approachAnimation.stop();
+        approachCircle.setVisible(false);
+        headCircle.setVisible(false);
+        sliderBall.setVisible(true);
+
+        // Set sliderBall to initial position
+        Point2D initialBallPos = getVisualPointAtFraction(0.0);
+        sliderBall.setCenterX(initialBallPos.getX());
+        sliderBall.setCenterY(initialBallPos.getY());
+
+        // (Optional) Add fade effect for headCircle if you want
+        FadeTransition fade = new FadeTransition(Duration.millis(150), headCircle);
+        fade.setToValue(0);
+        fade.play();
+    }
+
+    @Override
     public void handleEvent() {
         group.setOnMousePressed(e -> { // Changed to group, OnMousePressed might feel more responsive for holds
             if (isVisible() && !headHit && e.getTarget() != sliderBall) {
@@ -479,15 +499,6 @@ public class HitSlider extends HitObject {
         //         }
         //     }
         // });
-    }
-
-    @Override
-    public void setPosition(double paneX, double paneY) {
-        if(group != null) {
-            // The group's origin (0,0) should be the center of the head circle.
-            // The path and other elements are positioned relative to this.
-            group.relocate(paneX - getCircleRadius(), paneY - getCircleRadius());
-        }
     }
 
     @Override

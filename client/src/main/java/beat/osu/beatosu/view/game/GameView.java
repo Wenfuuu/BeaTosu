@@ -13,13 +13,15 @@ import javafx.animation.AnimationTimer;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 public class GameView extends Page {
     // Osu! playfield resolution (4:3)
@@ -41,6 +43,7 @@ public class GameView extends Page {
     private long startTimeNanos = -1;
 
     private Pane root;
+    private final Set<KeyCode> previousKeys = new HashSet<>();
 
     public GameView(Stage stage, Beatmap selectedBeatmap) {
         super(stage);
@@ -153,68 +156,10 @@ public class GameView extends Page {
                 // c. Calculate the on-screen scaled radius of the hit object.
                 //    The visual size is determined by masterScaleFactor.
                 double screenScaledRadius = unscaledOsuPixelRadius * masterScaleFactor;
-                System.out.println("Scale factor: " + masterScaleFactor);
-                System.out.println("Scaled Radius: " + screenScaledRadius);
 
                 hitObject.updateVisuals(finalObjectCenterX_onPane, finalObjectCenterY_onPane, screenScaledRadius);
             }
         }
-
-//        // --- Calculate Hit Object Diameter based on Beatmap CS ---
-//        osuPixelDiameter = (54.4 - (4.48 * circleSize)) * 2.0;
-//
-//        double paneRatio = paneWidth / paneHeight;
-//        double scaleFactor;
-//        double scaledPlayfieldWidth;
-//        double scaledPlayfieldHeight;
-//
-//        // Determine the scale factor based on the limiting dimension (width or height)
-//        // to maintain the 4:3 aspect ratio
-//        if (paneRatio > OSU_ASPECT_RATIO) {
-//            // Pane is wider than 4:3 (letterboxed), height is the limit
-//            scaleFactor = paneHeight / OSU_HEIGHT;
-//            scaledPlayfieldHeight = paneHeight;
-//            scaledPlayfieldWidth = OSU_WIDTH * scaleFactor;
-//        } else {
-//            // Pane is narrower than or equal to 4:3 (pillarboxed), width is the limit
-//            scaleFactor = paneWidth / OSU_WIDTH;
-//            scaledPlayfieldWidth = paneWidth;
-//            scaledPlayfieldHeight = OSU_HEIGHT * scaleFactor;
-//        }
-//
-//        System.out.println("Scale Factor: " + scaleFactor);
-//        // Calculate the offsets needed to center the scaled playfield within the pane
-//        double offsetX = (paneWidth - scaledPlayfieldWidth) / 2.0;
-//        double offsetY = (paneHeight - scaledPlayfieldHeight) / 2.0;
-//
-//        // Calculate the scaled size of the hit object
-//        double scaledHitObjectDiameter = osuPixelDiameter * scaleFactor;
-//        // The amount to shift left/up to center the node
-//        double centerAdjustment = scaledHitObjectDiameter / 2.0;
-//
-//        // Iterate through the Nodes in the pane
-//        for (Node node : root.getChildren()) {
-//            if (node.getUserData() instanceof HitObject) {
-////                System.out.println(node.getUserData());
-//                HitObject hitObject = (HitObject) node.getUserData();
-//
-//                // Get original osu! coordinates from the HitObject
-//                double osuX = hitObject.getOsuX();
-//                double osuY = hitObject.getOsuY();
-//
-//                // Calculate the final scaled and centered position on the pane
-//                double centerX = (osuX * scaleFactor) + offsetX;
-//                double centerY = (osuY * scaleFactor) + offsetY;
-//
-////                double finalX = centerX - centerAdjustment;
-////                double finalY = centerY - centerAdjustment;
-////                hitObject.setPosition(finalX, finalY);
-//
-//                double scaledRadius = (osuPixelDiameter / 2.0) * scaleFactor;
-//                // Instead of hitObject.setPosition(finalX, finalY), call a new method:
-//                hitObject.updateVisuals(centerX, centerY, scaledRadius);
-//            }
-//        }
     }
 
     private void startGame() {
@@ -243,6 +188,20 @@ public class GameView extends Page {
                     if (node != null && node.getUserData() instanceof HitObject) {
                         HitObject hitObject = (HitObject) node.getUserData();
                         hitObject.update(elapsedMillis);
+
+                        // --- Handle Key Presses ---
+                        Set<KeyCode> currentKeys = inputManager.getPressedKeys();
+                        boolean zPressed = currentKeys.contains(KeyCode.Z) && !previousKeys.contains(KeyCode.Z);
+                        boolean xPressed = currentKeys.contains(KeyCode.X) && !previousKeys.contains(KeyCode.X);
+                        if ((zPressed || xPressed) && hitObject.isVisible() && !hitObject.isHit()) {
+                            // handle hit
+                            long timingError = now - hitObject.getHitTime(); // Calculate hit timing
+                            hitObject.setHit(true);
+                            hitObject.playHitEffect();
+                        }
+
+                        previousKeys.clear();
+                        previousKeys.addAll(currentKeys);
                     }
                 }
 

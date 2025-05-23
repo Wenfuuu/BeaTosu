@@ -65,7 +65,8 @@ public class HitCircle extends HitObject{
         scale.play();
     }
 
-    private void playHitEffect() {
+    @Override
+    public void playHitEffect() {
         FadeTransition fade = new FadeTransition(Duration.millis(150), group);
         fade.setToValue(0);
         // Remove from parent pane after fade out to clean up
@@ -107,23 +108,16 @@ public class HitCircle extends HitObject{
 
     @Override
     public void handleEvent() {
-        group.setOnMouseClicked(e -> { // Use group to catch clicks slightly outside innerCircle
-            if (isVisible() && !isHit()) {
-                long clickTime = getCurrTime();
-                long timingError = clickTime - getHitTime(); // Calculate hit timing
-                setHit(true);
-                playHitEffect();
-//                System.out.println("Hit: " + getOsuX() + "," + getOsuY() + " | Timing: " + timingError + "ms");
-                // calculate score based on timingError here
-            }
-        });
-    }
-
-    @Override
-    public void setPosition(double paneX, double paneY) {
-        if(group != null) {
-            group.relocate(paneX, paneY);
-        }
+//        group.setOnMouseClicked(e -> { // Use group to catch clicks slightly outside innerCircle
+//            if (isVisible() && !isHit()) {
+//                long clickTime = getCurrTime();
+//                long timingError = clickTime - getHitTime(); // Calculate hit timing
+//                setHit(true);
+//                playHitEffect();
+////                System.out.println("Hit: " + getOsuX() + "," + getOsuY() + " | Timing: " + timingError + "ms");
+//                // calculate score based on timingError here
+//            }
+//        });
     }
 
     @Override

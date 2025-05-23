@@ -62,6 +62,6 @@ public abstract class HitObject {
     public abstract Node getNode();
     public abstract void update(long currentTime);
     public abstract void handleEvent();
-    public abstract void setPosition(double paneX, double paneY);
     public abstract void updateVisuals(double centerX, double centerY, double scaledRadius);
+    public abstract void playHitEffect();
 }
