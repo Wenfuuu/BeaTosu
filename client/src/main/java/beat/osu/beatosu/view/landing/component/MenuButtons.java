@@ -74,11 +74,11 @@ public class MenuButtons extends VBox {
                 Image hoveredImage = null;
                 
                 ImageView normalImageView = new ImageView(normalImage);
-                normalImageView.setFitHeight(ScreenManager.SCREEN_HEIGHT / 12);
+                normalImageView.setFitHeight(ScreenManager.SCREEN_HEIGHT / 11);
                 normalImageView.setPreserveRatio(true);
                 
                 ImageView hoveredImageView = new ImageView();
-                hoveredImageView.setFitHeight(ScreenManager.SCREEN_HEIGHT / 12);
+                hoveredImageView.setFitHeight(ScreenManager.SCREEN_HEIGHT / 11);
                 hoveredImageView.setPreserveRatio(true);
                 hoveredImageView.setOpacity(0);
                 
