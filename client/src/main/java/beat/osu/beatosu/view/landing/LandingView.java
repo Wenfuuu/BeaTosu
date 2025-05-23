@@ -7,6 +7,8 @@ import beat.osu.beatosu.helper.ScreenManager;
 import beat.osu.beatosu.view.Page;
 import beat.osu.beatosu.view.home.HomeView;
 import beat.osu.beatosu.view.landing.component.*;
+import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Pos;
 import javafx.scene.CacheHint;
@@ -25,16 +27,23 @@ public class LandingView extends Page {
     private BottomBar bottomBarComponent;
     private MediaControls mediaControlsComponent;
     private MenuButtons menuButtonsComponent;
+    private SubMenuButtons subMenuButtonsComponent;
     private LoginModal loginModalComponent;
     private RegisterModal registerModalComponent;
 
     private double visualizerSize;
 
     private boolean isMenuPanelOpen = false;
+    private boolean isSubMenuOpen = false;
     private TranslateTransition logoSlideOut;
     private TranslateTransition menuSlideIn;
     private TranslateTransition logoSlideIn;
     private TranslateTransition menuSlideOut;
+
+    private FadeTransition menuFadeOut;
+    private FadeTransition menuFadeIn;
+    private FadeTransition subMenuFadeIn;
+    private FadeTransition subMenuFadeOut;
 
     public LandingView(Stage stage) {
         super(stage);
@@ -49,6 +58,8 @@ public class LandingView extends Page {
         visualizerComponent.getLogoRayGroup().setCacheHint(CacheHint.SPEED);
         menuButtonsComponent.setCache(true);
         menuButtonsComponent.setCacheHint(CacheHint.SPEED);
+        subMenuButtonsComponent.setCache(true);
+        subMenuButtonsComponent.setCacheHint(CacheHint.SPEED);
 
         logoSlideOut = new TranslateTransition(Duration.millis(300),
                 visualizerComponent.getLogoRayGroup());
@@ -59,7 +70,7 @@ public class LandingView extends Page {
         });
 
         menuSlideIn = new TranslateTransition(Duration.millis(300), menuButtonsComponent);
-        menuButtonsComponent.setTranslateX(0); // Initial position
+        menuButtonsComponent.setTranslateX(0);
         menuSlideIn.setToX(menuTranslateX);
         menuSlideIn.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
         menuSlideIn.setOnFinished(e -> {
@@ -82,19 +93,73 @@ public class LandingView extends Page {
         menuSlideOut.setOnFinished(e -> {
             menuButtonsComponent.setCacheHint(CacheHint.DEFAULT);
         });
+
+        subMenuButtonsComponent.setTranslateX(menuTranslateX);
+
+        menuFadeOut = new FadeTransition(Duration.millis(300), menuButtonsComponent);
+        menuFadeOut.setFromValue(1.0);
+        menuFadeOut.setToValue(0.0);
+        
+        menuFadeIn = new FadeTransition(Duration.millis(300), menuButtonsComponent);
+        menuFadeIn.setFromValue(0.0);
+        menuFadeIn.setToValue(1.0);
+        
+        subMenuFadeIn = new FadeTransition(Duration.millis(300), subMenuButtonsComponent);
+        subMenuFadeIn.setFromValue(0.0);
+        subMenuFadeIn.setToValue(1.0);
+        
+        subMenuFadeOut = new FadeTransition(Duration.millis(300), subMenuButtonsComponent);
+        subMenuFadeOut.setFromValue(1.0);
+        subMenuFadeOut.setToValue(0.0);
     }
 
     private void toggleMenuPanel() {
-        if (isMenuPanelOpen) {
-            // Close menu
+        if (isSubMenuOpen) {
+            hideSubMenu();
+        } else if (isMenuPanelOpen) {
             logoSlideIn.play();
             menuSlideOut.play();
+            isMenuPanelOpen = false;
         } else {
-            // Open menu
             logoSlideOut.play();
             menuSlideIn.play();
+            isMenuPanelOpen = true;
         }
-        isMenuPanelOpen = !isMenuPanelOpen;
+    }
+
+    private void showSubMenu() {
+        if (isMenuPanelOpen) {
+            subMenuButtonsComponent.setVisible(true);
+            subMenuButtonsComponent.setManaged(true);
+            menuButtonsComponent.setOpacity(1.0);
+            subMenuButtonsComponent.setCacheHint(CacheHint.DEFAULT);
+
+            TranslateTransition menuTranslateOut = new TranslateTransition(Duration.millis(0), menuButtonsComponent);
+            menuTranslateOut.setFromX(this.visualizerSize / 1.4);
+            menuTranslateOut.setToX(0);
+
+            ParallelTransition switchMenu = new ParallelTransition(menuFadeOut, subMenuFadeIn, menuTranslateOut);
+            switchMenu.play();
+
+            isMenuPanelOpen = false;
+            isSubMenuOpen = true;
+        }
+    }
+
+    private void hideSubMenu() {
+        if (isSubMenuOpen) {
+            subMenuButtonsComponent.setVisible(false);
+            subMenuButtonsComponent.setManaged(false);
+            menuButtonsComponent.setOpacity(0.0);
+            subMenuButtonsComponent.setCacheHint(CacheHint.DEFAULT);
+
+            menuButtonsComponent.setTranslateX(this.visualizerSize / 1.4);
+            ParallelTransition switchMenu = new ParallelTransition(menuFadeIn, subMenuFadeOut);
+            switchMenu.play();
+
+            isSubMenuOpen = false;
+            isMenuPanelOpen = true;
+        }
     }
 
     @Override
@@ -104,10 +169,10 @@ public class LandingView extends Page {
 
         this.visualizerSize = ScreenManager.SCREEN_HEIGHT * 0.6;
 
-        // --- Initialize Components ---
         mediaControlsComponent = new MediaControls();
         topBarComponent = new TopBar();
         menuButtonsComponent = new MenuButtons();
+        subMenuButtonsComponent = new SubMenuButtons();
         visualizerComponent = new Visualizer(this.visualizerSize);
         bottomBarComponent = new BottomBar();
         loginModalComponent = new LoginModal();
@@ -115,12 +180,17 @@ public class LandingView extends Page {
 
         visualizerComponent.getLogoRayGroup().getStyleClass().add("logo-ray-group");
         menuButtonsComponent.getStyleClass().add("menu-buttons");
+        subMenuButtonsComponent.getStyleClass().add("menu-buttons");
 
-        // --- Configure Components ---
         topBarComponent.addControlsToBar(mediaControlsComponent);
         topBarComponent.setSongTitle("nekodex - circles!");
 
         visualizerComponent.setMenuBox(menuButtonsComponent);
+        visualizerComponent.setSubMenuBox(subMenuButtonsComponent);
+
+        subMenuButtonsComponent.setVisible(false);
+        subMenuButtonsComponent.setManaged(false);
+        subMenuButtonsComponent.setOpacity(0.0);
 
         String bgmPath = "./src/main/resources/assets/audio/nekodex-circles.mp3";
         BgmManager.playBgm(bgmPath);
@@ -165,33 +235,28 @@ public class LandingView extends Page {
     }
 
     public void handleEvent() {
-        // --- Media Controls Events ---
         if (BgmManager.getCurrentPlayer() != null) {
             mediaControlsComponent.getPlayButton().setOnAction(e -> BgmManager.resumeBgm());
             mediaControlsComponent.getPauseButton().setOnAction(e -> BgmManager.pauseBgm());
             mediaControlsComponent.getStopButton().setOnAction(e -> BgmManager.stopBgm());
         } else {
-            // Disable media buttons if songMedia is null
             mediaControlsComponent.getPlayButton().setDisable(true);
             mediaControlsComponent.getPauseButton().setDisable(true);
             mediaControlsComponent.getStopButton().setDisable(true);
         }
 
-        // --- Visualizer Logo Click (for menu reveal) ---
         visualizerComponent.getLogoRayGroup().setOnMouseClicked(e -> {
             System.out.println("Logo Ray Group clicked! Event: " + e);
             toggleMenuPanel();
         });
 
-        // --- TopBar User Info Click (Show Login Modal) ---
         topBarComponent.getUserInfoBox().setOnMouseClicked(e -> {
             if (!loginModalComponent.isShowing() && !registerModalComponent.isVisible()) {
-                loginModalComponent.clearFields(); // Clear previous input
+                loginModalComponent.clearFields();
                 loginModalComponent.show();
             }
         });
 
-        // --- Login Modal Events ---
         loginModalComponent.setOnLoginSuccessListener(user -> {
             if (user != null) {
                 topBarComponent.updateUserInfo(user);
@@ -199,17 +264,10 @@ public class LandingView extends Page {
         });
 
         loginModalComponent.setOnCreateAccountListener(() -> {
-            loginModalComponent.hide(); // Hide login modal
-            registerModalComponent.setVisible(true); // Show register modal
+            loginModalComponent.hide(); 
+            registerModalComponent.setVisible(true); 
             registerModalComponent.toFront();
         });
-
-        // --- Register Modal Events ---
-        // The RegisterModal's own "cancel" button already handles hiding itself.
-        // Handle "Create my account!" click from RegisterModal
-        // (This assumes RegisterModal exposes its createButton or a specific event for it)
-        // For now, let's assume RegisterModal handles its own creation logic, or you add a listener.
-        // Example: registerModalComponent.getCreateButton().setOnAction(e -> { /* handle registration */ });
 
         root.setOnMouseClicked(e -> {
             if (loginModalComponent.isShowing()) {
@@ -229,17 +287,27 @@ public class LandingView extends Page {
         });
 
         menuButtonsComponent.getPlayButton().setOnMouseClicked(e -> {
-            System.out.println("Menu: Play clicked");
-            new HomeView(stage);
-            toggleMenuPanel();
+            showSubMenu();
         });
         menuButtonsComponent.getOptionButton().setOnMouseClicked(e -> {
-            System.out.println("Menu: Options clicked");
             toggleMenuPanel();
         });
         menuButtonsComponent.getExitButton().setOnMouseClicked(e -> {
-            System.out.println("Menu: Exit clicked");
             ((Stage) scene.getWindow()).close();
+        });
+
+        subMenuButtonsComponent.getSoloButton().setOnMouseClicked(e -> {
+            new HomeView(stage);
+            hideSubMenu();
+        });
+        
+        subMenuButtonsComponent.getMultiButton().setOnMouseClicked(e -> {
+            new HomeView(stage);
+            hideSubMenu();
+        });
+        
+        subMenuButtonsComponent.getBackButton().setOnMouseClicked(e -> {
+            hideSubMenu();
         });
     }
 }

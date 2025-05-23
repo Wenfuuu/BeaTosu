@@ -23,6 +23,7 @@ public class Visualizer extends StackPane {
     @Getter
     private ImageView logoView;
     private VBox menuBox;
+    private VBox subMenuBox;
     @Getter
     private LightRays lightRays;
     @Getter
@@ -106,6 +107,17 @@ public class Visualizer extends StackPane {
         }
         if (this.menuBox != null) {
             logoContainer.getChildren().add(0, this.menuBox); // Add menuBox behind logoView
+        }
+    }
+
+    public void setSubMenuBox(VBox subMenuBox) {
+        this.subMenuBox = subMenuBox;
+        // Add submenu to logoContainer behind logoView
+        if (logoContainer.getChildren().contains(this.subMenuBox)) {
+            logoContainer.getChildren().remove(this.subMenuBox);
+        }
+        if (this.subMenuBox != null) {
+            logoContainer.getChildren().add(0, this.subMenuBox); // Add subMenuBox behind logoView
         }
     }
 
