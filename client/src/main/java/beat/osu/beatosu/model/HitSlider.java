@@ -6,9 +6,11 @@ import javafx.animation.ScaleTransition;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
+import javafx.scene.text.Font;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
@@ -17,14 +19,16 @@ import java.util.List;
 public class HitSlider extends HitObject {
 
     private final Group group;
+    private final Group tempGroup;
     private final Circle headCircle;
     private final Path sliderPath;
     private final Circle sliderBall;
     private final Circle approachCircle;
+    private final Label comboLabel;
 
     // Parsed Slider Data
     private char sliderType = '?';
-    private List<Point2D> controlPoints = new ArrayList<>();
+    private final List<Point2D> controlPoints = new ArrayList<>();
     private int repeats = 1; // This is the number of "repeats" AFTER the initial slide. Total traversals = repeats + 1.
     private double pixelLength = 0.0;
     private String edgeSoundsStr = "";
@@ -202,7 +206,18 @@ public class HitSlider extends HitObject {
         headCircle.setFill(Color.rgb(100, 180, 255, 0.8));
         headCircle.setStroke(Color.WHITE);
         headCircle.setStrokeWidth(2);
-        group.getChildren().add(headCircle);
+
+        comboLabel = new Label("1");
+        comboLabel.setFont(new Font(50));
+        comboLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+        comboLabel.layoutBoundsProperty().addListener((obs, oldBounds, newBounds) -> {
+            comboLabel.setLayoutX(-newBounds.getWidth() / 2);
+            comboLabel.setLayoutY(-newBounds.getHeight() / 2);
+        });
+
+        tempGroup = new Group(headCircle, comboLabel);
+
+        group.getChildren().add(tempGroup);
 
         approachCircle = new Circle(0, 0, getCircleRadius());
         approachCircle.setFill(Color.TRANSPARENT);
@@ -400,13 +415,9 @@ public class HitSlider extends HitObject {
             appear();
         }
 
-        if(isVisible() && timeUntilHit <= 0) {
-            // set hittable
-            setActive(true);
-        }
-
         if (headHit) {
             if (getCurrTime() <= endTime) { // Ball is moving
+                tempGroup.setVisible(false);
                 sliderBall.setVisible(true); // Ensure visible if head was hit
                 double ballFraction = getBallFraction(timeSinceHitStart);
                 Point2D ballPos = getVisualPointAtFraction(ballFraction);
@@ -422,9 +433,7 @@ public class HitSlider extends HitObject {
         if (isVisible() && !headHit && timeSinceHitStart > getHitWindowGreat()) { // Using a typical "great" window as miss threshold for head
             // System.out.println("Slider Head Missed (Timeout): " + getOsuX() + "," + getOsuY() + " at " + currentTime + "ms");
             hide();
-        } else if (isVisible() && headHit && getCurrTime() > endTime + 200) { // If holding past end time
-            // If slider was hit, it should hide itself when endTime is reached.
-            // This is an extra failsafe if it's still visible after its supposed end.
+        } else if (isVisible() && headHit && getCurrTime() > endTime + 200) { // If past end time
             hide();
         }
     }

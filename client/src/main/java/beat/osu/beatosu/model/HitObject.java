@@ -14,7 +14,6 @@ public abstract class HitObject {
 
     private boolean hit = false;
     private boolean visible = false;
-    private boolean active = false;
     private long currTime;
 
     private long spawnTime; // Store the spawn time

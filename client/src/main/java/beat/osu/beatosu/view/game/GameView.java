@@ -159,9 +159,9 @@ public class GameView extends Page {
                 double osuY = hitObject.getOsuY(); // Coordinate within 512x384 playfield
 
                 // --- ADD THIS DETAILED LOG ---
-                String objectType = hitObject.getClass().getSimpleName();
-                System.out.println("[UpdateLayout] Processing " + objectType + " (ID: " + System.identityHashCode(hitObject) +
-                        ") with initial OsuCoords: (" + osuX + ", " + osuY + ")");
+//                String objectType = hitObject.getClass().getSimpleName();
+//                System.out.println("[UpdateLayout] Processing " + objectType + " (ID: " + System.identityHashCode(hitObject) +
+//                        ") with initial OsuCoords: (" + osuX + ", " + osuY + ")");
 
                 // a. Convert osuX, osuY (from 512x384 playfield) to their position
                 //    within the 640x480 reference coordinate system.
@@ -178,9 +178,9 @@ public class GameView extends Page {
                 double screenScaledRadius = unscaledOsuPixelRadius * masterScaleFactor;
 
                 // --- You can also log the result here for the same object ID ---
-                System.out.println("[UpdateLayout] " + objectType + " (ID: " + System.identityHashCode(hitObject) +
-                        ") calculated ScreenCenter: (" + finalObjectCenterX_onPane +
-                        ", " + finalObjectCenterY_onPane + ")");
+//                System.out.println("[UpdateLayout] " + objectType + " (ID: " + System.identityHashCode(hitObject) +
+//                        ") calculated ScreenCenter: (" + finalObjectCenterX_onPane +
+//                        ", " + finalObjectCenterY_onPane + ")");
 
                 // Inside the loop
                 hitObject.updateVisuals(finalObjectCenterX_onPane, finalObjectCenterY_onPane, screenScaledRadius);
@@ -242,7 +242,6 @@ public class GameView extends Page {
                                     // Correct timing error calculation
                                     long timingError = elapsedMillis - hitObject.getHitTime();
                                     System.out.println("Hit registered via keypress! Timing: " + timingError + "ms. Object Center: (" + objCenterX + "," + objCenterY + "), R: " + objRadius + ". Mouse: (" + mouseX + "," + mouseY + ")");
-
                                 } else {
                                     // Key pressed, but mouse not over this specific circle
                                     System.out.println("Key pressed, but circle (" + objCenterX + "," + objCenterY + " R:" + objRadius + ") does not contain mouse (" + mouseX + "," + mouseY + ")");

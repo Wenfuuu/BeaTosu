@@ -4,9 +4,11 @@ import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Font;
 import javafx.util.Duration;
 
 public class HitCircle extends HitObject{
@@ -14,6 +16,7 @@ public class HitCircle extends HitObject{
     private final Group group;
     private final Circle innerCircle;
     private final Circle outerCircle;
+    private final Label comboLabel;
 
     // Define visual constants (could be based on CS later)
     private static final double OUTER_RADIUS_START_SCALE = 5.0;
@@ -32,7 +35,15 @@ public class HitCircle extends HitObject{
         outerCircle.setStroke(Color.WHITE); // Approach circle color
         outerCircle.setStrokeWidth(2);
 
-        group = new Group(outerCircle, innerCircle);
+        comboLabel = new Label("1");
+        comboLabel.setFont(new Font(50));
+        comboLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+        comboLabel.layoutBoundsProperty().addListener((obs, oldBounds, newBounds) -> {
+            comboLabel.setLayoutX(-newBounds.getWidth() / 2);
+            comboLabel.setLayoutY(-newBounds.getHeight() / 2);
+        });
+
+        group = new Group(outerCircle, innerCircle, comboLabel);
         group.setVisible(false); // Start invisible
 
         // --- CORE CHANGE: Link the Group node back to this HitCircle object ---
@@ -97,11 +108,6 @@ public class HitCircle extends HitObject{
         // appear based on preempt time
         if (!isVisible() && timeUntilHit <= getPreempt()) {
             appear();
-        }
-
-        if(isVisible() && timeUntilHit <= 0) {
-            // set hittable
-            setActive(true);
         }
 
         // Auto-miss logic (adjust timing as needed)
