@@ -119,10 +119,14 @@ public class LandingView extends Page {
         if (isSubMenuOpen) {
             hideSubMenu();
         } else if (isMenuPanelOpen) {
+            BackgroundManager.setDarkBackground(scene, false);
+
             logoSlideIn.play();
             menuSlideOut.play();
             isMenuPanelOpen = false;
         } else {
+            BackgroundManager.setDarkBackground(scene, true);
+
             logoSlideOut.play();
             menuSlideIn.play();
             isMenuPanelOpen = true;
@@ -248,7 +252,6 @@ public class LandingView extends Page {
         }
 
         visualizerComponent.getLogoRayGroup().setOnMouseClicked(e -> {
-            System.out.println("Logo Ray Group clicked! Event: " + e);
             toggleMenuPanel();
         });
 

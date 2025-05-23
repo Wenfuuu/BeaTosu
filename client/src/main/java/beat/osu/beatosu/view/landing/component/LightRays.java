@@ -80,10 +80,8 @@ public class LightRays extends Group {
             group.getChildren().add(ray);
         }
 
-        // Add all groups to the main container
         getChildren().addAll(rayGroups.values());
 
-        // Set cache on the parent group
         this.setCache(true);
         this.setCacheHint(CacheHint.SPEED);
     }
@@ -91,7 +89,7 @@ public class LightRays extends Group {
     public LightRays(double centerRadius) {
         super();
         this.centerRadius = centerRadius;
-        this.setCache(true); // Cache the LightRays group
+        this.setCache(true);
         this.setCacheHint(CacheHint.SPEED);
         createRays();
         optimizeSceneGraph();
@@ -101,8 +99,8 @@ public class LightRays extends Group {
     private void createRays() {
         for (int i = 0; i < NUM_RAYS; i++) {
             double angle = 360.0 * i / NUM_RAYS;
-            double initialLength = MIN_LENGTH + random.nextDouble() * (MAX_LENGTH - MIN_LENGTH); // Use shared random
-            double thickness = 2 + random.nextDouble() * 4; // Use shared random
+            double initialLength = MIN_LENGTH + random.nextDouble() * (MAX_LENGTH - MIN_LENGTH);
+            double thickness = 2 + random.nextDouble() * 4;
 
             Rectangle ray = new Rectangle(
                     centerRadius,
@@ -112,7 +110,7 @@ public class LightRays extends Group {
             );
             ray.setArcWidth(thickness);
             ray.setArcHeight(thickness);
-            ray.setFill(Color.WHITE.deriveColor(0, 1, 1, 0.1 + random.nextDouble() * 0.4)); // Use shared random
+            ray.setFill(Color.WHITE.deriveColor(0, 1, 1, 0.1 + random.nextDouble() * 0.4));
 
             ray.getTransforms().add(new Rotate(angle, 0, 0));
 

@@ -30,7 +30,6 @@ public class MenuButtons extends VBox {
 
         initializeComponents();
         setupLayout();
-        loadStyles();
     }
 
     private void initializeComponents() {
@@ -45,15 +44,6 @@ public class MenuButtons extends VBox {
 
     private void setupLayout() {
         this.getChildren().addAll(menuPlayButton, menuOptionButton, menuExitButton);
-    }
-
-    private void loadStyles() {
-        URL cssUrl = CssManager.getLandingCssURL("a.css");
-        if (cssUrl != null) {
-            this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file not found!");
-        }
     }
 
     private Button createMenuButton(String imageName) {

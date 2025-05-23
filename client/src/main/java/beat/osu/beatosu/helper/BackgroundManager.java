@@ -1,8 +1,13 @@
 package beat.osu.beatosu.helper;
 
 import beat.osu.beatosu.utils.OsuParser;
+import javafx.animation.FadeTransition;
+import javafx.animation.Timeline;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -14,6 +19,13 @@ public class BackgroundManager {
     private static final String TEMP_DIR = "./src/main/resources/assets/temp/";
     private static final Random random = new Random();
     private static List<String> backgroundFiles = null;
+    private static boolean darkModeEnabled = false;
+
+    private static final double DEFAULT_DARK_OPACITY = 0.5;
+    private static final double DEFAULT_LIGHT_OPACITY = 0;
+    private static final Duration TRANSITION_DURATION = Duration.millis(300);
+
+    private static Rectangle currentOverlay = null;
 
     public static String getRandomBackgroundURL() {
         if (backgroundFiles == null) {
@@ -24,7 +36,6 @@ public class BackgroundManager {
             return "online_background_422fab3bf0c3af0234ee21be511bc3a9.jpg";
         }
 
-        // Get a random background from the list
         int randomIndex = random.nextInt(backgroundFiles.size());
         return backgroundFiles.get(randomIndex);
     }
@@ -42,7 +53,6 @@ public class BackgroundManager {
 
             if (files != null) {
                 for (File file : files) {
-                    // Store the filename for later use
                     backgroundFiles.add(file.getName());
                 }
             }
@@ -55,23 +65,19 @@ public class BackgroundManager {
         }
     }
 
-    // Modify BackgroundManager to create layered backgrounds
     public static void setRandomBackground(Scene scene) {
         String randomBg = getRandomBackgroundURL();
         try {
             File imageFile = new File(BACKGROUNDS_DIR + randomBg);
             String imageUrl = imageFile.toURI().toURL().toString();
 
-            // Apply the background image first
             String backgroundStyle = "-fx-background-image: url('" + imageUrl + "'); " +
                     "-fx-background-size: cover; " +
                     "-fx-background-position: center center;";
 
             scene.getRoot().setStyle(backgroundStyle);
 
-            StackPane overlay = new StackPane();
-            overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.25);");
-            ((StackPane)scene.getRoot()).getChildren().add(0, overlay);
+            updateOverlaySmooth(scene);
 
         } catch (Exception e) {
             System.err.println("Error setting background image: " + e.getMessage());
@@ -84,27 +90,69 @@ public class BackgroundManager {
         String gameBg = OsuParser.getBgFile();
 
         try {
-            // Create a File object for the image
             File imageFile = new File(TEMP_DIR + gameBg);
-
-            // Convert to URI and then to URL string for JavaFX
             String imageUrl = imageFile.toURI().toURL().toString();
-            System.out.println(imageUrl);
 
-            // Create a style string with the full URL path
             String backgroundStyle =
                     "-fx-background-image: url('" + imageUrl + "'); " +
                     "-fx-background-size: cover; " +
-                    "-fx-background-position: center center; " + // Ensured space after semicolon
-                    "-fx-background-color: rgba(0, 0, 0, 0.25); "; // Added trailing space to match setRandomBackground
+                    "-fx-background-position: center center; " +
+                    "-fx-background-color: rgba(0, 0, 0, 0.25); ";
 
-            System.out.println("Setting background: " + imageUrl);
-
-            // Apply the style directly to the root element
             scene.getRoot().setStyle(backgroundStyle);
         } catch (Exception e) {
             System.err.println("Error setting background image: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public static void setDarkBackground(Scene scene, boolean darkMode) {
+        darkModeEnabled = darkMode;
+        updateOverlaySmooth(scene);
+        System.out.println("Dark mode set to " + (darkModeEnabled ? "enabled" : "disabled"));
+    }
+
+    private static void updateOverlaySmooth(Scene scene) {
+        if (!(scene.getRoot() instanceof StackPane)) {
+            System.err.println("Root is not a StackPane, cannot apply overlay");
+            return;
+        }
+
+        StackPane root = (StackPane) scene.getRoot();
+        double targetOpacity = darkModeEnabled ? DEFAULT_DARK_OPACITY : DEFAULT_LIGHT_OPACITY;
+
+        if (currentOverlay == null) {
+            createInitialOverlay(root, targetOpacity);
+        } else {
+            animateOverlayOpacity(currentOverlay, targetOpacity);
+        }
+    }
+
+    private static void createInitialOverlay(StackPane root, double opacity) {
+        root.getChildren().removeIf(node -> node instanceof Rectangle
+                && node.getId() != null && node.getId().equals("backgroundOverlay"));
+
+        Rectangle overlay = new Rectangle();
+        overlay.setId("backgroundOverlay");
+        overlay.setFill(Color.BLACK);
+        overlay.setOpacity(opacity);
+
+        overlay.widthProperty().bind(root.widthProperty());
+        overlay.heightProperty().bind(root.heightProperty());
+
+        root.getChildren().add(0, overlay);
+        currentOverlay = overlay;
+    }
+
+    private static void animateOverlayOpacity(Rectangle overlay, double targetOpacity) {
+        overlay.getProperties().values().removeIf(value -> value instanceof Timeline);
+
+        FadeTransition fadeTransition = new FadeTransition(TRANSITION_DURATION, overlay);
+        fadeTransition.setFromValue(overlay.getOpacity());
+        fadeTransition.setToValue(targetOpacity);
+
+        overlay.getProperties().put("fadeTransition", fadeTransition);
+
+        fadeTransition.play();
     }
 }

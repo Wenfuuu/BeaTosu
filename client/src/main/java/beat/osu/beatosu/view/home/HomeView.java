@@ -50,7 +50,6 @@ public class HomeView extends Page {
         bottomBar = new BottomBar();
         beatmapPane = new BeatmapPane(beatmaps);
 
-        // Setup initial state
         if (!beatmaps.isEmpty()) {
             topBar.updateSongInfo(beatmaps.get(0));
         }
@@ -65,6 +64,7 @@ public class HomeView extends Page {
 
         try {
             BackgroundManager.setRandomBackground(scene);
+            BackgroundManager.setDarkBackground(scene, true);
         } catch (Exception e) {
             System.err.println("Error setting background for HomeView: " + e.getMessage());
             e.printStackTrace();
@@ -81,12 +81,10 @@ public class HomeView extends Page {
     }
 
     public void handleEvent() {
-        // Set up beatmap selection listener
         beatmapPane.setOnBeatmapSelectedListener(beatmap -> {
             topBar.updateSongInfo(beatmap);
         });
 
-        // Set up play button listener
         bottomBar.getLogoView().setOnMouseClicked(e -> {
             System.out.println("clicking play button");
             Beatmap selectedBeatmap = beatmapPane.getSelectedBeatmap();
@@ -95,10 +93,8 @@ public class HomeView extends Page {
             }
         });
 
-        // You can add back button listener here if needed
         bottomBar.getBackButton().setOnMouseClicked(e -> {
             System.out.println("Back button clicked");
-            // Handle back button action
         });
 
         AnimationTimer inputChecker = new AnimationTimer() {

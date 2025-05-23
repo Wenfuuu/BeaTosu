@@ -48,11 +48,11 @@ public class Visualizer extends StackPane {
     }
 
     private void initializeComponents() {
-        lightRays = new LightRays(visualizerSize / 2.0 - 10); // Use double visualizerSize
+        lightRays = new LightRays(visualizerSize / 2.0 - 10);
 
         logoRayGroup = new StackPane();
         logoRayGroup.setAlignment(Pos.CENTER);
-        logoRayGroup.setCache(true); // Cache the group that gets translated
+        logoRayGroup.setCache(true);
         logoRayGroup.setCacheHint(CacheHint.SPEED);
 
         logoContainer = new StackPane();
@@ -77,13 +77,13 @@ public class Visualizer extends StackPane {
         glow.setSpread(0.5);
         logoView.setEffect(glow);
 
-        logoView.setCache(true); // Crucial for animated effects + transforms
+        logoView.setCache(true);
         logoView.setCacheHint(CacheHint.SPEED);
     }
 
     private void setupLayout() {
         logoRayGroup.getChildren().add(lightRays);
-        logoContainer.getChildren().add(logoView); // logoView added first
+        logoContainer.getChildren().add(logoView);
         logoRayGroup.getChildren().add(logoContainer);
         this.getChildren().add(logoRayGroup);
     }
@@ -99,25 +99,21 @@ public class Visualizer extends StackPane {
 
     public void setMenuBox(VBox menuBox) {
         this.menuBox = menuBox;
-        // Ensure logoView remains on top of menuBox if they are siblings in logoContainer
-        // Or, more simply, add menuBox to logoRayGroup BEHIND logoContainer
-        // Current: menuBox added to logoContainer, then logoView. This means logoView is on top.
         if (logoContainer.getChildren().contains(this.menuBox)) {
             logoContainer.getChildren().remove(this.menuBox);
         }
         if (this.menuBox != null) {
-            logoContainer.getChildren().add(0, this.menuBox); // Add menuBox behind logoView
+            logoContainer.getChildren().add(0, this.menuBox);
         }
     }
 
     public void setSubMenuBox(VBox subMenuBox) {
         this.subMenuBox = subMenuBox;
-        // Add submenu to logoContainer behind logoView
         if (logoContainer.getChildren().contains(this.subMenuBox)) {
             logoContainer.getChildren().remove(this.subMenuBox);
         }
         if (this.subMenuBox != null) {
-            logoContainer.getChildren().add(0, this.subMenuBox); // Add subMenuBox behind logoView
+            logoContainer.getChildren().add(0, this.subMenuBox);
         }
     }
 
@@ -130,8 +126,6 @@ public class Visualizer extends StackPane {
 
         player.setAudioSpectrumListener((timestamp, duration, magnitudes, phases) -> {
             if (audioVisualizationPaused) {
-                // If paused, we might want to slowly return to a base state
-                // rather than freezing abruptly. For now, just skip updates.
                 return;
             }
 
@@ -148,18 +142,18 @@ public class Visualizer extends StackPane {
             double targetGlowRadius = 20 + bassAvg * 30;
 
             currentScaleFactor += (targetScaleFactor - currentScaleFactor) * smoothingFactor;
-            currentGlowRadius += (targetGlowRadius - currentGlowRadius) * smoothingFactor;
+                currentGlowRadius += (targetGlowRadius - currentGlowRadius) * smoothingFactor;
 
-            logoView.setScaleX(currentScaleFactor);
-            logoView.setScaleY(currentScaleFactor);
+                logoView.setScaleX(currentScaleFactor);
+                logoView.setScaleY(currentScaleFactor);
 
-            if (logoView.getEffect() instanceof DropShadow) {
-                DropShadow glow = (DropShadow) logoView.getEffect();
-                glow.setRadius(currentGlowRadius);
-            }
+                if (logoView.getEffect() instanceof DropShadow) {
+                    DropShadow glow = (DropShadow) logoView.getEffect();
+                    glow.setRadius(currentGlowRadius);
+                }
 
-            if (lightRays != null) {
-                lightRays.pulseWithAudio(currentScaleFactor - 1.0);
+                if (lightRays != null) {
+                    lightRays.pulseWithAudio(currentScaleFactor - 1.0);
             }
         });
     }
