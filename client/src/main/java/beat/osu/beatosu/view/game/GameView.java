@@ -3,6 +3,7 @@ package beat.osu.beatosu.view.game;
 import beat.osu.beatosu.factory.HitObjectFactory;
 import beat.osu.beatosu.helper.BackgroundManager;
 import beat.osu.beatosu.helper.BgmManager;
+import beat.osu.beatosu.helper.InputManager;
 import beat.osu.beatosu.helper.ScreenManager;
 import beat.osu.beatosu.model.Beatmap;
 import beat.osu.beatosu.model.HitCircle;
@@ -216,10 +217,10 @@ public class GameView extends Page {
                         hitObject.update(elapsedMillis);
 
                         if (hitObject.isVisible() && !hitObject.isHit()) {
-                            boolean zPressedThisFrame = currentKeys.contains(KeyCode.Z) && !previousKeys.contains(KeyCode.Z);
-                            boolean xPressedThisFrame = currentKeys.contains(KeyCode.X) && !previousKeys.contains(KeyCode.X);
+                            boolean pressedKeybind1 = currentKeys.contains(InputManager.getKeybind1()) && !previousKeys.contains(InputManager.getKeybind1());
+                            boolean pressedKeybind2 = currentKeys.contains(InputManager.getKeybind2()) && !previousKeys.contains(InputManager.getKeybind2());
 
-                            if (zPressedThisFrame || xPressedThisFrame) {
+                            if (pressedKeybind1 || pressedKeybind2) {
                                 // Check mouse position
                                 double mouseX = currentMouseX; // From GameView field
                                 double mouseY = currentMouseY; // From GameView field

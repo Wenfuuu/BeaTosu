@@ -16,6 +16,11 @@ public class InputManager {
     private Set<MouseButton> mouseClicks;
     private final StringBuffer typedChars;
 
+    @Getter
+    private static KeyCode keybind1 = KeyCode.Z;
+    @Getter
+    private static KeyCode keybind2 = KeyCode.X;
+
     public InputManager(Scene scene) {
         pressedKeys = new HashSet<>();
         mouseClicks = new HashSet<>();
@@ -36,17 +41,20 @@ public class InputManager {
         scene.setOnKeyPressed(e -> {
             KeyCode keyCode = e.getCode();
             switch (keyCode) {
-                case Z:
-                case X:
-                case SPACE:
-                case ESCAPE:
-                    pressedKeys.add(keyCode);
-                    break;
+//                case Z:
+//                case X:
+//                case SPACE:
+//                case ESCAPE:
+//                    pressedKeys.add(keyCode);
+//                    break;
                 case BACK_SPACE:
                     if (typedChars.length() > 0) {
                         typedChars.deleteCharAt(typedChars.length() - 1);
                     }
 //                    System.out.println("Typed: " + typedChars);
+                    break;
+                default:
+                    pressedKeys.add(keyCode);
                     break;
             }
 
