@@ -44,10 +44,12 @@ public class GameView extends Page {
 
     private Pane root;
     private final Set<KeyCode> previousKeys = new HashSet<>();
+    private final Beatmap beatmap;
 
     public GameView(Stage stage, Beatmap selectedBeatmap) {
         super(stage);
-        processBeatmap(selectedBeatmap);
+        this.beatmap = selectedBeatmap;
+        processBeatmap();
         loadBackground();
 
         updateLayout();
@@ -65,15 +67,15 @@ public class GameView extends Page {
         }
     }
 
-    private void addHitObject(String data, Beatmap selectedBeatmap) {
-        root.getChildren().add(HitObjectFactory.createHitObject(data, selectedBeatmap).getNode());
+    private void addHitObject(String data) {
+        root.getChildren().add(HitObjectFactory.createHitObject(data, beatmap).getNode());
     }
 
-    private void processBeatmap(Beatmap selectedBeatmap) {
+    private void processBeatmap() {
         //search & extract .osz -> stored in temp folder
 //     absolute path => src\main\resources\assets\beatmap\567148 Sayuri - Heikousen.osz
-        String oszPath = String.format("./src/main/resources/assets/beatmap/%d %s - %s.osz", selectedBeatmap.getBeatmapSet().getBeatmapSetId(),
-                selectedBeatmap.getBeatmapSet().getArtist(), selectedBeatmap.getBeatmapSet().getTitle());
+        String oszPath = String.format("./src/main/resources/assets/beatmap/%d %s - %s.osz", beatmap.getBeatmapSet().getBeatmapSetId(),
+                beatmap.getBeatmapSet().getArtist(), beatmap.getBeatmapSet().getTitle());
         File oszFile = new File(oszPath);
         File outputDir = new File("./src/main/resources/assets/temp");
         try {
@@ -83,10 +85,10 @@ public class GameView extends Page {
         }
         //parse the selected .osu file
         String osuPath = String.format("./src/main/resources/assets/temp/%s - %s (%s) [%s].osu",
-                selectedBeatmap.getBeatmapSet().getArtist(),
-                selectedBeatmap.getBeatmapSet().getTitle(),
-                selectedBeatmap.getBeatmapSet().getCreator(),
-                selectedBeatmap.getVersion());
+                beatmap.getBeatmapSet().getArtist(),
+                beatmap.getBeatmapSet().getTitle(),
+                beatmap.getBeatmapSet().getCreator(),
+                beatmap.getVersion());
         File osuFile = new File(osuPath);
         try {
             OsuParser.parse(osuFile);
@@ -94,10 +96,10 @@ public class GameView extends Page {
             throw new RuntimeException(e);
         }
 
-        circleSize = selectedBeatmap.getCircleSize();
+        circleSize = beatmap.getCircleSize();
 
         for(String data: OsuParser.getHitObjects()) {
-            addHitObject(data, selectedBeatmap);
+            addHitObject(data);
         }
     }
 
