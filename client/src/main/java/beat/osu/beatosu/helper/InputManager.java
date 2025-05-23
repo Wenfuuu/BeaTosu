@@ -46,17 +46,17 @@ public class InputManager {
                     if (typedChars.length() > 0) {
                         typedChars.deleteCharAt(typedChars.length() - 1);
                     }
-                    System.out.println("Typed: " + typedChars);
+//                    System.out.println("Typed: " + typedChars);
                     break;
             }
 
-            System.out.println(keyCode);
+//            System.out.println(keyCode);
             if (keyCode.isLetterKey() || keyCode.isDigitKey()) {
                 typedChars.append(keyCode.getChar().toLowerCase().charAt(0));
-                System.out.println("Typed: " + typedChars);
+//                System.out.println("Typed: " + typedChars);
             } else if (keyCode == KeyCode.SPACE) {
                 typedChars.append(' ');
-                System.out.println("Typed: " + typedChars);
+//                System.out.println("Typed: " + typedChars);
             }
         });
 

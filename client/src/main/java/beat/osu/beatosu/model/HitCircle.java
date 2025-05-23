@@ -99,6 +99,11 @@ public class HitCircle extends HitObject{
             appear();
         }
 
+        if(isVisible() && timeUntilHit <= 0) {
+            // set hittable
+            setActive(true);
+        }
+
         // Auto-miss logic (adjust timing as needed)
         if (isVisible() && !isHit() && timeUntilHit < -200) { // Allow some time after hitTime
 //            System.out.println("Missed: " + getOsuX() + "," + getOsuY() + " at " + currentTime + "ms");
@@ -108,20 +113,20 @@ public class HitCircle extends HitObject{
 
     @Override
     public void handleEvent() {
-//        group.setOnMouseClicked(e -> { // Use group to catch clicks slightly outside innerCircle
-//            if (isVisible() && !isHit()) {
-//                long clickTime = getCurrTime();
-//                long timingError = clickTime - getHitTime(); // Calculate hit timing
-//                setHit(true);
-//                playHitEffect();
-////                System.out.println("Hit: " + getOsuX() + "," + getOsuY() + " | Timing: " + timingError + "ms");
-//                // calculate score based on timingError here
-//            }
-//        });
+        group.setOnMouseClicked(e -> { // Use group to catch clicks slightly outside innerCircle
+            if (isVisible() && !isHit()) {
+                long clickTime = getCurrTime();
+                long timingError = clickTime - getHitTime(); // Calculate hit timing
+                setHit(true);
+                playHitEffect();
+//                System.out.println("Hit: " + getOsuX() + "," + getOsuY() + " | Timing: " + timingError + "ms");
+                // calculate score based on timingError here
+            }
+        });
     }
 
     @Override
-    public void updateVisuals(double centerX, double centerY, double scaledRadius) {
+    public void applyVisualsToNode(double centerX, double centerY, double scaledRadius) {
         if (group != null) {
             // Position the Group so its local (0,0) point (which is the center of the circles)
             // is at (centerX, centerY) on the pane.

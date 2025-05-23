@@ -400,6 +400,11 @@ public class HitSlider extends HitObject {
             appear();
         }
 
+        if(isVisible() && timeUntilHit <= 0) {
+            // set hittable
+            setActive(true);
+        }
+
         if (headHit) {
             if (getCurrTime() <= endTime) { // Ball is moving
                 sliderBall.setVisible(true); // Ensure visible if head was hit
@@ -502,7 +507,7 @@ public class HitSlider extends HitObject {
     }
 
     @Override
-    public void updateVisuals(double centerX, double centerY, double scaledRadius) {
+    public void applyVisualsToNode(double centerX, double centerY, double scaledRadius) {
         if(group != null) {
             group.setLayoutX(centerX);
             group.setLayoutY(centerY);

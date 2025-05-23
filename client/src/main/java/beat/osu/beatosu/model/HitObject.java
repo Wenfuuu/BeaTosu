@@ -14,12 +14,17 @@ public abstract class HitObject {
 
     private boolean hit = false;
     private boolean visible = false;
+    private boolean active = false;
     private long currTime;
 
     private long spawnTime; // Store the spawn time
     private int preempt;   // ms before hitTime when object appears
     private int fadeIn;    // ms for the object to fade in
     private double circleRadius; // Circle size (CS) for the object
+
+    private double screenCenterX;
+    private double screenCenterY;
+    private double screenRadius;
 
     public HitObject(int osuX, int osuY, long hitTime, int type, int hitSound,
                      String hitSample, double approachRate, double circleSize) {
@@ -33,6 +38,13 @@ public abstract class HitObject {
         this.fadeIn = calculateFadeIn(approachRate);
         this.spawnTime = hitTime - preempt;
         this.circleRadius = calculateCircleRadius(circleSize);
+    }
+
+    public void updateVisuals(double centerX, double centerY, double scaledRadius) {
+        this.screenCenterX = centerX;
+        this.screenCenterY = centerY;
+        this.screenRadius = scaledRadius;
+        applyVisualsToNode(centerX, centerY, scaledRadius); // Call the abstract method
     }
 
     private double calculateCircleRadius(double circleSize) {
@@ -62,6 +74,6 @@ public abstract class HitObject {
     public abstract Node getNode();
     public abstract void update(long currentTime);
     public abstract void handleEvent();
-    public abstract void updateVisuals(double centerX, double centerY, double scaledRadius);
     public abstract void playHitEffect();
+    public abstract void applyVisualsToNode(double centerX, double centerY, double scaledRadius);
 }

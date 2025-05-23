@@ -5,6 +5,7 @@ import beat.osu.beatosu.helper.BackgroundManager;
 import beat.osu.beatosu.helper.BgmManager;
 import beat.osu.beatosu.helper.ScreenManager;
 import beat.osu.beatosu.model.Beatmap;
+import beat.osu.beatosu.model.HitCircle;
 import beat.osu.beatosu.model.HitObject;
 import beat.osu.beatosu.utils.OsuParser;
 import beat.osu.beatosu.utils.OszExtractor;
@@ -46,15 +47,26 @@ public class GameView extends Page {
     private final Set<KeyCode> previousKeys = new HashSet<>();
     private final Beatmap beatmap;
 
+    private double currentMouseX;
+    private double currentMouseY;
+
     public GameView(Stage stage, Beatmap selectedBeatmap) {
         super(stage);
         this.beatmap = selectedBeatmap;
         processBeatmap();
         loadBackground();
+        handleEvent();
 
         updateLayout();
         BgmManager.playGameBgm();
         startGame();
+    }
+
+    private void handleEvent() {
+        root.setOnMouseMoved(e -> {
+            currentMouseX = e.getSceneX();
+            currentMouseY = e.getSceneY();
+        });
     }
 
     private void loadBackground() {
@@ -145,6 +157,11 @@ public class GameView extends Page {
                 double osuX = hitObject.getOsuX(); // Coordinate within 512x384 playfield
                 double osuY = hitObject.getOsuY(); // Coordinate within 512x384 playfield
 
+                // --- ADD THIS DETAILED LOG ---
+                String objectType = hitObject.getClass().getSimpleName();
+                System.out.println("[UpdateLayout] Processing " + objectType + " (ID: " + System.identityHashCode(hitObject) +
+                        ") with initial OsuCoords: (" + osuX + ", " + osuY + ")");
+
                 // a. Convert osuX, osuY (from 512x384 playfield) to their position
                 //    within the 640x480 reference coordinate system.
                 double hitObjectX_in_RefScreen = PLAYFIELD_OFFSET_X_IN_REF + osuX;
@@ -159,6 +176,12 @@ public class GameView extends Page {
                 //    The visual size is determined by masterScaleFactor.
                 double screenScaledRadius = unscaledOsuPixelRadius * masterScaleFactor;
 
+                // --- You can also log the result here for the same object ID ---
+                System.out.println("[UpdateLayout] " + objectType + " (ID: " + System.identityHashCode(hitObject) +
+                        ") calculated ScreenCenter: (" + finalObjectCenterX_onPane +
+                        ", " + finalObjectCenterY_onPane + ")");
+
+                // Inside the loop
                 hitObject.updateVisuals(finalObjectCenterX_onPane, finalObjectCenterY_onPane, screenScaledRadius);
             }
         }
@@ -186,27 +209,49 @@ public class GameView extends Page {
                 long elapsedMillis = elapsedNanos / 1_000_000;
 
                 // --- Update Game Logic ---
+                Set<KeyCode> currentKeys = inputManager.getPressedKeys();
                 for (Node node : new ArrayList<>(root.getChildren())) {
                     if (node != null && node.getUserData() instanceof HitObject) {
                         HitObject hitObject = (HitObject) node.getUserData();
                         hitObject.update(elapsedMillis);
 
-                        // --- Handle Key Presses ---
-                        Set<KeyCode> currentKeys = inputManager.getPressedKeys();
-                        boolean zPressed = currentKeys.contains(KeyCode.Z) && !previousKeys.contains(KeyCode.Z);
-                        boolean xPressed = currentKeys.contains(KeyCode.X) && !previousKeys.contains(KeyCode.X);
-                        if ((zPressed || xPressed) && hitObject.isVisible() && !hitObject.isHit()) {
-                            // handle hit
-                            long timingError = now - hitObject.getHitTime(); // Calculate hit timing
-                            hitObject.setHit(true);
-                            hitObject.playHitEffect();
-                        }
+                        if (hitObject.isVisible() && !hitObject.isHit()) {
+                            boolean zPressedThisFrame = currentKeys.contains(KeyCode.Z) && !previousKeys.contains(KeyCode.Z);
+                            boolean xPressedThisFrame = currentKeys.contains(KeyCode.X) && !previousKeys.contains(KeyCode.X);
 
-                        previousKeys.clear();
-                        previousKeys.addAll(currentKeys);
+                            if (zPressedThisFrame || xPressedThisFrame) {
+                                // Check mouse position
+                                double mouseX = currentMouseX; // From GameView field
+                                double mouseY = currentMouseY; // From GameView field
+
+                                double objCenterX = hitObject.getScreenCenterX();
+                                double objCenterY = hitObject.getScreenCenterY();
+                                double objRadius = hitObject.getScreenRadius();
+
+                                // Calculate distance squared for efficiency (avoids Math.sqrt)
+                                double dx = mouseX - objCenterX;
+                                double dy = mouseY - objCenterY;
+                                double distanceSquared = (dx * dx) + (dy * dy);
+
+                                if (distanceSquared <= objRadius * objRadius) {
+                                    // Mouse is inside the circle, a valid hit!
+                                    hitObject.setHit(true);
+                                    hitObject.playHitEffect(); // Call the method from HitObject
+
+                                    // Correct timing error calculation
+                                    long timingError = elapsedMillis - hitObject.getHitTime();
+                                    System.out.println("Hit registered via keypress! Timing: " + timingError + "ms. Object Center: (" + objCenterX + "," + objCenterY + "), R: " + objRadius + ". Mouse: (" + mouseX + "," + mouseY + ")");
+
+                                } else {
+                                    // Key pressed, but mouse not over this specific circle
+                                    System.out.println("Key pressed, but circle (" + objCenterX + "," + objCenterY + " R:" + objRadius + ") does not contain mouse (" + mouseX + "," + mouseY + ")");
+                                }
+                            }
+                        }
                     }
                 }
-
+                previousKeys.clear();
+                previousKeys.addAll(currentKeys);
                 // --- Other game updates could go here ---
                 // (e.g., check win/loss conditions, update score display)
             }
