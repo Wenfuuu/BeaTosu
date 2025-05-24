@@ -1,7 +1,7 @@
 .bot-bar {
     -fx-background-color: rgba(0, 0, 0, 0.5);
     -fx-max-height: 100px;
-    -fx-padding: 10;
+    -fx-padding: 10 10 10 0;
 }
 
 .bot-bar .button {

@@ -37,7 +37,7 @@
     -fx-border-color: rgba(255, 255, 255, 0.8);
     -fx-border-width: 2px;
     -fx-padding: 2px 6px;
-    -fx-min-width: 400px;
+    -fx-min-width: 475px;
 }
 
 .login-input:focused {
@@ -51,7 +51,7 @@
     -fx-text-fill: #FFFFFF;
     -fx-background-radius: 2px;
     -fx-cursor: hand;
-    -fx-padding: 4px 6px;
+    -fx-padding: 4px 7px;
     -fx-max-height: 40px;
     -fx-background-color: #109ec5;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 5, 0.0, 0, 2);
