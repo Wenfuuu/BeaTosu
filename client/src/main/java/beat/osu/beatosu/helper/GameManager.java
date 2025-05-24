@@ -1,5 +1,6 @@
 package beat.osu.beatosu.helper;
 
+import beat.osu.beatosu.enums.GameEventType;
 import beat.osu.beatosu.enums.GameState;
 import beat.osu.beatosu.factory.HitObjectFactory;
 import beat.osu.beatosu.game.GameEvent;
@@ -29,6 +30,7 @@ public class GameManager implements Subject {
     private AnimationTimer gameLoop;
     private long startTimeNanos = -1;
     private GameState gameState = GameState.NOT_STARTED;
+    private final InputManager inputManager;
 
     private final Set<KeyCode> previousKeys = new HashSet<>();
     private double currentMouseX;
@@ -51,10 +53,41 @@ public class GameManager implements Subject {
     }
 
     public void startGame() {
+        if (gameState == GameState.PLAYING) {
+            return;
+        }
 
+        if (gameState == GameState.NOT_STARTED) {
+            startTimeNanos = -1;
+            notifyObservers(new GameEvent(GameEventType.GAME_STARTED, null));
+        } else if (gameState == GameState.PAUSED) {
+            notifyObservers(new GameEvent(GameEventType.GAME_RESUMED, null));
+        }
+
+        gameState = GameState.PLAYING;
+
+        if (gameLoop != null) {
+            gameLoop.stop();
+        }
+
+        gameLoop = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                if (startTimeNanos == -1) {
+                    startTimeNanos = now;
+                }
+
+                long elapsedNanos = now - startTimeNanos;
+                long elapsedMillis = elapsedNanos / 1_000_000;
+
+                updateGame(elapsedMillis);
+            }
+        };
+
+        gameLoop.start();
     }
 
-    public void pauseGame() {
+    public void pauseGame(long elapsedMillis) {
 
     }
 
@@ -62,8 +95,33 @@ public class GameManager implements Subject {
 
     }
 
-    private void updateGame() {
+    private void updateGame(long elapsedMillis) {
+        Set<KeyCode> currentKeys = inputManager.getPressedKeys();
 
+        // Process all hit objects
+        for (HitObject hitObject : new ArrayList<>(hitObjects)) {
+            hitObject.update(elapsedMillis);
+
+            if (hitObject.isVisible() && !hitObject.isHit()) {
+                // Check for input
+                boolean pressedKeybind1 = currentKeys.contains(InputManager.getKeybind1()) &&
+                        !previousKeys.contains(InputManager.getKeybind1());
+                boolean pressedKeybind2 = currentKeys.contains(InputManager.getKeybind2()) &&
+                        !previousKeys.contains(InputManager.getKeybind2());
+
+                if (pressedKeybind1 || pressedKeybind2) {
+                    checkHitObjectClick(hitObject, elapsedMillis);
+                }
+
+                // Check for miss (object passed its time window)
+                if (elapsedMillis > hitObject.getHitTime() + getHitWindow()) {
+                    handleMiss(hitObject);
+                }
+            }
+        }
+
+        previousKeys.clear();
+        previousKeys.addAll(currentKeys);
     }
 
     private void checkHitObjectClick(HitObject hitObject, long elapsedMillis) {
@@ -167,8 +225,9 @@ public class GameManager implements Subject {
         hitObjects.add(newHitObject);
     }
 
-    public GameManager(Beatmap beatmap) {
+    public GameManager(Beatmap beatmap, InputManager inputManager) {
         this.beatmap = beatmap;
+        this.inputManager = inputManager;
         this.hitObjects = new ArrayList<>();
         processBeatmap();
     }

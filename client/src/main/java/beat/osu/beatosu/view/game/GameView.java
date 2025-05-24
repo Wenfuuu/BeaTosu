@@ -58,7 +58,7 @@ public class GameView extends Page {
     public GameView(Stage stage, Beatmap selectedBeatmap) {
         super(stage);
         this.beatmap = selectedBeatmap;
-        this.gm = new GameManager(selectedBeatmap);
+        this.gm = new GameManager(selectedBeatmap, inputManager);
         processBeatmap();
         loadBackground();
         handleEvent();
