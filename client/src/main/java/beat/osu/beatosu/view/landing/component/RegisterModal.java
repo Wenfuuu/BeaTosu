@@ -50,11 +50,9 @@ public class RegisterModal extends StackPane {
         setLayout();
         handleEvents();
 
-        // Add the root VBox to this StackPane
         this.getChildren().add(root);
         this.setVisible(false);
 
-        // Apply stylesheet
         URL cssUrl = CssManager.getLandingCssURL("RegisterModal.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
@@ -64,18 +62,15 @@ public class RegisterModal extends StackPane {
     }
 
     private void initialize() {
-        // Root
         root = new VBox(15);
         root.getStyleClass().add("root-register");
 
         inputBox = new VBox(20);
         inputBox.getStyleClass().add("input-box");
 
-        // Title
         title = new Label("Account Creation");
         title.getStyleClass().add("title");
 
-        // Username
         usernameBox = new VBox(5);
         usernameLabel = new Label("Username:");
         usernameLabel.getStyleClass().add("label");
@@ -84,7 +79,6 @@ public class RegisterModal extends StackPane {
         usernameHint = new Label("Others will recognise you by this name. Make sure you are happy with it!");
         usernameHint.getStyleClass().add("hint");
 
-        // Email
         emailBox = new VBox(5);
         emailLabel = new Label("Email Address:");
         emailLabel.getStyleClass().add("label");
@@ -94,7 +88,6 @@ public class RegisterModal extends StackPane {
         emailHint.setWrapText(true);
         emailHint.getStyleClass().add("hint");
 
-        // Password
         passwordBox = new VBox(5);
         passwordLabel = new Label("Password:");
         passwordLabel.getStyleClass().add("label");
@@ -104,7 +97,6 @@ public class RegisterModal extends StackPane {
         passwordHint.setWrapText(true);
         passwordHint.getStyleClass().add("hint");
 
-        // Buttons
         buttonBox = new VBox(20);
         buttonBox.getStyleClass().add("button-box");
 
@@ -142,11 +134,9 @@ public class RegisterModal extends StackPane {
             String password = passwordField.getText();
 
             RegisterResult result = authController.register(username, email, password);
-            if(result.isSuccess()) {
-                // success toast
+            if (result.isSuccess()) {
                 System.out.println(result.getMessage());
-            }else {
-                // error toast
+            } else {
                 System.out.println(result.getMessage());
             }
         });

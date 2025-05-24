@@ -109,7 +109,6 @@ public class BackgroundManager {
     public static void setDarkBackground(Scene scene, boolean darkMode) {
         darkModeEnabled = darkMode;
         updateOverlaySmooth(scene);
-        System.out.println("Dark mode set to " + (darkModeEnabled ? "enabled" : "disabled"));
     }
 
     private static void updateOverlaySmooth(Scene scene) {

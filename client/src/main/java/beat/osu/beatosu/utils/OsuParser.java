@@ -12,10 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * OsuParser is a utility class for parsing .osu files.
- * It extracts information from the file and provides methods to access the parsed data.
- */
 public class OsuParser {
     private static BeatmapController beatmapController = new BeatmapController();;
 
@@ -89,7 +85,6 @@ public class OsuParser {
                 sliderTickRate, starRating);
     }
 
-    //    new File("./src/main/java/resources/assets/temp/*.osu");
     public static void parse(File osuFile) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(osuFile));
         String line;
@@ -129,7 +124,6 @@ public class OsuParser {
             }
         }
 
-        // Parse timing points
         for (String timingPointData : timingPoints) {
             TimingPoint tp = new TimingPoint(timingPointData);
             timingPointsList.add(tp);

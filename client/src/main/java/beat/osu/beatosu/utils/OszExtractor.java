@@ -16,15 +16,13 @@ public class OszExtractor {
         if (files != null) {
             for (File file : files) {
                 if (file.isDirectory()) {
-                    clearDirectory(file); // Recursively clear subdirectories
+                    clearDirectory(file); 
                 }
-                file.delete(); // Delete file or empty directory
+                file.delete(); 
             }
         }
     }
 
-//    File oszFile = new File("./src/main/java/resources/assets/beatmap/569503 96neko - Uso no Hibana.osz");
-//    File outputDir = new File("./src/main/java/resources/assets/temp");
     public static void extractOsz(File oszFile, File outputDir) throws IOException {
         clearDirectory(outputDir);
 
@@ -37,7 +35,6 @@ public class OszExtractor {
             if (zipEntry.isDirectory()) {
                 newFile.mkdirs();
             } else {
-                // Make sure the parent folders exist
                 new File(newFile.getParent()).mkdirs();
 
                 try (FileOutputStream fos = new FileOutputStream(newFile)) {
