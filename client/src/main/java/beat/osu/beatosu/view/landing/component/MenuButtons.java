@@ -49,9 +49,9 @@ public class MenuButtons extends VBox {
     private Button createMenuButton(String imageName) {
         Button button = new Button();
         try {
-            String imagePath = "/assets/buttons/" + imageName;
+            String imagePath = "/assets/buttons/main-menu/" + imageName;
             String hoveredImageName = imageName.substring(0, imageName.lastIndexOf('.')) + "_hovered.png";
-            String hoveredImagePath = "/assets/buttons/" + hoveredImageName;
+            String hoveredImagePath = "/assets/buttons/main-menu/" + hoveredImageName;
             
             URL imageUrl = getClass().getResource(imagePath);
             URL hoveredImageUrl = getClass().getResource(hoveredImagePath);

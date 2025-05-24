@@ -76,7 +76,7 @@ public class LoginModal extends StackPane {
 
     private void initialize() {
         this.getStyleClass().add("login-modal-background");
-        this.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.36);
+        this.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.4);
 
         formContainer = new VBox(20);
         formContainer.getStyleClass().add("login-form-container");
