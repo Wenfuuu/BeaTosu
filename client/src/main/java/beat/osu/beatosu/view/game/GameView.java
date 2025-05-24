@@ -1,10 +1,7 @@
 package beat.osu.beatosu.view.game;
 
 import beat.osu.beatosu.factory.HitObjectFactory;
-import beat.osu.beatosu.helper.BackgroundManager;
-import beat.osu.beatosu.helper.BgmManager;
-import beat.osu.beatosu.helper.InputManager;
-import beat.osu.beatosu.helper.ScreenManager;
+import beat.osu.beatosu.helper.*;
 import beat.osu.beatosu.model.Beatmap;
 import beat.osu.beatosu.model.HitCircle;
 import beat.osu.beatosu.model.HitObject;
@@ -56,9 +53,12 @@ public class GameView extends Page {
     private int currentComboSetIndex = 0; // Index for combo colors (0,1,2,3...)
     private int comboSkipCounter = 0; // For handling the combo skip bits
 
+    private GameManager gm;
+
     public GameView(Stage stage, Beatmap selectedBeatmap) {
         super(stage);
         this.beatmap = selectedBeatmap;
+        this.gm = new GameManager(selectedBeatmap);
         processBeatmap();
         loadBackground();
         handleEvent();
