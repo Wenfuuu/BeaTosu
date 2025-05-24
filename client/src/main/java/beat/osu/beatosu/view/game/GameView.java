@@ -1,7 +1,9 @@
 package beat.osu.beatosu.view.game;
 
 import beat.osu.beatosu.factory.HitObjectFactory;
+import beat.osu.beatosu.game.GameEvent;
 import beat.osu.beatosu.helper.*;
+import beat.osu.beatosu.interfaces.Observer;
 import beat.osu.beatosu.model.Beatmap;
 import beat.osu.beatosu.model.HitCircle;
 import beat.osu.beatosu.model.HitObject;
@@ -22,7 +24,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class GameView extends Page {
+public class GameView extends Page implements Observer {
     // Osu! playfield resolution (4:3)
     private final double OSU_WIDTH = 640.0;
     private final double OSU_HEIGHT = 480.0;
@@ -37,41 +39,46 @@ public class GameView extends Page {
     private double circleSize; // Default Circle Size (CS) if parsing fails
     private double osuPixelDiameter;   // Diameter in original osu! coordinates
 
-    // Game Loop Timer
-    private AnimationTimer gameLoop;
-    private long startTimeNanos = -1;
 
     private Pane root;
-    private final Set<KeyCode> previousKeys = new HashSet<>();
+    private Pane gamePane;
+
     private final Beatmap beatmap;
-
-    private double currentMouseX;
-    private double currentMouseY;
-
-    private int masterComboNumber = 0; // Overall combo for score, not directly displayed on circles
-    private int currentComboNumberInSet = 0; // The 1,2,3... on circles, resets with new combo
-    private int currentComboSetIndex = 0; // Index for combo colors (0,1,2,3...)
-    private int comboSkipCounter = 0; // For handling the combo skip bits
-
     private GameManager gm;
 
     public GameView(Stage stage, Beatmap selectedBeatmap) {
         super(stage);
         this.beatmap = selectedBeatmap;
+        this.circleSize = selectedBeatmap.getCircleSize();
         this.gm = new GameManager(selectedBeatmap, inputManager);
-        processBeatmap();
+        this.gm.addObserver(this);
+        initializeUI();
         loadBackground();
         handleEvent();
-
         updateLayout();
+
         BgmManager.playGameBgm();
-        startGame();
+        gm.startGame();
+    }
+
+    private void initializeUI() {
+        createGamePane();
+
+        root.getChildren().add(gamePane);
+    }
+
+    private void createGamePane() {
+        gamePane = new Pane();
+        for (HitObject hitObject : gm.getHitObjects()) {
+            gamePane.getChildren().add(hitObject.getNode());
+        }
     }
 
     private void handleEvent() {
         root.setOnMouseMoved(e -> {
-            currentMouseX = e.getSceneX();
-            currentMouseY = e.getSceneY();
+//            currentMouseX = e.getSceneX();
+//            currentMouseY = e.getSceneY();
+            gm.updateMousePosition(e.getSceneX(), e.getSceneY());
         });
     }
 
@@ -82,62 +89,6 @@ public class GameView extends Page {
             System.err.println("Error setting background for HomeView: " + e.getMessage());
             e.printStackTrace();
             root.setStyle("-fx-background-color: #121212;");
-        }
-    }
-
-    private void addHitObject(String data) {
-        boolean isThisObjectANewCombo = HitObjectFactory.checkNewCombo(data);
-        int comboSkipFromThisObject = HitObjectFactory.getComboSkipCount(data);
-
-        if (isThisObjectANewCombo) {
-            currentComboNumberInSet = 1; // Reset number for this new combo set
-            // Apply combo skip from the *previous* new combo object, or this one if it's the first.
-            // The comboSetIndex is incremented by 1 + the number of colors to skip.
-            currentComboSetIndex = (currentComboSetIndex + 1 + comboSkipCounter) % OsuParser.getColours().size(); // Modulo beatmap's combo color count
-            comboSkipCounter = comboSkipFromThisObject; // Store skip for NEXT new combo
-        } else {
-            currentComboNumberInSet++;
-        }
-
-        HitObject newHitObject = HitObjectFactory.createHitObject(data, beatmap, currentComboNumberInSet, currentComboSetIndex);
-        root.getChildren().add(newHitObject.getNode());
-    }
-
-    private void processBeatmap() {
-        //search & extract .osz -> stored in temp folder
-//     absolute path => src\main\resources\assets\beatmap\567148 Sayuri - Heikousen.osz
-        String oszPath = String.format("./src/main/resources/assets/beatmap/%d %s - %s.osz", beatmap.getBeatmapSet().getBeatmapSetId(),
-                beatmap.getBeatmapSet().getArtist(), beatmap.getBeatmapSet().getTitle());
-        File oszFile = new File(oszPath);
-        File outputDir = new File("./src/main/resources/assets/temp");
-        try {
-            OszExtractor.extractOsz(oszFile, outputDir);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        //parse the selected .osu file
-        String osuPath = String.format("./src/main/resources/assets/temp/%s - %s (%s) [%s].osu",
-                beatmap.getBeatmapSet().getArtist(),
-                beatmap.getBeatmapSet().getTitle(),
-                beatmap.getBeatmapSet().getCreator(),
-                beatmap.getVersion());
-        File osuFile = new File(osuPath);
-        try {
-            OsuParser.parse(osuFile);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        circleSize = beatmap.getCircleSize();
-
-        // Reset combo counters before processing a new beatmap
-        masterComboNumber = 0;
-        currentComboNumberInSet = 0; // Will be incremented to 1 for the first object if not new combo
-        currentComboSetIndex = 0;    // Start with the first combo color
-        comboSkipCounter = 0;        // No skips pending for the first combo set initially
-
-        for(String data: OsuParser.getHitObjects()) {
-            addHitObject(data);
         }
     }
 
@@ -176,113 +127,57 @@ public class GameView extends Page {
         osuPixelDiameter = (54.4 - (4.48 * this.circleSize)) * 2.0;
         double unscaledOsuPixelRadius = osuPixelDiameter / 2.0;
 
-        for (Node node : root.getChildren()) { // Or iterate a dedicated list of HitObjects
-            if (node.getUserData() instanceof HitObject) {
-                HitObject hitObject = (HitObject) node.getUserData();
+        // Update hit object positions
+        for (HitObject hitObject : gm.getHitObjects()) {
+            double osuX = hitObject.getOsuX();
+            double osuY = hitObject.getOsuY();
 
-                double osuX = hitObject.getOsuX(); // Coordinate within 512x384 playfield
-                double osuY = hitObject.getOsuY(); // Coordinate within 512x384 playfield
+            double hitObjectX_in_RefScreen = PLAYFIELD_OFFSET_X_IN_REF + osuX;
+            double hitObjectY_in_RefScreen = PLAYFIELD_OFFSET_Y_IN_REF + osuY;
 
-                // --- ADD THIS DETAILED LOG ---
-//                String objectType = hitObject.getClass().getSimpleName();
-//                System.out.println("[UpdateLayout] Processing " + objectType + " (ID: " + System.identityHashCode(hitObject) +
-//                        ") with initial OsuCoords: (" + osuX + ", " + osuY + ")");
+            double finalObjectCenterX_onPane = viewportTopLeftX + (hitObjectX_in_RefScreen * masterScaleFactor);
+            double finalObjectCenterY_onPane = viewportTopLeftY + (hitObjectY_in_RefScreen * masterScaleFactor);
 
+            double screenScaledRadius = unscaledOsuPixelRadius * masterScaleFactor;
+
+            hitObject.updateVisuals(finalObjectCenterX_onPane, finalObjectCenterY_onPane, screenScaledRadius);
+        }
+
+//        for (Node node : root.getChildren()) { // Or iterate a dedicated list of HitObjects
+//            if (node.getUserData() instanceof HitObject) {
+//                HitObject hitObject = (HitObject) node.getUserData();
+//
+//                double osuX = hitObject.getOsuX(); // Coordinate within 512x384 playfield
+//                double osuY = hitObject.getOsuY(); // Coordinate within 512x384 playfield
+//
+//                // --- ADD THIS DETAILED LOG ---
+////                String objectType = hitObject.getClass().getSimpleName();
+////                System.out.println("[UpdateLayout] Processing " + objectType + " (ID: " + System.identityHashCode(hitObject) +
+////                        ") with initial OsuCoords: (" + osuX + ", " + osuY + ")");
+//
                 // a. Convert osuX, osuY (from 512x384 playfield) to their position
                 //    within the 640x480 reference coordinate system.
-                double hitObjectX_in_RefScreen = PLAYFIELD_OFFSET_X_IN_REF + osuX;
-                double hitObjectY_in_RefScreen = PLAYFIELD_OFFSET_Y_IN_REF + osuY;
-
-                // b. Scale these reference coordinates by masterScaleFactor and add viewport offset
-                //    to find the final on-screen center position for the hit object.
-                double finalObjectCenterX_onPane = viewportTopLeftX + (hitObjectX_in_RefScreen * masterScaleFactor);
-                double finalObjectCenterY_onPane = viewportTopLeftY + (hitObjectY_in_RefScreen * masterScaleFactor);
-
-                // c. Calculate the on-screen scaled radius of the hit object.
-                //    The visual size is determined by masterScaleFactor.
-                double screenScaledRadius = unscaledOsuPixelRadius * masterScaleFactor;
-
-                // --- You can also log the result here for the same object ID ---
-//                System.out.println("[UpdateLayout] " + objectType + " (ID: " + System.identityHashCode(hitObject) +
-//                        ") calculated ScreenCenter: (" + finalObjectCenterX_onPane +
-//                        ", " + finalObjectCenterY_onPane + ")");
-
-                // Inside the loop
-                hitObject.updateVisuals(finalObjectCenterX_onPane, finalObjectCenterY_onPane, screenScaledRadius);
-            }
-        }
-    }
-
-    private void startGame() {
-        System.out.println("Starting game");
-        startTimeNanos = -1; // Reset start time
-
-        // Stop existing loop if it's running (e.g., restarting the game)
-        if (gameLoop != null) {
-            gameLoop.stop();
-        }
-
-        gameLoop = new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                // Record the start time on the very first frame
-                if (startTimeNanos == -1) {
-                    startTimeNanos = now;
-                }
-
-                // Calculate elapsed time in nanoseconds and convert to milliseconds
-                long elapsedNanos = now - startTimeNanos;
-                long elapsedMillis = elapsedNanos / 1_000_000;
-
-                // --- Update Game Logic ---
-                Set<KeyCode> currentKeys = inputManager.getPressedKeys();
-                for (Node node : new ArrayList<>(root.getChildren())) {
-                    if (node != null && node.getUserData() instanceof HitObject) {
-                        HitObject hitObject = (HitObject) node.getUserData();
-                        hitObject.update(elapsedMillis);
-
-                        if (hitObject.isVisible() && !hitObject.isHit()) {
-                            boolean pressedKeybind1 = currentKeys.contains(InputManager.getKeybind1()) && !previousKeys.contains(InputManager.getKeybind1());
-                            boolean pressedKeybind2 = currentKeys.contains(InputManager.getKeybind2()) && !previousKeys.contains(InputManager.getKeybind2());
-
-                            if (pressedKeybind1 || pressedKeybind2) {
-                                // Check mouse position
-                                double mouseX = currentMouseX; // From GameView field
-                                double mouseY = currentMouseY; // From GameView field
-
-                                double objCenterX = hitObject.getScreenCenterX();
-                                double objCenterY = hitObject.getScreenCenterY();
-                                double objRadius = hitObject.getScreenRadius();
-
-                                // Calculate distance squared for efficiency (avoids Math.sqrt)
-                                double dx = mouseX - objCenterX;
-                                double dy = mouseY - objCenterY;
-                                double distanceSquared = (dx * dx) + (dy * dy);
-
-                                if (distanceSquared <= objRadius * objRadius) {
-                                    // Mouse is inside the circle, a valid hit!
-                                    hitObject.setHit(true);
-                                    hitObject.playHitEffect(); // Call the method from HitObject
-
-                                    // Correct timing error calculation
-                                    long timingError = elapsedMillis - hitObject.getHitTime();
-                                    System.out.println("Hit registered via keypress! Timing: " + timingError + "ms. Object Center: (" + objCenterX + "," + objCenterY + "), R: " + objRadius + ". Mouse: (" + mouseX + "," + mouseY + ")");
-                                } else {
-                                    // Key pressed, but mouse not over this specific circle
-                                    System.out.println("Key pressed, but circle (" + objCenterX + "," + objCenterY + " R:" + objRadius + ") does not contain mouse (" + mouseX + "," + mouseY + ")");
-                                }
-                            }
-                        }
-                    }
-                }
-                previousKeys.clear();
-                previousKeys.addAll(currentKeys);
-                // --- Other game updates could go here ---
-                // (e.g., check win/loss conditions, update score display)
-            }
-        };
-
-        gameLoop.start();
+//                double hitObjectX_in_RefScreen = PLAYFIELD_OFFSET_X_IN_REF + osuX;
+//                double hitObjectY_in_RefScreen = PLAYFIELD_OFFSET_Y_IN_REF + osuY;
+//
+//                // b. Scale these reference coordinates by masterScaleFactor and add viewport offset
+//                //    to find the final on-screen center position for the hit object.
+//                double finalObjectCenterX_onPane = viewportTopLeftX + (hitObjectX_in_RefScreen * masterScaleFactor);
+//                double finalObjectCenterY_onPane = viewportTopLeftY + (hitObjectY_in_RefScreen * masterScaleFactor);
+//
+//                // c. Calculate the on-screen scaled radius of the hit object.
+//                //    The visual size is determined by masterScaleFactor.
+//                double screenScaledRadius = unscaledOsuPixelRadius * masterScaleFactor;
+//
+//                // --- You can also log the result here for the same object ID ---
+////                System.out.println("[UpdateLayout] " + objectType + " (ID: " + System.identityHashCode(hitObject) +
+////                        ") calculated ScreenCenter: (" + finalObjectCenterX_onPane +
+////                        ", " + finalObjectCenterY_onPane + ")");
+//
+//                // Inside the loop
+//                hitObject.updateVisuals(finalObjectCenterX_onPane, finalObjectCenterY_onPane, screenScaledRadius);
+//            }
+//        }
     }
 
     @Override
@@ -296,7 +191,7 @@ public class GameView extends Page {
         backgroundOverlay.prefHeightProperty().bind(root.heightProperty());
 
         // Add the overlay pane to the root
-        root.getChildren().add(backgroundOverlay);
+        root.getChildren().addAll(backgroundOverlay);
 
         scene = new Scene(root, ScreenManager.SCREEN_WIDTH, ScreenManager.SCREEN_HEIGHT);
     }
@@ -306,5 +201,10 @@ public class GameView extends Page {
         ChangeListener<Number> resizeListener = (obs, oldVal, newVal) -> updateLayout();
         root.widthProperty().addListener(resizeListener);
         root.heightProperty().addListener(resizeListener);
+    }
+
+    @Override
+    public void update(GameEvent event) {
+
     }
 }

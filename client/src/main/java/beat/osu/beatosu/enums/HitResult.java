@@ -2,13 +2,13 @@ package beat.osu.beatosu.enums;
 
 import lombok.Getter;
 
+@Getter
 public enum HitResult {
     PERFECT(300),
     GREAT(100),
     GOOD(50),
     MISS(0);
 
-    @Getter
     private final int score;
 
     HitResult(int score) {

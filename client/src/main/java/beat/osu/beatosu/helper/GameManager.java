@@ -2,8 +2,12 @@ package beat.osu.beatosu.helper;
 
 import beat.osu.beatosu.enums.GameEventType;
 import beat.osu.beatosu.enums.GameState;
+import beat.osu.beatosu.enums.HitResult;
 import beat.osu.beatosu.factory.HitObjectFactory;
+import beat.osu.beatosu.game.ComboChangeData;
 import beat.osu.beatosu.game.GameEvent;
+import beat.osu.beatosu.game.HitObjectEventData;
+import beat.osu.beatosu.game.ScoreChangeData;
 import beat.osu.beatosu.interfaces.Observer;
 import beat.osu.beatosu.interfaces.Subject;
 import beat.osu.beatosu.model.Beatmap;
@@ -20,10 +24,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Data
 public class GameManager implements Subject {
-    private List<Observer> observerList;
+    private List<Observer> observerList = new CopyOnWriteArrayList<>();
 
     private final Beatmap beatmap;
     private final List<HitObject> hitObjects;
@@ -45,7 +50,7 @@ public class GameManager implements Subject {
     private int hits = 0;
     private int misses = 0;
     private double accuracy = 100.0;
-    private int health = 100;
+    private double health = 100;
 
     public void updateMousePosition(double x, double y) {
         this.currentMouseX = x;
@@ -87,8 +92,17 @@ public class GameManager implements Subject {
         gameLoop.start();
     }
 
-    public void pauseGame(long elapsedMillis) {
+    public void pauseGame() {
+        if (gameState != GameState.PLAYING) {
+            return;
+        }
 
+        if (gameLoop != null) {
+            gameLoop.stop();
+        }
+
+        gameState = GameState.PAUSED;
+        notifyObservers(new GameEvent(GameEventType.GAME_PAUSED, null));
     }
 
     public void stopGame() {
@@ -98,7 +112,6 @@ public class GameManager implements Subject {
     private void updateGame(long elapsedMillis) {
         Set<KeyCode> currentKeys = inputManager.getPressedKeys();
 
-        // Process all hit objects
         for (HitObject hitObject : new ArrayList<>(hitObjects)) {
             hitObject.update(elapsedMillis);
 
@@ -144,11 +157,59 @@ public class GameManager implements Subject {
     }
 
     private void handleHit(HitObject hitObject, long timingError) {
+        hits++;
+        masterComboNumber++;
 
+        // Determine hit result based on timing
+        HitResult hitResult = HitResult.fromTimingError(timingError);
+        int hitScore = hitResult.getScore();
+        score += hitScore;
+
+        // Update accuracy
+        updateAccuracy();
+
+        // Update health (hitting increases health)
+        health = Math.min(100, health + 2);
+
+        // Notify observers
+        notifyObservers(new GameEvent(GameEventType.SCORE_CHANGED,
+                new ScoreChangeData(score, hitScore)));
+
+        notifyObservers(new GameEvent(GameEventType.COMBO_CHANGED,
+                new ComboChangeData(masterComboNumber, false)));
+
+        notifyObservers(new GameEvent(GameEventType.HIT_OBJECT_HIT,
+                new HitObjectEventData(hitObject, timingError, hitResult)));
+
+        notifyObservers(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
+        notifyObservers(new GameEvent(GameEventType.HEALTH_CHANGED, health));
     }
 
     private void handleMiss(HitObject hitObject) {
+        misses++;
+        int oldCombo = masterComboNumber;
+        masterComboNumber = 0; // Reset combo on miss
 
+        // Update accuracy
+        updateAccuracy();
+
+        // Update health (missing decreases health)
+        health = Math.max(0, health - beatmap.getHpDrainRate());
+
+        // Notify observers
+        notifyObservers(new GameEvent(GameEventType.COMBO_CHANGED,
+                new ComboChangeData(masterComboNumber, oldCombo > 0)));
+
+        notifyObservers(new GameEvent(GameEventType.HIT_OBJECT_MISSED,
+                new HitObjectEventData(hitObject, 0, HitResult.MISS)));
+
+        notifyObservers(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
+        notifyObservers(new GameEvent(GameEventType.HEALTH_CHANGED, health));
+
+        // Check for game over (health reaches 0)
+        if (health <= 0) {
+            stopGame();
+        }
     }
 
     private void updateAccuracy() {
