@@ -4,6 +4,7 @@ import beat.osu.beatosu.model.Beatmap;
 import beat.osu.beatosu.model.HitCircle;
 import beat.osu.beatosu.model.HitObject;
 import beat.osu.beatosu.model.HitSlider;
+import beat.osu.beatosu.utils.OsuParser;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -49,6 +50,11 @@ public class HitObjectFactory {
                                             int comboNumber, int comboSetIndex){
         // Circle (length 6) => 382,305,6867,1,2,3:2:0:0:
         // Slider => 59,124,2279,6,0,P|116:91|220:132,1,171.73332756836,2|0,0:2|0:2,0:0:0:0:
+        Map<String, String> colours = OsuParser.getColours();
+        String key = "Combo" + (comboSetIndex + 1); // +1 because osu uses 1-based keys
+        String color = colours.getOrDefault(key, "255,255,255"); // Default to white if not found
+        System.out.println("key: " + key);
+        System.out.println("color: " + color);
 
         String[] parts = data.split(",");
         System.out.println(parts.length);
