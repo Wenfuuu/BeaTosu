@@ -112,18 +112,23 @@ public class GameManager implements Subject {
     private void updateGame(long elapsedMillis) {
         Set<KeyCode> currentKeys = inputManager.getPressedKeys();
 
+        boolean keyPressed = false;
+        boolean pressedKeybind1 = currentKeys.contains(InputManager.getKeybind1()) &&
+                !previousKeys.contains(InputManager.getKeybind1());
+        boolean pressedKeybind2 = currentKeys.contains(InputManager.getKeybind2()) &&
+                !previousKeys.contains(InputManager.getKeybind2());
+        if (pressedKeybind1 || pressedKeybind2) {
+            keyPressed = true;
+        }
+
         for (HitObject hitObject : new ArrayList<>(hitObjects)) {
             hitObject.update(elapsedMillis);
 
             if (hitObject.isVisible() && !hitObject.isHit()) {
-                // Check for input
-                boolean pressedKeybind1 = currentKeys.contains(InputManager.getKeybind1()) &&
-                        !previousKeys.contains(InputManager.getKeybind1());
-                boolean pressedKeybind2 = currentKeys.contains(InputManager.getKeybind2()) &&
-                        !previousKeys.contains(InputManager.getKeybind2());
-
-                if (pressedKeybind1 || pressedKeybind2) {
-                    checkHitObjectClick(hitObject, elapsedMillis);
+                if (keyPressed) {
+                    if (checkHitObjectClick(hitObject, elapsedMillis)) {
+                        keyPressed = false; // Prevent hitting multiple objects with one keypress
+                    }
                 }
 
                 // Check for miss (object passed its time window)
@@ -137,7 +142,7 @@ public class GameManager implements Subject {
         previousKeys.addAll(currentKeys);
     }
 
-    private void checkHitObjectClick(HitObject hitObject, long elapsedMillis) {
+    private boolean checkHitObjectClick(HitObject hitObject, long elapsedMillis) {
         double objCenterX = hitObject.getScreenCenterX();
         double objCenterY = hitObject.getScreenCenterY();
         double objRadius = hitObject.getScreenRadius();
@@ -153,7 +158,9 @@ public class GameManager implements Subject {
 
             long timingError = elapsedMillis - hitObject.getHitTime();
             handleHit(hitObject, timingError);
+            return true;
         }
+        return false;
     }
 
     private void handleHit(HitObject hitObject, long timingError) {
