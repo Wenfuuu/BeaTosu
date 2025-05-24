@@ -6,9 +6,12 @@ import beat.osu.beatosu.interfaces.Observer;
 import beat.osu.beatosu.model.Beatmap;
 import beat.osu.beatosu.model.HitObject;
 import beat.osu.beatosu.view.Page;
+import beat.osu.beatosu.view.game.component.GameUI;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class GameView extends Page implements Observer {
@@ -28,6 +31,7 @@ public class GameView extends Page implements Observer {
 
     private Pane root;
     private Pane gamePane;
+    private GameUI uiPane;
 
     private final Beatmap beatmap;
     private final GameManager gm;
@@ -48,9 +52,11 @@ public class GameView extends Page implements Observer {
     }
 
     private void initializeUI() {
+//        createUIElements();
+        uiPane = new GameUI();
         createGamePane();
 
-        root.getChildren().add(gamePane);
+        root.getChildren().addAll(gamePane, uiPane);
     }
 
     private void createGamePane() {
@@ -132,6 +138,20 @@ public class GameView extends Page implements Observer {
 
             hitObject.updateVisuals(finalObjectCenterX_onPane, finalObjectCenterY_onPane, screenScaledRadius);
         }
+
+        // Update UI element positions
+        VBox topRightPanel = (VBox) uiPane.getProperties().get("topRightPanel");
+        VBox bottomLeftPanel = (VBox) uiPane.getProperties().get("bottomLeftPanel");
+
+        if (topRightPanel != null) {
+            topRightPanel.setLayoutX(paneWidth - 150); // 150px from right edge
+            topRightPanel.setLayoutY(10);
+        }
+
+        if (bottomLeftPanel != null) {
+            bottomLeftPanel.setLayoutX(10);
+            bottomLeftPanel.setLayoutY(paneHeight - 30); // 30px from bottom
+        }
     }
 
     @Override
@@ -159,6 +179,12 @@ public class GameView extends Page implements Observer {
 
     @Override
     public void update(GameEvent event) {
+        Platform.runLater(() -> handleGameEvent(event));
+    }
 
+    private void handleGameEvent(GameEvent event) {
+//        switch (event.getType()) {
+//            case
+//        }
     }
 }
