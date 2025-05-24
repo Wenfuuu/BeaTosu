@@ -1,28 +1,16 @@
 package beat.osu.beatosu.view.game;
 
-import beat.osu.beatosu.factory.HitObjectFactory;
 import beat.osu.beatosu.game.GameEvent;
 import beat.osu.beatosu.helper.*;
 import beat.osu.beatosu.interfaces.Observer;
 import beat.osu.beatosu.model.Beatmap;
-import beat.osu.beatosu.model.HitCircle;
 import beat.osu.beatosu.model.HitObject;
-import beat.osu.beatosu.utils.OsuParser;
-import beat.osu.beatosu.utils.OszExtractor;
 import beat.osu.beatosu.view.Page;
-import javafx.animation.AnimationTimer;
 import javafx.beans.value.ChangeListener;
-import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 public class GameView extends Page implements Observer {
     // Osu! playfield resolution (4:3)
@@ -39,17 +27,16 @@ public class GameView extends Page implements Observer {
     private double circleSize; // Default Circle Size (CS) if parsing fails
     private double osuPixelDiameter;   // Diameter in original osu! coordinates
 
-
     private Pane root;
     private Pane gamePane;
 
     private final Beatmap beatmap;
-    private GameManager gm;
+    private final GameManager gm;
 
     public GameView(Stage stage, Beatmap selectedBeatmap) {
         super(stage);
         this.beatmap = selectedBeatmap;
-        this.circleSize = selectedBeatmap.getCircleSize();
+        this.circleSize = beatmap.getCircleSize();
         this.gm = new GameManager(selectedBeatmap, inputManager);
         this.gm.addObserver(this);
         initializeUI();
@@ -76,8 +63,6 @@ public class GameView extends Page implements Observer {
 
     private void handleEvent() {
         root.setOnMouseMoved(e -> {
-//            currentMouseX = e.getSceneX();
-//            currentMouseY = e.getSceneY();
             gm.updateMousePosition(e.getSceneX(), e.getSceneY());
         });
     }
@@ -132,52 +117,22 @@ public class GameView extends Page implements Observer {
             double osuX = hitObject.getOsuX();
             double osuY = hitObject.getOsuY();
 
+            // a. Convert osuX, osuY (from 512x384 playfield) to their position
+            //    within the 640x480 reference coordinate system.
             double hitObjectX_in_RefScreen = PLAYFIELD_OFFSET_X_IN_REF + osuX;
             double hitObjectY_in_RefScreen = PLAYFIELD_OFFSET_Y_IN_REF + osuY;
 
+            // b. Scale these reference coordinates by masterScaleFactor and add viewport offset
+            //    to find the final on-screen center position for the hit object.
             double finalObjectCenterX_onPane = viewportTopLeftX + (hitObjectX_in_RefScreen * masterScaleFactor);
             double finalObjectCenterY_onPane = viewportTopLeftY + (hitObjectY_in_RefScreen * masterScaleFactor);
 
+            // c. Calculate the on-screen scaled radius of the hit object.
+            //    The visual size is determined by masterScaleFactor.
             double screenScaledRadius = unscaledOsuPixelRadius * masterScaleFactor;
 
             hitObject.updateVisuals(finalObjectCenterX_onPane, finalObjectCenterY_onPane, screenScaledRadius);
         }
-
-//        for (Node node : root.getChildren()) { // Or iterate a dedicated list of HitObjects
-//            if (node.getUserData() instanceof HitObject) {
-//                HitObject hitObject = (HitObject) node.getUserData();
-//
-//                double osuX = hitObject.getOsuX(); // Coordinate within 512x384 playfield
-//                double osuY = hitObject.getOsuY(); // Coordinate within 512x384 playfield
-//
-//                // --- ADD THIS DETAILED LOG ---
-////                String objectType = hitObject.getClass().getSimpleName();
-////                System.out.println("[UpdateLayout] Processing " + objectType + " (ID: " + System.identityHashCode(hitObject) +
-////                        ") with initial OsuCoords: (" + osuX + ", " + osuY + ")");
-//
-                // a. Convert osuX, osuY (from 512x384 playfield) to their position
-                //    within the 640x480 reference coordinate system.
-//                double hitObjectX_in_RefScreen = PLAYFIELD_OFFSET_X_IN_REF + osuX;
-//                double hitObjectY_in_RefScreen = PLAYFIELD_OFFSET_Y_IN_REF + osuY;
-//
-//                // b. Scale these reference coordinates by masterScaleFactor and add viewport offset
-//                //    to find the final on-screen center position for the hit object.
-//                double finalObjectCenterX_onPane = viewportTopLeftX + (hitObjectX_in_RefScreen * masterScaleFactor);
-//                double finalObjectCenterY_onPane = viewportTopLeftY + (hitObjectY_in_RefScreen * masterScaleFactor);
-//
-//                // c. Calculate the on-screen scaled radius of the hit object.
-//                //    The visual size is determined by masterScaleFactor.
-//                double screenScaledRadius = unscaledOsuPixelRadius * masterScaleFactor;
-//
-//                // --- You can also log the result here for the same object ID ---
-////                System.out.println("[UpdateLayout] " + objectType + " (ID: " + System.identityHashCode(hitObject) +
-////                        ") calculated ScreenCenter: (" + finalObjectCenterX_onPane +
-////                        ", " + finalObjectCenterY_onPane + ")");
-//
-//                // Inside the loop
-//                hitObject.updateVisuals(finalObjectCenterX_onPane, finalObjectCenterY_onPane, screenScaledRadius);
-//            }
-//        }
     }
 
     @Override
