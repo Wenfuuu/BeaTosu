@@ -1,0 +1,19 @@
+@font-face {
+    font-family: 'Aller';
+    src: url("../../fonts/aller/Aller_Std_Rg.ttf");
+}
+
+@font-face {
+    font-family: 'Aller Light';
+    src: url("../../fonts/aller/Aller_Std_Lt.ttf");
+}
+
+@font-face {
+    font-family: 'Aller Bold';
+    src: url("../../fonts/aller/Aller_Std_Bd.ttf");
+}
+
+@font-face {
+    font-family: 'Aller Display';
+    src: url("../../fonts/aller/AllerDisplay_Std_Rg.ttf");
+}

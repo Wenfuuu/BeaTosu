@@ -5,13 +5,17 @@ import beat.osu.beatosu.Main;
 import java.net.URL;
 
 public class CssManager {
+    public static URL getGlobalCssURL() {
+        String path = "/assets/css/global/index.css";
+        URL cssUrl = Main.class.getResource(path);
 
-    /**
-     * Loads a CSS file from the /assets/css/ directory.
-     *
-     * @param filename The CSS filename (e.g., "RegisterModal.css")
-     * @return URL to the CSS file, or null if not found
-     */
+        if (cssUrl == null) {
+            System.err.println("CSS file not found at path: " + path);
+        }
+
+        return cssUrl;
+    }
+
     public static URL getLandingCssURL(String filename) {
         if (filename == null || filename.isEmpty()) {
             System.err.println("Filename cannot be null or empty.");
