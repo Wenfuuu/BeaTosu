@@ -24,12 +24,13 @@ public class HitCircle extends HitObject{
     public HitCircle(int osuX, int osuY, long hitTime,
                      int type, int hitSound, String hitSample,
                      double approachRate, double circleSize,
-                     int comboNumber, int comboSetIndex) {
+                     int comboNumber, int comboSetIndex, String colorString) {
         super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate, circleSize, comboNumber, comboSetIndex);
 
+        Color circleColor = parseColorString(colorString);
         // --- CORE CHANGE: Create circles at (0,0) relative to the Group ---
         innerCircle = new Circle(0, 0, getCircleRadius());
-        innerCircle.setFill(Color.rgb(100, 180, 255, 0.8)); // Example color
+        innerCircle.setFill(circleColor.deriveColor(1, 1, 1, 0.8)); // Example color
         innerCircle.setStroke(Color.WHITE);
         innerCircle.setStrokeWidth(2);
 

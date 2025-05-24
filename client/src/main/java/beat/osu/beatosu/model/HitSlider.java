@@ -180,7 +180,7 @@ public class HitSlider extends HitObject {
     public HitSlider(int osuX, int osuY, long hitTime, int type, int hitSound,
                      String objectParams, String hitSample, double approachRate,
                      double circleSize, double sliderMultiplier,
-                     int comboNumber, int comboSetIndex) {
+                     int comboNumber, int comboSetIndex, String colorString) {
         super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate, circleSize, comboNumber, comboSetIndex);
         PATH_STROKE_WIDTH = getCircleRadius() * 2;
         BALL_RADIUS = getCircleRadius() * 0.8;
@@ -198,13 +198,16 @@ public class HitSlider extends HitObject {
         group = new Group();
         group.setVisible(false);
 
+        // get colors
+        Color circleColor = parseColorString(colorString);
         sliderPath = createSliderPath();
         if (sliderPath != null) {
+            sliderPath.setStroke(circleColor);
             group.getChildren().add(sliderPath);
         }
 
         headCircle = new Circle(0, 0, getCircleRadius());
-        headCircle.setFill(Color.rgb(100, 180, 255, 0.8));
+        headCircle.setFill(circleColor.deriveColor(1, 1, 1, 0.8));
         headCircle.setStroke(Color.WHITE);
         headCircle.setStrokeWidth(2);
 
@@ -252,7 +255,6 @@ public class HitSlider extends HitObject {
         }
 
         Path path = new Path();
-        path.setStroke(Color.BLUE); // TODO: Use colors based on combo
         path.setStrokeWidth(PATH_STROKE_WIDTH);
         path.setStrokeLineCap(StrokeLineCap.ROUND);
         path.setStrokeLineJoin(StrokeLineJoin.ROUND);
@@ -327,7 +329,6 @@ public class HitSlider extends HitObject {
         return Math.max(0.0, Math.min(1.0, ballFraction)); // Clamp to [0, 1]
     }
 
-
     private Point2D getPointOnLinear(Point2D p0, Point2D p1, double t) {
         t = Math.max(0.0, Math.min(1.0, t)); // Clamp t to [0,1]
         double x = (1.0 - t) * p0.getX() + t * p1.getX();
@@ -364,7 +365,6 @@ public class HitSlider extends HitObject {
         if (totalVisualLength == 0) { // still zero after check, likely single point
             return new Point2D(0,0);
         }
-
 
         // Find which segment the fraction falls on
         double targetDistanceOnPath = fraction * totalVisualLength;

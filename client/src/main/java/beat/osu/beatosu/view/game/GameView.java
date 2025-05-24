@@ -11,7 +11,6 @@ import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
-
 public class GameView extends Page implements Observer {
     // Osu! playfield resolution (4:3)
     private final double OSU_WIDTH = 640.0;

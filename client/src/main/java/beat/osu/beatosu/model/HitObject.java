@@ -1,6 +1,7 @@
 package beat.osu.beatosu.model;
 
 import javafx.scene.Node;
+import javafx.scene.paint.Color;
 import lombok.Data;
 
 @Data
@@ -73,6 +74,15 @@ public abstract class HitObject {
         } else {
             return (int)(800 - 500 * (AR - 5) / 5.0);
         }
+    }
+
+    protected Color parseColorString(String colorString) {
+        String[] rgb = colorString.split(",");
+        return Color.rgb(
+                Integer.parseInt(rgb[0].trim()),
+                Integer.parseInt(rgb[1].trim()),
+                Integer.parseInt(rgb[2].trim())
+        );
     }
 
     public abstract Node getNode();
