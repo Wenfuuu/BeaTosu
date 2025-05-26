@@ -3,6 +3,7 @@ package beat.osu.client.view.game;
 import beat.osu.client.enums.GameState;
 import beat.osu.client.game.ComboChangeData;
 import beat.osu.client.game.GameEvent;
+import beat.osu.client.game.ScoreChangeData;
 import beat.osu.client.helper.*;
 import beat.osu.client.interfaces.Observer;
 import beat.osu.client.model.Beatmap;
@@ -213,6 +214,12 @@ public class GameView extends Page implements Observer {
                 ComboChangeData comboChangeData = event.getData(ComboChangeData.class);
                 if (comboChangeData != null) {
                     uiPane.getComboLabel().setText("Combo: " + comboChangeData.getCombo() + "x");
+                }
+                break;
+            case SCORE_CHANGED:
+                ScoreChangeData scoreChangeData = event.getData(ScoreChangeData.class);
+                if (scoreChangeData != null) {
+                    uiPane.getScoreLabel().setText("Score: " + scoreChangeData.getScore());
                 }
         }
     }

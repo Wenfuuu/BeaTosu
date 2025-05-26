@@ -8,16 +8,16 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class GameUI extends Pane {
-    private Label scoreLabel;
-    private Label comboLabel;
-    private Label accuracyLabel;
-    private ProgressBar healthBar;
-    private Label gameStatusLabel;
-    private Label hitResultLabel;
+    private final Label scoreLabel;
+    private final Label comboLabel;
+    private final Label accuracyLabel;
+    private final ProgressBar healthBar;
+    private final Label gameStatusLabel;
+    private final Label hitResultLabel;
 
     public GameUI() {
         // Score display
