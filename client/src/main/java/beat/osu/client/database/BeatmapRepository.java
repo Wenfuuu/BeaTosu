@@ -19,36 +19,37 @@ public class BeatmapRepository {
 
     public ArrayList<Beatmap> fetchBeatmaps() {
         ArrayList<Beatmap> beatmaps = new ArrayList<>();
-        String query = "SELECT * FROM Beatmaps bm " +
-                "JOIN BeatmapSets bs ON bm.beatmapSetId = bs.beatmapSetId " +
-                "ORDER BY bs.beatmapSetId ASC, starRating ASC;";
+        String query = "SELECT * FROM beatmaps bm " +
+                "JOIN beatmap_sets bs ON bm.beatmap_set_id = bs.id " +
+                "ORDER BY bs.id ASC, star_rating ASC;";
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
             while(rs.next()) {
                 BeatmapSet set = new BeatmapSet(
-                        rs.getInt("beatmapSetId"),
-                        rs.getString("title"),
-                        rs.getString("artist"),
-                        rs.getString("creator"),
-                        rs.getString("length"),
-                        rs.getInt("bpm"),
-                        rs.getString("backgroundFile")
+                        rs.getInt("bs.id"),
+                        rs.getString("bs.title"),
+                        rs.getString("bs.artist"),
+                        rs.getString("bs.creator"),
+                        rs.getString("bs.length"),
+                        rs.getInt("bs.bpm"),
+                        rs.getString("bs.background_path")
                 );
 
                 Beatmap bm = new Beatmap(
-                        rs.getInt("beatmapId"),
-                        rs.getInt("beatmapSetId"),
-                        rs.getString("version"),
-                        rs.getDouble("hpDrainRate"),
-                        rs.getDouble("circleSize"),
-                        rs.getDouble("overallDifficulty"),
-                        rs.getDouble("approachRate"),
-                        rs.getDouble("slideMultiplier"),
-                        rs.getDouble("sliderTickRate"),
-                        rs.getDouble("starRating"),
+                        rs.getInt("bm.id"),
+                        rs.getInt("bm.beatmap_set_id"),
+                        rs.getString("bm.version"),
+                        rs.getDouble("bm.hp_drain_rate"),
+                        rs.getDouble("bm.circle_size"),
+                        rs.getDouble("bm.overall_difficulty"),
+                        rs.getDouble("bm.approach_rate"),
+                        rs.getDouble("bm.slide_multiplier"),
+                        rs.getDouble("bm.slider_tick_rate"),
+                        rs.getDouble("bm.star_rating"),
                         set
                 );
+
 
                 beatmaps.add(bm);
             }
@@ -67,7 +68,8 @@ public class BeatmapRepository {
             int bpm,
             String backgroundFile
     ) {
-        String query = "INSERT INTO beatmapSets VALUES(?, ?, ?, ?, ?, ?, ?);";
+        String query = "INSERT INTO beatmap_sets (id, title, artist, creator, length, bpm, background_path) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?);";
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setInt(1, beatmapSetId);
@@ -95,7 +97,9 @@ public class BeatmapRepository {
             double sliderTickRate,
             double starRating
     ) {
-        String query = "INSERT INTO beatmaps VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+        String query = "INSERT INTO beatmaps (id, beatmap_set_id, version, hp_drain_rate, circle_size, " +
+                "overall_difficulty, approach_rate, slide_multiplier, slider_tick_rate, star_rating) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setInt(1, beatmapId);

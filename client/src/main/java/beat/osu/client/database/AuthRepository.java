@@ -18,7 +18,8 @@ public class AuthRepository {
     }
 
     public RegisterResult register(String username, String email, String password) {
-        String query = "INSERT INTO users(username, email, password) VALUES(?, ?, ?);";
+        String query = "INSERT INTO users (username, email, password_hash, performance, accuracy, play_count, level) " +
+                "VALUES (?, ?, ?, 0, 0.00, 0, 1);";
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, username);
@@ -33,20 +34,25 @@ public class AuthRepository {
     }
 
     public User login(String username, String password) {
-        String query = "SELECT * FROM users WHERE username = ? AND password = ?;";
+        String query = "SELECT * FROM users WHERE username = ? AND password_hash = ?;";
         try {
             PreparedStatement ps = conn.prepareStatement(query);
             ps.setString(1, username);
             ps.setString(2, password);
             ResultSet rs = ps.executeQuery();
-            if(!rs.next()) return null;
+
+            if (!rs.next()) return null;
 
             return new User(
-                rs.getInt(1),
-                rs.getString(2),
-                rs.getString(3),
-                rs.getString(4),
-                rs.getBytes(5)
+                    rs.getInt("id"),
+                    rs.getString("username"),
+                    rs.getString("email"),
+                    rs.getString("password_hash"),
+                    rs.getBytes("profile_picture"),
+                    rs.getInt("performance"),
+                    rs.getDouble("accuracy"),
+                    rs.getInt("play_count"),
+                    rs.getInt("level")
             );
         } catch (SQLException e) {
             throw new RuntimeException(e);

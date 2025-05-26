@@ -8,9 +8,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-    private int userId;
+    private int id;
     private String username;
     private String email;
-    private String password;
+    private String passwordHash;
     private byte[] profilePicture;
+    private int performance;
+    private double accuracy;
+    private int playCount;
+    private int level;
 }
