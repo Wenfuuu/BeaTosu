@@ -128,8 +128,7 @@ public class GameManager implements Subject {
             if (hitObject.isVisible() && !hitObject.isHit()) {
                 if (keyPressed) {
                     if (checkHitObjectClick(hitObject, elapsedMillis)) {
-                        keyPressed = false; // Prevent hitting multiple objects with one keypress
-//                        hitObjects.remove(hitObject);
+                        keyPressed = false; // Prevent hitting overlapping objects
                     }
                 }
 
@@ -174,7 +173,9 @@ public class GameManager implements Subject {
 
         // Determine hit result based on timing
         HitResult hitResult = HitResult.fromTimingError(timingError);
-        int hitScore = hitResult.getScore();
+        int hitValue = hitResult.getScore();
+        int difficultyMultiplier = beatmap.getDifficultyMultiplier(hitObjects.size(), beatmap.getHpDrainRate() * hitObject.getHitTime() / 1000.0);
+        int hitScore = hitValue * (1 + (masterComboNumber * difficultyMultiplier));
         score += hitScore;
 
         // Update accuracy
@@ -200,8 +201,6 @@ public class GameManager implements Subject {
 
     private void handleMiss(HitObject hitObject) {
         hitObject.hide();
-        System.out.println("hit: " + hitObject.isHit());
-        System.out.println("visible: " + hitObject.isVisible());
 
         misses++;
         int oldCombo = masterComboNumber;
@@ -246,7 +245,6 @@ public class GameManager implements Subject {
 //    }
 
     private void processBeatmap() {
-        // Extract .osz file
         String oszPath = String.format("./src/main/resources/assets/beatmap/%d %s - %s.osz",
                 beatmap.getBeatmapSet().getBeatmapSetId(),
                 beatmap.getBeatmapSet().getArtist(),
@@ -260,7 +258,6 @@ public class GameManager implements Subject {
             throw new RuntimeException(e);
         }
 
-        // Parse .osu file
         String osuPath = String.format("./src/main/resources/assets/temp/%s - %s (%s) [%s].osu",
                 beatmap.getBeatmapSet().getArtist(),
                 beatmap.getBeatmapSet().getTitle(),

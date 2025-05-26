@@ -1,6 +1,7 @@
 package beat.osu.client.utils;
 
 import beat.osu.client.controller.BeatmapController;
+import beat.osu.client.model.BreakPoint;
 import beat.osu.client.model.TimingPoint;
 import lombok.Getter;
 
@@ -34,6 +35,8 @@ public class OsuParser {
     private static double bgm = 0;
     @Getter
     private static ArrayList<TimingPoint> timingPointsList = new ArrayList<>();
+    @Getter
+    private static ArrayList<BreakPoint> breakPointsList = new ArrayList<>();
 
     private static void clearAll() {
         general.clear();
@@ -127,6 +130,16 @@ public class OsuParser {
         for (String timingPointData : timingPoints) {
             TimingPoint tp = new TimingPoint(timingPointData);
             timingPointsList.add(tp);
+        }
+
+        for (String eventData : events) {
+            String[] parts = eventData.split(",");
+            if (parts.length > 2 && parts[0].equals("2")) { // Break point
+                int startTime = Integer.parseInt(parts[1]);
+                int endTime = Integer.parseInt(parts[2]);
+                BreakPoint bp = new BreakPoint(startTime, endTime);
+                breakPointsList.add(bp);
+            }
         }
 
         reader.close();
