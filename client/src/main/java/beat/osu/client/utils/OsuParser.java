@@ -1,6 +1,7 @@
 package beat.osu.client.utils;
 
 import beat.osu.client.controller.BeatmapController;
+import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BreakPoint;
 import beat.osu.client.model.TimingPoint;
 import lombok.Getter;
@@ -86,6 +87,34 @@ public class OsuParser {
         beatmapController.insertBeatmap(beatmapId, beatmapSetId, version, hpDrainRate,
                 circleSize, overallDifficulty, approachRate, slideMultiplier,
                 sliderTickRate, starRating);
+    }
+
+    public static void extractAndParse(Beatmap beatmap) {
+        String oszPath = String.format("./src/main/resources/assets/beatmap/%d %s - %s.osz",
+                beatmap.getBeatmapSet().getBeatmapSetId(),
+                beatmap.getBeatmapSet().getArtist(),
+                beatmap.getBeatmapSet().getTitle());
+        File oszFile = new File(oszPath);
+        File outputDir = new File("./src/main/resources/assets/temp");
+
+        try {
+            OszExtractor.extractOsz(oszFile, outputDir);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String osuPath = String.format("./src/main/resources/assets/temp/%s - %s (%s) [%s].osu",
+                beatmap.getBeatmapSet().getArtist(),
+                beatmap.getBeatmapSet().getTitle(),
+                beatmap.getBeatmapSet().getCreator(),
+                beatmap.getVersion());
+        File osuFile = new File(osuPath);
+
+        try {
+            parse(osuFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void parse(File osuFile) throws IOException {

@@ -163,7 +163,7 @@ public class GameView extends Page implements Observer {
         VBox bottomLeftPanel = (VBox) uiPane.getProperties().get("bottomLeftPanel");
 
         if (topRightPanel != null) {
-            topRightPanel.setLayoutX(paneWidth - 150); // 150px from right edge
+            topRightPanel.setLayoutX(paneWidth - 200); // 200px from right edge
             topRightPanel.setLayoutY(10);
         }
 

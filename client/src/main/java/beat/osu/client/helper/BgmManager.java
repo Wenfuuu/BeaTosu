@@ -2,6 +2,7 @@ package beat.osu.client.helper;
 
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.util.Duration;
 import lombok.Getter;
 
 import java.io.File;
@@ -24,6 +25,11 @@ public class BgmManager {
 
         Media media = new Media(audioFile.toURI().toString());
         currentPlayer = new MediaPlayer(media);
+//        currentPlayer.setOnEndOfMedia(() -> {
+//            currentPlayer.seek(Duration.ZERO);
+//            currentPlayer.play();
+//        });
+//        currentPlayer.setCycleCount(MediaPlayer.INDEFINITE);
         currentPlayer.setAutoPlay(true);
         currentPlayer.setVolume(0.2);
     }

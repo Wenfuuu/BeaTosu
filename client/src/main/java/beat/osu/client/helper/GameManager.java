@@ -246,31 +246,7 @@ public class GameManager implements Subject {
 //    }
 
     private void processBeatmap() {
-        String oszPath = String.format("./src/main/resources/assets/beatmap/%d %s - %s.osz",
-                beatmap.getBeatmapSet().getBeatmapSetId(),
-                beatmap.getBeatmapSet().getArtist(),
-                beatmap.getBeatmapSet().getTitle());
-        File oszFile = new File(oszPath);
-        File outputDir = new File("./src/main/resources/assets/temp");
-
-        try {
-            OszExtractor.extractOsz(oszFile, outputDir);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        String osuPath = String.format("./src/main/resources/assets/temp/%s - %s (%s) [%s].osu",
-                beatmap.getBeatmapSet().getArtist(),
-                beatmap.getBeatmapSet().getTitle(),
-                beatmap.getBeatmapSet().getCreator(),
-                beatmap.getVersion());
-        File osuFile = new File(osuPath);
-
-        try {
-            OsuParser.parse(osuFile);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        OsuParser.extractAndParse(beatmap);
 
         // Reset combo counters
         masterComboNumber = 0;
