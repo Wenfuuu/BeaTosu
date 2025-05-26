@@ -1,4 +1,4 @@
-module beat.osu.beatosu {
+module beat.osu.client {
     requires javafx.controls;
     requires javafx.fxml;
 
@@ -10,7 +10,7 @@ module beat.osu.beatosu {
     requires java.sql;
     requires javafx.media;
 
-    opens beat.osu.beatosu to javafx.fxml;
+    opens beat.osu.client to javafx.fxml;
 
-    exports beat.osu.beatosu;
+    exports beat.osu.client;
 }

@@ -22,8 +22,8 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 application {
-  mainModule = 'beat.osu.beatosu'
-  mainClass = 'beat.osu.beatosu.Main'
+  mainModule = 'beat.osu.client'
+  mainClass = 'beat.osu.client.Main'
 }
 
 javafx {
@@ -60,7 +60,7 @@ java {
 
 jar {
   manifest {
-    attributes 'Main-Class': 'beat.osu.beatosu.Main'
+    attributes 'Main-Class': 'beat.osu.client.Main'
     attributes 'Automatic-Module-Name': moduleName
   }
 

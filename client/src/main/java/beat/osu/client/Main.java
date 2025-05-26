@@ -1,0 +1,22 @@
+package beat.osu.client;
+
+import beat.osu.client.helper.StageManager;
+import beat.osu.client.view.landing.LandingView;
+import javafx.application.Application;
+import javafx.stage.Stage;
+
+public class Main extends Application {
+
+    @Override
+    public void start(Stage stage)  {
+        StageManager.setStage(stage);
+
+        new LandingView(StageManager.getStage());
+//        new HomeView(StageManager.getStage());
+//        new UploadPage(StageManager.getStage());
+    }
+
+    public static void main(String[] args) {
+        launch();
+    }
+}
