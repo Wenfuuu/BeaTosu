@@ -31,7 +31,15 @@ public class OszExtractor {
         ZipEntry zipEntry;
 
         while ((zipEntry = zis.getNextEntry()) != null) {
-            File newFile = new File(outputDir, zipEntry.getName());
+            String originalName = zipEntry.getName();
+            String lowerName = originalName.toLowerCase();
+
+            String newName = originalName;
+            if (lowerName.endsWith(".mp3")) {
+                newName = "audio.mp3";
+            }
+
+            File newFile = new File(outputDir, newName);
             if (zipEntry.isDirectory()) {
                 newFile.mkdirs();
             } else {

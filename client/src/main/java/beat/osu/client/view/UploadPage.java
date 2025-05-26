@@ -155,6 +155,27 @@ public class UploadPage extends Page {
                         OszExtractor.extractOsz(oszFile, outputDir);
                         //parse all .osu file in temp folder & insert db
                         File []files = outputDir.listFiles();
+                        File detectedAudioFile = null;
+
+                        if (files != null) {
+                            for (File f : files) {
+                                String name = f.getName().toLowerCase();
+                                if (name.endsWith(".mp3")) {
+                                    detectedAudioFile = f;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if(detectedAudioFile != null) {
+                            File renamedAudioFile = new File(outputDir, "audio.mp3");
+                            try {
+                                Files.move(detectedAudioFile.toPath(), renamedAudioFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                            } catch (IOException e) {
+                                System.out.println("Failed to rename audio file.");
+                                e.printStackTrace();
+                            }
+                        }
 
                         CountDownLatch latch = new CountDownLatch(1);
                         // Store the duration in an array to access it from the lambda
