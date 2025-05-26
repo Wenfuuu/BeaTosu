@@ -90,6 +90,7 @@ public class GameManager implements Subject {
         };
 
         gameLoop.start();
+        BgmManager.playGameBgm();
     }
 
     public void pauseGame() {
@@ -102,6 +103,7 @@ public class GameManager implements Subject {
         }
 
         gameState = GameState.PAUSED;
+        BgmManager.pauseBgm();
         notifyObservers(new GameEvent(GameEventType.GAME_PAUSED, null));
     }
 

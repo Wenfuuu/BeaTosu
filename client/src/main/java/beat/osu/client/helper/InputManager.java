@@ -7,6 +7,7 @@ import javafx.scene.input.MouseEvent;
 import lombok.Getter;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class InputManager {
@@ -40,22 +41,13 @@ public class InputManager {
     private void handlePlayerInput(Scene scene) {
         scene.setOnKeyPressed(e -> {
             KeyCode keyCode = e.getCode();
-            switch (keyCode) {
-//                case Z:
-//                case X:
-//                case SPACE:
-//                case ESCAPE:
-//                    pressedKeys.add(keyCode);
-//                    break;
-                case BACK_SPACE:
-                    if (typedChars.length() > 0) {
-                        typedChars.deleteCharAt(typedChars.length() - 1);
-                    }
+            if (Objects.requireNonNull(keyCode) == KeyCode.BACK_SPACE) {
+                if (typedChars.length() > 0) {
+                    typedChars.deleteCharAt(typedChars.length() - 1);
+                }
 //                    System.out.println("Typed: " + typedChars);
-                    break;
-                default:
-                    pressedKeys.add(keyCode);
-                    break;
+            } else {
+                pressedKeys.add(keyCode);
             }
 
 //            System.out.println(keyCode);

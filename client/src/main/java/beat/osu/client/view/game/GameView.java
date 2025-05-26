@@ -1,5 +1,6 @@
 package beat.osu.client.view.game;
 
+import beat.osu.client.enums.GameState;
 import beat.osu.client.game.GameEvent;
 import beat.osu.client.helper.*;
 import beat.osu.client.interfaces.Observer;
@@ -10,6 +11,7 @@ import beat.osu.client.view.game.component.GameUI;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -42,17 +44,20 @@ public class GameView extends Page implements Observer {
         this.circleSize = beatmap.getCircleSize();
         this.gm = new GameManager(selectedBeatmap, inputManager);
         this.gm.addObserver(this);
+
+        ChangeListener<Number> resizeListener = (obs, oldVal, newVal) -> updateLayout();
+        root.widthProperty().addListener(resizeListener);
+        root.heightProperty().addListener(resizeListener);
+
         initializeUI();
         loadBackground();
         handleEvent();
         updateLayout();
 
-        BgmManager.playGameBgm();
         gm.startGame();
     }
 
     private void initializeUI() {
-//        createUIElements();
         uiPane = new GameUI();
         createGamePane();
 
@@ -70,6 +75,16 @@ public class GameView extends Page implements Observer {
         root.setOnMouseMoved(e -> {
             gm.updateMousePosition(e.getSceneX(), e.getSceneY());
         });
+    }
+
+    private void togglePause() {
+        if(gm.getGameState() == GameState.PAUSED) {
+            gm.startGame();
+//            uiPane.hidePauseMenu();
+        } else if(gm.getGameState() == GameState.PLAYING) {
+            gm.pauseGame();
+//            uiPane.showPauseMenu();
+        }
     }
 
     private void loadBackground() {
@@ -172,9 +187,9 @@ public class GameView extends Page implements Observer {
 
     @Override
     public void setLayout() {
-        ChangeListener<Number> resizeListener = (obs, oldVal, newVal) -> updateLayout();
-        root.widthProperty().addListener(resizeListener);
-        root.heightProperty().addListener(resizeListener);
+//        ChangeListener<Number> resizeListener = (obs, oldVal, newVal) -> updateLayout();
+//        root.widthProperty().addListener(resizeListener);
+//        root.heightProperty().addListener(resizeListener);
     }
 
     @Override
