@@ -20,10 +20,7 @@ import lombok.Data;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Data
@@ -31,7 +28,7 @@ public class GameManager implements Subject {
     private List<Observer> observerList = new CopyOnWriteArrayList<>();
 
     private final Beatmap beatmap;
-    private final List<HitObject> hitObjects;
+    private final ArrayList<HitObject> hitObjects;
     private AnimationTimer gameLoop;
     private long startTimeNanos = -1;
     private GameState gameState = GameState.NOT_STARTED;
@@ -123,19 +120,23 @@ public class GameManager implements Subject {
             keyPressed = true;
         }
 
-        for (HitObject hitObject : new ArrayList<>(hitObjects)) {
+        Iterator<HitObject> iterator = hitObjects.iterator();
+        while(iterator.hasNext()) {
+            HitObject hitObject = iterator.next();
             hitObject.update(elapsedMillis);
 
             if (hitObject.isVisible() && !hitObject.isHit()) {
                 if (keyPressed) {
                     if (checkHitObjectClick(hitObject, elapsedMillis)) {
                         keyPressed = false; // Prevent hitting multiple objects with one keypress
+//                        hitObjects.remove(hitObject);
                     }
                 }
 
                 // Check for miss (object passed its time window)
                 if (elapsedMillis > hitObject.getHitTime() + getHitWindow()) {
                     handleMiss(hitObject);
+                    iterator.remove(); // Remove hit object after handling miss
                 }
             }
         }
@@ -166,6 +167,8 @@ public class GameManager implements Subject {
     }
 
     private void handleHit(HitObject hitObject, long timingError) {
+        hitObject.setHit(true);
+
         hits++;
         masterComboNumber++;
 
@@ -190,11 +193,16 @@ public class GameManager implements Subject {
         notifyObservers(new GameEvent(GameEventType.HIT_OBJECT_HIT,
                 new HitObjectEventData(hitObject, timingError, hitResult)));
 
+        System.out.println("current accuracy: " + accuracy);
         notifyObservers(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
         notifyObservers(new GameEvent(GameEventType.HEALTH_CHANGED, health));
     }
 
     private void handleMiss(HitObject hitObject) {
+        hitObject.hide();
+        System.out.println("hit: " + hitObject.isHit());
+        System.out.println("visible: " + hitObject.isVisible());
+
         misses++;
         int oldCombo = masterComboNumber;
         masterComboNumber = 0; // Reset combo on miss
@@ -212,6 +220,7 @@ public class GameManager implements Subject {
         notifyObservers(new GameEvent(GameEventType.HIT_OBJECT_MISSED,
                 new HitObjectEventData(hitObject, 0, HitResult.MISS)));
 
+        System.out.println("current accuracy: " + accuracy);
         notifyObservers(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
         notifyObservers(new GameEvent(GameEventType.HEALTH_CHANGED, health));
 

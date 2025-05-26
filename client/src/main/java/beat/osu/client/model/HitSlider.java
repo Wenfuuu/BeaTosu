@@ -271,7 +271,8 @@ public class HitSlider extends HitObject {
         return path;
     }
 
-    private void appear() {
+    @Override
+    public void appear() {
         if(!isVisible()) {
             setVisible(true);
             group.setVisible(true);
@@ -294,7 +295,8 @@ public class HitSlider extends HitObject {
         approachAnimation.play();
     }
 
-    private void hide() {
+    @Override
+    public void hide() {
         group.setVisible(false);
         setVisible(false); // Also update HitObject's visibility
         if(group.getParent() instanceof Pane) {
@@ -431,12 +433,12 @@ public class HitSlider extends HitObject {
 
         // Miss logic
         // If head wasn't hit and current time is past the hit window for the head
-        if (isVisible() && !headHit && timeSinceHitStart > getHitWindowGreat()) { // Using a typical "great" window as miss threshold for head
-            // System.out.println("Slider Head Missed (Timeout): " + getOsuX() + "," + getOsuY() + " at " + currentTime + "ms");
-            hide();
-        } else if (isVisible() && headHit && getCurrTime() > endTime + 200) { // If past end time
-            hide();
-        }
+//        if (isVisible() && !headHit && timeSinceHitStart > getHitWindowGreat()) { // Using a typical "great" window as miss threshold for head
+//            // System.out.println("Slider Head Missed (Timeout): " + getOsuX() + "," + getOsuY() + " at " + currentTime + "ms");
+//            hide();
+//        } else if (isVisible() && headHit && getCurrTime() > endTime + 200) { // If past end time
+//            hide();
+//        }
     }
 
     @Override

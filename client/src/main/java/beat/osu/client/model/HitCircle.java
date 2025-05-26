@@ -56,7 +56,8 @@ public class HitCircle extends HitObject{
         handleEvent();
     }
 
-    private void appear() {
+    @Override
+    public void appear() {
         if(!isVisible()) {
             setVisible(true);
             group.setVisible(true); // Make the whole group visible
@@ -91,8 +92,10 @@ public class HitCircle extends HitObject{
         fade.play();
     }
 
+    @Override
     public void hide() {
         // Could add a fade out here too for misses
+        setVisible(false);
         group.setVisible(false);
         // remove from parent pane on hide/miss as well
         if(group.getParent() instanceof Pane) {
@@ -115,10 +118,10 @@ public class HitCircle extends HitObject{
         }
 
         // Auto-miss logic (adjust timing as needed)
-        if (isVisible() && !isHit() && timeUntilHit < -200) { // Allow some time after hitTime
-//            System.out.println("Missed: " + getOsuX() + "," + getOsuY() + " at " + currentTime + "ms");
-            hide();
-        }
+//        if (isVisible() && !isHit() && timeUntilHit < -200) { // Allow some time after hitTime
+////            System.out.println("Missed: " + getOsuX() + "," + getOsuY() + " at " + currentTime + "ms");
+//            hide();
+//        }
     }
 
     @Override

@@ -8,7 +8,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import lombok.Data;
 
+@Data
 public class GameUI extends Pane {
     private Label scoreLabel;
     private Label comboLabel;

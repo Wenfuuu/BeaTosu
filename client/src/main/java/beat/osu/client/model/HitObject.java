@@ -90,4 +90,6 @@ public abstract class HitObject {
     public abstract void handleEvent();
     public abstract void playHitEffect();
     public abstract void applyVisualsToNode(double centerX, double centerY, double scaledRadius);
+    public abstract void appear();
+    public abstract void hide();
 }

@@ -198,8 +198,13 @@ public class GameView extends Page implements Observer {
     }
 
     private void handleGameEvent(GameEvent event) {
-//        switch (event.getType()) {
-//            case
-//        }
+        switch (event.getType()) {
+            case ACCURACY_CHANGED:
+                Double newAccuracy = event.getData(Double.class);
+                if (newAccuracy != null) {
+                    String accuracyText = String.format("%.2f%%", newAccuracy);
+                    uiPane.getAccuracyLabel().setText(accuracyText);
+                }
+        }
     }
 }
