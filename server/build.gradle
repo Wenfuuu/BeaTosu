@@ -1,14 +1,9 @@
 plugins {
-    id 'java'
     id 'application'
 }
 
-group = 'org.example'
+group = 'beat.osu'
 version = '1.0-SNAPSHOT'
-
-repositories {
-    mavenCentral()
-}
 
 application {
     mainModule = 'beat.osu.server'
@@ -16,20 +11,6 @@ application {
 }
 
 dependencies {
-    implementation 'org.projectlombok:lombok:1.18.30'
-    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    implementation project(':shared')
 
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
-}
-
-tasks.register("printJavaVersion") {
-    doLast {
-        println("Running with Java: ${System.getProperty("java.version")}")
-    }
-}
-
-test {
-    useJUnitPlatform()
 }

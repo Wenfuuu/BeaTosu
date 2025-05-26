@@ -1,5 +1,4 @@
 plugins {
-  id 'java'
   id 'application'
   id 'org.javamodularity.moduleplugin' version '1.8.12'
   id 'org.openjfx.javafxplugin' version '0.0.13'
@@ -8,10 +7,6 @@ plugins {
 
 group 'beat.osu'
 version '1.0-SNAPSHOT'
-
-repositories {
-  mavenCentral()
-}
 
 ext {
   junitVersion = '5.10.2'
@@ -32,7 +27,7 @@ javafx {
 }
 
 dependencies {
-  annotationProcessor 'org.projectlombok:lombok:1.18.30'
+  implementation project(':shared')
 
   implementation('org.controlsfx:controlsfx:11.2.1')
   implementation('com.dlsc.formsfx:formsfx-core:11.6.0') {
@@ -40,18 +35,8 @@ dependencies {
   }
   implementation('org.kordamp.ikonli:ikonli-javafx:12.3.1')
   implementation('org.kordamp.bootstrapfx:bootstrapfx-core:0.4.0')
-
-  // mysql java connector
   implementation 'mysql:mysql-connector-java:8.0.32'
-
-  // Lombok
-  implementation 'org.projectlombok:lombok:1.18.30'
-
-  // jetbrains annotations
   implementation 'org.jetbrains:annotations:24.1.0'
-
-  testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
-  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
 }
 
 java {
@@ -63,18 +48,8 @@ jar {
     attributes 'Main-Class': 'beat.osu.client.Main'
     attributes 'Automatic-Module-Name': moduleName
   }
-
   duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
-
-tasks.register("printJavaVersion") {
-  doLast {
-    println("Running with Java: ${System.getProperty("java.version")}")
-  }
-}
-
-test {
-useJUnitPlatform()}
 
 jlink {
   imageZip = project.layout.buildDirectory.file("distributions/app-${javafx.platform.classifier}.zip")
