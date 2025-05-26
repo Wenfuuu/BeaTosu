@@ -1,6 +1,7 @@
 package beat.osu.client.view.game;
 
 import beat.osu.client.enums.GameState;
+import beat.osu.client.game.ComboChangeData;
 import beat.osu.client.game.GameEvent;
 import beat.osu.client.helper.*;
 import beat.osu.client.interfaces.Observer;
@@ -204,6 +205,12 @@ public class GameView extends Page implements Observer {
                 if (newAccuracy != null) {
                     String accuracyText = String.format("%.2f%%", newAccuracy);
                     uiPane.getAccuracyLabel().setText(accuracyText);
+                }
+                break;
+            case COMBO_CHANGED:
+                ComboChangeData comboChangeData = event.getData(ComboChangeData.class);
+                if (comboChangeData != null) {
+                    uiPane.getComboLabel().setText("Combo: " + comboChangeData.getCombo() + "x");
                 }
         }
     }

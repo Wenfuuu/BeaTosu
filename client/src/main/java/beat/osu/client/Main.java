@@ -1,6 +1,7 @@
 package beat.osu.client;
 
 import beat.osu.client.helper.StageManager;
+import beat.osu.client.view.UploadPage;
 import beat.osu.client.view.landing.LandingView;
 import javafx.application.Application;
 import javafx.stage.Stage;
