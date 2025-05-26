@@ -174,7 +174,7 @@ public class GameManager implements Subject {
         // Determine hit result based on timing
         HitResult hitResult = HitResult.fromTimingError(timingError);
         int hitValue = hitResult.getScore();
-        int difficultyMultiplier = beatmap.getDifficultyMultiplier(hitObjects.size(), beatmap.getHpDrainRate() * hitObject.getHitTime() / 1000.0);
+        int difficultyMultiplier = beatmap.getDifficultyMultiplier(hitObjects.size(), OsuParser.getBreakPointsList());
         int hitScore = hitValue * (1 + (masterComboNumber * difficultyMultiplier));
         score += hitScore;
 
