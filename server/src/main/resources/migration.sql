@@ -134,6 +134,7 @@ CREATE TABLE `users` (
   `username` varchar(50) NOT NULL,
   `email` varchar(100) NOT NULL,
   `password_hash` varchar(255) NOT NULL,
+  `country_code` varchar(5) DEFAULT NULL,
   `profile_picture` blob,
   `performance` int(10),
   `accuracy` decimal(5,2),
@@ -151,9 +152,9 @@ CREATE TABLE `users` (
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` VALUES
-(1, 'wenfu', 'bertrand13022005@gmail.com', 'wenfu', NULL, 3234, 94.67, 1023, 78),
-(2, 'paula', 'paula@gmail.com', 'paula', NULL, 7313, 78.23, 1343, 94),
-(3, 'kepin', 'kepin@gmail.com', 'kepin123', NULL, 5723, 85.78, 653, 86);
+(1, 'wenfu', 'bertrand13022005@gmail.com', 'wenfu', 'ID', NULL, 3234, 94.67, 1023, 78),
+(2, 'paula', 'paula@gmail.com', 'paula', 'US', NULL, 7313, 78.23, 1343, 94),
+(3, 'kepin', 'kepin@gmail.com', 'kepin123', 'JP', NULL, 5723, 85.78, 653, 86);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

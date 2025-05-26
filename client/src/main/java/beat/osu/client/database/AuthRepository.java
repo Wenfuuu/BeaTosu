@@ -2,6 +2,7 @@ package beat.osu.client.database;
 
 import beat.osu.client.database.connection.Connect;
 import beat.osu.client.dto.user.RegisterResult;
+import beat.osu.client.helper.LocaleManager;
 import beat.osu.client.model.User;
 
 import java.sql.Connection;
@@ -18,13 +19,14 @@ public class AuthRepository {
     }
 
     public RegisterResult register(String username, String email, String password) {
-        String query = "INSERT INTO users (username, email, password_hash, performance, accuracy, play_count, level) " +
-                "VALUES (?, ?, ?, 0, 0.00, 0, 1);";
+        String query = "INSERT INTO users (username, email, password_hash, country_code, performance, accuracy, play_count, level) " +
+                "VALUES (?, ?, ?, ?, 0, 0.00, 0, 1);";
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, username);
             statement.setString(2, email);
             statement.setString(3, password);
+            statement.setString(4 , LocaleManager.getCurrentCountry());
             statement.executeUpdate();
 
             return new RegisterResult(true, "Register Success!");
@@ -48,6 +50,7 @@ public class AuthRepository {
                     rs.getString("username"),
                     rs.getString("email"),
                     rs.getString("password_hash"),
+                    rs.getString("country_code"),
                     rs.getBytes("profile_picture"),
                     rs.getInt("performance"),
                     rs.getDouble("accuracy"),

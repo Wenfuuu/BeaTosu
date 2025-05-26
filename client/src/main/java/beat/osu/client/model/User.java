@@ -12,6 +12,7 @@ public class User {
     private String username;
     private String email;
     private String passwordHash;
+    private String countryCode;
     private byte[] profilePicture;
     private int performance;
     private double accuracy;
