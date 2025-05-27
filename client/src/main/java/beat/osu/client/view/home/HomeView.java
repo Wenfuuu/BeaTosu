@@ -90,10 +90,10 @@ public class HomeView extends Page {
             BgmManager.playPreviewBgm();
 
             // sfx testing purpose
-//            for (String data: OsuParser.getHitObjects()) {
-//                HitObjectFactory.createHitObject(data, beatmap,
-//                        1, 1);
-//            }
+            for (String data: OsuParser.getHitObjects()) {
+                HitObjectFactory.createHitObject(data, beatmap,
+                        1, 1);
+            }
         });
 
         bottomBar.getLogoView().setOnMouseClicked(e -> {

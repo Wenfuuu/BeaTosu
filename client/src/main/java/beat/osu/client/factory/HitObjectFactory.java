@@ -52,43 +52,35 @@ public class HitObjectFactory {
         String normalSet = getSampleSetName(normalSetId);
         String additionSet = getSampleSetName(additionSetId);
 
-        if (hitSound == 0 || (hitSound & 1) != 0) {
-            sounds.add(buildCircleFilename(normalSet, "hitnormal", index));
-        }
-        if ((hitSound & 2) != 0) {
-            sounds.add(buildCircleFilename(additionSet, "hitwhistle", index));
-        }
-        if ((hitSound & 4) != 0) {
-            sounds.add(buildCircleFilename(additionSet, "hitfinish", index));
-        }
-        if ((hitSound & 8) != 0) {
-            sounds.add(buildCircleFilename(additionSet, "hitclap", index));
+        System.out.println(normalSet);
+        if(normalSet.equals("normal")) {
+            if (hitSound == 0 || (hitSound & 1) != 0) {
+                sounds.add(buildCircleFilename(normalSet, "hitnormal", index));
+            }
+            if ((hitSound & 2) != 0 || (hitSound & 4) != 0 || (hitSound & 8) != 0) {
+                sounds.add(buildCircleFilename(additionSet, "hitnormal", index));
+            }
+        }else {
+            if (hitSound == 0 || (hitSound & 1) != 0) {
+                sounds.add(buildCircleFilename(normalSet, "hitnormal", index));
+            }
+            if ((hitSound & 2) != 0) {
+                sounds.add(buildCircleFilename(additionSet, "hitwhistle", index));
+            }
+            if ((hitSound & 4) != 0) {
+                sounds.add(buildCircleFilename(additionSet, "hitfinish", index));
+            }
+            if ((hitSound & 8) != 0) {
+                sounds.add(buildCircleFilename(additionSet, "hitclap", index));
+            }
         }
 
+        System.out.println("total sounds: " + sounds.size());
         return sounds;
-    }
-
-    private static ArrayList<String> generateSliderBodySfxFilenames(int hitSound, String hitSample) {
-        String[] parts = hitSample.split(":");
-        int normalSetId = parts.length > 0 && !parts[0].isEmpty() ? Integer.parseInt(parts[0]) : 0;
-        int index = parts.length > 2 && !parts[2].isEmpty() ? Integer.parseInt(parts[2]) : 0;
-
-        String sampleSet = getSampleSetName(normalSetId);
-        ArrayList<String> sliderSounds = new ArrayList<>();
-
-        if (hitSound == 0 || (hitSound & 1) != 0) { // Normal
-            sliderSounds.add(buildSliderFilename(sampleSet, "slide", index));
-        }
-        if ((hitSound & 2) != 0) { // Whistle
-            sliderSounds.add(buildSliderFilename(sampleSet, "whistle", index));
-        }
-
-        return sliderSounds;
     }
 
     private static String getSampleSetName(int id) {
         switch (id) {
-            case 1: return "normal";
             case 2: return "soft";
             case 3: return "drum";
             default: return "normal";
@@ -100,14 +92,6 @@ public class HitObjectFactory {
             return setName + "-" + type + ".wav";
         } else {
             return setName + "-" + type + index + ".wav";
-        }
-    }
-
-    private static String buildSliderFilename(String setName, String type, int index) {
-        if (index <= 1) {
-            return setName + "-slider" + type + ".wav";
-        } else {
-            return setName + "-slider" + type + index + ".wav";
         }
     }
 
@@ -151,14 +135,13 @@ public class HitObjectFactory {
 //        System.out.println(objectParams);
         System.out.println("hit type: " + hitType);
         System.out.println("hit sound: " + hitSound + ", hit sample: " + hitSample);
-        if(hitType.equals("circle")) {
-            for (String sfx : generateCircleSfxFilenames(hitSound, hitSample)) {
-                System.out.println("sfx: " + sfx);
-            }
-        }else if(hitType.equals("slider")) {
-            for (String sfx : generateSliderBodySfxFilenames(hitSound, hitSample)) {
-                System.out.println("sfx: " + sfx);
-            }
+        for (String sfx : generateCircleSfxFilenames(hitSound, hitSample)) {
+            System.out.println("sfx: " + sfx);
+        }
+
+        if(hitType.equals("slider")) {
+            // get edge sounds using object params => edgeSounds & edgeSets
+
         }
 
         double approachRate = selectedBeatmap.getApproachRate();
@@ -172,7 +155,7 @@ public class HitObjectFactory {
             return new HitSlider(x, y, time, type, hitSound, objectParams, hitSample,
                     approachRate, circleSize, selectedBeatmap.getSlideMultiplier(),
                     comboNumber, comboSetIndex, colorString,
-                    generateSliderBodySfxFilenames(hitSound, hitSample));
+                    generateCircleSfxFilenames(hitSound, hitSample));
         }
         else{
             return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate, circleSize,
