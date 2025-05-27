@@ -10,7 +10,5 @@ module beat.osu.client {
     requires java.sql;
     requires javafx.media;
 
-    opens beat.osu.client to javafx.fxml;
-
     exports beat.osu.client;
 }

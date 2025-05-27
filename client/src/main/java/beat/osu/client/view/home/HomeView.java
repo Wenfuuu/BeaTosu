@@ -2,9 +2,11 @@ package beat.osu.client.view.home;
 
 import beat.osu.client.controller.BeatmapController;
 import beat.osu.client.helper.BackgroundManager;
+import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.model.Beatmap;
+import beat.osu.client.utils.OsuParser;
 import beat.osu.client.view.Page;
 import beat.osu.client.view.game.GameView;
 import beat.osu.client.view.home.component.BeatmapPane;
@@ -83,6 +85,8 @@ public class HomeView extends Page {
     public void handleEvent() {
         beatmapPane.setOnBeatmapSelectedListener(beatmap -> {
             topBar.updateSongInfo(beatmap);
+            OsuParser.extractAndParse(beatmap);
+            BgmManager.playGameBgm();
         });
 
         bottomBar.getLogoView().setOnMouseClicked(e -> {
