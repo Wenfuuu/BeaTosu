@@ -154,27 +154,30 @@ public class HitObjectFactory {
         if(hitType.equals("circle")) {
             for (String sfx : generateCircleSfxFilenames(hitSound, hitSample)) {
                 System.out.println("sfx: " + sfx);
-            }   
+            }
         }else if(hitType.equals("slider")) {
             for (String sfx : generateSliderBodySfxFilenames(hitSound, hitSample)) {
                 System.out.println("sfx: " + sfx);
             }
-        }    
+        }
 
         double approachRate = selectedBeatmap.getApproachRate();
         double circleSize = selectedBeatmap.getCircleSize();
 //        return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate);
         if(hitType.equals("circle")){
             return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate, circleSize,
-                    comboNumber, comboSetIndex, colorString);
+                    comboNumber, comboSetIndex, colorString,
+                    generateCircleSfxFilenames(hitSound, hitSample));
         }else if(hitType.equals("slider")){
             return new HitSlider(x, y, time, type, hitSound, objectParams, hitSample,
                     approachRate, circleSize, selectedBeatmap.getSlideMultiplier(),
-                    comboNumber, comboSetIndex, colorString);
+                    comboNumber, comboSetIndex, colorString,
+                    generateSliderBodySfxFilenames(hitSound, hitSample));
         }
         else{
             return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate, circleSize,
-                    comboNumber, comboSetIndex, colorString);
+                    comboNumber, comboSetIndex, colorString,
+                    generateCircleSfxFilenames(hitSound, hitSample));
         }
     }
 

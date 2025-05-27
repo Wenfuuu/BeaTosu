@@ -11,6 +11,8 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
 
+import java.util.ArrayList;
+
 public class HitCircle extends HitObject{
 
     private final Group group;
@@ -24,8 +26,10 @@ public class HitCircle extends HitObject{
     public HitCircle(int osuX, int osuY, long hitTime,
                      int type, int hitSound, String hitSample,
                      double approachRate, double circleSize,
-                     int comboNumber, int comboSetIndex, String colorString) {
-        super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate, circleSize, comboNumber, comboSetIndex);
+                     int comboNumber, int comboSetIndex, String colorString,
+                     ArrayList<String> sfxFilenames) {
+        super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate,
+                circleSize, comboNumber, comboSetIndex, sfxFilenames);
 
         Color circleColor = parseColorString(colorString);
         // --- CORE CHANGE: Create circles at (0,0) relative to the Group ---

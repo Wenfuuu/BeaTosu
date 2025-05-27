@@ -11,6 +11,7 @@ import beat.osu.client.game.ScoreChangeData;
 import beat.osu.client.interfaces.Observer;
 import beat.osu.client.interfaces.Subject;
 import beat.osu.client.model.Beatmap;
+import beat.osu.client.model.HitCircle;
 import beat.osu.client.model.HitObject;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.utils.OszExtractor;
@@ -155,9 +156,8 @@ public class GameManager implements Subject {
 
         if (distanceSquared <= objRadius * objRadius) {
             // Valid hit
-            hitObject.setHit(true);
-            hitObject.playHitEffect();
-
+//            hitObject.setHit(true);
+//            hitObject.playHitEffect();
             long timingError = elapsedMillis - hitObject.getHitTime();
             handleHit(hitObject, timingError);
             return true;
@@ -167,6 +167,11 @@ public class GameManager implements Subject {
 
     private void handleHit(HitObject hitObject, long timingError) {
         hitObject.setHit(true);
+        hitObject.playHitEffect();
+        // play sfx
+        for(String sfx : hitObject.getSfxFilenames()) {
+            if(hitObject instanceof HitCircle) SfxManager.playSfx(sfx);
+        }
 
         hits++;
         masterComboNumber++;

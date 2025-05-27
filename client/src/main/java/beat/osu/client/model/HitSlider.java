@@ -1,5 +1,6 @@
 package beat.osu.client.model;
 
+import beat.osu.client.helper.SfxManager;
 import beat.osu.client.utils.OsuParser;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
@@ -8,6 +9,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
@@ -38,6 +40,8 @@ public class HitSlider extends HitObject {
     private long endTime;
     private double duration; // Duration of a SINGLE traversal of the slider in milliseconds
     private boolean headHit = false;
+    private List<MediaPlayer> activePlayers = new ArrayList<>();
+    private boolean sfxPlayed = false;
     private ScaleTransition approachAnimation;
 
     // Visual Constants
@@ -180,8 +184,10 @@ public class HitSlider extends HitObject {
     public HitSlider(int osuX, int osuY, long hitTime, int type, int hitSound,
                      String objectParams, String hitSample, double approachRate,
                      double circleSize, double sliderMultiplier,
-                     int comboNumber, int comboSetIndex, String colorString) {
-        super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate, circleSize, comboNumber, comboSetIndex);
+                     int comboNumber, int comboSetIndex, String colorString,
+                     ArrayList<String> sfxFilenames) {
+        super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate,
+                circleSize, comboNumber, comboSetIndex, sfxFilenames);
         PATH_STROKE_WIDTH = getCircleRadius() * 2;
         BALL_RADIUS = getCircleRadius() * 0.8;
 
@@ -402,7 +408,6 @@ public class HitSlider extends HitObject {
         return interpolatedAbsolutePoint.subtract(sliderStartAbs);
     }
 
-
     @Override
     public Node getNode() {
         return group;
@@ -419,6 +424,21 @@ public class HitSlider extends HitObject {
         }
 
         if (headHit) {
+            if (!sfxPlayed) {
+                for (String sfx : getSfxFilenames()) {
+                    MediaPlayer player = SfxManager.createSfxPlayer(sfx);
+                    if (player != null) {
+                        activePlayers.add(player);
+                        player.setOnEndOfMedia(() -> {
+                            player.dispose();
+                            activePlayers.remove(player);
+                        });
+                        player.play();
+                    }
+                }
+                sfxPlayed = true;
+            }
+
             if (getCurrTime() <= endTime) { // Ball is moving
                 tempGroup.setVisible(false);
                 sliderBall.setVisible(true); // Ensure visible if head was hit
@@ -427,18 +447,15 @@ public class HitSlider extends HitObject {
                 sliderBall.setCenterX(ballPos.getX());
                 sliderBall.setCenterY(ballPos.getY());
             } else { // Slider finished
-                if (isVisible()) hide(); // Hide only if it was visible
+                if (isVisible()) hide();
+
+                for (MediaPlayer player : activePlayers) {
+                    player.stop();
+                    player.dispose();
+                }
+                activePlayers.clear();
             }
         }
-
-        // Miss logic
-        // If head wasn't hit and current time is past the hit window for the head
-//        if (isVisible() && !headHit && timeSinceHitStart > getHitWindowGreat()) { // Using a typical "great" window as miss threshold for head
-//            // System.out.println("Slider Head Missed (Timeout): " + getOsuX() + "," + getOsuY() + " at " + currentTime + "ms");
-//            hide();
-//        } else if (isVisible() && headHit && getCurrTime() > endTime + 200) { // If past end time
-//            hide();
-//        }
     }
 
     @Override

@@ -4,6 +4,8 @@ import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import lombok.Data;
 
+import java.util.ArrayList;
+
 @Data
 public abstract class HitObject {
     private int osuX;
@@ -14,6 +16,7 @@ public abstract class HitObject {
     private String hitSample;
     private int comboNumber;
     private int comboSetIndex;
+    private ArrayList<String> sfxFilenames;
 
     private boolean hit = false;
     private boolean visible = false;
@@ -30,7 +33,7 @@ public abstract class HitObject {
 
     public HitObject(int osuX, int osuY, long hitTime, int type, int hitSound,
                      String hitSample, double approachRate, double circleSize,
-                     int comboNumber, int comboSetIndex) {
+                     int comboNumber, int comboSetIndex, ArrayList<String> sfxFilenames) {
         this.osuX = osuX;
         this.osuY = osuY;
         this.hitTime = hitTime;
@@ -43,6 +46,7 @@ public abstract class HitObject {
         this.circleRadius = calculateCircleRadius(circleSize);
         this.comboNumber = comboNumber;
         this.comboSetIndex = comboSetIndex;
+        this.sfxFilenames = sfxFilenames != null ? sfxFilenames : new ArrayList<>();
     }
 
     public void updateVisuals(double centerX, double centerY, double scaledRadius) {
