@@ -6,16 +6,41 @@ import javafx.util.Duration;
 import lombok.Getter;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class BgmManager {
     private static final String TEMP_DIR = "./src/main/resources/assets/temp/";
+    private static String currentBgmHash = null;
 
     @Getter
     private static MediaPlayer currentPlayer;
 
+    private static String computeFileHash(File file) {
+        try (InputStream fis = new FileInputStream(file)) {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                digest.update(buffer, 0, bytesRead);
+            }
+            byte[] hashBytes = digest.digest();
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hashBytes) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (IOException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static void playGameBgm() {
         String bgmPath = TEMP_DIR + "audio.mp3";
-        stopBgm();
 
         File audioFile = new File(bgmPath);
         if (!audioFile.exists()) {
@@ -23,6 +48,14 @@ public class BgmManager {
             return;
         }
 
+        String newHash = computeFileHash(audioFile);
+        System.out.println(newHash);
+        if (newHash != null && newHash.equals(currentBgmHash)) {
+            System.out.println("Same BGM content. Skipping playback.");
+            return;
+        }
+
+        stopBgm();
         Media media = new Media(audioFile.toURI().toString());
         currentPlayer = new MediaPlayer(media);
 //        currentPlayer.setOnEndOfMedia(() -> {
@@ -32,11 +65,12 @@ public class BgmManager {
 //        currentPlayer.setCycleCount(MediaPlayer.INDEFINITE);
         currentPlayer.setAutoPlay(true);
         currentPlayer.setVolume(0.2);
+
+        currentBgmHash = newHash;
     }
 
     public static void playBgm(String filePath) {
         stopBgm(); // Stop if already playing
-
         File audioFile = new File(filePath);
         if (!audioFile.exists()) {
             System.err.println("BGM file not found: " + audioFile.getAbsolutePath());
