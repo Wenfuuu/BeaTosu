@@ -1,7 +1,6 @@
 package beat.osu.server.handler;
 
 import beat.osu.server.model.Message;
-import beat.osu.server.model.User;
 import lombok.AllArgsConstructor;
 
 import java.io.ObjectInputStream;

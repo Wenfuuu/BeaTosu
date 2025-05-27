@@ -6,6 +6,7 @@ import beat.osu.client.model.HitObject;
 import beat.osu.client.model.HitSlider;
 import beat.osu.client.utils.OsuParser;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -30,20 +31,84 @@ public class HitObjectFactory {
         boolean isSpinner = (type & 8) != 0;
         boolean isHold = (type & 128) != 0;
 
-//        int comboSkip = (type >> 4) & 7;
-
-//        System.out.println("Type: " + type);
-//        System.out.println(" - Hit Circle: " + isHitCircle);
-//        System.out.println(" - Slider: " + isSlider);
-//        System.out.println(" - Spinner: " + isSpinner);
-//        System.out.println(" - Hold Note (osu!mania): " + isHold);
-//        System.out.println(" - Starts New Combo: " + isNewCombo);
-//        System.out.println(" - Combo Color Skip Count: " + comboSkip);
-//        System.out.println();
-
         if(isHitCircle) return "circle";
         else if(isSlider) return "slider";
         return "spinner";
+    }
+
+    private static ArrayList<String> generateCircleSfxFilenames(int hitSound, String hitSample) {
+        String[] parts = hitSample.split(":");
+        int normalSetId = parts.length > 0 && !parts[0].isEmpty() ? Integer.parseInt(parts[0]) : 0;
+        int additionSetId = parts.length > 1 && !parts[1].isEmpty() ? Integer.parseInt(parts[1]) : 0;
+        int index = parts.length > 2 && !parts[2].isEmpty() ? Integer.parseInt(parts[2]) : 0;
+        String filename = parts.length > 4 ? parts[4] : "";
+
+        ArrayList<String> sounds = new ArrayList<>();
+        if (!filename.isEmpty()) {
+            sounds.add(filename);
+            return sounds;
+        }
+
+        String normalSet = getSampleSetName(normalSetId);
+        String additionSet = getSampleSetName(additionSetId);
+
+        if (hitSound == 0 || (hitSound & 1) != 0) {
+            sounds.add(buildCircleFilename(normalSet, "hitnormal", index));
+        }
+        if ((hitSound & 2) != 0) {
+            sounds.add(buildCircleFilename(additionSet, "hitwhistle", index));
+        }
+        if ((hitSound & 4) != 0) {
+            sounds.add(buildCircleFilename(additionSet, "hitfinish", index));
+        }
+        if ((hitSound & 8) != 0) {
+            sounds.add(buildCircleFilename(additionSet, "hitclap", index));
+        }
+
+        return sounds;
+    }
+
+    private static ArrayList<String> generateSliderBodySfxFilenames(int hitSound, String hitSample) {
+        String[] parts = hitSample.split(":");
+        int normalSetId = parts.length > 0 && !parts[0].isEmpty() ? Integer.parseInt(parts[0]) : 0;
+        int index = parts.length > 2 && !parts[2].isEmpty() ? Integer.parseInt(parts[2]) : 0;
+
+        String sampleSet = getSampleSetName(normalSetId);
+        ArrayList<String> sliderSounds = new ArrayList<>();
+
+        if ((hitSound & 1) != 0) { // Normal
+            sliderSounds.add(buildSliderFilename(sampleSet, "slide", index));
+        }
+        if ((hitSound & 2) != 0) { // Whistle
+            sliderSounds.add(buildSliderFilename(sampleSet, "whistle", index));
+        }
+
+        return sliderSounds;
+    }
+
+    private static String getSampleSetName(int id) {
+        switch (id) {
+            case 1: return "normal";
+            case 2: return "soft";
+            case 3: return "drum";
+            default: return "normal";
+        }
+    }
+
+    private static String buildCircleFilename(String setName, String type, int index) {
+        if (index <= 1) {
+            return setName + "-" + type + ".wav";
+        } else {
+            return setName + "-" + type + index + ".wav";
+        }
+    }
+
+    private static String buildSliderFilename(String setName, String type, int index) {
+        if (index <= 1) {
+            return setName + "-slider" + type + ".wav";
+        } else {
+            return setName + "-slider" + type + index + ".wav";
+        }
     }
 
     public static HitObject createHitObject(String data, Beatmap selectedBeatmap,
@@ -57,7 +122,7 @@ public class HitObjectFactory {
 //        System.out.println("color: " + colorString);
 
         String[] parts = data.split(",");
-        System.out.println(parts.length);
+//        System.out.println(parts.length);
 
         int x = Integer.parseInt(parts[0]);
         int y = Integer.parseInt(parts[1]);
@@ -79,8 +144,22 @@ public class HitObjectFactory {
             hitSample = parts[parts.length-1];
         }
 
+        // check if hitSample is invalid
+        if(!hitSample.contains(":")){
+            hitSample = "0:0:0:0:";
+        }
 //        System.out.println(objectParams);
-//        System.out.println(hitSample);
+        System.out.println("hit sound: " + hitSound + ", hit sample: " + hitSample);
+        if(hitType.equals("circle")) {
+            for (String sfx : generateCircleSfxFilenames(hitSound, hitSample)) {
+                System.out.println("sfx: " + sfx);
+            }   
+        }else if(hitType.equals("slider")) {
+            for (String sfx : generateSliderBodySfxFilenames(hitSound, hitSample)) {
+                System.out.println("sfx: " + sfx);
+            }
+        }    
+
         double approachRate = selectedBeatmap.getApproachRate();
         double circleSize = selectedBeatmap.getCircleSize();
 //        return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate);

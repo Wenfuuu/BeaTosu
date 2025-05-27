@@ -1,6 +1,7 @@
 package beat.osu.client.view.home;
 
 import beat.osu.client.controller.BeatmapController;
+import beat.osu.client.factory.HitObjectFactory;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
@@ -87,6 +88,12 @@ public class HomeView extends Page {
             topBar.updateSongInfo(beatmap);
             OsuParser.extractAndParse(beatmap);
             BgmManager.playPreviewBgm();
+
+            // sfx testing purpose
+//            for (String data: OsuParser.getHitObjects()) {
+//                HitObjectFactory.createHitObject(data, beatmap,
+//                        1, 1);
+//            }
         });
 
         bottomBar.getLogoView().setOnMouseClicked(e -> {
@@ -101,17 +108,17 @@ public class HomeView extends Page {
             System.out.println("Back button clicked");
         });
 
-        AnimationTimer inputChecker = new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                if (inputManager.getPressedKeys().contains(KeyCode.Z)) {
-                    System.out.println("Holding Z key");
-                }
-                if (inputManager.getPressedKeys().contains(KeyCode.X)) {
-                    System.out.println("Holding X key");
-                }
-            }
-        };
-        inputChecker.start();
+//        AnimationTimer inputChecker = new AnimationTimer() {
+//            @Override
+//            public void handle(long now) {
+//                if (inputManager.getPressedKeys().contains(KeyCode.Z)) {
+//                    System.out.println("Holding Z key");
+//                }
+//                if (inputManager.getPressedKeys().contains(KeyCode.X)) {
+//                    System.out.println("Holding X key");
+//                }
+//            }
+//        };
+//        inputChecker.start();
     }
 }
