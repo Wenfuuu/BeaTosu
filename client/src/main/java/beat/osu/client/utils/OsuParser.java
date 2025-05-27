@@ -200,4 +200,12 @@ public class OsuParser {
         }
         return (int)bgm;
     }
+
+    public static double getPreviewTime() {
+        String previewTimeStr = general.get("PreviewTime");
+        if (previewTimeStr != null && !previewTimeStr.isEmpty()) {
+            return Double.parseDouble(previewTimeStr);
+        }
+        return 0;
+    }
 }

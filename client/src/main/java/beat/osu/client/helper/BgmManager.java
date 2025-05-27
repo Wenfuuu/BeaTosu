@@ -1,5 +1,6 @@
 package beat.osu.client.helper;
 
+import beat.osu.client.utils.OsuParser;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
@@ -39,7 +40,7 @@ public class BgmManager {
         }
     }
 
-    public static void playGameBgm() {
+    public static void playPreviewBgm() {
         String bgmPath = TEMP_DIR + "audio.mp3";
 
         File audioFile = new File(bgmPath);
@@ -58,15 +59,39 @@ public class BgmManager {
         stopBgm();
         Media media = new Media(audioFile.toURI().toString());
         currentPlayer = new MediaPlayer(media);
-//        currentPlayer.setOnEndOfMedia(() -> {
-//            currentPlayer.seek(Duration.ZERO);
-//            currentPlayer.play();
-//        });
-//        currentPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+
+        currentPlayer.setOnReady(() -> {
+            Duration previewTime = new Duration(OsuParser.getPreviewTime());
+            currentPlayer.seek(previewTime);
+
+            // Loop from preview time
+            currentPlayer.setOnEndOfMedia(() -> {
+                currentPlayer.seek(previewTime);
+                currentPlayer.play();
+            });
+        });
+
         currentPlayer.setAutoPlay(true);
         currentPlayer.setVolume(0.2);
 
         currentBgmHash = newHash;
+    }
+
+    public static void playGameBgm() {
+        String bgmPath = TEMP_DIR + "audio.mp3";
+
+        File audioFile = new File(bgmPath);
+        if (!audioFile.exists()) {
+            System.err.println("BGM file not found: " + audioFile.getAbsolutePath());
+            return;
+        }
+
+        stopBgm();
+        Media media = new Media(audioFile.toURI().toString());
+        currentPlayer = new MediaPlayer(media);
+
+        currentPlayer.setAutoPlay(true);
+        currentPlayer.setVolume(0.2);
     }
 
     public static void playBgm(String filePath) {

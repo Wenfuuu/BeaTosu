@@ -86,7 +86,7 @@ public class HomeView extends Page {
         beatmapPane.setOnBeatmapSelectedListener(beatmap -> {
             topBar.updateSongInfo(beatmap);
             OsuParser.extractAndParse(beatmap);
-            BgmManager.playGameBgm();
+            BgmManager.playPreviewBgm();
         });
 
         bottomBar.getLogoView().setOnMouseClicked(e -> {
