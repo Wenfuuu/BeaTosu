@@ -76,7 +76,7 @@ public class HitObjectFactory {
         String sampleSet = getSampleSetName(normalSetId);
         ArrayList<String> sliderSounds = new ArrayList<>();
 
-        if ((hitSound & 1) != 0) { // Normal
+        if (hitSound == 0 || (hitSound & 1) != 0) { // Normal
             sliderSounds.add(buildSliderFilename(sampleSet, "slide", index));
         }
         if ((hitSound & 2) != 0) { // Whistle
@@ -149,6 +149,7 @@ public class HitObjectFactory {
             hitSample = "0:0:0:0:";
         }
 //        System.out.println(objectParams);
+        System.out.println("hit type: " + hitType);
         System.out.println("hit sound: " + hitSound + ", hit sample: " + hitSample);
         if(hitType.equals("circle")) {
             for (String sfx : generateCircleSfxFilenames(hitSound, hitSample)) {
