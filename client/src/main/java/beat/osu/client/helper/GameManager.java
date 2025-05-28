@@ -32,6 +32,8 @@ public class GameManager implements Subject {
     private final ArrayList<HitObject> hitObjects;
     private AnimationTimer gameLoop;
     private long startTimeNanos = -1;
+    private long pauseStartNanos = -1;
+    private long totalPausedNanos = 0;
     private GameState gameState = GameState.NOT_STARTED;
     private final InputManager inputManager;
 
@@ -60,12 +62,12 @@ public class GameManager implements Subject {
             return;
         }
 
-        if (gameState == GameState.NOT_STARTED) {
+//        if (gameState == GameState.NOT_STARTED) {
             startTimeNanos = -1;
+            totalPausedNanos = 0;
             notifyObservers(new GameEvent(GameEventType.GAME_STARTED, null));
-        } else if (gameState == GameState.PAUSED) {
-            notifyObservers(new GameEvent(GameEventType.GAME_RESUMED, null));
-        }
+            BgmManager.playGameBgm();
+//        }
 
         gameState = GameState.PLAYING;
 
@@ -80,15 +82,13 @@ public class GameManager implements Subject {
                     startTimeNanos = now;
                 }
 
-                long elapsedNanos = now - startTimeNanos;
+                long elapsedNanos = now - startTimeNanos - totalPausedNanos;
                 long elapsedMillis = elapsedNanos / 1_000_000;
 
                 updateGame(elapsedMillis);
             }
         };
-
         gameLoop.start();
-        BgmManager.playGameBgm();
     }
 
     public void pauseGame() {
@@ -96,13 +96,30 @@ public class GameManager implements Subject {
             return;
         }
 
-        if (gameLoop != null) {
-            gameLoop.stop();
-        }
+//        if (gameLoop != null) {
+//            gameLoop.stop();
+//        }
 
+        pauseStartNanos = System.nanoTime();
         gameState = GameState.PAUSED;
         BgmManager.pauseBgm();
         notifyObservers(new GameEvent(GameEventType.GAME_PAUSED, null));
+    }
+
+    public void resumeGame() {
+        if (gameState != GameState.PAUSED) {
+            return;
+        }
+
+        // Calculate pause duration
+        if (pauseStartNanos != -1) {
+            totalPausedNanos += System.nanoTime() - pauseStartNanos;
+            pauseStartNanos = -1;
+        }
+
+        gameState = GameState.PLAYING;
+        BgmManager.resumeBgm();
+        notifyObservers(new GameEvent(GameEventType.GAME_RESUMED, null));
     }
 
     public void stopGame() {
@@ -111,6 +128,27 @@ public class GameManager implements Subject {
 
     private void updateGame(long elapsedMillis) {
         Set<KeyCode> currentKeys = inputManager.getPressedKeys();
+
+        boolean pressedEsc = currentKeys.contains(KeyCode.ESCAPE) &&
+                !previousKeys.contains(KeyCode.ESCAPE);
+
+        if(pressedEsc) {
+            if(gameState == GameState.PLAYING) {
+                pauseGame();
+            } else if(gameState == GameState.PAUSED) {
+                resumeGame(); // Use a separate resume method
+            }
+            previousKeys.clear();
+            previousKeys.addAll(currentKeys);
+            return;
+        }
+
+        // Only process game logic when playing
+        if (gameState != GameState.PLAYING) {
+            previousKeys.clear();
+            previousKeys.addAll(currentKeys);
+            return;
+        }
 
         boolean keyPressed = false;
         boolean pressedKeybind1 = currentKeys.contains(InputManager.getKeybind1()) &&

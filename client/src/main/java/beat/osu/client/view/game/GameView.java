@@ -377,6 +377,9 @@ public class GameView extends Page implements Observer {
                     }
                 }
                 break;
+            case GAME_PAUSED:
+                System.out.println("pausing game, show pause menu here");
+                break;
         }
     }
 }

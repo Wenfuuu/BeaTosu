@@ -27,7 +27,7 @@ public abstract class Page {
                 .getResource("/assets/logo/osu_logo.png")).toExternalForm()));
         stage.setTitle("BeaTOsu!");
         stage.setFullScreenExitHint("");
-//        stage.setResizable(false);
+        stage.setResizable(false);
         stage.setFullScreen(true);
         stage.show();
     }
