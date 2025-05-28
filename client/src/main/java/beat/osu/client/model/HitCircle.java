@@ -91,8 +91,6 @@ public class HitCircle extends HitObject{
 
     @Override
     public void playHitEffect() {
-        // stop approach animation
-
         hitEffectAnimation = new FadeTransition(Duration.millis(150), group);
         hitEffectAnimation.setToValue(0);
         // Remove from parent pane after fade out to clean up

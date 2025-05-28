@@ -2,6 +2,7 @@ package beat.osu.client.model;
 
 import beat.osu.client.helper.SfxManager;
 import beat.osu.client.utils.OsuParser;
+import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
 import javafx.geometry.Point2D;
@@ -312,12 +313,16 @@ public class HitSlider extends HitObject {
 
     @Override
     public void pauseAnimations() {
-
+        if(approachAnimation != null && approachAnimation.getStatus() == Animation.Status.RUNNING) {
+            approachAnimation.pause();
+        }
     }
 
     @Override
     public void resumeAnimations() {
-
+        if(approachAnimation != null && approachAnimation.getStatus() == Animation.Status.PAUSED) {
+            approachAnimation.play();
+        }
     }
 
     private double getBallFraction(double timeSinceHitStart) {
