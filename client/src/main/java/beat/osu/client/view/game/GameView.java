@@ -15,8 +15,7 @@ import beat.osu.client.model.HitObject;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.view.Page;
 import beat.osu.client.view.game.component.GameUI;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.Scene;
@@ -120,18 +119,51 @@ public class GameView extends Page implements Observer {
         ImageView hitImageView = new ImageView(hitImage);
         hitImageView.setLayoutX(hitObject.getScreenCenterX() - hitImage.getWidth() / 2);
         hitImageView.setLayoutY(hitObject.getScreenCenterY() - hitImage.getHeight() / 2);
-        hitImageView.setScaleX(1.5);
-        hitImageView.setScaleY(1.5);
+
+        hitImageView.setOpacity(0);
+        hitImageView.setScaleX(0.5);
+        hitImageView.setScaleY(0.5);
 
         // Add the image to the game pane
         gamePane.getChildren().add(hitImageView);
 
-        // Create a timeline to remove the image after 1 second
-        Timeline timeline = new Timeline(new KeyFrame(
-                Duration.seconds(1),
-                e -> gamePane.getChildren().remove(hitImageView)
-        ));
-        timeline.play();
+        // Create fade-in and scale-up animation
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(150), hitImageView);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+
+        ScaleTransition scaleUp = new ScaleTransition(Duration.millis(150), hitImageView);
+        scaleUp.setFromX(0.5);
+        scaleUp.setFromY(0.5);
+        scaleUp.setToX(1.5);
+        scaleUp.setToY(1.5);
+
+        // Create a slight bounce effect
+        ScaleTransition bounce = new ScaleTransition(Duration.millis(100), hitImageView);
+        bounce.setFromX(1.5);
+        bounce.setFromY(1.5);
+        bounce.setToX(1.3);
+        bounce.setToY(1.3);
+
+        // Create fade-out animation
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), hitImageView);
+        fadeOut.setFromValue(1);
+        fadeOut.setToValue(0);
+
+        // Combine initial animations
+        ParallelTransition initialAnimation = new ParallelTransition(fadeIn, scaleUp);
+
+        // Create the complete sequence
+        SequentialTransition fullAnimation = new SequentialTransition(
+                initialAnimation,
+                new PauseTransition(Duration.millis(400)),
+                bounce,
+                fadeOut
+        );
+
+        // Remove the image when animation completes
+        fullAnimation.setOnFinished(e -> gamePane.getChildren().remove(hitImageView));
+        fullAnimation.play();
     }
 
     private void showMissImage(HitObject hitObject) {
@@ -140,18 +172,59 @@ public class GameView extends Page implements Observer {
         ImageView hitImageView = new ImageView(hitImage);
         hitImageView.setLayoutX(hitObject.getScreenCenterX() - hitImage.getWidth() / 2);
         hitImageView.setLayoutY(hitObject.getScreenCenterY() - hitImage.getHeight() / 2);
-        hitImageView.setScaleX(1.5);
-        hitImageView.setScaleY(1.5);
+        hitImageView.setScaleX(2.0);
+        hitImageView.setScaleY(2.0);
 
         // Add the image to the game pane
         gamePane.getChildren().add(hitImageView);
 
-        // Create a timeline to remove the image after 1 second
-        Timeline timeline = new Timeline(new KeyFrame(
-                Duration.seconds(1),
-                e -> gamePane.getChildren().remove(hitImageView)
-        ));
-        timeline.play();
+        // Create fade-in animation
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(100), hitImageView);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(0.8);
+
+        // Create scale-down animation (different effect for miss)
+        ScaleTransition scaleDown = new ScaleTransition(Duration.millis(200), hitImageView);
+        scaleDown.setFromX(2.0);
+        scaleDown.setFromY(2.0);
+        scaleDown.setToX(1.2);
+        scaleDown.setToY(1.2);
+
+        // Create a shake effect for miss
+        TranslateTransition shake1 = new TranslateTransition(Duration.millis(50), hitImageView);
+        shake1.setFromX(0);
+        shake1.setToX(-5);
+
+        TranslateTransition shake2 = new TranslateTransition(Duration.millis(50), hitImageView);
+        shake2.setFromX(-5);
+        shake2.setToX(5);
+
+        TranslateTransition shake3 = new TranslateTransition(Duration.millis(50), hitImageView);
+        shake3.setFromX(5);
+        shake3.setToX(0);
+
+        SequentialTransition shakeEffect = new SequentialTransition(shake1, shake2, shake3);
+
+        // Create fade-out animation
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(400), hitImageView);
+        fadeOut.setFromValue(0.8);
+        fadeOut.setToValue(0);
+
+        // Combine initial animations
+        ParallelTransition initialAnimation = new ParallelTransition(fadeIn, scaleDown);
+
+        // Create the complete sequence with shake effect
+        SequentialTransition fullAnimation = new SequentialTransition(
+                initialAnimation,
+                new PauseTransition(Duration.millis(100)),
+                shakeEffect,
+                new PauseTransition(Duration.millis(200)),
+                fadeOut
+        );
+
+        // Remove the image when animation completes
+        fullAnimation.setOnFinished(e -> gamePane.getChildren().remove(hitImageView));
+        fullAnimation.play();
     }
 
     private void loadBackground() {
