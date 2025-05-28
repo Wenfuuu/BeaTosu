@@ -1,5 +1,6 @@
 package beat.osu.client.model;
 
+import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
 import javafx.scene.Group;
@@ -19,6 +20,9 @@ public class HitCircle extends HitObject{
     private final Circle innerCircle;
     private final Circle outerCircle;
     private final Label comboLabel;
+
+    private ScaleTransition approachAnimation;
+    private FadeTransition hitEffectAnimation;
 
     // Define visual constants (could be based on CS later)
     private static final double OUTER_RADIUS_START_SCALE = 5.0;
@@ -77,23 +81,25 @@ public class HitCircle extends HitObject{
         outerCircle.setScaleX(OUTER_RADIUS_START_SCALE);
         outerCircle.setScaleY(OUTER_RADIUS_START_SCALE);
 
-        ScaleTransition scale = new ScaleTransition(Duration.millis(getPreempt()), outerCircle);
-        scale.setFromX(OUTER_RADIUS_START_SCALE);
-        scale.setFromY(OUTER_RADIUS_START_SCALE);
-        scale.setToX(1.0);
-        scale.setToY(1.0);
-        scale.play();
+        approachAnimation = new ScaleTransition(Duration.millis(getPreempt()), outerCircle);
+        approachAnimation.setFromX(OUTER_RADIUS_START_SCALE);
+        approachAnimation.setFromY(OUTER_RADIUS_START_SCALE);
+        approachAnimation.setToX(1.0);
+        approachAnimation.setToY(1.0);
+        approachAnimation.play();
     }
 
     @Override
     public void playHitEffect() {
-        FadeTransition fade = new FadeTransition(Duration.millis(150), group);
-        fade.setToValue(0);
+        // stop approach animation
+
+        hitEffectAnimation = new FadeTransition(Duration.millis(150), group);
+        hitEffectAnimation.setToValue(0);
         // Remove from parent pane after fade out to clean up
-        fade.setOnFinished(e -> {
+        hitEffectAnimation.setOnFinished(e -> {
             hide();
         });
-        fade.play();
+        hitEffectAnimation.play();
     }
 
     @Override
@@ -104,6 +110,26 @@ public class HitCircle extends HitObject{
         // remove from parent pane on hide/miss as well
         if(group.getParent() instanceof Pane) {
             ((Pane) group.getParent()).getChildren().remove(group);
+        }
+    }
+
+    @Override
+    public void pauseAnimations() {
+        if(approachAnimation != null && approachAnimation.getStatus() == Animation.Status.RUNNING) {
+            approachAnimation.pause();
+        }
+        if(hitEffectAnimation != null && hitEffectAnimation.getStatus() == Animation.Status.RUNNING) {
+            hitEffectAnimation.pause();
+        }
+    }
+
+    @Override
+    public void resumeAnimations() {
+        if(approachAnimation != null && approachAnimation.getStatus() == Animation.Status.PAUSED) {
+            approachAnimation.play();
+        }
+        if(hitEffectAnimation != null && hitEffectAnimation.getStatus() == Animation.Status.PAUSED) {
+            hitEffectAnimation.play();
         }
     }
 
@@ -120,12 +146,6 @@ public class HitCircle extends HitObject{
         if (!isVisible() && timeUntilHit <= getPreempt()) {
             appear();
         }
-
-        // Auto-miss logic (adjust timing as needed)
-//        if (isVisible() && !isHit() && timeUntilHit < -200) { // Allow some time after hitTime
-////            System.out.println("Missed: " + getOsuX() + "," + getOsuY() + " at " + currentTime + "ms");
-//            hide();
-//        }
     }
 
     @Override

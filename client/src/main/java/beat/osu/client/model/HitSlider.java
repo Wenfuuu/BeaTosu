@@ -310,6 +310,16 @@ public class HitSlider extends HitObject {
         }
     }
 
+    @Override
+    public void pauseAnimations() {
+
+    }
+
+    @Override
+    public void resumeAnimations() {
+
+    }
+
     private double getBallFraction(double timeSinceHitStart) {
         // `this.duration` is for a single pass.
         // `this.repeats` is the number of times it repeats *after* the first pass.

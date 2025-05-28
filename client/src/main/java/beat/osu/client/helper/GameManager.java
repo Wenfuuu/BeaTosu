@@ -57,6 +57,22 @@ public class GameManager implements Subject {
         this.currentMouseY = y;
     }
 
+    private void pauseAllAnimations() {
+        for (HitObject hitObject : hitObjects) {
+            if (hitObject.isVisible() && !hitObject.isHit()) {
+                hitObject.pauseAnimations();
+            }
+        }
+    }
+
+    private void resumeAllAnimations() {
+        for (HitObject hitObject : hitObjects) {
+            if (hitObject.isVisible() && !hitObject.isHit()) {
+                hitObject.resumeAnimations();
+            }
+        }
+    }
+
     public void startGame() {
         if (gameState == GameState.PLAYING) {
             return;
@@ -96,13 +112,10 @@ public class GameManager implements Subject {
             return;
         }
 
-//        if (gameLoop != null) {
-//            gameLoop.stop();
-//        }
-
         pauseStartNanos = System.nanoTime();
         gameState = GameState.PAUSED;
         BgmManager.pauseBgm();
+        pauseAllAnimations();
         notifyObservers(new GameEvent(GameEventType.GAME_PAUSED, null));
     }
 
@@ -119,6 +132,8 @@ public class GameManager implements Subject {
 
         gameState = GameState.PLAYING;
         BgmManager.resumeBgm();
+        // add countdown later
+        resumeAllAnimations();
         notifyObservers(new GameEvent(GameEventType.GAME_RESUMED, null));
     }
 

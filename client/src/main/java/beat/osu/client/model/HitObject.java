@@ -1,5 +1,6 @@
 package beat.osu.client.model;
 
+import javafx.animation.Animation;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import lombok.Data;
@@ -96,4 +97,6 @@ public abstract class HitObject {
     public abstract void applyVisualsToNode(double centerX, double centerY, double scaledRadius);
     public abstract void appear();
     public abstract void hide();
+    public abstract void pauseAnimations();
+    public abstract void resumeAnimations();
 }
