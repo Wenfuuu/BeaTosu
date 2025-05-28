@@ -2,6 +2,7 @@ package beat.osu.client.view.game;
 
 import beat.osu.client.Main;
 import beat.osu.client.enums.GameState;
+import beat.osu.client.enums.HitResult;
 import beat.osu.client.game.ComboChangeData;
 import beat.osu.client.game.GameEvent;
 import beat.osu.client.game.HitObjectEventData;
@@ -100,8 +101,37 @@ public class GameView extends Page implements Observer {
         }
     }
 
-    private void showHitImage() {
+    private void showHitImage(HitObject hitObject, HitResult hitResult) {
+        String imagePath = "/assets/images/hit300.png";
+        switch (hitResult) {
+            case PERFECT:
+                imagePath = "/assets/images/hit300.png";
+                break;
+            case GREAT:
+                imagePath = "/assets/images/hit100.png";
+                break;
+            case GOOD:
+                imagePath = "/assets/images/hit50.png";
+                break;
+        }
 
+        Image hitImage = new Image(Objects.requireNonNull(Main.class
+                .getResource(imagePath)).toExternalForm());
+        ImageView hitImageView = new ImageView(hitImage);
+        hitImageView.setLayoutX(hitObject.getScreenCenterX() - hitImage.getWidth() / 2);
+        hitImageView.setLayoutY(hitObject.getScreenCenterY() - hitImage.getHeight() / 2);
+        hitImageView.setScaleX(1.5);
+        hitImageView.setScaleY(1.5);
+
+        // Add the image to the game pane
+        gamePane.getChildren().add(hitImageView);
+
+        // Create a timeline to remove the image after 1 second
+        Timeline timeline = new Timeline(new KeyFrame(
+                Duration.seconds(1),
+                e -> gamePane.getChildren().remove(hitImageView)
+        ));
+        timeline.play();
     }
 
     private void showMissImage(HitObject hitObject) {
@@ -261,6 +291,16 @@ public class GameView extends Page implements Observer {
                     HitObject hitObject = hitObjectData.getHitObject();
                     if (hitObject != null) {
                         showMissImage(hitObject);
+                    }
+                }
+                break;
+            case HIT_OBJECT_HIT:
+                HitObjectEventData hitData = event.getData(HitObjectEventData.class);
+                if (hitData != null) {
+                    HitObject hitObject = hitData.getHitObject();
+                    HitResult hitResult = hitData.getHitResult();
+                    if (hitObject != null) {
+                        showHitImage(hitObject, hitResult);
                     }
                 }
                 break;
