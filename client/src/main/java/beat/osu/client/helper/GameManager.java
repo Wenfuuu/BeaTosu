@@ -156,8 +156,6 @@ public class GameManager implements Subject {
 
         if (distanceSquared <= objRadius * objRadius) {
             // Valid hit
-//            hitObject.setHit(true);
-//            hitObject.playHitEffect();
             long timingError = elapsedMillis - hitObject.getHitTime();
             handleHit(hitObject, timingError);
             return true;
@@ -179,10 +177,11 @@ public class GameManager implements Subject {
         // Determine hit result based on timing
         HitResult hitResult = HitResult.fromTimingError(timingError);
         int hitValue = hitResult.getScore();
+//        System.out.println("hit value: " + hitValue);
         int difficultyMultiplier = beatmap.getDifficultyMultiplier(hitObjects, OsuParser.getBreakPointsList());
         int hitScore = hitValue * (1 + (masterComboNumber * difficultyMultiplier));
         score += hitScore;
-        System.out.println(score);
+//        System.out.println(score);
 
         // Update accuracy
         updateAccuracy();
@@ -200,7 +199,7 @@ public class GameManager implements Subject {
         notifyObservers(new GameEvent(GameEventType.HIT_OBJECT_HIT,
                 new HitObjectEventData(hitObject, timingError, hitResult)));
 
-        System.out.println("current accuracy: " + accuracy);
+//        System.out.println("current accuracy: " + accuracy);
         notifyObservers(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
         notifyObservers(new GameEvent(GameEventType.HEALTH_CHANGED, health));
     }
@@ -225,7 +224,7 @@ public class GameManager implements Subject {
         notifyObservers(new GameEvent(GameEventType.HIT_OBJECT_MISSED,
                 new HitObjectEventData(hitObject, 0, HitResult.MISS)));
 
-        System.out.println("current accuracy: " + accuracy);
+//        System.out.println("current accuracy: " + accuracy);
         notifyObservers(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
         notifyObservers(new GameEvent(GameEventType.HEALTH_CHANGED, health));
 

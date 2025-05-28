@@ -1,8 +1,10 @@
 package beat.osu.client.view.game;
 
+import beat.osu.client.Main;
 import beat.osu.client.enums.GameState;
 import beat.osu.client.game.ComboChangeData;
 import beat.osu.client.game.GameEvent;
+import beat.osu.client.game.HitObjectEventData;
 import beat.osu.client.game.ScoreChangeData;
 import beat.osu.client.helper.*;
 import beat.osu.client.interfaces.Observer;
@@ -12,13 +14,20 @@ import beat.osu.client.model.HitObject;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.view.Page;
 import beat.osu.client.view.game.component.GameUI;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+
+import java.util.Objects;
 
 public class GameView extends Page implements Observer {
     // Osu! playfield resolution (4:3)
@@ -89,6 +98,30 @@ public class GameView extends Page implements Observer {
             gm.pauseGame();
 //            uiPane.showPauseMenu();
         }
+    }
+
+    private void showHitImage() {
+
+    }
+
+    private void showMissImage(HitObject hitObject) {
+        Image hitImage = new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/images/hit0.png")).toExternalForm());
+        ImageView hitImageView = new ImageView(hitImage);
+        hitImageView.setLayoutX(hitObject.getScreenCenterX() - hitImage.getWidth() / 2);
+        hitImageView.setLayoutY(hitObject.getScreenCenterY() - hitImage.getHeight() / 2);
+        hitImageView.setScaleX(1.5);
+        hitImageView.setScaleY(1.5);
+
+        // Add the image to the game pane
+        gamePane.getChildren().add(hitImageView);
+
+        // Create a timeline to remove the image after 1 second
+        Timeline timeline = new Timeline(new KeyFrame(
+                Duration.seconds(1),
+                e -> gamePane.getChildren().remove(hitImageView)
+        ));
+        timeline.play();
     }
 
     private void loadBackground() {
@@ -221,6 +254,16 @@ public class GameView extends Page implements Observer {
                 if (scoreChangeData != null) {
                     uiPane.getScoreLabel().setText("Score: " + scoreChangeData.getScore());
                 }
+                break;
+            case HIT_OBJECT_MISSED:
+                HitObjectEventData hitObjectData = event.getData(HitObjectEventData.class);
+                if (hitObjectData != null) {
+                    HitObject hitObject = hitObjectData.getHitObject();
+                    if (hitObject != null) {
+                        showMissImage(hitObject);
+                    }
+                }
+                break;
         }
     }
 }

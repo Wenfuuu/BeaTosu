@@ -133,11 +133,11 @@ public class HitObjectFactory {
             hitSample = "0:0:0:0:";
         }
 //        System.out.println(objectParams);
-        System.out.println("hit type: " + hitType);
-        System.out.println("hit sound: " + hitSound + ", hit sample: " + hitSample);
-        for (String sfx : generateCircleSfxFilenames(hitSound, hitSample)) {
-            System.out.println("sfx: " + sfx);
-        }
+//        System.out.println("hit type: " + hitType);
+//        System.out.println("hit sound: " + hitSound + ", hit sample: " + hitSample);
+//        for (String sfx : generateCircleSfxFilenames(hitSound, hitSample)) {
+//            System.out.println("sfx: " + sfx);
+//        }
 
         if(hitType.equals("slider")) {
             // get edge sounds using object params => edgeSounds & edgeSets
