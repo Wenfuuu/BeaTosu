@@ -12,15 +12,15 @@ import java.util.Set;
 
 public class InputManager {
     @Getter
-    private Set<KeyCode> pressedKeys;
+    private final Set<KeyCode> pressedKeys;
     @Getter
-    private Set<MouseButton> mouseClicks;
+    private final Set<MouseButton> mouseClicks;
     private final StringBuffer typedChars;
 
     @Getter
-    private static KeyCode keybind1 = KeyCode.Z;
+    private static final KeyCode keybind1 = KeyCode.Z;
     @Getter
-    private static KeyCode keybind2 = KeyCode.X;
+    private static final KeyCode keybind2 = KeyCode.X;
 
     public InputManager(Scene scene) {
         pressedKeys = new HashSet<>();

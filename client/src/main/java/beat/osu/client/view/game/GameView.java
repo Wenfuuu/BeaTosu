@@ -379,6 +379,11 @@ public class GameView extends Page implements Observer {
                 break;
             case GAME_PAUSED:
                 System.out.println("pausing game, show pause menu here");
+                stage.setFullScreen(true);
+                break;
+            case GAME_RESUMED:
+                System.out.println("resuming game, hide pause menu here");
+                stage.setFullScreen(true);
                 break;
         }
     }
