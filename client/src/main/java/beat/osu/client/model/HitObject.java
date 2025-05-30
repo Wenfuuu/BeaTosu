@@ -17,6 +17,7 @@ public abstract class HitObject {
     private String hitSample;
     private int comboNumber;
     private int comboSetIndex;
+    private boolean newCombo;
     private boolean comboEnd;
     private ArrayList<String> sfxFilenames;
 
@@ -49,6 +50,7 @@ public abstract class HitObject {
         this.circleRadius = calculateCircleRadius(circleSize);
         this.comboNumber = comboNumber;
         this.comboSetIndex = comboSetIndex;
+        this.newCombo = comboNumber == 1;
         this.comboEnd = comboEnd;
         this.sfxFilenames = sfxFilenames != null ? sfxFilenames : new ArrayList<>();
     }

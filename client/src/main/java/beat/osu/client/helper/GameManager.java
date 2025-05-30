@@ -51,6 +51,7 @@ public class GameManager implements Subject {
     private int misses = 0;
     private double accuracy = 100.0;
     private double health = 100;
+    private int highestCombo = 0;
     private boolean perfectCombo = true;
     private boolean imperfectOrMissed = false;
 
@@ -222,8 +223,14 @@ public class GameManager implements Subject {
         return false;
     }
 
+    private void updateHighestCombo(int combo) {
+        if (combo > highestCombo) {
+            highestCombo = combo;
+        }
+    }
+
     private void handleHit(HitObject hitObject, long timingError) {
-        if(hitObject.getComboNumber() == 1) {
+        if(hitObject.isNewCombo()) {
             perfectCombo = true;
             imperfectOrMissed = false;
         }
@@ -237,6 +244,7 @@ public class GameManager implements Subject {
 
         hits++;
         masterComboNumber++;
+        updateHighestCombo(masterComboNumber);
 
         // Determine hit result based on timing
         HitResult hitResult = HitResult.fromTimingError(timingError);
@@ -283,7 +291,7 @@ public class GameManager implements Subject {
 
         misses++;
         int oldCombo = masterComboNumber;
-        masterComboNumber = 0; // Reset combo on miss
+        masterComboNumber = 0;
 
         // Update accuracy
         updateAccuracy();
