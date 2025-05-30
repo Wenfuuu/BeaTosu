@@ -14,21 +14,18 @@ import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.HitCircle;
 import beat.osu.client.model.HitObject;
 import beat.osu.client.utils.OsuParser;
-import beat.osu.client.utils.OszExtractor;
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
-import lombok.Data;
+import lombok.Getter;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@Data
 public class GameManager implements Subject {
-    private List<Observer> observerList = new CopyOnWriteArrayList<>();
+    private final List<Observer> observerList = new CopyOnWriteArrayList<>();
 
     private final Beatmap beatmap;
+    @Getter
     private final ArrayList<HitObject> hitObjects;
     private AnimationTimer gameLoop;
     private long startTimeNanos = -1;
@@ -47,7 +44,11 @@ public class GameManager implements Subject {
     private int comboSkipCounter = 0;
 
     private int score = 0;
-    private int hits = 0;
+    private int perfectHits = 0;
+    private int greatHits = 0;
+    private int goodHits = 0;
+    private int gekiHits = 0;
+    private int greatKatuHits = 0;
     private int misses = 0;
     private double accuracy = 100.0;
     private double health = 100;
@@ -242,19 +243,33 @@ public class GameManager implements Subject {
             if(hitObject instanceof HitCircle) SfxManager.playSfx(sfx);
         }
 
-        hits++;
         masterComboNumber++;
         updateHighestCombo(masterComboNumber);
 
         // Determine hit result based on timing
         HitResult hitResult = HitResult.fromTimingError(timingError);
-        if(hitResult == HitResult.GREAT) {
+        if(hitResult == HitResult.PERFECT) {
+            if(perfectCombo && hitObject.isComboEnd()) {
+                gekiHits++;
+            } else {
+                perfectHits++;
+            }
+        }else if(hitResult == HitResult.GREAT) {
+            if(!imperfectOrMissed && hitObject.isComboEnd()) {
+                greatKatuHits++;
+            }
+            else greatHits++;
             perfectCombo = false;
         }else if(hitResult == HitResult.GOOD) {
+            goodHits++;
             perfectCombo = false;
             imperfectOrMissed = true;
         }
 
+//        System.out.println("perfect hits: " + perfectHits);
+//        System.out.println("great hits: " + greatHits);
+//        System.out.println("geki hits: " + gekiHits);
+//        System.out.println("great katu hits: " + greatKatuHits);
         int hitValue = hitResult.getScore();
 //        System.out.println("hit value: " + hitValue);
         int difficultyMultiplier = beatmap.getDifficultyMultiplier(hitObjects, OsuParser.getBreakPointsList());
@@ -318,10 +333,14 @@ public class GameManager implements Subject {
     }
 
     private void updateAccuracy() {
-        int totalObjects = hits + misses;
-        if (totalObjects > 0) {
-            accuracy = (double) hits / totalObjects * 100.0;
-        }
+        double hitValues = (perfectHits * HitResult.PERFECT.getScore()) +
+                (gekiHits * HitResult.PERFECT.getScore()) +
+                (greatHits * HitResult.GREAT.getScore()) +
+                (greatKatuHits * HitResult.GREAT.getScore()) +
+                (goodHits * HitResult.GOOD.getScore());
+        double maximumValues = (perfectHits + gekiHits + greatHits + greatKatuHits + goodHits + misses)
+                * HitResult.PERFECT.getScore();
+        accuracy = maximumValues > 0 ? (hitValues / maximumValues) * 100.0 : 100.0;
     }
 
     private long getHitWindow() {
