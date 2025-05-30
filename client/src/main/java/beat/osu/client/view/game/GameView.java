@@ -16,6 +16,7 @@ import beat.osu.client.utils.OsuParser;
 import beat.osu.client.view.Page;
 import beat.osu.client.view.game.component.GameUI;
 import beat.osu.client.view.game.component.PauseOverlay;
+import beat.osu.client.view.home.HomeView;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -92,16 +93,21 @@ public class GameView extends Page implements Observer {
         root.setOnMouseMoved(e -> {
             gm.updateMousePosition(e.getSceneX(), e.getSceneY());
         });
-    }
 
-    private void togglePause() {
-        if(gm.getGameState() == GameState.PAUSED) {
-            gm.startGame();
-//            uiPane.hidePauseMenu();
-        } else if(gm.getGameState() == GameState.PLAYING) {
-            gm.pauseGame();
-//            uiPane.showPauseMenu();
-        }
+        pauseOverlay.getContinueButton().setOnMouseClicked(e -> {
+            SfxManager.playSfx("pause-click.wav");
+            gm.resumeGame();
+        });
+
+        pauseOverlay.getRetryButton().setOnMouseClicked(e -> {
+            SfxManager.playSfx("pause-click.wav");
+            new GameView(stage, beatmap);
+        });
+
+        pauseOverlay.getBackButton().setOnMouseClicked(e -> {
+            SfxManager.playSfx("pause-click.wav");
+            new HomeView(stage);
+        });
     }
 
     private void showHitImage(HitObject hitObject, HitResult hitResult) {
