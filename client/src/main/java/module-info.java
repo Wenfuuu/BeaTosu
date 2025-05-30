@@ -9,6 +9,7 @@ module beat.osu.client {
     requires static lombok;
     requires java.sql;
     requires javafx.media;
+    requires beat.osu.shared;
 
     exports beat.osu.client;
 }
