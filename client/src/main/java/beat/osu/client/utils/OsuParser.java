@@ -89,11 +89,16 @@ public class OsuParser {
                 sliderTickRate, starRating);
     }
 
-    public static void extractAndParse(Beatmap beatmap) {
-        String oszPath = String.format("./src/main/resources/assets/beatmap/%d %s - %s.osz",
+    public static String getOszPath(Beatmap beatmap) {
+        return String.format("%d %s - %s.osz",
                 beatmap.getBeatmapSet().getBeatmapSetId(),
                 beatmap.getBeatmapSet().getArtist(),
                 beatmap.getBeatmapSet().getTitle());
+    }
+
+    public static void extractAndParse(Beatmap beatmap) {
+        String oszPath = String.format("./src/main/resources/assets/beatmap/%s",
+                getOszPath(beatmap));
         File oszFile = new File(oszPath);
         File outputDir = new File("./src/main/resources/assets/temp");
 

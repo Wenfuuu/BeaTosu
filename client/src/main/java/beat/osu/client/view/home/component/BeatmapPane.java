@@ -1,14 +1,18 @@
 package beat.osu.client.view.home.component;
 
+import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.model.Beatmap;
+import beat.osu.client.utils.OsuParser;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import lombok.Getter;
@@ -62,11 +66,26 @@ public class BeatmapPane extends ScrollPane {
     }
 
     private void populateBeatmaps() {
+        if(beatmaps.isEmpty()) return;
+        String currentOszPath = "";
+
         for(Beatmap beatmap: beatmaps) {
             // Container for the beatmap entry
             HBox entry = new HBox();
             entry.setPrefHeight(70);
-            entry.setStyle("-fx-background-color: #993300;");
+
+            String oszPath = String.format("./src/main/resources/assets/beatmap/%s",
+                    OsuParser.getOszPath(beatmap));
+            if(!oszPath.equals(currentOszPath)) {
+                System.out.println("different path, extracting bg");
+                OsuParser.extractAndParse(beatmap);
+                currentOszPath = oszPath;
+            }else {
+                System.out.println("same path, skipping extracting bg");
+            }
+//            System.out.println("bg for beatmap " + beatmap.getBeatmapSet().getTitle()
+//                    + " " + OsuParser.getBgFile());
+            BackgroundManager.setBeatmapBackground(entry);
 
             // Container for beatmap text info
             VBox textInfo = new VBox(2);
@@ -100,6 +119,10 @@ public class BeatmapPane extends ScrollPane {
             textInfo.getChildren().addAll(titleLabel, artistLabel, versionLabel, starsBox);
             entry.getChildren().add(textInfo);
 
+//            Rectangle overlay = new Rectangle();
+//            overlay.setFill(new Color(0, 0, 0, 0.1));
+//            StackPane map = new StackPane();
+//            map.getChildren().addAll(overlay, entry);
             beatmapListBox.getChildren().add(entry);
         }
 
