@@ -13,4 +13,5 @@ application {
 dependencies {
     implementation project(':shared')
 
+    implementation 'mysql:mysql-connector-java:8.0.32'
 }

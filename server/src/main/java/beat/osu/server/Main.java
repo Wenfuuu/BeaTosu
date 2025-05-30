@@ -1,29 +1,41 @@
 package beat.osu.server;
 
 import beat.osu.server.handler.ClientHandler;
+import beat.osu.server.repositories.UserRepository;
+import beat.osu.server.router.MessageRouter;
+import beat.osu.server.service.AuthService;
+import beat.osu.server.service.SessionService;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Main {
-    private final Integer PORT = 8081;
+    private static final Integer PORT = 8081;
+    private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 
     public Main() {
-        System.out.println("Starting server...");
+        UserRepository userRepository = new UserRepository();
+
+        AuthService authService = new AuthService(userRepository);
+        SessionService sessionService = new SessionService();
+
+        MessageRouter messageRouter = new MessageRouter(authService);
+
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("Server started on port " + PORT);
+            System.out.println("Server started on port " + PORT + "...");
 
             while (true) {
                 var clientSocket = serverSocket.accept();
-                System.out.println("Client connected: " + clientSocket.getInetAddress().getHostAddress());
-
-                ClientHandler clientTask = new ClientHandler(clientSocket);
-                new Thread(clientTask).start();
+                ClientHandler clientHandler = new ClientHandler(clientSocket, messageRouter, sessionService);
+                threadPool.submit(clientHandler);
             }
 
         } catch (IOException e) {
-            System.err.println("Server exception: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            threadPool.shutdown();
         }
     }
 
