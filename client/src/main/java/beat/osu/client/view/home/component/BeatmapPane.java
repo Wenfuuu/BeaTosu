@@ -12,7 +12,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import lombok.Getter;
@@ -70,9 +69,9 @@ public class BeatmapPane extends ScrollPane {
         String currentOszPath = "";
 
         for(Beatmap beatmap: beatmaps) {
-            // Container for the beatmap entry
-            HBox entry = new HBox();
-            entry.setPrefHeight(70);
+            StackPane beatmapContainer = new StackPane();
+            beatmapContainer.setPrefHeight(70);
+            beatmapContainer.getStyleClass().add("beatmap-container");
 
             String oszPath = String.format("./src/main/resources/assets/beatmap/%s",
                     OsuParser.getOszPath(beatmap));
@@ -83,29 +82,33 @@ public class BeatmapPane extends ScrollPane {
             }else {
                 System.out.println("same path, skipping extracting bg");
             }
-//            System.out.println("bg for beatmap " + beatmap.getBeatmapSet().getTitle()
-//                    + " " + OsuParser.getBgFile());
-            BackgroundManager.setBeatmapBackground(entry);
 
-            // Container for beatmap text info
+            HBox backgroundLayer = new HBox();
+            backgroundLayer.setPrefHeight(70);
+            BackgroundManager.setBeatmapBackground(backgroundLayer);
+
+            HBox overlayLayer = new HBox();
+            overlayLayer.setPrefHeight(70);
+            overlayLayer.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6);");
+
+            HBox contentLayer = new HBox();
+            contentLayer.setPrefHeight(70);
+            contentLayer.setPickOnBounds(false);
+
             VBox textInfo = new VBox(2);
             textInfo.setPadding(new Insets(10, 0, 0, 10));
             textInfo.setPrefWidth(350);
 
-            // Beatmap title
             Label titleLabel = new Label(beatmap.getBeatmapSet().getTitle());
             titleLabel.setTextFill(Color.WHITE);
             titleLabel.setFont(Font.font("Arial", FontWeight.BOLD, 12));
 
-            // Artist // Creator
             String artist = String.format("%s // %s", beatmap.getBeatmapSet().getArtist(),
                     beatmap.getBeatmapSet().getCreator());
             Label artistLabel = new Label(artist);
 
-            // Version
             Label versionLabel = new Label(beatmap.getVersion());
 
-            // Stars display
             HBox starsBox = new HBox(2);
             for (int i = 0; i < beatmap.getStarRating(); i++) {
                 Label star = new Label("★");
@@ -113,17 +116,14 @@ public class BeatmapPane extends ScrollPane {
                 starsBox.getChildren().add(star);
             }
 
-            entry.getStyleClass().add("beatmap-entry");
+            contentLayer.getStyleClass().add("beatmap-content");
             titleLabel.getStyleClass().add("title");
             starsBox.getStyleClass().add("stars");
             textInfo.getChildren().addAll(titleLabel, artistLabel, versionLabel, starsBox);
-            entry.getChildren().add(textInfo);
+            contentLayer.getChildren().add(textInfo);
 
-//            Rectangle overlay = new Rectangle();
-//            overlay.setFill(new Color(0, 0, 0, 0.1));
-//            StackPane map = new StackPane();
-//            map.getChildren().addAll(overlay, entry);
-            beatmapListBox.getChildren().add(entry);
+            beatmapContainer.getChildren().addAll(backgroundLayer, overlayLayer, contentLayer);
+            beatmapListBox.getChildren().add(beatmapContainer);
         }
 
         // Select first beatmap by default if available
@@ -136,7 +136,8 @@ public class BeatmapPane extends ScrollPane {
         beatmapListBox.setOnMouseClicked(e -> {
             Node clickedNode = e.getPickResult().getIntersectedNode();
 
-            while (clickedNode != null && clickedNode.getParent() != beatmapListBox) {
+            while (clickedNode != null &&
+                    (!(clickedNode instanceof StackPane) || clickedNode.getParent() != beatmapListBox)) {
                 clickedNode = clickedNode.getParent();
             }
 

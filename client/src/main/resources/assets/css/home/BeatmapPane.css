@@ -48,26 +48,33 @@
     -fx-padding: 2;
 }
 
-.beatmap-entry {
+/* Add styles for the StackPane container */
+.beatmap-container {
+    -fx-background-radius: 3;
 }
 
-.beatmap-entry:hover {
+.beatmap-container:hover {
     -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.2), 8, 0, 0, 2);
 }
 
-.beatmap-entry .title {
+.beatmap-container.selected {
+    -fx-border-color: white;
+    -fx-border-width: 2;
+    -fx-border-radius: 3;
+}
+
+/* Keep existing content layer styles */
+.beatmap-content {
+    -fx-background-radius: 3;
+}
+
+.beatmap-content .title {
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-font-size: 12;
 }
 
-.beatmap-entry .stars {
+.beatmap-content .stars {
     -fx-text-fill: yellow;
     -fx-font-size: 12;
-}
-
-.beatmap-entry.selected {
-    -fx-border-color: white;
-    -fx-border-width: 2;
-    -fx-border-radius: 3;
 }
