@@ -178,6 +178,10 @@ public class GameManager implements Subject {
         while(iterator.hasNext()) {
             HitObject hitObject = iterator.next();
             hitObject.update(elapsedMillis);
+            if(hitObject.getHitTime() > elapsedMillis + 5000) {
+                // If the hit object is still far, skip processing
+                break;
+            }
 
             if (hitObject.isVisible() && !hitObject.isHit()) {
                 if (keyPressed) {
@@ -295,7 +299,7 @@ public class GameManager implements Subject {
     }
 
     private long getHitWindow() {
-        return 200; // 200ms hit window
+        return 300; // 200ms hit window
     }
 
 //    private boolean areAllObjectsProcessed() {

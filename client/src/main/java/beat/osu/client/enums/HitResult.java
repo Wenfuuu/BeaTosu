@@ -17,9 +17,9 @@ public enum HitResult {
 
     public static HitResult fromTimingError(long timingError) {
         long absError = Math.abs(timingError);
-        if (absError <= 50) return PERFECT;
-        if (absError <= 100) return GREAT;
-        if (absError <= 150) return GOOD;
+        if (absError <= 100) return PERFECT;
+        if (absError <= 200) return GREAT;
+        if (absError <= 300) return GOOD;
         return MISS;
     }
 }
