@@ -315,12 +315,21 @@ public class GameManager implements Subject {
         currentComboSetIndex = 0;
         comboSkipCounter = 0;
 
-        for (String data : OsuParser.getHitObjects()) {
-            createHitObject(data);
+        ArrayList<String> hitObjectData = OsuParser.getHitObjects();
+        for(int i = 0; i < hitObjectData.size(); i++) {
+            String data = hitObjectData.get(i);
+
+            boolean comboEnd = false;
+            String nextData = (i + 1 < hitObjectData.size()) ? hitObjectData.get(i + 1) : null;
+            if(nextData != null) {
+                comboEnd = HitObjectFactory.checkNewCombo(nextData);
+            }
+
+            createHitObject(data, comboEnd);
         }
     }
 
-    private void createHitObject(String data) {
+    private void createHitObject(String data, boolean comboEnd) {
         boolean isThisObjectANewCombo = HitObjectFactory.checkNewCombo(data);
         int comboSkipFromThisObject = HitObjectFactory.getComboSkipCount(data);
 
@@ -335,7 +344,7 @@ public class GameManager implements Subject {
         }
 
         HitObject newHitObject = HitObjectFactory.createHitObject(data, beatmap,
-                currentComboNumberInSet, currentComboSetIndex);
+                currentComboNumberInSet, currentComboSetIndex, comboEnd);
         hitObjects.add(newHitObject);
     }
 

@@ -96,7 +96,8 @@ public class HitObjectFactory {
     }
 
     public static HitObject createHitObject(String data, Beatmap selectedBeatmap,
-                                            int comboNumber, int comboSetIndex){
+                                            int comboNumber, int comboSetIndex,
+                                            boolean comboEnd){
         // Circle (length 6) => 382,305,6867,1,2,3:2:0:0:
         // Slider => 59,124,2279,6,0,P|116:91|220:132,1,171.73332756836,2|0,0:2|0:2,0:0:0:0:
         Map<String, String> colours = OsuParser.getColours();
@@ -149,17 +150,17 @@ public class HitObjectFactory {
 //        return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate);
         if(hitType.equals("circle")){
             return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate, circleSize,
-                    comboNumber, comboSetIndex, colorString,
+                    comboNumber, comboSetIndex, colorString, comboEnd,
                     generateCircleSfxFilenames(hitSound, hitSample));
         }else if(hitType.equals("slider")){
             return new HitSlider(x, y, time, type, hitSound, objectParams, hitSample,
                     approachRate, circleSize, selectedBeatmap.getSlideMultiplier(),
-                    comboNumber, comboSetIndex, colorString,
+                    comboNumber, comboSetIndex, colorString, comboEnd,
                     generateCircleSfxFilenames(hitSound, hitSample));
         }
         else{
             return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate, circleSize,
-                    comboNumber, comboSetIndex, colorString,
+                    comboNumber, comboSetIndex, colorString, comboEnd,
                     generateCircleSfxFilenames(hitSound, hitSample));
         }
     }

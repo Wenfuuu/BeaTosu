@@ -31,9 +31,10 @@ public class HitCircle extends HitObject{
                      int type, int hitSound, String hitSample,
                      double approachRate, double circleSize,
                      int comboNumber, int comboSetIndex, String colorString,
+                     boolean comboEnd,
                      ArrayList<String> sfxFilenames) {
         super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate,
-                circleSize, comboNumber, comboSetIndex, sfxFilenames);
+                circleSize, comboNumber, comboSetIndex, comboEnd, sfxFilenames);
 
         Color circleColor = parseColorString(colorString);
         // --- CORE CHANGE: Create circles at (0,0) relative to the Group ---

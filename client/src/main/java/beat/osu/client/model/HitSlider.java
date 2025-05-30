@@ -186,9 +186,10 @@ public class HitSlider extends HitObject {
                      String objectParams, String hitSample, double approachRate,
                      double circleSize, double sliderMultiplier,
                      int comboNumber, int comboSetIndex, String colorString,
+                     boolean comboEnd,
                      ArrayList<String> sfxFilenames) {
         super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate,
-                circleSize, comboNumber, comboSetIndex, sfxFilenames);
+                circleSize, comboNumber, comboSetIndex, comboEnd, sfxFilenames);
         PATH_STROKE_WIDTH = getCircleRadius() * 2;
         BALL_RADIUS = getCircleRadius() * 0.8;
 
