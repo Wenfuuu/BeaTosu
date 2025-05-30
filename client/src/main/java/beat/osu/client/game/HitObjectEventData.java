@@ -11,4 +11,6 @@ public class HitObjectEventData {
     private HitObject hitObject;
     private long timingError;
     private HitResult hitResult;
+    private boolean perfectCombo;
+    private boolean imperfectOrMissed;
 }

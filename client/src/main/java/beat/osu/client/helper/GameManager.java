@@ -51,6 +51,8 @@ public class GameManager implements Subject {
     private int misses = 0;
     private double accuracy = 100.0;
     private double health = 100;
+    private boolean perfectCombo = true;
+    private boolean imperfectOrMissed = false;
 
     public void updateMousePosition(double x, double y) {
         this.currentMouseX = x;
@@ -221,6 +223,11 @@ public class GameManager implements Subject {
     }
 
     private void handleHit(HitObject hitObject, long timingError) {
+        if(hitObject.getComboNumber() == 1) {
+            perfectCombo = true;
+            imperfectOrMissed = false;
+        }
+
         hitObject.setHit(true);
         hitObject.playHitEffect();
         // play sfx
@@ -233,6 +240,13 @@ public class GameManager implements Subject {
 
         // Determine hit result based on timing
         HitResult hitResult = HitResult.fromTimingError(timingError);
+        if(hitResult == HitResult.GREAT) {
+            perfectCombo = false;
+        }else if(hitResult == HitResult.GOOD) {
+            perfectCombo = false;
+            imperfectOrMissed = true;
+        }
+
         int hitValue = hitResult.getScore();
 //        System.out.println("hit value: " + hitValue);
         int difficultyMultiplier = beatmap.getDifficultyMultiplier(hitObjects, OsuParser.getBreakPointsList());
@@ -254,7 +268,8 @@ public class GameManager implements Subject {
                 new ComboChangeData(masterComboNumber, false)));
 
         notifyObservers(new GameEvent(GameEventType.HIT_OBJECT_HIT,
-                new HitObjectEventData(hitObject, timingError, hitResult)));
+                new HitObjectEventData(hitObject, timingError, hitResult,
+                        perfectCombo, imperfectOrMissed)));
 
 //        System.out.println("current accuracy: " + accuracy);
         notifyObservers(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
@@ -262,6 +277,8 @@ public class GameManager implements Subject {
     }
 
     private void handleMiss(HitObject hitObject) {
+        perfectCombo = false;
+        imperfectOrMissed = true;
         hitObject.hide();
 
         misses++;
@@ -279,7 +296,8 @@ public class GameManager implements Subject {
                 new ComboChangeData(masterComboNumber, oldCombo > 0)));
 
         notifyObservers(new GameEvent(GameEventType.HIT_OBJECT_MISSED,
-                new HitObjectEventData(hitObject, 0, HitResult.MISS)));
+                new HitObjectEventData(hitObject, 0, HitResult.MISS,
+                        false, true)));
 
 //        System.out.println("current accuracy: " + accuracy);
         notifyObservers(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));

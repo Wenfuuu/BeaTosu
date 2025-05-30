@@ -110,14 +110,31 @@ public class GameView extends Page implements Observer {
         });
     }
 
-    private void showHitImage(HitObject hitObject, HitResult hitResult) {
+    private void showHitImage(HitObject hitObject, HitResult hitResult,
+                              boolean perfectCombo, boolean imperfectOrMissed) {
         String imagePath = "/assets/images/hit300.png";
         switch (hitResult) {
             case PERFECT:
-                imagePath = "/assets/images/hit300.png";
+                if(hitObject.isComboEnd()){
+                    if(perfectCombo) {
+                        imagePath = "/assets/images/hit300g.png";
+                    }else if(imperfectOrMissed) {
+                        imagePath = "/assets/images/hit300.png";
+                    }else {
+                        imagePath = "/assets/images/hit300k.png";
+                    }
+                }
+                else imagePath = "/assets/images/hit300.png";
                 break;
             case GREAT:
-                imagePath = "/assets/images/hit100.png";
+                if(hitObject.isComboEnd()) {
+                    if(imperfectOrMissed) {
+                        imagePath = "/assets/images/hit100.png";
+                    } else {
+                        imagePath = "/assets/images/hit100k.png";
+                    }
+                }
+                else imagePath = "/assets/images/hit100.png";
                 break;
             case GOOD:
                 imagePath = "/assets/images/hit50.png";
@@ -382,8 +399,10 @@ public class GameView extends Page implements Observer {
                 if (hitData != null) {
                     HitObject hitObject = hitData.getHitObject();
                     HitResult hitResult = hitData.getHitResult();
+                    boolean perfectCombo = hitData.isPerfectCombo();
+                    boolean imperfectOrMissed = hitData.isImperfectOrMissed();
                     if (hitObject != null) {
-                        showHitImage(hitObject, hitResult);
+                        showHitImage(hitObject, hitResult, perfectCombo, imperfectOrMissed);
                     }
                 }
                 break;
