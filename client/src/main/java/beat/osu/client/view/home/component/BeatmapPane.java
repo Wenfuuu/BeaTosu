@@ -1,6 +1,7 @@
 package beat.osu.client.view.home.component;
 
 import beat.osu.client.helper.BackgroundManager;
+import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.utils.OsuParser;
@@ -129,6 +130,9 @@ public class BeatmapPane extends ScrollPane {
         // Select first beatmap by default if available
         if (!beatmapListBox.getChildren().isEmpty()) {
             beatmapListBox.getChildren().get(0).getStyleClass().add("selected");
+            selectedBeatmap = beatmaps.get(0);
+
+            OsuParser.extractAndParse(selectedBeatmap);
         }
     }
 

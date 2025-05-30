@@ -17,6 +17,7 @@ import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -37,6 +38,9 @@ public class HomeView extends Page {
     public HomeView(Stage stage) {
         super(stage);
         handleEvent();
+
+        BgmManager.playPreviewBgm();
+        BackgroundManager.setGameBackground(scene);
     }
 
     @Override
@@ -45,6 +49,13 @@ public class HomeView extends Page {
 
         root = new StackPane();
         root.getStyleClass().add("root");
+
+        Pane backgroundOverlay = new Pane();
+        backgroundOverlay.setStyle("-fx-background-color: rgba(18, 18, 18, 0.5);");
+        backgroundOverlay.prefWidthProperty().bind(root.widthProperty());
+        backgroundOverlay.prefHeightProperty().bind(root.heightProperty());
+        root.getChildren().add(backgroundOverlay);
+
         mainLayout = new BorderPane();
 
         beatmaps = beatmapController.fetchBeatmaps();
@@ -64,15 +75,6 @@ public class HomeView extends Page {
         } else {
             System.err.println("Css file not found!");
         }
-
-        try {
-            BackgroundManager.setRandomBackground(scene);
-            BackgroundManager.setDarkBackground(scene, true);
-        } catch (Exception e) {
-            System.err.println("Error setting background for HomeView: " + e.getMessage());
-            e.printStackTrace();
-            root.setStyle("-fx-background-color: #121212;");
-        }
     }
 
     @Override
@@ -80,7 +82,8 @@ public class HomeView extends Page {
         mainLayout.setTop(topBar);
         mainLayout.setRight(beatmapPane);
         mainLayout.setBottom(bottomBar);
-        root.getChildren().add(mainLayout);
+
+        root.getChildren().addAll(mainLayout);
     }
 
     public void handleEvent() {
@@ -88,6 +91,7 @@ public class HomeView extends Page {
             topBar.updateSongInfo(beatmap);
             OsuParser.extractAndParse(beatmap);
             BgmManager.playPreviewBgm();
+            BackgroundManager.setGameBackground(scene);
 
             // sfx testing purpose
 //            for (String data: OsuParser.getHitObjects()) {
@@ -107,18 +111,5 @@ public class HomeView extends Page {
         bottomBar.getBackButton().setOnMouseClicked(e -> {
             System.out.println("Back button clicked");
         });
-
-//        AnimationTimer inputChecker = new AnimationTimer() {
-//            @Override
-//            public void handle(long now) {
-//                if (inputManager.getPressedKeys().contains(KeyCode.Z)) {
-//                    System.out.println("Holding Z key");
-//                }
-//                if (inputManager.getPressedKeys().contains(KeyCode.X)) {
-//                    System.out.println("Holding X key");
-//                }
-//            }
-//        };
-//        inputChecker.start();
     }
 }
