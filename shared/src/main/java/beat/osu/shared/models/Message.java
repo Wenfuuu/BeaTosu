@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -14,7 +13,7 @@ import java.util.Map;
 public class Message implements Serializable {
     private MessageType type;
     private String action;
-    private Map<String, Object> payload;
+    private Object payload;
     private String sessionId;
     private Long timestamp;
 }

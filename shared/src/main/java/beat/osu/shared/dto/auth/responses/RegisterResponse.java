@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterResponse {
+public class RegisterResponse implements Serializable {
     private boolean success;
     private String message;
 }

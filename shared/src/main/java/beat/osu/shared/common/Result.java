@@ -2,7 +2,9 @@ package beat.osu.shared.common;
 
 import lombok.Getter;
 
-public class Result<T> {
+import java.io.Serializable;
+
+public class Result<T> implements Serializable {
 
     @Getter
     private final boolean success;

@@ -2,7 +2,9 @@ package beat.osu.shared.common;
 
 import lombok.Getter;
 
-public class Error {
+import java.io.Serializable;
+
+public class Error implements Serializable {
 
     @Getter
     private final String code;
