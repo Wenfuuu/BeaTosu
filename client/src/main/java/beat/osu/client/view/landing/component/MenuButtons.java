@@ -135,7 +135,7 @@ public class MenuButtons extends VBox {
             System.err.println("Error loading image " + imageName + ": " + e.getMessage());
             button.setText(imageName.substring(0, imageName.lastIndexOf('.')));
         }
-        button.getStyleClass().add("menu-button");
+//        button.getStyleClass().add("menu-button");
         return button;
     }
 

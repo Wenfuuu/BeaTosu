@@ -1,21 +1,30 @@
 package beat.osu.client.helper;
 
+import beat.osu.client.Main;
 import beat.osu.client.utils.OsuParser;
 import javafx.animation.FadeTransition;
 import javafx.animation.Timeline;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class BackgroundManager {
     private static final String BACKGROUNDS_DIR = "./src/main/resources/assets/backgrounds/";
+    private static final String PAUSE_MENU_DIR = "./src/main/resources/assets/buttons/pause-menu/";
     private static final String TEMP_DIR = "./src/main/resources/assets/temp/";
     private static final Random random = new Random();
     private static List<String> backgroundFiles = null;
@@ -65,6 +74,19 @@ public class BackgroundManager {
         }
     }
 
+    public static void setPauseButtonBackground(Button button, String fileName) {
+        String imagePath = "/assets/buttons/pause-menu/" + fileName;
+        URL imageUrl = Main.class.getResource(imagePath);
+        if(imageUrl == null) return;
+
+        Image image = new Image(imageUrl.toExternalForm());
+        ImageView imageView = new ImageView(image);
+        imageView.setFitHeight(ScreenManager.SCREEN_HEIGHT / 6);
+        imageView.setPreserveRatio(true);
+
+        button.setGraphic(imageView);
+    }
+
     public static void setRandomBackground(Scene scene) {
         String randomBg = getRandomBackgroundURL();
         try {
@@ -76,9 +98,7 @@ public class BackgroundManager {
                     "-fx-background-position: center center;";
 
             scene.getRoot().setStyle(backgroundStyle);
-
             updateOverlaySmooth(scene);
-
         } catch (Exception e) {
             System.err.println("Error setting background image: " + e.getMessage());
             e.printStackTrace();

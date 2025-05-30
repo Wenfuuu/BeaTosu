@@ -15,6 +15,7 @@ import beat.osu.client.model.HitObject;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.view.Page;
 import beat.osu.client.view.game.component.GameUI;
+import beat.osu.client.view.game.component.PauseOverlay;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -23,6 +24,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -41,12 +43,13 @@ public class GameView extends Page implements Observer {
     private final double PLAYFIELD_OFFSET_X_IN_REF = 64.0;
     private final double PLAYFIELD_OFFSET_Y_IN_REF = 56.0;
 
-    private double circleSize; // Default Circle Size (CS) if parsing fails
+    private final double circleSize; // Default Circle Size (CS) if parsing fails
     private double osuPixelDiameter;   // Diameter in original osu! coordinates
 
-    private Pane root;
+    private StackPane root;
     private Pane gamePane;
     private GameUI uiPane;
+    private PauseOverlay pauseOverlay;
 
     private final Beatmap beatmap;
     private final GameManager gm;
@@ -72,9 +75,10 @@ public class GameView extends Page implements Observer {
 
     private void initializeUI() {
         uiPane = new GameUI();
+        pauseOverlay = new PauseOverlay();
         createGamePane();
 
-        root.getChildren().addAll(gamePane, uiPane);
+        root.getChildren().addAll(gamePane, uiPane, pauseOverlay);
     }
 
     private void createGamePane() {
@@ -311,7 +315,7 @@ public class GameView extends Page implements Observer {
 
     @Override
     public void init() {
-        root = new Pane();
+        root = new StackPane();
 
         // Create an overlay pane for semi-transparent background
         Pane backgroundOverlay = new Pane();
@@ -379,10 +383,12 @@ public class GameView extends Page implements Observer {
                 break;
             case GAME_PAUSED:
                 System.out.println("pausing game, show pause menu here");
+                pauseOverlay.setVisible(true);
                 stage.setFullScreen(true);
                 break;
             case GAME_RESUMED:
                 System.out.println("resuming game, hide pause menu here");
+                pauseOverlay.setVisible(false);
                 stage.setFullScreen(true);
                 break;
         }

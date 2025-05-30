@@ -299,7 +299,7 @@ public class GameManager implements Subject {
     }
 
     private long getHitWindow() {
-        return 300; // 200ms hit window
+        return 300; // 300ms hit window
     }
 
 //    private boolean areAllObjectsProcessed() {
