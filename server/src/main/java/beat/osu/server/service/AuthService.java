@@ -30,7 +30,7 @@ public class AuthService {
                 return Result.failure(Error.validation("Password must be at least 8 characters!"));
             }
 
-            userRepository.InsertUser(request.getUsername(), request.getPassword(), request.getEmail(), request.getCountryCode());
+            userRepository.InsertUser(request.getUsername(), request.getEmail(), request.getPassword(), request.getCountryCode());
 
             boolean success = true;
             String message = "User registered successfully!";
@@ -49,13 +49,14 @@ public class AuthService {
 
             var user = userRepository.findUserByUsername(request.getUsername());
             if (user == null) {
-                return Result.failure(Error.validation("User not found!"));
+                return Result.failure(Error.notFound("User not found!"));
             }
 
             if (!user.getPasswordHash().equals(request.getPassword())) {
                 return Result.failure(Error.validation("Invalid password!"));
             }
 
+            System.out.println("Client " + clientId + " logged in as user: " + user.getUsername());
             sessionService.setSessionData(clientId, "userId", user.getId());
 
             String message = "Successfully logged in as " + user.getUsername() + "!";

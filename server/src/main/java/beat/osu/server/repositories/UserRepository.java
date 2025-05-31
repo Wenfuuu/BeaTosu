@@ -36,18 +36,22 @@ public class UserRepository {
             ps.setString(1, username);
             var rs = ps.executeQuery();
 
-            return new User(
-                    rs.getInt("id"),
-                    rs.getString("username"),
-                    rs.getString("email"),
-                    rs.getString("password_hash"),
-                    rs.getString("country_code"),
-                    rs.getBytes("profile_picture"),
-                    rs.getInt("performance"),
-                    rs.getDouble("accuracy"),
-                    rs.getInt("play_count"),
-                    rs.getInt("level")
-            );
+            if (rs.next()) {
+                return new User(
+                        rs.getInt("id"),
+                        rs.getString("username"),
+                        rs.getString("email"),
+                        rs.getString("password_hash"),
+                        rs.getString("country_code"),
+                        rs.getBytes("profile_picture"),
+                        rs.getInt("performance"),
+                        rs.getDouble("accuracy"),
+                        rs.getInt("play_count"),
+                        rs.getInt("level")
+                );
+            } else {
+                return null;
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
