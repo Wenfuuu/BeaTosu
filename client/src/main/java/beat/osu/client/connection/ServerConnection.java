@@ -65,12 +65,25 @@ public class ServerConnection {
                 }
             }
         });
+        readerThread.start();
     }
 
     private void handleServerMessage(Object message) {
+        if (!pendingRequests.isEmpty()) {
+            // Get the first pending request (FIFO) - since ConcurrentHashMap doesn't guarantee order
+            String firstRequestId = pendingRequests.keySet().iterator().next();
+            CompletableFuture<Object> future = pendingRequests.remove(firstRequestId);
+            if (future != null) {
+                future.complete(message);
+                return;
+            }
+        }
+
+        // If no pending requests or realtime callback is set, handle as realtime message
         if (realtimeCallback != null) {
             realtimeCallback.onMessage(message);
         } else {
+            System.out.println("ServerConnection: Adding to message queue");
             messageQueue.offer(message);
         }
     }
@@ -79,20 +92,13 @@ public class ServerConnection {
         CompletableFuture<Object> future = new CompletableFuture<>();
 
         try {
+            pendingRequests.put(message.getId(), future);
             oos.writeObject(message);
             oos.flush();
-
-            new Thread(() -> {
-                try {
-                    Object response = messageQueue.take();
-                    future.complete(response);
-                } catch (Exception e) {
-                    future.completeExceptionally(e);
-                }
-            }).start();
-
         } catch (Exception e) {
+            System.err.println("ServerConnection: Error sending message: " + e.getMessage());
             future.completeExceptionally(e);
+            pendingRequests.remove(message.getId());
         }
 
         return future;
@@ -116,7 +122,7 @@ public class ServerConnection {
             }
             if (oos != null) {
                 Message disconnectMsg = new Message(MessageType.SYSTEM, "DISCONNECT",
-                        Map.of(), null, System.currentTimeMillis());
+                        null, System.currentTimeMillis());
                 oos.writeObject(disconnectMsg);
                 oos.flush();
                 oos.close();
