@@ -77,10 +77,10 @@ public class BgmManager {
         currentBgmHash = newHash;
     }
 
-    public static void playGameBgm() {
+    public static void prepareGameBgm() {
         String bgmPath = TEMP_DIR + "audio.mp3";
-
         File audioFile = new File(bgmPath);
+
         if (!audioFile.exists()) {
             System.err.println("BGM file not found: " + audioFile.getAbsolutePath());
             return;
@@ -89,9 +89,16 @@ public class BgmManager {
         stopBgm();
         Media media = new Media(audioFile.toURI().toString());
         currentPlayer = new MediaPlayer(media);
-
-        currentPlayer.setAutoPlay(true);
         currentPlayer.setVolume(0.2);
+        currentPlayer.setAutoPlay(false);
+
+        currentPlayer.setOnReady(() -> {
+            System.out.println("BGM ready for playback");
+        });
+    }
+
+    public static void playGameBgm() {
+        if(currentPlayer != null) currentPlayer.play();
     }
 
     public static void playBgm(String filePath) {

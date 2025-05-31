@@ -104,6 +104,7 @@ public class HomeView extends Page {
             System.out.println("clicking play button");
             Beatmap selectedBeatmap = beatmapPane.getSelectedBeatmap();
             if (selectedBeatmap != null) {
+                BgmManager.stopBgm();
                 new GameView(stage, selectedBeatmap);
             }
         });

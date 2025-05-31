@@ -1,7 +1,6 @@
 package beat.osu.client.view.game;
 
 import beat.osu.client.Main;
-import beat.osu.client.enums.GameState;
 import beat.osu.client.enums.HitResult;
 import beat.osu.client.game.ComboChangeData;
 import beat.osu.client.game.GameEvent;
@@ -10,9 +9,7 @@ import beat.osu.client.game.ScoreChangeData;
 import beat.osu.client.helper.*;
 import beat.osu.client.interfaces.Observer;
 import beat.osu.client.model.Beatmap;
-import beat.osu.client.model.BreakPoint;
 import beat.osu.client.model.HitObject;
-import beat.osu.client.utils.OsuParser;
 import beat.osu.client.view.Page;
 import beat.osu.client.view.game.component.GameUI;
 import beat.osu.client.view.game.component.PauseOverlay;
@@ -23,7 +20,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -70,7 +66,11 @@ public class GameView extends Page implements Observer {
         loadBackground();
         handleEvent();
         updateLayout();
+        BgmManager.prepareGameBgm();
 
+//        PauseTransition delay = new PauseTransition(Duration.seconds(3));
+//        delay.setOnFinished(e -> gm.startGame());
+//        delay.play();
         gm.startGame();
     }
 
@@ -405,6 +405,9 @@ public class GameView extends Page implements Observer {
                         showHitImage(hitObject, hitResult, perfectCombo, imperfectOrMissed);
                     }
                 }
+                break;
+            case GAME_STARTED:
+                System.out.println("show countdown here");
                 break;
             case GAME_PAUSED:
                 System.out.println("pausing game, show pause menu here");

@@ -15,7 +15,11 @@ import beat.osu.client.model.HitCircle;
 import beat.osu.client.model.HitObject;
 import beat.osu.client.utils.OsuParser;
 import javafx.animation.AnimationTimer;
+import javafx.animation.KeyFrame;
+import javafx.animation.PauseTransition;
+import javafx.animation.Timeline;
 import javafx.scene.input.KeyCode;
+import javafx.util.Duration;
 import lombok.Getter;
 
 import java.util.*;
@@ -31,6 +35,7 @@ public class GameManager implements Subject {
     private long startTimeNanos = -1;
     private long pauseStartNanos = -1;
     private long totalPausedNanos = 0;
+    private long gameStartOffset = 2000;
     private GameState gameState = GameState.NOT_STARTED;
     private final InputManager inputManager;
 
@@ -82,12 +87,15 @@ public class GameManager implements Subject {
             return;
         }
 
-//        if (gameState == GameState.NOT_STARTED) {
-            startTimeNanos = -1;
-            totalPausedNanos = 0;
-            notifyObservers(new GameEvent(GameEventType.GAME_STARTED, null));
+        startTimeNanos = -1;
+        totalPausedNanos = 0;
+        notifyObservers(new GameEvent(GameEventType.GAME_STARTED, null));
+        // sync BGM with game start offset
+        PauseTransition bgmSync = new PauseTransition(Duration.millis(gameStartOffset));
+        bgmSync.setOnFinished(e -> {
             BgmManager.playGameBgm();
-//        }
+        });
+        bgmSync.play();
 
         gameState = GameState.PLAYING;
 
@@ -105,7 +113,7 @@ public class GameManager implements Subject {
                 long elapsedNanos = now - startTimeNanos - totalPausedNanos;
                 long elapsedMillis = elapsedNanos / 1_000_000;
 
-                updateGame(elapsedMillis);
+                updateGame(elapsedMillis - gameStartOffset);
             }
         };
         gameLoop.start();
