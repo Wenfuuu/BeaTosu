@@ -17,6 +17,10 @@ public class Error implements Serializable {
         this.message = message;
     }
 
+    public static Error network(String message) {
+        return new Error("NETWORK_ERROR", message);
+    }
+
     public static Error notFound(String message) {
         return new Error("NOT_FOUND", message);
     }

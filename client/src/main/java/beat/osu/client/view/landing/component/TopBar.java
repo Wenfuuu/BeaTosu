@@ -3,6 +3,7 @@ package beat.osu.client.view.landing.component;
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.model.User;
+import beat.osu.shared.dto.auth.UserDto;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -136,7 +137,7 @@ public class TopBar extends HBox {
     }
 
     // Update user info when logged in
-    public void updateUserInfo(User user) {
+    public void updateUserInfo(UserDto user) {
         if (user != null) {
             usernameLbl.setText(user.getUsername());
             signinLbl.setVisible(false);

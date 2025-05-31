@@ -1,15 +1,16 @@
 package beat.osu.client.view.landing.component;
 
 import beat.osu.client.controller.AuthController;
-import beat.osu.client.dto.user.LoginResult;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
-import beat.osu.client.model.User;
+import beat.osu.shared.dto.auth.UserDto;
+import beat.osu.shared.dto.auth.responses.LoginResponse;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.CacheHint;
@@ -48,7 +49,7 @@ public class LoginModal extends StackPane {
     private Label titleLabel; 
 
     @Setter
-    private Consumer<User> onLoginSuccessListener;
+    private Consumer<UserDto> onLoginSuccessListener;
     @Setter
     private Runnable onCreateAccountListener;
 
@@ -183,19 +184,25 @@ public class LoginModal extends StackPane {
     private void handleComponentEvents() {
         signInButton.setOnAction(e -> {
             String username = userInput.getText();
-            String pass = passInput.getText();
-            LoginResult result = authController.login(username, pass);
-            if(result.isSuccess()) {
-                System.out.println(result.getMessage());
+            String password = passInput.getText();
 
-                AuthManager.setUser(result.getUser());
-                if (onLoginSuccessListener != null) {
-                    onLoginSuccessListener.accept(result.getUser());
-                }
-                hide();
-            } else {
-                System.out.println(result.getMessage());
-            }
+            authController.login(username, password)
+                    .thenAcceptAsync(result -> {
+                        Platform.runLater(() -> {
+                            if (result.isSuccess()) {
+                                LoginResponse response = result.getValue();
+                                System.out.println(response.getMessage());
+
+                                AuthManager.setUser(result.getValue().getUser());
+                                if (onLoginSuccessListener != null) {
+                                    onLoginSuccessListener.accept(result.getValue().getUser());
+                                }
+                                hide();
+                            } else {
+                                System.err.println(result.getError().getMessage());
+                            }
+                        });
+                    });
         });
 
         createAccountButton.setOnAction(e -> {

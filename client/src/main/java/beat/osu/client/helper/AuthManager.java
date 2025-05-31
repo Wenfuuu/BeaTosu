@@ -1,13 +1,14 @@
 package beat.osu.client.helper;
 
 import beat.osu.client.model.User;
+import beat.osu.shared.dto.auth.UserDto;
 import lombok.Getter;
 import lombok.Setter;
 
 public class AuthManager {
     @Getter
     @Setter
-    private static User user;
+    private static UserDto user;
 
     public static boolean isAuthenticated() {
         return user != null;

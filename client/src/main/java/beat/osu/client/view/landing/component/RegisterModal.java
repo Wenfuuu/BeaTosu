@@ -1,8 +1,8 @@
 package beat.osu.client.view.landing.component;
 
 import beat.osu.client.controller.AuthController;
-import beat.osu.client.dto.user.RegisterResult;
 import beat.osu.client.helper.CssManager;
+import beat.osu.shared.dto.auth.responses.RegisterResponse;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -130,15 +130,18 @@ public class RegisterModal extends StackPane {
     private void handleEvents() {
         createButton.setOnMouseClicked(e -> {
             String username = usernameField.getText();
-            String email = emailField.getText();
             String password = passwordField.getText();
+            String email = emailField.getText();
 
-            RegisterResult result = authController.register(username, email, password);
-            if (result.isSuccess()) {
-                System.out.println(result.getMessage());
-            } else {
-                System.out.println(result.getMessage());
-            }
+            authController.register(username, password, email)
+                    .thenAcceptAsync(result -> {
+                        if (result.isSuccess()) {
+                            RegisterResponse response = result.getValue();
+                            System.out.println(response.getMessage());
+                        } else {
+                            System.err.println(result.getError().getMessage());
+                        }
+                    });
         });
 
         cancelButton.setOnMouseClicked(e -> {

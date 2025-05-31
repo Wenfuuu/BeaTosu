@@ -1,6 +1,8 @@
 package beat.osu.shared.enums;
 
-public enum MessageAction {
+import java.io.Serializable;
+
+public enum MessageAction implements Serializable {
     // System actions
     DISCONNECT,
 
