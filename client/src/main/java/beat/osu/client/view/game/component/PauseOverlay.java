@@ -2,7 +2,6 @@ package beat.osu.client.view.game.component;
 
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.SfxManager;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;

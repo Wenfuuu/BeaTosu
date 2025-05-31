@@ -4,11 +4,15 @@ import beat.osu.client.database.connection.Connect;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 public class BeatmapRepository {
     private final Connection conn;
@@ -19,6 +23,17 @@ public class BeatmapRepository {
 
     public ArrayList<Beatmap> fetchBeatmaps() {
         ArrayList<Beatmap> beatmaps = new ArrayList<>();
+
+        File dir = new File("./src/main/resources/assets/beatmap");
+        Set<String> validFilenames = new HashSet<>();
+        if (dir.exists() && dir.isDirectory()) {
+            for (File file : Objects.requireNonNull(dir.listFiles())) {
+                if (file.isFile() && file.getName().endsWith(".osz")) {
+                    validFilenames.add(file.getName());
+                }
+            }
+        }
+
         String query = "SELECT * FROM beatmaps bm " +
                 "JOIN beatmap_sets bs ON bm.beatmap_set_id = bs.id " +
                 "ORDER BY bs.id ASC, star_rating ASC;";
@@ -26,14 +41,20 @@ public class BeatmapRepository {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
             while(rs.next()) {
-                BeatmapSet set = new BeatmapSet(
-                        rs.getInt("bs.id"),
-                        rs.getString("bs.title"),
-                        rs.getString("bs.artist"),
-                        rs.getString("bs.creator"),
-                        rs.getString("bs.length"),
-                        rs.getInt("bs.bpm")
-                );
+                int setId = rs.getInt("bs.id");
+                String title = rs.getString("bs.title");
+                String artist = rs.getString("bs.artist");
+                String creator = rs.getString("bs.creator");
+                String length = rs.getString("bs.length");
+                int bpm = rs.getInt("bs.bpm");
+
+                // has beatmap file validation
+                String expectedFilename = String.format("%d %s - %s.osz", setId, artist, title);
+                if (!validFilenames.contains(expectedFilename)) {
+                    continue;
+                }
+
+                BeatmapSet set = new BeatmapSet(setId, title, artist, creator, length, bpm);
 
                 Beatmap bm = new Beatmap(
                         rs.getInt("bm.id"),
@@ -48,7 +69,6 @@ public class BeatmapRepository {
                         rs.getDouble("bm.star_rating"),
                         set
                 );
-
 
                 beatmaps.add(bm);
             }
