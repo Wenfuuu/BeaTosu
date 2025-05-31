@@ -22,10 +22,9 @@ public class BeatmapController {
             String artist,
             String creator,
             String length,
-            int bpm,
-            String backgroundFile
+            int bpm
     ) {
-        beatmapRepository.insertBeatmapSet(beatmapSetId, title, artist, creator, length, bpm, backgroundFile);
+        beatmapRepository.insertBeatmapSet(beatmapSetId, title, artist, creator, length, bpm);
     }
 
     public void insertBeatmap(

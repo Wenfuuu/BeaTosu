@@ -12,5 +12,4 @@ public class BeatmapSet {
     private String creator;
     private String length;
     private int bpm;
-    private String backgroundFile;
 }

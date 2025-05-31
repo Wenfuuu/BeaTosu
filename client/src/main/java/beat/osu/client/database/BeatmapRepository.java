@@ -32,8 +32,7 @@ public class BeatmapRepository {
                         rs.getString("bs.artist"),
                         rs.getString("bs.creator"),
                         rs.getString("bs.length"),
-                        rs.getInt("bs.bpm"),
-                        rs.getString("bs.background_path")
+                        rs.getInt("bs.bpm")
                 );
 
                 Beatmap bm = new Beatmap(
@@ -65,11 +64,10 @@ public class BeatmapRepository {
             String artist,
             String creator,
             String length,
-            int bpm,
-            String backgroundFile
+            int bpm
     ) {
-        String query = "INSERT INTO beatmap_sets (id, title, artist, creator, length, bpm, background_path) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?);";
+        String query = "INSERT INTO beatmap_sets (id, title, artist, creator, length, bpm) " +
+                "VALUES (?, ?, ?, ?, ?, ?);";
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setInt(1, beatmapSetId);
@@ -78,7 +76,6 @@ public class BeatmapRepository {
             statement.setString(4, creator);
             statement.setString(5, length);
             statement.setInt(6, bpm);
-            statement.setString(7, backgroundFile);
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);

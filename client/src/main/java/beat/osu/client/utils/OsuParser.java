@@ -68,7 +68,7 @@ public class OsuParser {
         String creator = metadata.get("Creator");
 
         beatmapController.insertBeatmapSet(beatmapSetId, title, artist,
-                creator, timeString, getBGM(), getBgFile());
+                creator, timeString, getBGM());
     }
 
     public static void insertData() {
