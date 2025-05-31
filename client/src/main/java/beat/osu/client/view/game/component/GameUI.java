@@ -16,7 +16,6 @@ public class GameUI extends Pane {
     private final Label comboLabel;
     private final Label accuracyLabel;
     private final ProgressBar healthBar;
-    private final Label gameStatusLabel;
     private final Label hitResultLabel;
 
     public GameUI() {
@@ -50,13 +49,8 @@ public class GameUI extends Pane {
         healthLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 12));
         healthLabel.setTextFill(Color.WHITE);
 
-        // Game status
-        gameStatusLabel = new Label("Playing");
-        gameStatusLabel.setFont(Font.font("Arial", FontWeight.BOLD, 16));
-        gameStatusLabel.setTextFill(Color.CYAN);
-
         VBox topLeftPanel = new VBox(5);
-        topLeftPanel.getChildren().addAll(healthLabel, healthBar, gameStatusLabel);
+        topLeftPanel.getChildren().addAll(healthLabel, healthBar);
         topLeftPanel.setLayoutX(10);
         topLeftPanel.setLayoutY(10);
 

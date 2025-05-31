@@ -104,8 +104,8 @@ public class HitCircle extends HitObject{
     @Override
     public void hide() {
         // Could add a fade out here too for misses
-        setVisible(false);
         group.setVisible(false);
+        setVisible(false);
         // remove from parent pane on hide/miss as well
         if(group.getParent() instanceof Pane) {
             ((Pane) group.getParent()).getChildren().remove(group);

@@ -1,6 +1,5 @@
 package beat.osu.client.model;
 
-import beat.osu.client.helper.SfxManager;
 import beat.osu.client.utils.OsuParser;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
@@ -42,7 +41,7 @@ public class HitSlider extends HitObject {
     private double duration; // Duration of a SINGLE traversal of the slider in milliseconds
     private boolean headHit = false;
     private List<MediaPlayer> activePlayers = new ArrayList<>();
-    private boolean sfxPlayed = false;
+//    private boolean sfxPlayed = false;
     private ScaleTransition approachAnimation;
 
     // Visual Constants
@@ -440,20 +439,20 @@ public class HitSlider extends HitObject {
         }
 
         if (headHit) {
-            if (!sfxPlayed) {
-                for (String sfx : getSfxFilenames()) {
-                    MediaPlayer player = SfxManager.createSfxPlayer(sfx);
-                    if (player != null) {
-                        activePlayers.add(player);
-                        player.setOnEndOfMedia(() -> {
-                            player.dispose();
-                            activePlayers.remove(player);
-                        });
-                        player.play();
-                    }
-                }
-                sfxPlayed = true;
-            }
+//            if (!sfxPlayed) {
+//                for (String sfx : getSfxFilenames()) {
+//                    MediaPlayer player = SfxManager.createSfxPlayer(sfx);
+//                    if (player != null) {
+//                        activePlayers.add(player);
+//                        player.setOnEndOfMedia(() -> {
+//                            player.dispose();
+//                            activePlayers.remove(player);
+//                        });
+//                        player.play();
+//                    }
+//                }
+//                sfxPlayed = true;
+//            }
 
             if (getCurrTime() <= endTime) { // Ball is moving
                 tempGroup.setVisible(false);

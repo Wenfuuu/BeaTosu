@@ -13,11 +13,10 @@ import beat.osu.client.interfaces.Subject;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.HitCircle;
 import beat.osu.client.model.HitObject;
+import beat.osu.client.model.HitSlider;
 import beat.osu.client.utils.OsuParser;
 import javafx.animation.AnimationTimer;
-import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
-import javafx.animation.Timeline;
 import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
 import lombok.Getter;
@@ -150,7 +149,10 @@ public class GameManager implements Subject {
     }
 
     public void stopGame() {
-
+        System.out.println("all hit objects processed, stopping game");
+        gameState = GameState.COMPLETED;
+        gameLoop.stop();
+        notifyObservers(new GameEvent(GameEventType.GAME_ENDED, null));
     }
 
     private void updateGame(long elapsedMillis) {
@@ -206,12 +208,23 @@ public class GameManager implements Subject {
                 if (elapsedMillis > hitObject.getHitTime() + getHitWindow()) {
                     handleMiss(hitObject);
                     iterator.remove(); // Remove hit object after handling miss
+                    System.out.println("Removing missed HitObject: " + hitObject);
                 }
+            }
+            if(hitObject.isHit() && !hitObject.isVisible()) {
+                // If the hit object is already hit and not visible, remove it
+                iterator.remove();
+                System.out.println("Removing HitObject after it was hit and is no longer visible: " + hitObject);
             }
         }
 
         previousKeys.clear();
         previousKeys.addAll(currentKeys);
+
+        System.out.println("hit objects remaining: " + hitObjects.size());
+        if(hitObjects.isEmpty()) {
+            stopGame();
+        }
     }
 
     private boolean checkHitObjectClick(HitObject hitObject, long elapsedMillis) {
@@ -239,6 +252,7 @@ public class GameManager implements Subject {
     }
 
     private void handleHit(HitObject hitObject, long timingError) {
+        if(hitObject instanceof HitCircle) hitObject.setVisible(false);
         if(hitObject.isNewCombo()) {
             perfectCombo = true;
             imperfectOrMissed = false;
@@ -248,7 +262,7 @@ public class GameManager implements Subject {
         hitObject.playHitEffect();
         // play sfx
         for(String sfx : hitObject.getSfxFilenames()) {
-            if(hitObject instanceof HitCircle) SfxManager.playSfx(sfx);
+            SfxManager.playSfx(sfx);
         }
 
         masterComboNumber++;
@@ -320,7 +334,7 @@ public class GameManager implements Subject {
         updateAccuracy();
 
         // Update health (missing decreases health)
-        health = Math.max(0, health - beatmap.getHpDrainRate());
+//        health = Math.max(0, health - beatmap.getHpDrainRate());
 
         // Notify observers
         notifyObservers(new GameEvent(GameEventType.COMBO_CHANGED,
@@ -336,6 +350,7 @@ public class GameManager implements Subject {
 
         // Check for game over (health reaches 0)
         if (health <= 0) {
+            System.out.println("hp reached 0, stopping game");
             stopGame();
         }
     }

@@ -13,6 +13,7 @@ import beat.osu.client.model.HitObject;
 import beat.osu.client.view.Page;
 import beat.osu.client.view.game.component.GameUI;
 import beat.osu.client.view.game.component.PauseOverlay;
+import beat.osu.client.view.game.component.ResultOverlay;
 import beat.osu.client.view.home.HomeView;
 import javafx.animation.*;
 import javafx.application.Platform;
@@ -47,6 +48,7 @@ public class GameView extends Page implements Observer {
     private Pane gamePane;
     private GameUI uiPane;
     private PauseOverlay pauseOverlay;
+    private ResultOverlay resultOverlay;
 
     private final Beatmap beatmap;
     private final GameManager gm;
@@ -77,9 +79,10 @@ public class GameView extends Page implements Observer {
     private void initializeUI() {
         uiPane = new GameUI();
         pauseOverlay = new PauseOverlay();
+        resultOverlay = new ResultOverlay();
         createGamePane();
 
-        root.getChildren().addAll(gamePane, uiPane, pauseOverlay);
+        root.getChildren().addAll(gamePane, uiPane, pauseOverlay, resultOverlay);
     }
 
     private void createGamePane() {
@@ -265,8 +268,6 @@ public class GameView extends Page implements Observer {
     }
 
     private void updateLayout() {
-//        double paneWidth = ScreenManager.SCREEN_WIDTH;
-//        double paneHeight = ScreenManager.SCREEN_HEIGHT;
         double paneWidth = root.getWidth();
         double paneHeight = root.getHeight();
         System.out.println("Pane Width: " + paneWidth);
@@ -418,6 +419,9 @@ public class GameView extends Page implements Observer {
                 System.out.println("resuming game, hide pause menu here");
                 pauseOverlay.setVisible(false);
                 stage.setFullScreen(true);
+                break;
+            case GAME_ENDED:
+                resultOverlay.setVisible(true);
                 break;
         }
     }
