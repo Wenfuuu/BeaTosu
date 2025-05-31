@@ -7,11 +7,8 @@ import lombok.Setter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class ServerConnection {
@@ -25,7 +22,7 @@ public class ServerConnection {
     private boolean connected = false;
 
     private final BlockingQueue<Object> messageQueue = new LinkedBlockingQueue<>();
-    private final Map<String, CompletableFuture<Object>> pendingRequests = new ConcurrentHashMap<>();
+    private final BlockingQueue<CompletableFuture<Object>> pendingRequests = new LinkedBlockingQueue<>();
 
     @Setter
     private MessageCallback realtimeCallback;
@@ -69,17 +66,12 @@ public class ServerConnection {
     }
 
     private void handleServerMessage(Object message) {
-        if (!pendingRequests.isEmpty()) {
-            // Get the first pending request (FIFO) - since ConcurrentHashMap doesn't guarantee order
-            String firstRequestId = pendingRequests.keySet().iterator().next();
-            CompletableFuture<Object> future = pendingRequests.remove(firstRequestId);
-            if (future != null) {
-                future.complete(message);
-                return;
-            }
+        CompletableFuture<Object> future = pendingRequests.poll();
+        if (future != null) {
+            future.complete(message);
+            return;
         }
 
-        // If no pending requests or realtime callback is set, handle as realtime message
         if (realtimeCallback != null) {
             realtimeCallback.onMessage(message);
         } else {
@@ -92,13 +84,13 @@ public class ServerConnection {
         CompletableFuture<Object> future = new CompletableFuture<>();
 
         try {
-            pendingRequests.put(message.getId(), future);
+            pendingRequests.offer(future);
             oos.writeObject(message);
             oos.flush();
         } catch (Exception e) {
             System.err.println("ServerConnection: Error sending message: " + e.getMessage());
             future.completeExceptionally(e);
-            pendingRequests.remove(message.getId());
+            pendingRequests.remove(future);
         }
 
         return future;
