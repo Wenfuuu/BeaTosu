@@ -12,7 +12,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage)  {
-        ClientService clientService = new ClientService();
+        ClientService clientService = ClientService.getInstance();
         if (!clientService.connect()) {
             System.out.println("Failed to connect to server");
         }

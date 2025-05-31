@@ -5,10 +5,22 @@ import lombok.Getter;
 
 @Getter
 public class ClientService {
+    private static volatile ClientService instance;
     private final ServerConnection connection;
 
-    public ClientService() {
+    private ClientService() {
         this.connection = new ServerConnection();
+    }
+
+    public static ClientService getInstance() {
+        if (instance == null) {
+            synchronized (ClientService.class) {
+                if (instance == null) {
+                    instance = new ClientService();
+                }
+            }
+        }
+        return instance;
     }
 
     public boolean connect() {
