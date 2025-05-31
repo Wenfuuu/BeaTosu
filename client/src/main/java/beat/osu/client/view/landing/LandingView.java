@@ -1,9 +1,6 @@
 package beat.osu.client.view.landing;
 
-import beat.osu.client.helper.BackgroundManager;
-import beat.osu.client.helper.BgmManager;
-import beat.osu.client.helper.CssManager;
-import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.*;
 import beat.osu.client.view.Page;
 import beat.osu.client.view.home.HomeView;
 import beat.osu.client.view.landing.component.*;
@@ -11,12 +8,14 @@ import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.CacheHint;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 import java.net.URL;
@@ -298,7 +297,7 @@ public class LandingView extends Page {
             toggleMenuPanel();
         });
         menuButtonsComponent.getExitButton().setOnMouseClicked(e -> {
-            ((Stage) scene.getWindow()).close();
+            stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
         });
 
         subMenuButtonsComponent.getSoloButton().setOnMouseClicked(e -> {

@@ -3,8 +3,8 @@ package beat.osu.client.service;
 import beat.osu.client.connection.ServerConnection;
 import lombok.Getter;
 
+@Getter
 public class ClientService {
-    @Getter
     private final ServerConnection connection;
 
     public ClientService() {
