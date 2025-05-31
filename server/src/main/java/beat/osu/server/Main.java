@@ -18,8 +18,8 @@ public class Main {
     public Main() {
         UserRepository userRepository = new UserRepository();
 
-        AuthService authService = new AuthService(userRepository);
         SessionService sessionService = new SessionService();
+        AuthService authService = new AuthService(userRepository, sessionService);
 
         MessageRouter messageRouter = new MessageRouter(authService);
 

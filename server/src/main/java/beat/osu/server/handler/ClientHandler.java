@@ -33,7 +33,7 @@ public class ClientHandler implements Runnable {
             activeClients.put(clientId, this);
             sessionService.createSession(clientId);
 
-            System.out.println("Client connected from address: " + clientSocket.getInetAddress() + ": " + clientSocket.getPort() + " with ID: " + clientId);
+            System.out.println("Client connected from address: " + clientSocket.getInetAddress() + ": " + clientSocket.getPort() + " with client ID: " + clientId);
 
             Object receivedObject;
             while ((receivedObject = ois.readObject()) != null) {

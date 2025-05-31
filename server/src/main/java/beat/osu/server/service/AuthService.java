@@ -3,7 +3,10 @@ package beat.osu.server.service;
 import beat.osu.server.repositories.UserRepository;
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
+import beat.osu.shared.dto.auth.UserDto;
+import beat.osu.shared.dto.auth.requests.LoginRequest;
 import beat.osu.shared.dto.auth.requests.RegisterRequest;
+import beat.osu.shared.dto.auth.responses.LoginResponse;
 import beat.osu.shared.dto.auth.responses.RegisterResponse;
 import lombok.AllArgsConstructor;
 
@@ -11,9 +14,22 @@ import lombok.AllArgsConstructor;
 public class AuthService {
 
     private UserRepository userRepository;
+    private SessionService sessionService;
 
     public Result<RegisterResponse> registerUser(RegisterRequest request, String clientId) {
         try {
+            if (request.getUsername().isBlank() || request.getEmail().isBlank() || request.getPassword().isBlank()) {
+                return Result.failure(Error.validation("There are empty fields!"));
+            }
+
+            if (!request.getEmail().endsWith("@gmail.com")) {
+                return Result.failure(Error.validation("Invalid email format!"));
+            }
+
+            if (request.getPassword().length() < 8) {
+                return Result.failure(Error.validation("Password must be at least 8 characters!"));
+            }
+
             userRepository.InsertUser(request.getUsername(), request.getPassword(), request.getEmail(), request.getCountryCode());
 
             boolean success = true;
@@ -22,6 +38,33 @@ public class AuthService {
             return Result.success(new RegisterResponse(success, message));
         } catch (Exception e) {
             return Result.failure(Error.internal("Registration failed: " + e.getMessage()));
+        }
+    }
+
+    public Result<LoginResponse> loginUser(LoginRequest request, String clientId) {
+        try {
+            if (request.getUsername().isBlank() || request.getPassword().isBlank()) {
+                return Result.failure(Error.validation("There are empty fields!"));
+            }
+
+            var user = userRepository.findUserByUsername(request.getUsername());
+            if (user == null) {
+                return Result.failure(Error.validation("User not found!"));
+            }
+
+            if (!user.getPasswordHash().equals(request.getPassword())) {
+                return Result.failure(Error.validation("Invalid password!"));
+            }
+
+            sessionService.setSessionData(clientId, "userId", user.getId());
+
+            String message = "Successfully logged in as " + user.getUsername() + "!";
+            UserDto userData = new UserDto(user.getId(), user.getUsername(), user.getEmail(), user.getCountryCode(),
+                    user.getProfilePicture(), user.getPerformance(), user.getAccuracy(), user.getPlayCount(), user.getLevel());
+
+            return Result.success(new LoginResponse(message, userData));
+        } catch (Exception e) {
+            return Result.failure(Error.internal("Login failed: " + e.getMessage()));
         }
     }
 }

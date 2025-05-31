@@ -1,5 +1,6 @@
 package beat.osu.shared.dto.auth.responses;
 
+import beat.osu.shared.dto.auth.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,8 +11,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LoginResponse implements Serializable {
-    private boolean success;
     private String message;
-
-    // TODO: Add user details
+    private UserDto user;
 }
