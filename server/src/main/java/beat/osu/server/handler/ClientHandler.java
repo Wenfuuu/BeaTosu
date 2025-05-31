@@ -2,6 +2,7 @@ package beat.osu.server.handler;
 
 import beat.osu.server.router.MessageRouter;
 import beat.osu.server.service.SessionService;
+import beat.osu.shared.enums.MessageAction;
 import beat.osu.shared.models.Message;
 import lombok.RequiredArgsConstructor;
 
@@ -52,7 +53,7 @@ public class ClientHandler implements Runnable {
 
     private void handleMessage(Message message) {
         try {
-            if (message.getAction().equals("DISCONNECT")) {
+            if (message.getAction() == MessageAction.DISCONNECT) {
                 sendResponse(Map.of("status", "goodbye"));
                 return;
             }

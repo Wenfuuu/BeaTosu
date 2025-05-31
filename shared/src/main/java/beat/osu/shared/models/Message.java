@@ -1,5 +1,6 @@
 package beat.osu.shared.models;
 
+import beat.osu.shared.enums.MessageAction;
 import beat.osu.shared.enums.MessageType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +15,7 @@ public class Message implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private MessageType type;
-    private String action;
+    private MessageAction action;
     private Object payload;
     private Long timestamp;
 }

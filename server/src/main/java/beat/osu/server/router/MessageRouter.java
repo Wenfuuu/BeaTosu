@@ -24,9 +24,9 @@ public class MessageRouter {
 
     private Object handleAuthMessage(Message message, String clientId) {
         switch (message.getAction()) {
-            case "register":
+            case REGISTER:
                 return authService.registerUser((RegisterRequest) message.getPayload(), clientId);
-            case "login":
+            case LOGIN:
                 return authService.loginUser((LoginRequest) message.getPayload(), clientId);
             default:
                 return Result.failure(Error.validation("Unknown authentication action: " + message.getAction()));

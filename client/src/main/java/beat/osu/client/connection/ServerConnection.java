@@ -1,5 +1,6 @@
 package beat.osu.client.connection;
 
+import beat.osu.shared.enums.MessageAction;
 import beat.osu.shared.enums.MessageType;
 import beat.osu.shared.models.Message;
 import lombok.Setter;
@@ -113,7 +114,7 @@ public class ServerConnection {
                 readerThread.interrupt();
             }
             if (oos != null) {
-                Message disconnectMsg = new Message(MessageType.SYSTEM, "DISCONNECT",
+                Message disconnectMsg = new Message(MessageType.SYSTEM, MessageAction.DISCONNECT,
                         null, System.currentTimeMillis());
                 oos.writeObject(disconnectMsg);
                 oos.flush();
