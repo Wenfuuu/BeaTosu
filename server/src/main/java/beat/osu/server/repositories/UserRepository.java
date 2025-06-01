@@ -14,7 +14,7 @@ public class UserRepository {
         this.conn = Connect.getInstance().getConn();
     }
 
-    public void InsertUser(String username, String email, String password, String countryCode) {
+    public void insertUser(String username, String email, String password, String countryCode) {
         String query = "INSERT INTO users (username, email, password_hash, country_code, performance, accuracy, play_count, level) " +
                 "VALUES (?, ?, ?, ?, 0, 0.00, 0, 1);";
         try {

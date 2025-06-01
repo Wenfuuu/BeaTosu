@@ -18,6 +18,4 @@ public class Beatmap {
     private double slideMultiplier;
     private double sliderTickRate;
     private double starRating;
-
-    private BeatmapSet beatmapSet;
 }

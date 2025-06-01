@@ -16,7 +16,7 @@ public class BeatmapSetRepository {
         conn = Connect.getInstance().getConn();
     }
 
-    public ArrayList<BeatmapSet> fetchBeatmapSets() {
+    public ArrayList<BeatmapSet> getAllBeatmapSets() {
         ArrayList<BeatmapSet> beatmapSets = new ArrayList<>();
 
         String query = "SELECT * FROM beatmap_sets ORDER BY id ASC;";

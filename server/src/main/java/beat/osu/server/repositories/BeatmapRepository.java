@@ -17,39 +17,26 @@ public class BeatmapRepository {
         conn = Connect.getInstance().getConn();
     }
 
-    public ArrayList<Beatmap> fetchBeatmaps() {
+    public ArrayList<Beatmap> getAllBeatmaps() {
         ArrayList<Beatmap> beatmaps = new ArrayList<>();
 
-        String query = "SELECT * FROM beatmaps bm " +
-                "JOIN beatmap_sets bs ON bm.beatmap_set_id = bs.id " +
-                "ORDER BY bs.id ASC, star_rating ASC;";
+        String query = "SELECT * FROM beatmaps ORDER BY beatmap_set_id ASC, star_rating ASC;";
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
             while(rs.next()) {
-                BeatmapSet set = new BeatmapSet(
-                        rs.getInt("bs.id"),
-                        rs.getString("bs.title"),
-                        rs.getString("bs.artist"),
-                        rs.getString("bs.creator"),
-                        rs.getString("bs.length"),
-                        rs.getInt("bs.bpm")
-                );
-
                 Beatmap bm = new Beatmap(
-                        rs.getInt("bm.id"),
-                        rs.getInt("bm.beatmap_set_id"),
-                        rs.getString("bm.version"),
-                        rs.getDouble("bm.hp_drain_rate"),
-                        rs.getDouble("bm.circle_size"),
-                        rs.getDouble("bm.overall_difficulty"),
-                        rs.getDouble("bm.approach_rate"),
-                        rs.getDouble("bm.slide_multiplier"),
-                        rs.getDouble("bm.slider_tick_rate"),
-                        rs.getDouble("bm.star_rating"),
-                        set
+                        rs.getInt("id"),
+                        rs.getInt("beatmap_set_id"),
+                        rs.getString("version"),
+                        rs.getDouble("hp_drain_rate"),
+                        rs.getDouble("circle_size"),
+                        rs.getDouble("overall_difficulty"),
+                        rs.getDouble("approach_rate"),
+                        rs.getDouble("slide_multiplier"),
+                        rs.getDouble("slider_tick_rate"),
+                        rs.getDouble("star_rating")
                 );
-
                 beatmaps.add(bm);
             }
         } catch (SQLException e) {
@@ -59,7 +46,7 @@ public class BeatmapRepository {
     }
 
     public void insertBeatmap(
-            int beatmapId,
+            int id,
             int beatmapSetId,
             String version,
             double hpDrainRate,
@@ -75,7 +62,7 @@ public class BeatmapRepository {
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
         try {
             PreparedStatement statement = conn.prepareStatement(query);
-            statement.setInt(1, beatmapId);
+            statement.setInt(1, id);
             statement.setInt(2, beatmapSetId);
             statement.setString(3, version);
             statement.setDouble(4, hpDrainRate);
