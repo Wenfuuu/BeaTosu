@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class OsuParser {
-    private static BeatmapController beatmapController = new BeatmapController();;
+    private static BeatmapController beatmapController = new BeatmapController();
 
     @Getter
     private static Map<String, String> general = new HashMap<>();
@@ -68,7 +68,16 @@ public class OsuParser {
         String creator = metadata.get("Creator");
 
         beatmapController.insertBeatmapSet(beatmapSetId, title, artist,
-                creator, timeString, getBGM());
+                creator, timeString, getBGM()).thenApply(
+                response -> {
+                    if (response.isSuccess()) {
+                        System.out.println("Beatmap set inserted successfully: " + response.getValue().getMessage());
+                    } else {
+                        System.err.println("Failed to insert beatmap set: " + response.getError().getMessage());
+                    }
+                    return null;
+                }
+        );
     }
 
     public static void insertData() {
@@ -84,9 +93,18 @@ public class OsuParser {
         double starRating = getStarRating(hpDrainRate, circleSize, overallDifficulty,
                 approachRate, slideMultiplier, sliderTickRate);
 
-        beatmapController.insertBeatmap(beatmapId, beatmapSetId, version, hpDrainRate,
-                circleSize, overallDifficulty, approachRate, slideMultiplier,
-                sliderTickRate, starRating);
+        beatmapController.insertBeatmap(beatmapId, beatmapSetId, version,
+                hpDrainRate, circleSize, overallDifficulty, approachRate,
+                slideMultiplier, sliderTickRate, starRating).thenApply(
+                response -> {
+                    if (response.isSuccess()) {
+                        System.out.println("Beatmap inserted successfully: " + response.getValue().getMessage());
+                    } else {
+                        System.err.println("Failed to insert beatmap: " + response.getError().getMessage());
+                    }
+                    return null;
+                }
+        );
     }
 
     public static String getOszPath(Beatmap beatmap) {

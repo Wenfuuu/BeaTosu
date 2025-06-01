@@ -1,6 +1,5 @@
 package beat.osu.shared.dto.beatmap.requests;
 
-import beat.osu.shared.dto.beatmap.BeatmapDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,5 +10,14 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InsertBeatmapRequest implements Serializable {
-    private BeatmapDto beatmapDto;
+    private int id;
+    private int beatmapSetId;
+    private String version;
+    private double hpDrainRate;
+    private double circleSize;
+    private double overallDifficulty;
+    private double approachRate;
+    private double slideMultiplier;
+    private double sliderTickRate;
+    private double starRating;
 }

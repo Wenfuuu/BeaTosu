@@ -78,23 +78,21 @@ public class BeatmapService {
     }
 
     public Result<InsertBeatmapSetResponse> insertBeatmapSet(InsertBeatmapSetRequest request) {
-        BeatmapSetDto beatmapSetDto = request.getBeatmapSetDto();
-
-        if (beatmapSetDto == null) {
+        if (request == null) {
             return Result.failure(Error.badRequest("Beatmap set data is missing"));
         }
 
         try {
             beatmapSetRepository.insertBeatmapSet(
-                    beatmapSetDto.getId(),
-                    beatmapSetDto.getTitle(),
-                    beatmapSetDto.getArtist(),
-                    beatmapSetDto.getCreator(),
-                    beatmapSetDto.getLength(),
-                    beatmapSetDto.getBpm()
+                    request.getId(),
+                    request.getTitle(),
+                    request.getArtist(),
+                    request.getCreator(),
+                    request.getLength(),
+                    request.getBpm()
             );
 
-            String message = "Beatmap set inserted successfully with ID: " + beatmapSetDto.getId();
+            String message = "Beatmap set inserted successfully with ID: " + request.getId();
             return Result.success(new InsertBeatmapSetResponse(true, message));
 
         } catch (RuntimeException e) {
@@ -104,32 +102,30 @@ public class BeatmapService {
 
     public Result<InsertBeatmapSetResponse> insertBeatmap(InsertBeatmapRequest request) {
         try {
-            BeatmapDto beatmapDto = request.getBeatmapDto();
-
-            if (beatmapDto == null) {
+            if (request == null) {
                 return Result.failure(Error.badRequest("Beatmap data is missing"));
             }
 
-            BeatmapSet beatmapSet = beatmapSetRepository.getBeatmapSetById(beatmapDto.getBeatmapSetId());
+            BeatmapSet beatmapSet = beatmapSetRepository.getBeatmapSetById(request.getBeatmapSetId());
 
             if (beatmapSet == null) {
-                return Result.failure(Error.notFound("Beatmap set not found for ID: " + beatmapDto.getBeatmapSetId()));
+                return Result.failure(Error.notFound("Beatmap set not found for ID: " + request.getBeatmapSetId()));
             }
 
             beatmapRepository.insertBeatmap(
-                    beatmapDto.getId(),
-                    beatmapDto.getBeatmapSetId(),
-                    beatmapDto.getVersion(),
-                    beatmapDto.getHpDrainRate(),
-                    beatmapDto.getCircleSize(),
-                    beatmapDto.getOverallDifficulty(),
-                    beatmapDto.getApproachRate(),
-                    beatmapDto.getSlideMultiplier(),
-                    beatmapDto.getSliderTickRate(),
-                    beatmapDto.getStarRating()
+                    request.getId(),
+                    request.getBeatmapSetId(),
+                    request.getVersion(),
+                    request.getHpDrainRate(),
+                    request.getCircleSize(),
+                    request.getOverallDifficulty(),
+                    request.getApproachRate(),
+                    request.getSlideMultiplier(),
+                    request.getSliderTickRate(),
+                    request.getStarRating()
             );
 
-            String message = "Beatmap inserted successfully with ID: " + beatmapDto.getId();
+            String message = "Beatmap inserted successfully with ID: " + request.getId();
             return Result.success(new InsertBeatmapSetResponse(true, message));
 
         } catch (RuntimeException e) {

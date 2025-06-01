@@ -1,8 +1,6 @@
 package beat.osu.client.view.home;
 
 import beat.osu.client.controller.BeatmapController;
-import beat.osu.client.controller.ServerBeatmapController;
-import beat.osu.client.factory.HitObjectFactory;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
@@ -16,12 +14,8 @@ import beat.osu.client.view.home.component.BeatmapPane;
 import beat.osu.client.view.home.component.BottomBar;
 import beat.osu.client.view.home.component.TopBar;
 import beat.osu.shared.common.Result;
-import beat.osu.shared.dto.beatmap.BeatmapDto;
-import beat.osu.shared.dto.beatmap.BeatmapSetDto;
 import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
-import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -36,7 +30,7 @@ import java.util.Set;
 
 public class HomeView extends Page {
 
-    private ServerBeatmapController beatmapController;
+    private BeatmapController beatmapController;
 
     private StackPane root;
     private BorderPane mainLayout;
@@ -55,7 +49,7 @@ public class HomeView extends Page {
 
     @Override
     public void init() {
-        beatmapController = new ServerBeatmapController();
+        beatmapController = new BeatmapController();
 
         root = new StackPane();
         root.getStyleClass().add("root");

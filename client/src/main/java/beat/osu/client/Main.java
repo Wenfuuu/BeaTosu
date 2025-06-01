@@ -25,9 +25,9 @@ public class Main extends Application {
             Platform.exit();
         });
 
-        new LandingView(StageManager.getStage());
+//        new LandingView(StageManager.getStage());
 //        new HomeView(StageManager.getStage());
-//        new UploadPage(StageManager.getStage());
+        new UploadPage(StageManager.getStage());
     }
 
     public static void main(String[] args) {

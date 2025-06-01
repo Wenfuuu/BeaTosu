@@ -1,34 +1,77 @@
 package beat.osu.client.controller;
 
-import beat.osu.client.database.BeatmapRepository;
-import beat.osu.client.model.Beatmap;
+import beat.osu.client.service.ClientService;
+import beat.osu.shared.common.Error;
+import beat.osu.shared.common.Result;
+import beat.osu.shared.dto.beatmap.requests.InsertBeatmapRequest;
+import beat.osu.shared.dto.beatmap.requests.InsertBeatmapSetRequest;
+import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
+import beat.osu.shared.dto.beatmap.responses.InsertBeatmapResponse;
+import beat.osu.shared.dto.beatmap.responses.InsertBeatmapSetResponse;
+import beat.osu.shared.enums.MessageAction;
+import beat.osu.shared.enums.MessageType;
+import beat.osu.shared.models.Message;
 
-import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
 
 public class BeatmapController {
-    private final BeatmapRepository beatmapRepository;
+    private final ClientService clientService;
 
     public BeatmapController() {
-        this.beatmapRepository = new BeatmapRepository();
+        this.clientService = ClientService.getInstance();
     }
 
-    public ArrayList<Beatmap> fetchBeatmaps() {
-        return beatmapRepository.fetchBeatmaps();
+    public CompletableFuture<Result<GetAllBeatmapsResponse>> getAllBeatmaps() {
+        Message getAllBeatmapsMessage = new Message(MessageType.BEATMAP,
+                MessageAction.GET_ALL_BEATMAPS, null, System.currentTimeMillis());
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendMessage(getAllBeatmapsMessage).get();
+
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((GetAllBeatmapsResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
     }
 
-    public void insertBeatmapSet(
-            int beatmapSetId,
+    public CompletableFuture<Result<InsertBeatmapSetResponse>> insertBeatmapSet (
+            int id,
             String title,
             String artist,
             String creator,
             String length,
             int bpm
     ) {
-        beatmapRepository.insertBeatmapSet(beatmapSetId, title, artist, creator, length, bpm);
+        InsertBeatmapSetRequest request = new InsertBeatmapSetRequest(id, title, artist, creator, length, bpm);
+
+        Message insertBeatmapSetMessage = new Message(MessageType.BEATMAP,
+                MessageAction.INSERT_BEATMAP_SET, request, System.currentTimeMillis());
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendMessage(insertBeatmapSetMessage).get();
+
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((InsertBeatmapSetResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
     }
 
-    public void insertBeatmap(
-            int beatmapId,
+    public CompletableFuture<Result<InsertBeatmapResponse>> insertBeatmap (
+            int id,
             int beatmapSetId,
             String version,
             double hpDrainRate,
@@ -39,6 +82,26 @@ public class BeatmapController {
             double sliderTickRate,
             double starRating
     ) {
-        beatmapRepository.insertBeatmap(beatmapId, beatmapSetId, version, hpDrainRate, circleSize, overallDifficulty, approachRate, slideMultiplier, sliderTickRate, starRating);
+        InsertBeatmapRequest request = new InsertBeatmapRequest(id, beatmapSetId, version, hpDrainRate, circleSize,
+                overallDifficulty, approachRate, slideMultiplier, sliderTickRate, starRating);
+
+
+        Message insertBeatmapMessage = new Message(MessageType.BEATMAP,
+                MessageAction.INSERT_BEATMAP, request, System.currentTimeMillis());
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendMessage(insertBeatmapMessage).get();
+
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((InsertBeatmapResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
     }
 }
