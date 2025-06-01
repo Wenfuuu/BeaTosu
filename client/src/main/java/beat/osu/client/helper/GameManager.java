@@ -4,10 +4,7 @@ import beat.osu.client.enums.GameEventType;
 import beat.osu.client.enums.GameState;
 import beat.osu.client.enums.HitResult;
 import beat.osu.client.factory.HitObjectFactory;
-import beat.osu.client.game.ComboChangeData;
-import beat.osu.client.game.GameEvent;
-import beat.osu.client.game.HitObjectEventData;
-import beat.osu.client.game.ScoreChangeData;
+import beat.osu.client.game.*;
 import beat.osu.client.interfaces.Observer;
 import beat.osu.client.interfaces.Subject;
 import beat.osu.client.model.Beatmap;
@@ -174,7 +171,10 @@ public class GameManager implements Subject {
         String grade = calculateGrade();
         System.out.println("Game ended with grade: " + grade);
 
-        notifyObservers(new GameEvent(GameEventType.GAME_ENDED, null));
+        notifyObservers(new GameEvent(GameEventType.GAME_ENDED, new GameEndData(
+                score, perfectHits, gekiHits, greatHits, greatKatuHits, goodHits,
+                misses, highestCombo, accuracy, grade
+        )));
     }
 
     private void updateGame(long elapsedMillis) {

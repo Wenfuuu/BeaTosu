@@ -2,10 +2,7 @@ package beat.osu.client.view.game;
 
 import beat.osu.client.Main;
 import beat.osu.client.enums.HitResult;
-import beat.osu.client.game.ComboChangeData;
-import beat.osu.client.game.GameEvent;
-import beat.osu.client.game.HitObjectEventData;
-import beat.osu.client.game.ScoreChangeData;
+import beat.osu.client.game.*;
 import beat.osu.client.helper.*;
 import beat.osu.client.interfaces.Observer;
 import beat.osu.client.model.Beatmap;
@@ -421,6 +418,10 @@ public class GameView extends Page implements Observer {
                 stage.setFullScreen(true);
                 break;
             case GAME_ENDED:
+                GameEndData gameEndData = event.getData(GameEndData.class);
+                if(gameEndData != null) {
+                    resultOverlay.updateResult(gameEndData, beatmap);
+                }
                 resultOverlay.setVisible(true);
                 break;
         }

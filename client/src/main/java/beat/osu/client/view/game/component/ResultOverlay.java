@@ -1,8 +1,9 @@
 package beat.osu.client.view.game.component;
 
 import beat.osu.client.Main;
+import beat.osu.client.game.GameEndData;
 import beat.osu.client.helper.ScreenManager;
-import javafx.geometry.Insets;
+import beat.osu.client.model.Beatmap;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -14,16 +15,19 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class ResultOverlay extends BorderPane {
     private Label scoreLabel;
     private Label songTitleLabel;
+    private Label mapperLabel;
     private Label playedLabel;
     private Label comboLabel;
     private Label accuracyLabel;
     private VBox hitCountsBox;
-    private Label rankLabel;
+    private Label gradeLabel;
     private Button retryButton;
     private Button backButton;
     private ImageView rankingView;
@@ -36,10 +40,32 @@ public class ResultOverlay extends BorderPane {
         setupStyling();
     }
 
+    public void updateResult(GameEndData gameEndData, Beatmap beatmap) {
+        String songTitle = String.format("%s - %s [%s]",
+                beatmap.getBeatmapSet().getArtist(), beatmap.getBeatmapSet().getTitle(), beatmap.getVersion());
+        songTitleLabel.setText(songTitle);
+        mapperLabel.setText("Beatmap by " + beatmap.getBeatmapSet().getCreator());
+
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        String formatted = now.format(formatter);
+        playedLabel.setText("Played by Guest on " + formatted + ".");
+
+        scoreLabel.setText(String.valueOf(gameEndData.getScore()));
+        comboLabel.setText(gameEndData.getHighestCombo() + "x");
+        accuracyLabel.setText(String.format("%.2f%%", gameEndData.getAccuracy()));
+        gradeLabel.setText(gameEndData.getGrade());
+
+        setupHitCounts(gameEndData.getPerfectHits(), gameEndData.getGekiHits(),
+                gameEndData.getGreatHits(), gameEndData.getKatuHits(),
+                gameEndData.getGoodHits(), gameEndData.getMisses());
+    }
+
     private void initializeComponents() {
         // Song info
         songTitleLabel = new Label("Aoi Eir - Lament [pkhg's Hard]");
-        playedLabel = new Label("Played by Rahzentia on 10/10/2013 04:30:28.");
+        mapperLabel = new Label("Beatmap by bt24-2");
+        playedLabel = new Label("Played by bt24-2 on 10/10/2013 04:30:28.");
 
         // Score display
         scoreLabel = new Label("03241090");
@@ -50,10 +76,10 @@ public class ResultOverlay extends BorderPane {
 
         // Hit counts container
         hitCountsBox = new VBox(ScreenManager.SCREEN_HEIGHT * 0.09);
-        setupHitCounts();
+//        setupHitCounts();
 
         // Rank
-        rankLabel = new Label("A");
+        gradeLabel = new Label("A");
 
         // Buttons
         retryButton = new Button("Retry");
@@ -68,11 +94,13 @@ public class ResultOverlay extends BorderPane {
         rankingView.setMouseTransparent(true);
     }
 
-    private void setupHitCounts() {
-        // Create hit count rows
-        HBox row1 = createHitCountRow("300", "635x", "激", "91x");
-        HBox row2 = createHitCountRow("100", "26x", "喝", "19x");
-        HBox row3 = createHitCountRow("50", "1x", "×", "7x");
+    private void setupHitCounts(int perfectHits, int gekiHits, int greatHits,
+                                int katuHits, int goodHits, int misses) {
+        hitCountsBox.getChildren().clear();
+
+        HBox row1 = createHitCountRow("300", perfectHits + "x", "激", gekiHits + "x");
+        HBox row2 = createHitCountRow("100", greatHits + "x", "喝", katuHits + "x");
+        HBox row3 = createHitCountRow("50", goodHits + "x", "×", misses + "x");
 
         hitCountsBox.getChildren().addAll(row1, row2, row3);
     }
@@ -110,8 +138,8 @@ public class ResultOverlay extends BorderPane {
     private void setupLayout() {
         // Header section
         VBox headerSection = new VBox(10);
-        headerSection.setAlignment(Pos.CENTER);
-        headerSection.getChildren().addAll(songTitleLabel, playedLabel);
+        headerSection.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
+        headerSection.getChildren().addAll(songTitleLabel, mapperLabel, playedLabel);
 
         // Hit counts panel
         StackPane hitCountsPanel = new StackPane();
@@ -134,7 +162,7 @@ public class ResultOverlay extends BorderPane {
         rankingTitle.setTextFill(Color.WHITE);
         rankingTitle.setFont(Font.font("Arial", FontWeight.BOLD, 18));
 
-        rightStats.getChildren().addAll(rankingTitle, rankLabel, retryButton);
+        rightStats.getChildren().addAll(rankingTitle, gradeLabel, retryButton);
 
         Pane contentPane = new Pane();
         contentPane.getChildren().addAll(rankingView, scoreLabel,
@@ -177,6 +205,9 @@ public class ResultOverlay extends BorderPane {
         songTitleLabel.setTextFill(Color.WHITE);
         songTitleLabel.setFont(Font.font("Arial", FontWeight.BOLD, 24));
 
+        mapperLabel.setTextFill(Color.WHITE);
+        mapperLabel.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+
         // Player name
         playedLabel.setTextFill(Color.WHITE);
         playedLabel.setFont(Font.font("Arial", 14));
@@ -193,14 +224,14 @@ public class ResultOverlay extends BorderPane {
         accuracyLabel.setFont(Font.font("Arial", FontWeight.BOLD, 28));
 
         // Rank
-        rankLabel.setTextFill(Color.LIME);
-        rankLabel.setFont(Font.font("Arial", FontWeight.BOLD, 72));
+        gradeLabel.setTextFill(Color.LIME);
+        gradeLabel.setFont(Font.font("Arial", FontWeight.BOLD, 72));
         DropShadow rankShadow = new DropShadow();
         rankShadow.setColor(Color.BLACK);
         rankShadow.setOffsetX(3);
         rankShadow.setOffsetY(3);
         rankShadow.setRadius(5);
-        rankLabel.setEffect(rankShadow);
+        gradeLabel.setEffect(rankShadow);
 
         // Buttons
         setupButton(retryButton, Color.ORANGE);
