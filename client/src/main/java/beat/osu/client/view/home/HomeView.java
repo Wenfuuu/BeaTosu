@@ -158,8 +158,13 @@ public class HomeView extends Page {
         beatmapPane.setOnBeatmapSelectedListener(beatmap -> {
             topBar.updateSongInfo(beatmap);
             OsuParser.extractAndParse(beatmap);
+            String currentBgmHash = BgmManager.getCurrentBgmHash();
             BgmManager.playPreviewBgm();
-            BackgroundManager.setGameBackground(scene);
+
+            if(!BgmManager.getCurrentBgmHash().equals(currentBgmHash)) {
+                System.out.println("current bgm hash changed, setting game background");
+                BackgroundManager.setGameBackground(scene);
+            }
 
             // sfx testing purpose
 //            for (String data: OsuParser.getHitObjects()) {
