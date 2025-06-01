@@ -13,7 +13,6 @@ import beat.osu.client.interfaces.Subject;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.HitCircle;
 import beat.osu.client.model.HitObject;
-import beat.osu.client.model.HitSlider;
 import beat.osu.client.utils.OsuParser;
 import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
@@ -34,7 +33,7 @@ public class GameManager implements Subject {
     private long startTimeNanos = -1;
     private long pauseStartNanos = -1;
     private long totalPausedNanos = 0;
-    private long gameStartOffset = 2000;
+    private final long gameStartOffset = 2000;
     private GameState gameState = GameState.NOT_STARTED;
     private final InputManager inputManager;
 
@@ -78,6 +77,26 @@ public class GameManager implements Subject {
             if (hitObject.isVisible() && !hitObject.isHit()) {
                 hitObject.resumeAnimations();
             }
+        }
+    }
+
+    private String calculateGrade() {
+        int hitObjectsCount = OsuParser.getHitObjects().size();
+        boolean noMiss = (misses == 0);
+        double perfectPercentage = (double) (perfectHits + gekiHits) / hitObjectsCount * 100;
+        double goodPercentage = (double) goodHits / hitObjectsCount * 100;
+        if (accuracy == 100) {
+            return "SS";
+        } else if (noMiss && perfectPercentage > 90 && goodPercentage <= 1) {
+            return "S";
+        } else if ((noMiss && perfectPercentage > 80) || perfectPercentage > 90) {
+            return "A";
+        } else if ((noMiss && perfectPercentage > 70) || perfectPercentage > 80) {
+            return "B";
+        } else if (perfectPercentage > 60) {
+            return "C";
+        } else {
+            return "D";
         }
     }
 
@@ -152,6 +171,9 @@ public class GameManager implements Subject {
         System.out.println("all hit objects processed, stopping game");
         gameState = GameState.COMPLETED;
         gameLoop.stop();
+        String grade = calculateGrade();
+        System.out.println("Game ended with grade: " + grade);
+
         notifyObservers(new GameEvent(GameEventType.GAME_ENDED, null));
     }
 
