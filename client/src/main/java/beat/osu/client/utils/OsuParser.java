@@ -210,7 +210,7 @@ public class OsuParser {
                 String[] arr = temp.split(",");
                 String fileName = arr[2];
                 bgFileName = fileName.replace("\"", "");
-                if(bgFileName.endsWith(".jpg")) break;
+                if(bgFileName.endsWith(".jpg") || bgFileName.endsWith(".png") || bgFileName.endsWith(".jpeg")) break;
             }
         }
         return bgFileName;
