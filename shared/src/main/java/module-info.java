@@ -10,6 +10,5 @@ module beat.osu.shared {
     exports beat.osu.shared.dto.auth.responses;
 
     exports beat.osu.shared.dto.beatmap;
-    exports beat.osu.shared.dto.beatmap.requests;
     exports beat.osu.shared.dto.beatmap.responses;
 }

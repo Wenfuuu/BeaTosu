@@ -24,6 +24,7 @@ public class HitSlider extends HitObject {
     private final Group tempGroup;
     private final Circle headCircle;
     private final Path sliderPath;
+    private final Path borderPath;
     private final Circle sliderBall;
     private final Circle approachCircle;
     private final Label comboLabel;
@@ -48,7 +49,7 @@ public class HitSlider extends HitObject {
     private final double PATH_STROKE_WIDTH;
     private final double BALL_RADIUS;
     private static final double APPROACH_START_SCALE = 5.0;
-    private static final double APPROACH_STROKE_WIDTH = 2.0;
+    private static final double CIRCLE_STROKE_WIDTH = 3.0;
 
     private double calculateSliderDuration(double baseSliderMultiplier, ArrayList<TimingPoint> timingPoints) {
         TimingPoint activeUninheritedTP = null;
@@ -208,15 +209,18 @@ public class HitSlider extends HitObject {
         // get colors
         Color circleColor = parseColorString(colorString);
         sliderPath = createSliderPath();
-        if (sliderPath != null) {
+        borderPath = createSliderPath();
+        if (sliderPath != null && borderPath != null) {
+            borderPath.setStroke(Color.WHITE);
             sliderPath.setStroke(circleColor);
-            group.getChildren().add(sliderPath);
+
+            group.getChildren().addAll(borderPath, sliderPath);
         }
 
         headCircle = new Circle(0, 0, getCircleRadius());
         headCircle.setFill(circleColor.deriveColor(1, 1, 1, 0.8));
         headCircle.setStroke(Color.WHITE);
-        headCircle.setStrokeWidth(2);
+        headCircle.setStrokeWidth(CIRCLE_STROKE_WIDTH);
 
         comboLabel = new Label(String.valueOf(getComboNumber()));
         comboLabel.setFont(new Font(50));
@@ -233,7 +237,7 @@ public class HitSlider extends HitObject {
         approachCircle = new Circle(0, 0, getCircleRadius());
         approachCircle.setFill(Color.TRANSPARENT);
         approachCircle.setStroke(Color.WHITE);
-        approachCircle.setStrokeWidth(APPROACH_STROKE_WIDTH);
+        approachCircle.setStrokeWidth(CIRCLE_STROKE_WIDTH);
         approachCircle.setScaleX(APPROACH_START_SCALE);
         approachCircle.setScaleY(APPROACH_START_SCALE);
         group.getChildren().add(approachCircle);
@@ -560,6 +564,7 @@ public class HitSlider extends HitObject {
             headCircle.setRadius(scaledRadius);
             approachCircle.setRadius(scaledRadius);
             sliderPath.setStrokeWidth(scaledRadius * 2);
+            borderPath.setStrokeWidth(scaledRadius * 2.1);
             sliderBall.setRadius(scaledRadius * 0.8);
         }
     }

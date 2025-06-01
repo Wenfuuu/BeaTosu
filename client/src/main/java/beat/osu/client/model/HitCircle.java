@@ -26,6 +26,7 @@ public class HitCircle extends HitObject{
 
     // Define visual constants (could be based on CS later)
     private static final double OUTER_RADIUS_START_SCALE = 5.0;
+    private static final double CIRCLE_STROKE_WIDTH = 3.0;
 
     public HitCircle(int osuX, int osuY, long hitTime,
                      int type, int hitSound, String hitSample,
@@ -41,12 +42,12 @@ public class HitCircle extends HitObject{
         innerCircle = new Circle(0, 0, getCircleRadius());
         innerCircle.setFill(circleColor.deriveColor(1, 1, 1, 0.8)); // Example color
         innerCircle.setStroke(Color.WHITE);
-        innerCircle.setStrokeWidth(2);
+        innerCircle.setStrokeWidth(CIRCLE_STROKE_WIDTH);
 
         outerCircle = new Circle(0, 0, getCircleRadius()); // Base radius, will be scaled by animation
         outerCircle.setFill(Color.TRANSPARENT);
         outerCircle.setStroke(Color.WHITE); // Approach circle color
-        outerCircle.setStrokeWidth(2);
+        outerCircle.setStrokeWidth(CIRCLE_STROKE_WIDTH);
 
         comboLabel = new Label(String.valueOf(getComboNumber()));
         comboLabel.setFont(new Font(50));
