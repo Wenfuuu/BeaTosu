@@ -2,6 +2,7 @@ package beat.osu.client.view.landing;
 
 import beat.osu.client.helper.*;
 import beat.osu.client.view.Page;
+import beat.osu.client.view.Toast;
 import beat.osu.client.view.home.HomeView;
 import beat.osu.client.view.landing.component.*;
 import javafx.animation.FadeTransition;
@@ -49,6 +50,8 @@ public class LandingView extends Page {
     public LandingView(Stage stage) {
         super(stage);
         handleEvent();
+
+        new Toast("NIGGER, Welcome to BeaTosu!").show();
     }
 
     private void initMenuRevealAnimations() {

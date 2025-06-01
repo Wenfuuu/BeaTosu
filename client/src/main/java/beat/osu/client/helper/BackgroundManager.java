@@ -22,7 +22,6 @@ import java.util.Random;
 
 public class BackgroundManager {
     private static final String BACKGROUNDS_DIR = "./src/main/resources/assets/backgrounds/";
-    private static final String PAUSE_MENU_DIR = "./src/main/resources/assets/buttons/pause-menu/";
     private static final String TEMP_DIR = "./src/main/resources/assets/temp/";
     private static final Random random = new Random();
     private static List<String> backgroundFiles = null;
