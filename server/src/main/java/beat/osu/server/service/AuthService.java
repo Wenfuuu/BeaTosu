@@ -30,7 +30,7 @@ public class AuthService {
                 return Result.failure(Error.validation("Password must be at least 8 characters!"));
             }
 
-            userRepository.InsertUser(request.getUsername(), request.getEmail(), request.getPassword(), request.getCountryCode());
+            userRepository.insertUser(request.getUsername(), request.getEmail(), request.getPassword(), request.getCountryCode());
 
             boolean success = true;
             String message = "User registered successfully!";

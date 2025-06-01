@@ -9,4 +9,7 @@ public enum MessageAction implements Serializable {
     // Auth actions
     REGISTER,
     LOGIN,
+
+    // Beatmap actions
+    GET_ALL_BEATMAPS,
 }

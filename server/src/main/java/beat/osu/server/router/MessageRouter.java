@@ -1,6 +1,7 @@
 package beat.osu.server.router;
 
 import beat.osu.server.service.AuthService;
+import beat.osu.server.service.BeatmapService;
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.auth.requests.LoginRequest;
@@ -12,11 +13,14 @@ import lombok.RequiredArgsConstructor;
 public class MessageRouter {
 
     private final AuthService authService;
+    private final BeatmapService beatmapService;
 
     public Object routeMessage(Message message, String clientId) {
         switch (message.getType()) {
             case AUTH:
                 return handleAuthMessage(message, clientId);
+            case BEATMAP:
+                return handleBeatmapMessage(message, clientId);
             default:
                 return Result.failure(Error.validation("Unknown message type: " + message.getType()));
         }
@@ -30,6 +34,15 @@ public class MessageRouter {
                 return authService.loginUser((LoginRequest) message.getPayload(), clientId);
             default:
                 return Result.failure(Error.validation("Unknown authentication action: " + message.getAction()));
+        }
+    }
+
+    private Object handleBeatmapMessage(Message message, String clientId) {
+        switch (message.getAction()) {
+            case GET_ALL_BEATMAPS:
+                return beatmapService.getAllBeatmaps();
+            default:
+                return Result.failure(Error.validation("Unknown beatmap action: " + message.getAction()));
         }
     }
 }
