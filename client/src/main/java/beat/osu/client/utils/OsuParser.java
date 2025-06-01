@@ -206,10 +206,12 @@ public class OsuParser {
 
     public static String getBgFile() {
         if(bgFileName.isBlank()) {
-            String temp = events.get(0);
-            String[] arr = temp.split(",");
-            String fileName = arr[2];
-            bgFileName = fileName.replace("\"", "");
+            for (String temp : events) {
+                String[] arr = temp.split(",");
+                String fileName = arr[2];
+                bgFileName = fileName.replace("\"", "");
+                if(bgFileName.endsWith(".jpg")) break;
+            }
         }
         return bgFileName;
     }
