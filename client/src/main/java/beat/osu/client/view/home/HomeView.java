@@ -1,18 +1,24 @@
 package beat.osu.client.view.home;
 
 import beat.osu.client.controller.BeatmapController;
+import beat.osu.client.controller.ServerBeatmapController;
 import beat.osu.client.factory.HitObjectFactory;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.model.Beatmap;
+import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.view.Page;
 import beat.osu.client.view.game.GameView;
 import beat.osu.client.view.home.component.BeatmapPane;
 import beat.osu.client.view.home.component.BottomBar;
 import beat.osu.client.view.home.component.TopBar;
+import beat.osu.shared.common.Result;
+import beat.osu.shared.dto.beatmap.BeatmapDto;
+import beat.osu.shared.dto.beatmap.BeatmapSetDto;
+import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
 import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
@@ -21,12 +27,16 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 public class HomeView extends Page {
 
-    private BeatmapController beatmapController;
+    private ServerBeatmapController beatmapController;
 
     private StackPane root;
     private BorderPane mainLayout;
@@ -45,7 +55,7 @@ public class HomeView extends Page {
 
     @Override
     public void init() {
-        beatmapController = new BeatmapController();
+        beatmapController = new ServerBeatmapController();
 
         root = new StackPane();
         root.getStyleClass().add("root");
@@ -58,7 +68,7 @@ public class HomeView extends Page {
 
         mainLayout = new BorderPane();
 
-        beatmaps = beatmapController.fetchBeatmaps();
+        beatmaps = fetchBeatmaps();
 
         topBar = new TopBar();
         bottomBar = new BottomBar();
@@ -84,6 +94,70 @@ public class HomeView extends Page {
         mainLayout.setBottom(bottomBar);
 
         root.getChildren().addAll(mainLayout);
+    }
+
+    private ArrayList<Beatmap> fetchBeatmaps() {
+        File dir = new File("./src/main/resources/assets/beatmap");
+        Set<String> validFilenames = new HashSet<>();
+        if (dir.exists() && dir.isDirectory()) {
+            for (File file : Objects.requireNonNull(dir.listFiles())) {
+                if (file.isFile() && file.getName().endsWith(".osz")) {
+                    validFilenames.add(file.getName());
+                }
+            }
+        }
+
+        try {
+            Result<GetAllBeatmapsResponse> result = beatmapController.getAllBeatmaps().get();
+            ArrayList<Beatmap> beatmaps = new ArrayList<>();
+
+            if (result.isSuccess()) {
+                result.getValue().getBeatmaps().forEach(beatmapDto -> {
+                    String expectedFilename = String.format("%d %s - %s.osz",
+                            beatmapDto.getBeatmapSetDto().getId(),
+                            beatmapDto.getBeatmapSetDto().getArtist(),
+                            beatmapDto.getBeatmapSetDto().getTitle());
+
+                    System.out.println("Expected filename: " + expectedFilename);
+
+                    if (!validFilenames.contains(expectedFilename)) {
+                        return;
+                    }
+
+                    BeatmapSet beatmapSet = new BeatmapSet(
+                            beatmapDto.getBeatmapSetDto().getId(),
+                            beatmapDto.getBeatmapSetDto().getTitle(),
+                            beatmapDto.getBeatmapSetDto().getArtist(),
+                            beatmapDto.getBeatmapSetDto().getCreator(),
+                            beatmapDto.getBeatmapSetDto().getLength(),
+                            beatmapDto.getBeatmapSetDto().getBpm()
+                    );
+
+                    Beatmap beatmap = new Beatmap(
+                            beatmapDto.getId(),
+                            beatmapDto.getBeatmapSetDto().getId(),
+                            beatmapDto.getVersion(),
+                            beatmapDto.getHpDrainRate(),
+                            beatmapDto.getCircleSize(),
+                            beatmapDto.getOverallDifficulty(),
+                            beatmapDto.getApproachRate(),
+                            beatmapDto.getSlideMultiplier(),
+                            beatmapDto.getSliderTickRate(),
+                            beatmapDto.getStarRating(),
+                            beatmapSet
+                    );
+
+                    beatmaps.add(beatmap);
+                });
+            } else {
+                System.err.println("Failed to fetch beatmaps: " + result.getError().getMessage());
+            }
+
+            return beatmaps;
+        } catch (Exception e) {
+            System.err.println("Error fetching beatmaps: " + e.getMessage());
+            return new ArrayList<>();
+        }
     }
 
     public void handleEvent() {
