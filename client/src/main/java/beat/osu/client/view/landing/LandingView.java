@@ -9,7 +9,6 @@ import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
-import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.CacheHint;
 import javafx.scene.Node;
@@ -51,7 +50,7 @@ public class LandingView extends Page {
         super(stage);
         handleEvent();
 
-        new Toast("NIGGER, Welcome to BeaTosu!").show();
+        Toast.information("NIGGER, Welcome to BeaTosu!").show();
     }
 
     private void initMenuRevealAnimations() {
