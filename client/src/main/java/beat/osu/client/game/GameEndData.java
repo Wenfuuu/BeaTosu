@@ -6,8 +6,14 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class GameEndData {
-    private int finalScore;
-    private int totalHits;
-    private int totalMisses;
+    private int score;
+    private int perfectHits;
+    private int gekiHits;
+    private int greatHits;
+    private int katuHits;
+    private int goodHits;
+    private int misses;
+    private int highestCombo;
     private double accuracy;
+    private String grade;
 }
