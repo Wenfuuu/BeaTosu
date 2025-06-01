@@ -85,7 +85,6 @@ public class BeatmapController {
         InsertBeatmapRequest request = new InsertBeatmapRequest(id, beatmapSetId, version, hpDrainRate, circleSize,
                 overallDifficulty, approachRate, slideMultiplier, sliderTickRate, starRating);
 
-
         Message insertBeatmapMessage = new Message(MessageType.BEATMAP,
                 MessageAction.INSERT_BEATMAP, request, System.currentTimeMillis());
 

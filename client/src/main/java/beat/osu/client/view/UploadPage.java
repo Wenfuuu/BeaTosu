@@ -201,15 +201,22 @@ public class UploadPage extends Page {
                             boolean insertSet = false;
                             for(File f: files) {
                                 if(f.getName().endsWith(".osu")) {
-                                    //parse and insert here
-                                    String parsePath = String.format("./src/main/resources/assets/temp/%s", f.getName());
-                                    OsuParser.parse(new File(parsePath));
-                                    //insert beatmapset first
-                                    if(!insertSet) {
-                                        OsuParser.insertBeatmapSet(timeString);
-                                        insertSet = true;
+                                    try {
+                                        OsuParser.parse(f);
+
+                                        if (!insertSet) {
+                                            OsuParser.insertBeatmapSet(timeString);
+                                            insertSet = true;
+                                            Thread.sleep(500);
+                                        }
+
+                                        OsuParser.insertData();
+                                        Thread.sleep(100);
+
+                                    } catch (Exception e) {
+                                        System.err.println("Error processing .osu file: " + f.getName());
+                                        e.printStackTrace();
                                     }
-                                    OsuParser.insertData();
                                 }
                             }
                         }

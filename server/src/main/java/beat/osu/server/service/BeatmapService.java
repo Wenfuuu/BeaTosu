@@ -11,6 +11,7 @@ import beat.osu.shared.dto.beatmap.BeatmapSetDto;
 import beat.osu.shared.dto.beatmap.requests.InsertBeatmapRequest;
 import beat.osu.shared.dto.beatmap.requests.InsertBeatmapSetRequest;
 import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
+import beat.osu.shared.dto.beatmap.responses.InsertBeatmapResponse;
 import beat.osu.shared.dto.beatmap.responses.InsertBeatmapSetResponse;
 import lombok.AllArgsConstructor;
 
@@ -92,6 +93,7 @@ public class BeatmapService {
                     request.getBpm()
             );
 
+            System.out.println("Beatmap Set inserted successfully: " + request.getId());
             String message = "Beatmap set inserted successfully with ID: " + request.getId();
             return Result.success(new InsertBeatmapSetResponse(true, message));
 
@@ -100,7 +102,7 @@ public class BeatmapService {
         }
     }
 
-    public Result<InsertBeatmapSetResponse> insertBeatmap(InsertBeatmapRequest request) {
+    public Result<InsertBeatmapResponse> insertBeatmap(InsertBeatmapRequest request) {
         try {
             if (request == null) {
                 return Result.failure(Error.badRequest("Beatmap data is missing"));
@@ -125,8 +127,9 @@ public class BeatmapService {
                     request.getStarRating()
             );
 
+            System.out.println("Beatmap inserted successfully: " + request.getId());
             String message = "Beatmap inserted successfully with ID: " + request.getId();
-            return Result.success(new InsertBeatmapSetResponse(true, message));
+            return Result.success(new InsertBeatmapResponse(true, message));
 
         } catch (RuntimeException e) {
             return Result.failure(Error.internal("Database error: " + e.getMessage()));
