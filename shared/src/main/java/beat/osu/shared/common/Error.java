@@ -21,6 +21,10 @@ public class Error implements Serializable {
         return new Error("NETWORK_ERROR", message);
     }
 
+    public static Error badRequest(String message) {
+        return new Error("BAD_REQUEST", message);
+    }
+
     public static Error notFound(String message) {
         return new Error("NOT_FOUND", message);
     }

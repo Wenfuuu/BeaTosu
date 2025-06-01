@@ -40,6 +40,28 @@ public class BeatmapSetRepository {
         return beatmapSets;
     }
 
+    public BeatmapSet getBeatmapSetById(int id) {
+        String query = "SELECT * FROM beatmap_sets WHERE id = ?;";
+        try {
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery();
+            if (rs.next()) {
+                return new BeatmapSet(
+                        rs.getInt("id"),
+                        rs.getString("title"),
+                        rs.getString("artist"),
+                        rs.getString("creator"),
+                        rs.getString("length"),
+                        rs.getInt("bpm")
+                );
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
     public void insertBeatmapSet(
             int beatmapSetId,
             String title,

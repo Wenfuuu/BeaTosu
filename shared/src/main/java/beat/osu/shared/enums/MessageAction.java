@@ -12,4 +12,6 @@ public enum MessageAction implements Serializable {
 
     // Beatmap actions
     GET_ALL_BEATMAPS,
+    INSERT_BEATMAP,
+    INSERT_BEATMAP_SET,
 }

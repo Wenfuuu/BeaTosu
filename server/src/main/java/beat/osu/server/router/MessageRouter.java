@@ -6,6 +6,8 @@ import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.auth.requests.LoginRequest;
 import beat.osu.shared.dto.auth.requests.RegisterRequest;
+import beat.osu.shared.dto.beatmap.requests.InsertBeatmapRequest;
+import beat.osu.shared.dto.beatmap.requests.InsertBeatmapSetRequest;
 import beat.osu.shared.models.Message;
 import lombok.RequiredArgsConstructor;
 
@@ -41,6 +43,10 @@ public class MessageRouter {
         switch (message.getAction()) {
             case GET_ALL_BEATMAPS:
                 return beatmapService.getAllBeatmaps();
+            case INSERT_BEATMAP:
+                return beatmapService.insertBeatmap((InsertBeatmapRequest) message.getPayload());
+            case INSERT_BEATMAP_SET:
+                return beatmapService.insertBeatmapSet((InsertBeatmapSetRequest) message.getPayload());
             default:
                 return Result.failure(Error.validation("Unknown beatmap action: " + message.getAction()));
         }

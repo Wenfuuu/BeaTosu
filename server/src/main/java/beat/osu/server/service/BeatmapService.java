@@ -8,7 +8,10 @@ import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.beatmap.BeatmapDto;
 import beat.osu.shared.dto.beatmap.BeatmapSetDto;
+import beat.osu.shared.dto.beatmap.requests.InsertBeatmapRequest;
+import beat.osu.shared.dto.beatmap.requests.InsertBeatmapSetRequest;
 import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
+import beat.osu.shared.dto.beatmap.responses.InsertBeatmapSetResponse;
 import lombok.AllArgsConstructor;
 
 import java.util.ArrayList;
@@ -68,6 +71,66 @@ public class BeatmapService {
             }
 
             return Result.success(new GetAllBeatmapsResponse(beatmapDtos));
+
+        } catch (RuntimeException e) {
+            return Result.failure(Error.internal("Database error: " + e.getMessage()));
+        }
+    }
+
+    public Result<InsertBeatmapSetResponse> insertBeatmapSet(InsertBeatmapSetRequest request) {
+        BeatmapSetDto beatmapSetDto = request.getBeatmapSetDto();
+
+        if (beatmapSetDto == null) {
+            return Result.failure(Error.badRequest("Beatmap set data is missing"));
+        }
+
+        try {
+            beatmapSetRepository.insertBeatmapSet(
+                    beatmapSetDto.getId(),
+                    beatmapSetDto.getTitle(),
+                    beatmapSetDto.getArtist(),
+                    beatmapSetDto.getCreator(),
+                    beatmapSetDto.getLength(),
+                    beatmapSetDto.getBpm()
+            );
+
+            String message = "Beatmap set inserted successfully with ID: " + beatmapSetDto.getId();
+            return Result.success(new InsertBeatmapSetResponse(true, message));
+
+        } catch (RuntimeException e) {
+            return Result.failure(Error.internal("Database error: " + e.getMessage()));
+        }
+    }
+
+    public Result<InsertBeatmapSetResponse> insertBeatmap(InsertBeatmapRequest request) {
+        try {
+            BeatmapDto beatmapDto = request.getBeatmapDto();
+
+            if (beatmapDto == null) {
+                return Result.failure(Error.badRequest("Beatmap data is missing"));
+            }
+
+            BeatmapSet beatmapSet = beatmapSetRepository.getBeatmapSetById(beatmapDto.getBeatmapSetId());
+
+            if (beatmapSet == null) {
+                return Result.failure(Error.notFound("Beatmap set not found for ID: " + beatmapDto.getBeatmapSetId()));
+            }
+
+            beatmapRepository.insertBeatmap(
+                    beatmapDto.getId(),
+                    beatmapDto.getBeatmapSetId(),
+                    beatmapDto.getVersion(),
+                    beatmapDto.getHpDrainRate(),
+                    beatmapDto.getCircleSize(),
+                    beatmapDto.getOverallDifficulty(),
+                    beatmapDto.getApproachRate(),
+                    beatmapDto.getSlideMultiplier(),
+                    beatmapDto.getSliderTickRate(),
+                    beatmapDto.getStarRating()
+            );
+
+            String message = "Beatmap inserted successfully with ID: " + beatmapDto.getId();
+            return Result.success(new InsertBeatmapSetResponse(true, message));
 
         } catch (RuntimeException e) {
             return Result.failure(Error.internal("Database error: " + e.getMessage()));
