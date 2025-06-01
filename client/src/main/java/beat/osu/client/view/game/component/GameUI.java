@@ -1,5 +1,8 @@
 package beat.osu.client.view.game.component;
 
+import javafx.animation.FadeTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.SequentialTransition;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -8,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.util.Duration;
 import lombok.Getter;
 
 @Getter
@@ -17,6 +21,8 @@ public class GameUI extends Pane {
     private final Label accuracyLabel;
     private final ProgressBar healthBar;
     private final Label hitResultLabel;
+
+    private final SequentialTransition hideTransition;
 
     public GameUI() {
         // Score display
@@ -68,5 +74,14 @@ public class GameUI extends Pane {
         // Store references for layout updates
         this.getProperties().put("topRightPanel", topRightPanel);
         this.getProperties().put("bottomLeftPanel", bottomLeftPanel);
+
+        FadeTransition fadeOutTransition = new FadeTransition(Duration.millis(500), this);
+        fadeOutTransition.setFromValue(1);
+        fadeOutTransition.setToValue(0);
+
+        hideTransition = new SequentialTransition(
+                fadeOutTransition,
+                new PauseTransition(Duration.millis(500))
+        );
     }
 }

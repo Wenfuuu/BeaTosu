@@ -4,6 +4,7 @@ import beat.osu.client.Main;
 import beat.osu.client.game.GameEndData;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.model.Beatmap;
+import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -14,6 +15,8 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.util.Duration;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -32,12 +35,20 @@ public class ResultOverlay extends BorderPane {
     private Button backButton;
     private ImageView rankingView;
 
+    @Getter
+    private final FadeTransition showTransition;
+
     public ResultOverlay() {
         this.setVisible(false);
 
         initializeComponents();
         setupLayout();
         setupStyling();
+
+        // show animation
+        showTransition = new FadeTransition(Duration.millis(500), this);
+        showTransition.setFromValue(0);
+        showTransition.setToValue(1);
     }
 
     public void updateResult(GameEndData gameEndData, Beatmap beatmap) {

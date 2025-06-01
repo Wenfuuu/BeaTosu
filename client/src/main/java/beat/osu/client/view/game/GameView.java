@@ -422,7 +422,12 @@ public class GameView extends Page implements Observer {
                 if(gameEndData != null) {
                     resultOverlay.updateResult(gameEndData, beatmap);
                 }
-                resultOverlay.setVisible(true);
+//                uiPane.setVisible(false);
+                uiPane.getHideTransition().play();
+                uiPane.getHideTransition().setOnFinished(e -> {
+                    resultOverlay.setVisible(true);
+                    resultOverlay.getShowTransition().play();
+                });
                 break;
         }
     }
