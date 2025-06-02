@@ -1,7 +1,6 @@
 package beat.osu.shared.models;
 
-import beat.osu.shared.enums.MessageAction;
-import beat.osu.shared.enums.MessageType;
+import beat.osu.shared.enums.RealtimeMessageType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,11 +10,11 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Message implements Serializable {
+public class RealtimeMessage implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private MessageType type;
-    private MessageAction action;
+    private RealtimeMessageType type;
+    private String fromClientId;
     private Object payload;
     private Long timestamp;
 }

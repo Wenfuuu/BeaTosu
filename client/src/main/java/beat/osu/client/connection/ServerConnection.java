@@ -2,15 +2,15 @@ package beat.osu.client.connection;
 
 import beat.osu.shared.enums.MessageAction;
 import beat.osu.shared.enums.MessageType;
-import beat.osu.shared.models.Message;
-import lombok.Setter;
+import beat.osu.shared.models.RealtimeMessage;
+import beat.osu.shared.models.RequestMessage;
+import beat.osu.shared.models.ResponseMessage;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.concurrent.BlockingQueue;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class ServerConnection {
     private static final String SERVER_HOST = "localhost";
@@ -22,23 +22,19 @@ public class ServerConnection {
     private Thread readerThread;
     private boolean connected = false;
 
-    private final BlockingQueue<Object> messageQueue = new LinkedBlockingQueue<>();
-    private final BlockingQueue<CompletableFuture<Object>> pendingRequests = new LinkedBlockingQueue<>();
-
-    @Setter
-    private MessageCallback realtimeCallback;
-
-    public interface MessageCallback {
-        void onMessage(Object message);
-    }
+    private RequestResponseHandler requestHandler;
+    private RealtimeMessageHandler realtimeHandler;
 
     public boolean connect() {
         try {
             socket = new Socket(SERVER_HOST, SERVER_PORT);
             oos = new ObjectOutputStream(socket.getOutputStream());
             ois = new ObjectInputStream(socket.getInputStream());
-            connected = true;
 
+            requestHandler = new RequestResponseHandler(oos);
+            realtimeHandler = new RealtimeMessageHandler(oos);
+
+            connected = true;
             startReaderThread();
 
             System.out.println("Connected to server at " + SERVER_HOST + ":" + SERVER_PORT);
@@ -54,7 +50,7 @@ public class ServerConnection {
             try {
                 Object receivedObject;
                 while (connected && (receivedObject = ois.readObject()) != null) {
-                    handleServerMessage(receivedObject);
+                    routeIncomingMessage(receivedObject);
                 }
             } catch (Exception e) {
                 if (connected) {
@@ -66,44 +62,30 @@ public class ServerConnection {
         readerThread.start();
     }
 
-    private void handleServerMessage(Object message) {
-        CompletableFuture<Object> future = pendingRequests.poll();
-        if (future != null) {
-            future.complete(message);
-            return;
-        }
-
-        if (realtimeCallback != null) {
-            realtimeCallback.onMessage(message);
+    private void routeIncomingMessage(Object message) {
+        if (message instanceof ResponseMessage) {
+            requestHandler.handleResponse((ResponseMessage) message);
+        } else if (message instanceof RealtimeMessage) {
+            realtimeHandler.handleIncomingMessage((RealtimeMessage) message);
         } else {
-            System.out.println("ServerConnection: Adding to message queue");
-            messageQueue.offer(message);
+            System.err.println("Unknown message type received: " + message.getClass());
         }
     }
 
-    public CompletableFuture<Object> sendMessage(Message message) {
-        CompletableFuture<Object> future = new CompletableFuture<>();
-
-        try {
-            pendingRequests.offer(future);
-            oos.writeObject(message);
-            oos.flush();
-        } catch (Exception e) {
-            System.err.println("ServerConnection: Error sending message: " + e.getMessage());
-            future.completeExceptionally(e);
-            pendingRequests.remove(future);
-        }
-
-        return future;
+    public CompletableFuture<Object> sendRequest(RequestMessage request) {
+        return requestHandler.sendRequest(request);
     }
 
-    public void sendMessageAsync(Message message) {
-        try {
-            oos.writeObject(message);
-            oos.flush();
-        } catch (Exception e) {
-            System.err.println("Error sending message: " + e.getMessage());
-        }
+    public void addRealtimeMessageCallback(RealtimeMessageHandler.RealtimeMessageCallback callback) {
+        realtimeHandler.addCallback(callback);
+    }
+
+    public void removeRealtimeMessageCallback(RealtimeMessageHandler.RealtimeMessageCallback callback) {
+        realtimeHandler.removeCallback(callback);
+    }
+
+    public void sendRealtimeMessage(RealtimeMessage message) {
+        realtimeHandler.sendRealtimeMessage(message);
     }
 
     public void disconnect() {
@@ -114,8 +96,8 @@ public class ServerConnection {
                 readerThread.interrupt();
             }
             if (oos != null) {
-                Message disconnectMsg = new Message(MessageType.SYSTEM, MessageAction.DISCONNECT,
-                        null, System.currentTimeMillis());
+                RequestMessage disconnectMsg = new RequestMessage(
+                        MessageType.SYSTEM, MessageAction.DISCONNECT, null);
                 oos.writeObject(disconnectMsg);
                 oos.flush();
                 oos.close();

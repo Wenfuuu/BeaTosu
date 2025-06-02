@@ -10,7 +10,7 @@ import beat.osu.shared.dto.auth.responses.LoginResponse;
 import beat.osu.shared.dto.auth.responses.RegisterResponse;
 import beat.osu.shared.enums.MessageAction;
 import beat.osu.shared.enums.MessageType;
-import beat.osu.shared.models.Message;
+import beat.osu.shared.models.RequestMessage;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -24,17 +24,16 @@ public class AuthController {
     public CompletableFuture<Result<RegisterResponse>> register(String username, String password, String email) {
         String countryCode = LocaleManager.getCurrentCountry();
 
-        RegisterRequest registerRequest = new RegisterRequest(username, password, email, countryCode);
-        Message registerMessage = new Message(
+        RegisterRequest requestData = new RegisterRequest(username, password, email, countryCode);
+        RequestMessage request = new RequestMessage(
                 MessageType.AUTH,
                 MessageAction.REGISTER,
-                registerRequest,
-                System.currentTimeMillis()
+                requestData
         );
 
         return CompletableFuture.supplyAsync(() -> {
             try {
-                Object response = clientService.getConnection().sendMessage(registerMessage).get();
+                Object response = clientService.getConnection().sendRequest(request).get();
                 Result<?> result = (Result<?>) response;
                 if (result.isSuccess()) {
                     return Result.success((RegisterResponse) result.getValue());
@@ -48,17 +47,16 @@ public class AuthController {
     }
 
     public CompletableFuture<Result<LoginResponse>> login(String username, String password) {
-        LoginRequest loginRequest = new LoginRequest(username, password);
-        Message loginMessage = new Message(
+        LoginRequest requestData = new LoginRequest(username, password);
+        RequestMessage request = new RequestMessage(
                 MessageType.AUTH,
                 MessageAction.LOGIN,
-                loginRequest,
-                System.currentTimeMillis()
+                requestData
         );
 
         return CompletableFuture.supplyAsync(() -> {
             try {
-                Object response = clientService.getConnection().sendMessage(loginMessage).get();
+                Object response = clientService.getConnection().sendRequest(request).get();
                 Result<?> result = (Result<?>) response;
                 if (result.isSuccess()) {
                     return Result.success((LoginResponse) result.getValue());

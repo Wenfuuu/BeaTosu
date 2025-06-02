@@ -1,5 +1,6 @@
 package beat.osu.client.service;
 
+import beat.osu.client.connection.RealtimeMessageHandler;
 import beat.osu.client.connection.ServerConnection;
 import lombok.Getter;
 
@@ -29,10 +30,6 @@ public class ClientService {
 
     public void disconnect() {
         connection.disconnect();
-    }
-
-    public void setRealtimeMessageHandler(ServerConnection.MessageCallback callback) {
-        connection.setRealtimeCallback(callback);
     }
 
     public boolean isConnected() {

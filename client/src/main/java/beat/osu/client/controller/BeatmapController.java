@@ -10,7 +10,7 @@ import beat.osu.shared.dto.beatmap.responses.InsertBeatmapResponse;
 import beat.osu.shared.dto.beatmap.responses.InsertBeatmapSetResponse;
 import beat.osu.shared.enums.MessageAction;
 import beat.osu.shared.enums.MessageType;
-import beat.osu.shared.models.Message;
+import beat.osu.shared.models.RequestMessage;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -22,12 +22,12 @@ public class BeatmapController {
     }
 
     public CompletableFuture<Result<GetAllBeatmapsResponse>> getAllBeatmaps() {
-        Message getAllBeatmapsMessage = new Message(MessageType.BEATMAP,
-                MessageAction.GET_ALL_BEATMAPS, null, System.currentTimeMillis());
+        RequestMessage request = new RequestMessage(MessageType.BEATMAP,
+                MessageAction.GET_ALL_BEATMAPS, null);
 
         return CompletableFuture.supplyAsync(() -> {
             try {
-                Object response = clientService.getConnection().sendMessage(getAllBeatmapsMessage).get();
+                Object response = clientService.getConnection().sendRequest(request).get();
 
                 Result<?> result = (Result<?>) response;
                 if (result.isSuccess()) {
@@ -49,14 +49,14 @@ public class BeatmapController {
             String length,
             int bpm
     ) {
-        InsertBeatmapSetRequest request = new InsertBeatmapSetRequest(id, title, artist, creator, length, bpm);
+        InsertBeatmapSetRequest requestData = new InsertBeatmapSetRequest(id, title, artist, creator, length, bpm);
 
-        Message insertBeatmapSetMessage = new Message(MessageType.BEATMAP,
-                MessageAction.INSERT_BEATMAP_SET, request, System.currentTimeMillis());
+        RequestMessage request = new RequestMessage(MessageType.BEATMAP,
+                MessageAction.INSERT_BEATMAP_SET, requestData);
 
         return CompletableFuture.supplyAsync(() -> {
             try {
-                Object response = clientService.getConnection().sendMessage(insertBeatmapSetMessage).get();
+                Object response = clientService.getConnection().sendRequest(request).get();
 
                 Result<?> result = (Result<?>) response;
                 if (result.isSuccess()) {
@@ -82,15 +82,15 @@ public class BeatmapController {
             double sliderTickRate,
             double starRating
     ) {
-        InsertBeatmapRequest request = new InsertBeatmapRequest(id, beatmapSetId, version, hpDrainRate, circleSize,
+        InsertBeatmapRequest requestData = new InsertBeatmapRequest(id, beatmapSetId, version, hpDrainRate, circleSize,
                 overallDifficulty, approachRate, slideMultiplier, sliderTickRate, starRating);
 
-        Message insertBeatmapMessage = new Message(MessageType.BEATMAP,
-                MessageAction.INSERT_BEATMAP, request, System.currentTimeMillis());
+        RequestMessage request = new RequestMessage(MessageType.BEATMAP,
+                MessageAction.INSERT_BEATMAP, requestData);
 
         return CompletableFuture.supplyAsync(() -> {
             try {
-                Object response = clientService.getConnection().sendMessage(insertBeatmapMessage).get();
+                Object response = clientService.getConnection().sendRequest(request).get();
 
                 Result<?> result = (Result<?>) response;
                 if (result.isSuccess()) {
