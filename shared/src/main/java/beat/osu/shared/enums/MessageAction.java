@@ -5,6 +5,7 @@ import java.io.Serializable;
 public enum MessageAction implements Serializable {
     // System actions
     DISCONNECT,
+    GET_USER_COUNT,
 
     // Auth actions
     REGISTER,

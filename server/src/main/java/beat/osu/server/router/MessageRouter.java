@@ -1,7 +1,9 @@
 package beat.osu.server.router;
 
+import beat.osu.server.handler.RealtimeMessageHandler;
 import beat.osu.server.service.AuthService;
 import beat.osu.server.service.BeatmapService;
+import beat.osu.server.service.SystemService;
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.auth.requests.LoginRequest;
@@ -14,17 +16,29 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MessageRouter {
 
+    private final SystemService systemService;
     private final AuthService authService;
     private final BeatmapService beatmapService;
 
     public Object routeRequestMessage(RequestMessage request, String clientId) {
         switch (request.getType()) {
+            case SYSTEM:
+                return handleSystemRequest(request, clientId);
             case AUTH:
                 return handleAuthRequest(request, clientId);
             case BEATMAP:
                 return handleBeatmapRequest(request, clientId);
             default:
                 return Result.failure(Error.validation("Unknown request type: " + request.getType()));
+        }
+    }
+
+    private Object handleSystemRequest(RequestMessage request, String clientId) {
+        switch (request.getAction()) {
+            case GET_USER_COUNT:
+                return systemService.getCurrentUserCount();
+            default:
+                return Result.failure(Error.validation("Unknown system action: " + request.getAction()));
         }
     }
 

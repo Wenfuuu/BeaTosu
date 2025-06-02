@@ -9,6 +9,7 @@ import beat.osu.server.router.MessageRouter;
 import beat.osu.server.service.AuthService;
 import beat.osu.server.service.BeatmapService;
 import beat.osu.server.service.SessionService;
+import beat.osu.server.service.SystemService;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -24,11 +25,12 @@ public class Main {
         BeatmapSetRepository beatmapSetRepository = new BeatmapSetRepository();
         BeatmapRepository beatmapRepository = new BeatmapRepository();
 
+        SystemService systemService = new SystemService();
         SessionService sessionService = new SessionService();
         AuthService authService = new AuthService(userRepository, sessionService);
         BeatmapService beatmapService = new BeatmapService(beatmapSetRepository, beatmapRepository);
 
-        MessageRouter messageRouter = new MessageRouter(authService, beatmapService);
+        MessageRouter messageRouter = new MessageRouter(systemService, authService, beatmapService);
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Server started on port " + PORT + "...");
