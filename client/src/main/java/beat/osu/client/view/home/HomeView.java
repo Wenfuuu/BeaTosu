@@ -1,10 +1,7 @@
 package beat.osu.client.view.home;
 
 import beat.osu.client.controller.BeatmapController;
-import beat.osu.client.helper.BackgroundManager;
-import beat.osu.client.helper.BgmManager;
-import beat.osu.client.helper.CssManager;
-import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.*;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.utils.OsuParser;
@@ -72,7 +69,7 @@ public class HomeView extends Page {
             topBar.updateSongInfo(beatmaps.get(0));
         }
 
-        scene = new Scene(root, ScreenManager.SCREEN_WIDTH, ScreenManager.SCREEN_HEIGHT);
+        scene.setRoot(root);
         URL cssUrl = CssManager.getHomeCssURL("HomeView.css");
         if (cssUrl != null) {
             scene.getStylesheets().add(cssUrl.toExternalForm());
@@ -158,13 +155,8 @@ public class HomeView extends Page {
         beatmapPane.setOnBeatmapSelectedListener(beatmap -> {
             topBar.updateSongInfo(beatmap);
             OsuParser.extractAndParse(beatmap);
-            String currentBgmHash = BgmManager.getCurrentBgmHash();
             BgmManager.playPreviewBgm();
-
-            if(!BgmManager.getCurrentBgmHash().equals(currentBgmHash)) {
-                System.out.println("current bgm hash changed, setting game background");
-                BackgroundManager.setGameBackground(scene);
-            }
+            BackgroundManager.setGameBackground(scene);
 
             // sfx testing purpose
 //            for (String data: OsuParser.getHitObjects()) {
@@ -178,7 +170,8 @@ public class HomeView extends Page {
             Beatmap selectedBeatmap = beatmapPane.getSelectedBeatmap();
             if (selectedBeatmap != null) {
                 BgmManager.stopBgm();
-                new GameView(stage, selectedBeatmap);
+//                new GameView(stage, selectedBeatmap);
+                ViewManager.showGameView(selectedBeatmap);
             }
         });
 

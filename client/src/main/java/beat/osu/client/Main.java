@@ -1,9 +1,8 @@
 package beat.osu.client;
 
 import beat.osu.client.helper.StageManager;
+import beat.osu.client.helper.ViewManager;
 import beat.osu.client.service.ClientService;
-import beat.osu.client.view.UploadPage;
-import beat.osu.client.view.landing.LandingView;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -18,6 +17,7 @@ public class Main extends Application {
         }
 
         StageManager.setStage(stage);
+        ViewManager.initialize(StageManager.getStage());
         StageManager.getStage().setOnCloseRequest(e -> {
             if (clientService.isConnected()) {
                 clientService.disconnect();
@@ -25,9 +25,7 @@ public class Main extends Application {
             Platform.exit();
         });
 
-        new LandingView(StageManager.getStage());
-//        new HomeView(StageManager.getStage());
-//        new UploadPage(StageManager.getStage());
+        ViewManager.showLandingView();
     }
 
     public static void main(String[] args) {

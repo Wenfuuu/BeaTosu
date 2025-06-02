@@ -84,6 +84,7 @@ public class GameView extends Page implements Observer {
 
     private void createGamePane() {
         gamePane = new Pane();
+        gamePane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.1);");
         for (HitObject hitObject : gm.getHitObjects()) {
             gamePane.getChildren().add(hitObject.getNode());
         }
@@ -101,12 +102,14 @@ public class GameView extends Page implements Observer {
 
         pauseOverlay.getRetryButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
-            new GameView(stage, beatmap);
+//            new GameView(stage, beatmap);
+            ViewManager.showGameView(beatmap);
         });
 
         pauseOverlay.getBackButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
-            new HomeView(stage);
+//            new HomeView(stage);
+            ViewManager.showHomeView();
         });
     }
 
@@ -347,7 +350,7 @@ public class GameView extends Page implements Observer {
         // Add the overlay pane to the root
         root.getChildren().addAll(backgroundOverlay);
 
-        scene = new Scene(root, ScreenManager.SCREEN_WIDTH, ScreenManager.SCREEN_HEIGHT);
+        scene.setRoot(root);
     }
 
     @Override

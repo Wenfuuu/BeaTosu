@@ -207,7 +207,7 @@ public class LandingView extends Page {
             System.err.println("Failed to load BGM: " + bgmPath);
         }
 
-        scene = new Scene(root, ScreenManager.SCREEN_WIDTH, ScreenManager.SCREEN_HEIGHT);
+        scene.setRoot(root);
         URL cssUrl = CssManager.getLandingCssURL("LandingView.css");
         if (cssUrl != null) {
             scene.getStylesheets().add(cssUrl.toExternalForm());
@@ -303,7 +303,8 @@ public class LandingView extends Page {
         });
 
         subMenuButtonsComponent.getSoloButton().setOnMouseClicked(e -> {
-            new HomeView(stage);
+//            new HomeView(stage);
+            ViewManager.showHomeView();
             hideSubMenu();
         });
         

@@ -15,7 +15,6 @@ import java.security.NoSuchAlgorithmException;
 
 public class BgmManager {
     private static final String TEMP_DIR = "./src/main/resources/assets/temp/";
-    @Getter
     private static String currentBgmHash = null;
 
     @Getter
@@ -93,13 +92,23 @@ public class BgmManager {
         currentPlayer.setVolume(0.2);
         currentPlayer.setAutoPlay(false);
 
+        currentPlayer.setOnError(() -> {
+            System.err.println("MediaPlayer error: " + currentPlayer.getError());
+        });
+        media.setOnError(() -> {
+            System.err.println("Media error: " + media.getError());
+        });
+
         currentPlayer.setOnReady(() -> {
             System.out.println("BGM ready for playback");
         });
     }
 
     public static void playGameBgm() {
-        if(currentPlayer != null) currentPlayer.play();
+        if(currentPlayer != null) {
+            System.out.println("Playing game BGM");
+            currentPlayer.play();
+        }
     }
 
     public static void playBgm(String filePath) {
