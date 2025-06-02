@@ -5,11 +5,11 @@ import beat.osu.shared.enums.MessageType;
 import beat.osu.shared.models.RealtimeMessage;
 import beat.osu.shared.models.RequestMessage;
 import beat.osu.shared.models.ResponseMessage;
+import lombok.Getter;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class ServerConnection {
@@ -22,7 +22,9 @@ public class ServerConnection {
     private Thread readerThread;
     private boolean connected = false;
 
+    @Getter
     private RequestResponseHandler requestHandler;
+    @Getter
     private RealtimeMessageHandler realtimeHandler;
 
     public boolean connect() {
@@ -40,7 +42,7 @@ public class ServerConnection {
             System.out.println("Connected to server at " + SERVER_HOST + ":" + SERVER_PORT);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Failed to connect to server: " + e.getMessage());
             return false;
         }
     }

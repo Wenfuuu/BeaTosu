@@ -1,6 +1,8 @@
 package beat.osu.client.view.landing.component;
 
+import beat.osu.client.controller.UserCountController;
 import beat.osu.client.helper.CssManager;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -16,8 +18,11 @@ public class BottomBar extends HBox {
     private Label website;
     private VBox ppyBox;
 
+    private Label userCountLabel;
+    private UserCountController userCountController;
+
     public BottomBar() {
-        super(10); // Spacing between children
+        super(10);
         this.getStyleClass().add("bottom-bar");
         this.setPadding(new Insets(5, 10, 5, 10));
 
@@ -29,6 +34,8 @@ public class BottomBar extends HBox {
 
         // Load CSS
         loadStyles();
+
+        setupUserCountSubscription();
     }
 
     private void initializeComponents() {
@@ -43,11 +50,15 @@ public class BottomBar extends HBox {
 
         ppyBox = new VBox(copyright, website);
         ppyBox.setAlignment(Pos.CENTER_LEFT);
+
+        userCountController = new UserCountController();
+        userCountLabel = new Label("Users online: N/A");
+        userCountLabel.setAlignment(Pos.CENTER_RIGHT);
     }
 
     private void setupLayout() {
         this.setMaxHeight(65);
-        this.getChildren().addAll(ppyLbl, ppyBox);
+        this.getChildren().addAll(ppyLbl, ppyBox, userCountLabel);
     }
 
     private void loadStyles() {
@@ -56,6 +67,26 @@ public class BottomBar extends HBox {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {
             System.err.println("CSS file not found!");
+        }
+    }
+
+    private void setupUserCountSubscription() {
+        userCountController.addUserCountCallback(this::updateUserCountLabel);
+    }
+
+    private void updateUserCountLabel(Integer userCount) {
+        Platform.runLater(() -> {
+            if (userCount != null) {
+                userCountLabel.setText("Users online: " + userCount);
+            } else {
+                userCountLabel.setText("Users online: N/A");
+            }
+        });
+    }
+
+    public void cleanup() {
+        if (userCountController != null) {
+            userCountController.removeUserCountCallback(this::updateUserCountLabel);
         }
     }
 }

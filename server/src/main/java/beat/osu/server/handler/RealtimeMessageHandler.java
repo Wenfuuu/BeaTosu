@@ -16,6 +16,8 @@ public class RealtimeMessageHandler {
         this.outputStream = outputStream;
         this.clientId = clientId;
         activeHandlers.put(clientId, this);
+        
+        broadcastUserCount();
     }
 
     public void handleRealtimeMessage(RealtimeMessage message, String fromClientId) {
@@ -77,25 +79,32 @@ public class RealtimeMessageHandler {
     public void cleanup() {
         activeHandlers.remove(clientId);
 
-        RealtimeMessage userLeftMessage = new RealtimeMessage();
-        userLeftMessage.setType(RealtimeMessageType.USER_LEFT);
-        userLeftMessage.setFromClientId(clientId);
-        userLeftMessage.setPayload("User " + clientId + " has left");
-        userLeftMessage.setTimestamp(System.currentTimeMillis());
-
+        RealtimeMessage userLeftMessage = new RealtimeMessage(RealtimeMessageType.USER_LEFT, "SYSTEM", null);
         broadcastToAllExcept(userLeftMessage, clientId);
+        
+        broadcastUserCount();
     }
 
     public static int getActiveClientCount() {
         return activeHandlers.size();
     }
 
+    public static void broadcastUserCount() {
+        int userCount = activeHandlers.size();
+        RealtimeMessage userCountMessage = new RealtimeMessage(RealtimeMessageType.USER_COUNT_UPDATE, "SYSTEM", userCount);
+
+        for (RealtimeMessageHandler handler : activeHandlers.values()) {
+            try {
+                handler.outputStream.writeObject(userCountMessage);
+                handler.outputStream.flush();
+            } catch (Exception e) {
+                System.err.println("RealtimeMessageHandler: Error sending user count: " + e.getMessage());
+            }
+        }
+    }
+
     public static void sendSystemNotification(String message) {
-        RealtimeMessage notification = new RealtimeMessage();
-        notification.setType(RealtimeMessageType.SYSTEM_NOTIFICATION);
-        notification.setFromClientId("SYSTEM");
-        notification.setPayload(message);
-        notification.setTimestamp(System.currentTimeMillis());
+        RealtimeMessage notification = new RealtimeMessage(RealtimeMessageType.SYSTEM_NOTIFICATION, "SYSTEM", message);
 
         for (RealtimeMessageHandler handler : activeHandlers.values()) {
             try {
@@ -105,15 +114,5 @@ public class RealtimeMessageHandler {
                 System.err.println("RealtimeMessageHandler: Error sending system notification: " + e.getMessage());
             }
         }
-    }
-
-    private String extractTargetFromPayload(String payload) {
-        if (payload.contains("target:")) {
-            String[] parts = payload.split("target:");
-            if (parts.length > 1) {
-                return parts[1].split(" ")[0];
-            }
-        }
-        return null;
     }
 }

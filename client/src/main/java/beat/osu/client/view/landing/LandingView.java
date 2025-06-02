@@ -13,6 +13,7 @@ import javafx.geometry.Pos;
 import javafx.scene.CacheHint;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -50,7 +51,7 @@ public class LandingView extends Page {
         super(stage);
         handleEvent();
 
-        Toast.information("NIGGER, Welcome to BeaTosu!").show();
+        Toast.information("Hi, Welcome to BeaTosu!").show();
     }
 
     private void initMenuRevealAnimations() {

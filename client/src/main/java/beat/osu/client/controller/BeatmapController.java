@@ -22,8 +22,7 @@ public class BeatmapController {
     }
 
     public CompletableFuture<Result<GetAllBeatmapsResponse>> getAllBeatmaps() {
-        RequestMessage request = new RequestMessage(MessageType.BEATMAP,
-                MessageAction.GET_ALL_BEATMAPS, null);
+        RequestMessage request = new RequestMessage(MessageType.BEATMAP, MessageAction.GET_ALL_BEATMAPS, null);
 
         return CompletableFuture.supplyAsync(() -> {
             try {
