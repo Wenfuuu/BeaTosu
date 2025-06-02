@@ -1,5 +1,6 @@
 package beat.osu.client.helper;
 
+import beat.osu.client.model.Beatmap;
 import beat.osu.client.utils.OsuParser;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -38,7 +39,8 @@ public class SfxManager {
         File sfxFile = new File(sfxPath);
 
         if (!sfxFile.exists()) {
-            sfxFile = new File(TEMP_DIR + sfxName);
+            Beatmap beatmap = OsuParser.getCurrentBeatmap();
+            sfxFile = new File(TEMP_DIR + beatmap.getBeatmapSetId() + "/" + sfxName);
             if (!sfxFile.exists()) {
                 System.err.println("SFX file not found in both SFX and TEMP directories: " + sfxName);
                 return;

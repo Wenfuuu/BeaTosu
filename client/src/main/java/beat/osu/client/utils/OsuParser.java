@@ -16,6 +16,8 @@ import java.util.Map;
 
 public class OsuParser {
     private static BeatmapController beatmapController = new BeatmapController();
+    @Getter
+    private static Beatmap currentBeatmap;
 
     @Getter
     private static Map<String, String> general = new HashMap<>();
@@ -118,7 +120,8 @@ public class OsuParser {
         String oszPath = String.format("./src/main/resources/assets/beatmap/%s",
                 getOszPath(beatmap));
         File oszFile = new File(oszPath);
-        File outputDir = new File("./src/main/resources/assets/temp");
+        String outputPath = String.format("./src/main/resources/assets/temp/%s", beatmap.getBeatmapSetId());
+        File outputDir = new File(outputPath);
 
         try {
             OszExtractor.extractOsz(oszFile, outputDir);
@@ -126,21 +129,27 @@ public class OsuParser {
             throw new RuntimeException(e);
         }
 
-        String osuPath = String.format("./src/main/resources/assets/temp/%s - %s (%s) [%s].osu",
+        try {
+            parseBeatmap(beatmap);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void parseBeatmap(Beatmap beatmap) throws IOException {
+        currentBeatmap = beatmap;
+        String osuPath = String.format("./src/main/resources/assets/temp/%s/%s - %s (%s) [%s].osu",
+                beatmap.getBeatmapSetId(),
                 beatmap.getBeatmapSet().getArtist(),
                 beatmap.getBeatmapSet().getTitle(),
                 beatmap.getBeatmapSet().getCreator(),
                 beatmap.getVersion());
         File osuFile = new File(osuPath);
 
-        try {
-            parse(osuFile);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        parseOsuFile(osuFile);
     }
 
-    public static void parse(File osuFile) throws IOException {
+    public static void parseOsuFile(File osuFile) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(osuFile));
         String line;
         String section = "";
@@ -203,6 +212,10 @@ public class OsuParser {
             map.put(parts[0].trim(), parts[1].trim());
         }
     }
+
+//    public static String getBeatmapSetBgFile() {
+//
+//    }
 
     public static String getBgFile() {
         if(bgFileName.isBlank()) {

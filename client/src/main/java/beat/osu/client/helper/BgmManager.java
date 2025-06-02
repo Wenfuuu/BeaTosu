@@ -1,5 +1,6 @@
 package beat.osu.client.helper;
 
+import beat.osu.client.model.Beatmap;
 import beat.osu.client.utils.OsuParser;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -41,7 +42,8 @@ public class BgmManager {
     }
 
     public static void playPreviewBgm() {
-        String bgmPath = TEMP_DIR + "audio.mp3";
+        Beatmap beatmap = OsuParser.getCurrentBeatmap();
+        String bgmPath = TEMP_DIR + beatmap.getBeatmapSetId() + "/" + "audio.mp3";
 
         File audioFile = new File(bgmPath);
         if (!audioFile.exists()) {
@@ -78,7 +80,8 @@ public class BgmManager {
     }
 
     public static void prepareGameBgm() {
-        String bgmPath = TEMP_DIR + "audio.mp3";
+        Beatmap beatmap = OsuParser.getCurrentBeatmap();
+        String bgmPath = TEMP_DIR + beatmap.getBeatmapSetId() + "/" + "audio.mp3";
         File audioFile = new File(bgmPath);
 
         if (!audioFile.exists()) {

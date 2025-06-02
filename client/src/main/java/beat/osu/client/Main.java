@@ -26,6 +26,7 @@ public class Main extends Application {
         });
 
         ViewManager.showLandingView();
+//        ViewManager.showUploadPage();
     }
 
     public static void main(String[] args) {

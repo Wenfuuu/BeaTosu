@@ -17,6 +17,7 @@ import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
 import lombok.Getter;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -397,7 +398,12 @@ public class GameManager implements Subject {
 //    }
 
     private void processBeatmap() {
-        OsuParser.extractAndParse(beatmap);
+//        OsuParser.extractAndParse(beatmap);
+        try {
+            OsuParser.parseBeatmap(beatmap);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         // Reset combo counters
         masterComboNumber = 0;

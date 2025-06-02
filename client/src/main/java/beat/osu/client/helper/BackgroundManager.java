@@ -1,6 +1,7 @@
 package beat.osu.client.helper;
 
 import beat.osu.client.Main;
+import beat.osu.client.model.Beatmap;
 import beat.osu.client.utils.OsuParser;
 import javafx.animation.FadeTransition;
 import javafx.animation.Timeline;
@@ -102,7 +103,9 @@ public class BackgroundManager {
         }
     }
 
+    // get the beatmap set background
     public static void setBeatmapBackground(Region region) {
+        Beatmap beatmap = OsuParser.getCurrentBeatmap();
         String beatmapBg = OsuParser.getBgFile();
         if (beatmapBg == null || beatmapBg.isEmpty()) {
             System.err.println("No background file found for the beatmap.");
@@ -110,7 +113,7 @@ public class BackgroundManager {
         }
 
         try {
-            File imageFile = new File(TEMP_DIR + beatmapBg);
+            File imageFile = new File(TEMP_DIR + beatmap.getBeatmapSetId() + "/" + beatmapBg);
             System.out.println(imageFile.getAbsolutePath());
             if (!imageFile.exists()) {
                 System.err.println("Background image not found: " + imageFile.getAbsolutePath());
@@ -140,12 +143,14 @@ public class BackgroundManager {
         }
     }
 
+    // get the beatmap background, not beatmap set
     public static void setGameBackground(Scene scene) {
         System.out.println("setting game background");
+        Beatmap beatmap = OsuParser.getCurrentBeatmap();
         String gameBg = OsuParser.getBgFile();
 
         try {
-            File imageFile = new File(TEMP_DIR + gameBg);
+            File imageFile = new File(TEMP_DIR + beatmap.getBeatmapSetId() + "/" + gameBg);
             String imageUrl = imageFile.toURI().toURL().toString();
 
             String backgroundStyle =

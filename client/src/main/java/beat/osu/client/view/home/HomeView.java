@@ -19,6 +19,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -154,7 +155,12 @@ public class HomeView extends Page {
     public void handleEvent() {
         beatmapPane.setOnBeatmapSelectedListener(beatmap -> {
             topBar.updateSongInfo(beatmap);
-            OsuParser.extractAndParse(beatmap);
+//            OsuParser.extractAndParse(beatmap);
+            try {
+                OsuParser.parseBeatmap(beatmap);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             BgmManager.playPreviewBgm();
             BackgroundManager.setGameBackground(scene);
 

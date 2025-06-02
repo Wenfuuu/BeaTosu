@@ -18,6 +18,7 @@ import javafx.scene.text.FontWeight;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.function.Consumer;
@@ -77,11 +78,16 @@ public class BeatmapPane extends ScrollPane {
             String oszPath = String.format("./src/main/resources/assets/beatmap/%s",
                     OsuParser.getOszPath(beatmap));
             if(!oszPath.equals(currentOszPath)) {
-                System.out.println("different path, extracting bg");
-                OsuParser.extractAndParse(beatmap);
+                System.out.println("different path, parsing bg");
+//                OsuParser.extractAndParse(beatmap);
+                try {
+                    OsuParser.parseBeatmap(beatmap);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 currentOszPath = oszPath;
             }else {
-                System.out.println("same path, skipping extracting bg");
+                System.out.println("same path, skipping parsing bg");
             }
 
             HBox backgroundLayer = new HBox();
@@ -132,7 +138,12 @@ public class BeatmapPane extends ScrollPane {
             beatmapListBox.getChildren().get(0).getStyleClass().add("selected");
             selectedBeatmap = beatmaps.get(0);
 
-            OsuParser.extractAndParse(selectedBeatmap);
+//            OsuParser.extractAndParse(selectedBeatmap);
+            try {
+                OsuParser.parseBeatmap(selectedBeatmap);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

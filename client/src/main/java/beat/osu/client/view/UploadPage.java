@@ -142,16 +142,20 @@ public class UploadPage extends Page {
                     String filename = file.getName().replaceAll("\\s*\\[no video\\]", "");
                     Path destPath = new File(beatmapDir, filename).toPath();
 
-                    if(!file.getName().endsWith(".osz")) continue;
-
+                    if(!filename.endsWith(".osz")) continue;
                     try {
                         Files.copy(file.toPath(), destPath, StandardCopyOption.REPLACE_EXISTING);
                         System.out.println("Copied: " + filename);
 
+                        String[] tempStr = filename.split(" ");
+                        String beatmapSetId = tempStr[0];
                         //extract .osz and store in temp folder
                         String filePath = String.format("./src/main/resources/assets/beatmap/%s", filename);
                         File oszFile = new File(filePath);
-                        File outputDir = new File("./src/main/resources/assets/temp");
+
+                        System.out.println("extracting beatmap set id: " + beatmapSetId);
+                        String outputPath = String.format("./src/main/resources/assets/temp/%s", beatmapSetId);
+                        File outputDir = new File(outputPath);
                         OszExtractor.extractOsz(oszFile, outputDir);
                         //parse all .osu file in temp folder & insert db
                         File []files = outputDir.listFiles();
@@ -180,7 +184,7 @@ public class UploadPage extends Page {
                         CountDownLatch latch = new CountDownLatch(1);
                         // Store the duration in an array to access it from the lambda
                         final double[] audioDuration = {0.0};
-                        File songFile = new File("./src/main/resources/assets/temp/audio.mp3");
+                        File songFile = new File("./src/main/resources/assets/temp/" + beatmapSetId + "/audio.mp3");
                         Media song = new Media(songFile.toURI().toString());
                         MediaPlayer player = new MediaPlayer(song);
                         player.setOnReady(() -> {
@@ -202,7 +206,7 @@ public class UploadPage extends Page {
                             for(File f: files) {
                                 if(f.getName().endsWith(".osu")) {
                                     try {
-                                        OsuParser.parse(f);
+                                        OsuParser.parseOsuFile(f);
 
                                         if (!insertSet) {
                                             OsuParser.insertBeatmapSet(timeString);
