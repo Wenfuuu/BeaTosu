@@ -132,10 +132,9 @@ public class HitObjectFactory {
         // check if hitSample is invalid
         if(!hitSample.contains(":")){
             hitSample = "0:0:0:0:";
+            objectParams = String.join(",", Arrays.copyOfRange(parts, 5, parts.length));
         }
 //        System.out.println(objectParams);
-//        System.out.println("hit type: " + hitType);
-//        System.out.println("hit sound: " + hitSound + ", hit sample: " + hitSample);
 //        for (String sfx : generateCircleSfxFilenames(hitSound, hitSample)) {
 //            System.out.println("sfx: " + sfx);
 //        }

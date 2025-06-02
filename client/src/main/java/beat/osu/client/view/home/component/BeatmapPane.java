@@ -78,7 +78,7 @@ public class BeatmapPane extends ScrollPane {
             String oszPath = String.format("./src/main/resources/assets/beatmap/%s",
                     OsuParser.getOszPath(beatmap));
             if(!oszPath.equals(currentOszPath)) {
-                System.out.println("different path, parsing bg");
+                System.out.println("different path, parsing beatmap");
 //                OsuParser.extractAndParse(beatmap);
                 try {
                     OsuParser.parseBeatmap(beatmap);
@@ -87,7 +87,7 @@ public class BeatmapPane extends ScrollPane {
                 }
                 currentOszPath = oszPath;
             }else {
-                System.out.println("same path, skipping parsing bg");
+                System.out.println("same path, skipping parsing beatmap");
             }
 
             HBox backgroundLayer = new HBox();

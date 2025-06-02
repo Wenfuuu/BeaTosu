@@ -80,6 +80,7 @@ public class HitSlider extends HitObject {
             // Fallback: No uninherited timing point found before the slider.
             // This is unusual for a slider not at the very beginning of the map.
             // Use a default beat duration (e.g., 120 BPM = 500ms/beat).
+            System.out.println("falling back to 500ms per beat for slider at " + getHitTime());
             msPerBeat = 500.0;
             // System.err.println("Warning: No uninherited timing point found for slider at " + getHitTime() + ". Using default beatLength.");
         }
@@ -95,7 +96,6 @@ public class HitSlider extends HitObject {
             } else {
                 // svMultiplierFromTimingPoint = Double.POSITIVE_INFINITY; // Avoid division by zero, effectively making duration near zero
                 // Or treat as 1.0? Osu seems to treat 0 as 1x.
-                svMultiplierFromTimingPoint = 1.0;
                 System.err.println("Warning: Inherited timing point with 0 beatLength at " + lastRelevantTPForSV.getTime());
             }
         }

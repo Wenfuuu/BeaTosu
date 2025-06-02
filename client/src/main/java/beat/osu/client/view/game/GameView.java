@@ -86,7 +86,8 @@ public class GameView extends Page implements Observer {
         gamePane = new Pane();
         gamePane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.1);");
         for (HitObject hitObject : gm.getHitObjects()) {
-            gamePane.getChildren().add(hitObject.getNode());
+//            gamePane.getChildren().add(hitObject.getNode());
+            gamePane.getChildren().add(0, hitObject.getNode());
         }
     }
 
