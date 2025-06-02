@@ -89,12 +89,13 @@ public class HomeView extends Page {
     }
 
     private ArrayList<Beatmap> fetchBeatmaps() {
-        File dir = new File("./src/main/resources/assets/beatmap");
-        Set<String> validFilenames = new HashSet<>();
-        if (dir.exists() && dir.isDirectory()) {
-            for (File file : Objects.requireNonNull(dir.listFiles())) {
-                if (file.isFile() && file.getName().endsWith(".osz")) {
-                    validFilenames.add(file.getName());
+        File tempDir = new File("./src/main/resources/assets/temp");
+        Set<String> validBeatmapDirs = new HashSet<>();
+
+        if(tempDir.exists() && tempDir.isDirectory()) {
+            for (File file : Objects.requireNonNull(tempDir.listFiles())) {
+                if (file.isDirectory()) {
+                    validBeatmapDirs.add(file.getName());
                 }
             }
         }
@@ -105,14 +106,12 @@ public class HomeView extends Page {
 
             if (result.isSuccess()) {
                 result.getValue().getBeatmaps().forEach(beatmapDto -> {
-                    String expectedFilename = String.format("%d %s - %s.osz",
-                            beatmapDto.getBeatmapSetDto().getId(),
-                            beatmapDto.getBeatmapSetDto().getArtist(),
-                            beatmapDto.getBeatmapSetDto().getTitle());
+                    String expectedDirName = String.format("%d",
+                            beatmapDto.getBeatmapSetId());
 
-                    System.out.println("Expected filename: " + expectedFilename);
+                    System.out.println("Expected dir name: " + expectedDirName);
 
-                    if (!validFilenames.contains(expectedFilename)) {
+                    if (!validBeatmapDirs.contains(expectedDirName)) {
                         return;
                     }
 
