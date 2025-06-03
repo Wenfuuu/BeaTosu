@@ -1,6 +1,5 @@
 package beat.osu.server.router;
 
-import beat.osu.server.handler.RealtimeMessageHandler;
 import beat.osu.server.service.AuthService;
 import beat.osu.server.service.BeatmapService;
 import beat.osu.server.service.SystemService;
@@ -35,8 +34,8 @@ public class MessageRouter {
 
     private Object handleSystemRequest(RequestMessage request, String clientId) {
         switch (request.getAction()) {
-            case GET_USER_COUNT:
-                return systemService.getCurrentUserCount();
+            case GET_CONNECTED_USERS:
+                return systemService.getConnectedUsers();
             default:
                 return Result.failure(Error.validation("Unknown system action: " + request.getAction()));
         }

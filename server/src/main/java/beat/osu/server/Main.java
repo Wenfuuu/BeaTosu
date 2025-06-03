@@ -6,10 +6,7 @@ import beat.osu.server.repositories.BeatmapRepository;
 import beat.osu.server.repositories.BeatmapSetRepository;
 import beat.osu.server.repositories.UserRepository;
 import beat.osu.server.router.MessageRouter;
-import beat.osu.server.service.AuthService;
-import beat.osu.server.service.BeatmapService;
-import beat.osu.server.service.SessionService;
-import beat.osu.server.service.SystemService;
+import beat.osu.server.service.*;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -25,8 +22,10 @@ public class Main {
         BeatmapSetRepository beatmapSetRepository = new BeatmapSetRepository();
         BeatmapRepository beatmapRepository = new BeatmapRepository();
 
-        SystemService systemService = new SystemService();
         SessionService sessionService = new SessionService();
+        SystemService systemService = new SystemService(sessionService, userRepository);
+
+        UserService userService = new UserService(userRepository);
         AuthService authService = new AuthService(userRepository, sessionService);
         BeatmapService beatmapService = new BeatmapService(beatmapSetRepository, beatmapRepository);
 
@@ -37,7 +36,7 @@ public class Main {
 
             while (true) {
                 var clientSocket = serverSocket.accept();
-                ClientHandler clientHandler = new ClientHandler(clientSocket, messageRouter, sessionService);
+                ClientHandler clientHandler = new ClientHandler(clientSocket, messageRouter, sessionService, userService);
                 threadPool.submit(clientHandler);
             }
 

@@ -5,7 +5,6 @@ module beat.osu.shared {
     exports beat.osu.shared.enums;
     exports beat.osu.shared.models;
 
-    exports beat.osu.shared.dto.auth;
     exports beat.osu.shared.dto.auth.requests;
     exports beat.osu.shared.dto.auth.responses;
 
