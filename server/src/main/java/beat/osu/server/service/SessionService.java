@@ -1,8 +1,11 @@
 package beat.osu.server.service;
 
+import lombok.Getter;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Getter
 public class SessionService {
     private final ConcurrentHashMap<String, Map<String, Object>> sessions = new ConcurrentHashMap<>();
 

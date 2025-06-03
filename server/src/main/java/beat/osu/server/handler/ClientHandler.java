@@ -1,7 +1,11 @@
 package beat.osu.server.handler;
 
+import beat.osu.server.entities.User;
 import beat.osu.server.router.MessageRouter;
 import beat.osu.server.service.SessionService;
+import beat.osu.server.service.UserService;
+import beat.osu.shared.dto.user.UserDto;
+import beat.osu.shared.enums.RealtimeMessageType;
 import beat.osu.shared.models.RequestMessage;
 import beat.osu.shared.models.RealtimeMessage;
 import lombok.Getter;
@@ -20,6 +24,7 @@ public class ClientHandler implements Runnable {
     private final Socket clientSocket;
     private final MessageRouter messageRouter;
     private final SessionService sessionService;
+    private final UserService userService;
 
     @Getter
     private final String clientId = UUID.randomUUID().toString();
@@ -86,11 +91,34 @@ public class ClientHandler implements Runnable {
 
     private void cleanup() {
         try {
+            Object userId = sessionService.getSessionData(clientId, "userId");
+            UserDto disconnectedUser = null;
+
+            if (userId != null) {
+                User user = userService.findUserById((Integer) userId);
+                if (user != null) {
+                    disconnectedUser = new UserDto(
+                            user.getId(), user.getUsername(), user.getEmail(), user.getCountryCode(),
+                            user.getProfilePicture(), user.getPerformance(), user.getAccuracy(),
+                            user.getPlayCount(), user.getLevel()
+                    );
+                }
+            }
+
             activeClients.remove(clientId);
             sessionService.removeSession(clientId);
             
             if (realtimeMessageHandler != null) {
                 realtimeMessageHandler.cleanup();
+            }
+
+            if (disconnectedUser != null) {
+                RealtimeMessage userDisconnectedMessage = new RealtimeMessage(
+                        RealtimeMessageType.REMOVE_CONNECTED_USER,
+                        "SYSTEM",
+                        disconnectedUser
+                );
+                RealtimeMessageHandler.broadcastToAll(userDisconnectedMessage);
             }
             
             if (oos != null) oos.close();

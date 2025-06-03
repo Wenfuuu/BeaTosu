@@ -1,5 +1,6 @@
 package beat.osu.server.service;
 
+import beat.osu.server.handler.RealtimeMessageHandler;
 import beat.osu.server.repositories.UserRepository;
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
@@ -8,6 +9,8 @@ import beat.osu.shared.dto.auth.requests.LoginRequest;
 import beat.osu.shared.dto.auth.requests.RegisterRequest;
 import beat.osu.shared.dto.auth.responses.LoginResponse;
 import beat.osu.shared.dto.auth.responses.RegisterResponse;
+import beat.osu.shared.enums.RealtimeMessageType;
+import beat.osu.shared.models.RealtimeMessage;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -62,6 +65,13 @@ public class AuthService {
             String message = "Successfully logged in as " + user.getUsername() + "!";
             UserDto userData = new UserDto(user.getId(), user.getUsername(), user.getEmail(), user.getCountryCode(),
                     user.getProfilePicture(), user.getPerformance(), user.getAccuracy(), user.getPlayCount(), user.getLevel());
+
+            RealtimeMessage userConnectedMessage = new RealtimeMessage(
+                    RealtimeMessageType.ADD_CONNECTED_USER,
+                    "SYSTEM",
+                    userData
+            );
+            RealtimeMessageHandler.broadcastToAll(userConnectedMessage);
 
             return Result.success(new LoginResponse(message, userData));
         } catch (Exception e) {

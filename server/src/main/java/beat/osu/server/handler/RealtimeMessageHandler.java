@@ -16,8 +16,6 @@ public class RealtimeMessageHandler {
         this.outputStream = outputStream;
         this.clientId = clientId;
         activeHandlers.put(clientId, this);
-        
-        broadcastUserCount();
     }
 
     public void handleRealtimeMessage(RealtimeMessage message, String fromClientId) {
@@ -28,10 +26,6 @@ public class RealtimeMessageHandler {
             switch (message.getType()) {
                 case CHAT_MESSAGE:
                     broadcastToAllExcept(message, fromClientId);
-                    break;
-                case USER_JOINED:
-                case USER_LEFT:
-                    broadcastToAll(message);
                     break;
                 case SYSTEM_NOTIFICATION:
                     // System notifications go to all clients
@@ -47,7 +41,7 @@ public class RealtimeMessageHandler {
         }
     }
 
-    public void sendToClient(RealtimeMessage message, String targetClientId) {
+    public static void sendToClient(RealtimeMessage message, String targetClientId) {
         RealtimeMessageHandler targetHandler = activeHandlers.get(targetClientId);
         if (targetHandler != null) {
             try {
@@ -70,7 +64,7 @@ public class RealtimeMessageHandler {
         }
     }
 
-    public void broadcastToAll(RealtimeMessage message) {
+    public static void broadcastToAll(RealtimeMessage message) {
         for (String clientId : activeHandlers.keySet()) {
             sendToClient(message, clientId);
         }
@@ -79,28 +73,8 @@ public class RealtimeMessageHandler {
     public void cleanup() {
         activeHandlers.remove(clientId);
 
-        RealtimeMessage userLeftMessage = new RealtimeMessage(RealtimeMessageType.USER_LEFT, "SYSTEM", null);
+        RealtimeMessage userLeftMessage = new RealtimeMessage(RealtimeMessageType.REMOVE_CONNECTED_USER, "SYSTEM", null);
         broadcastToAllExcept(userLeftMessage, clientId);
-        
-        broadcastUserCount();
-    }
-
-    public static int getActiveClientCount() {
-        return activeHandlers.size();
-    }
-
-    public static void broadcastUserCount() {
-        int userCount = activeHandlers.size();
-        RealtimeMessage userCountMessage = new RealtimeMessage(RealtimeMessageType.USER_COUNT_UPDATE, "SYSTEM", userCount);
-
-        for (RealtimeMessageHandler handler : activeHandlers.values()) {
-            try {
-                handler.outputStream.writeObject(userCountMessage);
-                handler.outputStream.flush();
-            } catch (Exception e) {
-                System.err.println("RealtimeMessageHandler: Error sending user count: " + e.getMessage());
-            }
-        }
     }
 
     public static void sendSystemNotification(String message) {

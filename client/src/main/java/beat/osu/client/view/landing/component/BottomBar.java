@@ -1,6 +1,6 @@
 package beat.osu.client.view.landing.component;
 
-import beat.osu.client.controller.UserCountController;
+import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.helper.CssManager;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -19,7 +19,7 @@ public class BottomBar extends HBox {
     private VBox ppyBox;
 
     private Label userCountLabel;
-    private UserCountController userCountController;
+    private ConnectedUsersController connectedUsersController;
 
     public BottomBar() {
         super(10);
@@ -51,7 +51,7 @@ public class BottomBar extends HBox {
         ppyBox = new VBox(copyright, website);
         ppyBox.setAlignment(Pos.CENTER_LEFT);
 
-        userCountController = new UserCountController();
+        connectedUsersController = new ConnectedUsersController();
         userCountLabel = new Label("Users online: N/A");
         userCountLabel.setAlignment(Pos.CENTER_RIGHT);
     }
@@ -71,7 +71,7 @@ public class BottomBar extends HBox {
     }
 
     private void setupUserCountSubscription() {
-        userCountController.addUserCountCallback(this::updateUserCountLabel);
+        connectedUsersController.addUserCountCallback(this::updateUserCountLabel);
     }
 
     private void updateUserCountLabel(Integer userCount) {
@@ -85,8 +85,8 @@ public class BottomBar extends HBox {
     }
 
     public void cleanup() {
-        if (userCountController != null) {
-            userCountController.removeUserCountCallback(this::updateUserCountLabel);
+        if (connectedUsersController != null) {
+            connectedUsersController.removeUserCountCallback(this::updateUserCountLabel);
         }
     }
 }

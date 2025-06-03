@@ -56,4 +56,32 @@ public class UserRepository {
             throw new RuntimeException(e);
         }
     }
+
+    public User findUserById(int userId) {
+        String query = "SELECT * FROM users WHERE id = ?;";
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setInt(1, userId);
+            var rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return new User(
+                        rs.getInt("id"),
+                        rs.getString("username"),
+                        rs.getString("email"),
+                        rs.getString("password_hash"),
+                        rs.getString("country_code"),
+                        rs.getBytes("profile_picture"),
+                        rs.getInt("performance"),
+                        rs.getDouble("accuracy"),
+                        rs.getInt("play_count"),
+                        rs.getInt("level")
+                );
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
