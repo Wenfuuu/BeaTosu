@@ -414,12 +414,10 @@ public class GameView extends Page implements Observer {
             case GAME_PAUSED:
                 System.out.println("pausing game, show pause menu here");
                 pauseOverlay.setVisible(true);
-                stage.setFullScreen(true);
                 break;
             case GAME_RESUMED:
                 System.out.println("resuming game, hide pause menu here");
                 pauseOverlay.setVisible(false);
-                stage.setFullScreen(true);
                 break;
             case GAME_ENDED:
                 GameEndData gameEndData = event.getData(GameEndData.class);
