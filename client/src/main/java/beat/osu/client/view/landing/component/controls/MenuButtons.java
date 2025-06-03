@@ -1,4 +1,4 @@
-package beat.osu.client.view.landing.component;
+package beat.osu.client.view.landing.component.controls;
 
 import beat.osu.client.helper.ScreenManager;
 import javafx.animation.FadeTransition;
@@ -15,13 +15,13 @@ import javafx.util.Duration;
 
 import java.net.URL;
 
-public class SubMenuButtons extends VBox {
+public class MenuButtons extends VBox {
 
-    private Button menuSoloButton;
-    private Button menuMultiButton;
-    private Button menuBackButton;
+    private Button menuPlayButton;
+    private Button menuOptionButton;
+    private Button menuExitButton;
 
-    public SubMenuButtons() {
+    public MenuButtons() {
         super(25);
         this.getStyleClass().add("menu-box");
         this.setAlignment(Pos.CENTER_LEFT);
@@ -32,25 +32,25 @@ public class SubMenuButtons extends VBox {
     }
 
     private void initializeComponents() {
-        menuSoloButton = createMenuButton("solo.png");
-        menuMultiButton = createMenuButton("multi.png");
-        menuBackButton = createMenuButton("back.png");
+        menuPlayButton = createMenuButton("play.png");
+        menuOptionButton = createMenuButton("options.png");
+        menuExitButton = createMenuButton("exit.png");
 
-        menuSoloButton.setAlignment(Pos.CENTER);
-        menuMultiButton.setAlignment(Pos.CENTER);
-        menuBackButton.setAlignment(Pos.CENTER);
+        menuPlayButton.setAlignment(Pos.CENTER);
+        menuOptionButton.setAlignment(Pos.CENTER);
+        menuExitButton.setAlignment(Pos.CENTER);
     }
 
     private void setupLayout() {
-        this.getChildren().addAll(menuSoloButton, menuMultiButton, menuBackButton);
+        this.getChildren().addAll(menuPlayButton, menuOptionButton, menuExitButton);
     }
 
     private Button createMenuButton(String imageName) {
         Button button = new Button();
         try {
-            String imagePath = "/assets/buttons/play-menu/" + imageName;
+            String imagePath = "/assets/buttons/main-menu/" + imageName;
             String hoveredImageName = imageName.substring(0, imageName.lastIndexOf('.')) + "_hovered.png";
-            String hoveredImagePath = "/assets/buttons/play-menu/" + hoveredImageName;
+            String hoveredImagePath = "/assets/buttons/main-menu/" + hoveredImageName;
             
             URL imageUrl = getClass().getResource(imagePath);
             URL hoveredImageUrl = getClass().getResource(hoveredImagePath);
@@ -135,18 +135,19 @@ public class SubMenuButtons extends VBox {
             System.err.println("Error loading image " + imageName + ": " + e.getMessage());
             button.setText(imageName.substring(0, imageName.lastIndexOf('.')));
         }
-        button.getStyleClass().add("menu-button");
+//        button.getStyleClass().add("menu-button");
         return button;
     }
 
-    public Button getSoloButton() {
-        return menuSoloButton;
-    }
-    public Button getMultiButton() {
-        return menuMultiButton;
+    public Button getPlayButton() {
+        return menuPlayButton;
     }
 
-    public Button getBackButton() {
-        return menuBackButton;
+    public Button getOptionButton() {
+        return menuOptionButton;
+    }
+
+    public Button getExitButton() {
+        return menuExitButton;
     }
 }

@@ -1,4 +1,4 @@
-package beat.osu.client.view.landing.component;
+package beat.osu.client.view.landing.component.layout;
 
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;

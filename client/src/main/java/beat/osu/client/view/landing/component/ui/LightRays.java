@@ -1,4 +1,4 @@
-package beat.osu.client.view.landing.component;
+package beat.osu.client.view.landing.component.ui;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.CacheHint;

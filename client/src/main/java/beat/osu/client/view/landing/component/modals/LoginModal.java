@@ -1,9 +1,11 @@
-package beat.osu.client.view.landing.component;
+package beat.osu.client.view.landing.component.modals;
 
 import beat.osu.client.controller.AuthController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.view.landing.component.ui.LightRays;
+import beat.osu.client.view.landing.component.ui.Visualizer;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.dto.auth.responses.LoginResponse;
 import javafx.animation.Animation;
