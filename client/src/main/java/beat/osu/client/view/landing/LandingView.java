@@ -4,6 +4,10 @@ import beat.osu.client.helper.*;
 import beat.osu.client.view.Page;
 import beat.osu.client.view.Toast;
 import beat.osu.client.view.home.HomeView;
+import beat.osu.client.view.landing.component.bancho.BanchoButtons;
+import beat.osu.client.view.landing.component.bancho.BanchoPanel;
+import beat.osu.client.view.landing.component.bancho.ChatToggleButton;
+import beat.osu.client.view.landing.component.bancho.OnlineUsersButton;
 import beat.osu.client.view.landing.component.controls.MediaControls;
 import beat.osu.client.view.landing.component.controls.MenuButtons;
 import beat.osu.client.view.landing.component.controls.SubMenuButtons;
@@ -37,6 +41,11 @@ public class LandingView extends Page {
     private SubMenuButtons subMenuButtonsComponent;
     private LoginModal loginModalComponent;
     private RegisterModal registerModalComponent;
+
+    private BanchoPanel banchoPanel;
+//    private ChatToggleButton chatToggleButton;
+//    private OnlineUsersButton onlineUsersButton;
+    private BanchoButtons banchoButtons;
 
     private double visualizerSize;
 
@@ -191,6 +200,11 @@ public class LandingView extends Page {
         loginModalComponent = new LoginModal();
         registerModalComponent = new RegisterModal();
 
+        banchoPanel = new BanchoPanel();
+//        chatToggleButton = new ChatToggleButton();
+//        onlineUsersButton = new OnlineUsersButton();
+        banchoButtons = new BanchoButtons();
+
         visualizerComponent.getLogoRayGroup().getStyleClass().add("logo-ray-group");
         menuButtonsComponent.getStyleClass().add("menu-buttons");
         subMenuButtonsComponent.getStyleClass().add("menu-buttons");
@@ -245,6 +259,18 @@ public class LandingView extends Page {
         root.getChildren().addAll(loginModalComponent, registerModalComponent);
         StackPane.setAlignment(loginModalComponent, Pos.CENTER_LEFT);
         StackPane.setAlignment(registerModalComponent, Pos.CENTER);
+
+        root.getChildren().add(banchoPanel);
+        StackPane.setAlignment(banchoPanel, Pos.CENTER);
+
+//        root.getChildren().add(chatToggleButton);
+//        StackPane.setAlignment(chatToggleButton, Pos.BOTTOM_RIGHT);
+//
+//        root.getChildren().add(onlineUsersButton);
+//        StackPane.setAlignment(onlineUsersButton, Pos.BOTTOM_RIGHT);
+
+        root.getChildren().add(banchoButtons);
+        StackPane.setAlignment(banchoButtons, Pos.BOTTOM_RIGHT);
     }
 
     public void handleEvent() {
@@ -321,6 +347,22 @@ public class LandingView extends Page {
         
         subMenuButtonsComponent.getBackButton().setOnMouseClicked(e -> {
             hideSubMenu();
+        });
+
+        banchoButtons.getChatToggleButton().setOnMouseClicked(e -> {
+            banchoButtons.toggleChat(banchoPanel);
+        });
+
+        banchoButtons.getOnlineUsersButton().setOnMouseClicked(e -> {
+            banchoButtons.toggleOnlineUsers();
+        });
+
+        banchoButtons.getAutoHideButton().setOnMouseClicked(e -> {
+            banchoButtons.toggleAutoHide();
+        });
+
+        banchoButtons.getShowTickerButton().setOnMouseClicked(e -> {
+            banchoButtons.toggleTicker();
         });
     }
 }

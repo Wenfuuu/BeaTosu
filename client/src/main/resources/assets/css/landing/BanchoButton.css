@@ -1,0 +1,7 @@
+.bancho-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-border-width: 0;
+    -fx-background-insets: 0;
+    -fx-graphic-text-gap: 0;
+}
