@@ -25,6 +25,8 @@ public class BanchoButtons extends HBox {
         this.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
         this.setAlignment(Pos.BOTTOM_RIGHT);
+        this.setSpacing(8);
+
         this.getChildren().addAll(showTickerButton, autoHideButton, onlineUsersButton, chatToggleButton);
     }
 
