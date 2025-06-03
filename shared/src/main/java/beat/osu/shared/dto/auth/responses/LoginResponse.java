@@ -1,6 +1,6 @@
 package beat.osu.shared.dto.auth.responses;
 
-import beat.osu.shared.dto.auth.UserDto;
+import beat.osu.shared.dto.user.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

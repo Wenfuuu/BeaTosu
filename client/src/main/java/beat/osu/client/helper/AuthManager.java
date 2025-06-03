@@ -1,6 +1,6 @@
 package beat.osu.client.helper;
 
-import beat.osu.shared.dto.auth.UserDto;
+import beat.osu.shared.dto.user.UserDto;
 import lombok.Getter;
 import lombok.Setter;
 

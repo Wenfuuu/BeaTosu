@@ -3,7 +3,7 @@ package beat.osu.server.service;
 import beat.osu.server.repositories.UserRepository;
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
-import beat.osu.shared.dto.auth.UserDto;
+import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.dto.auth.requests.LoginRequest;
 import beat.osu.shared.dto.auth.requests.RegisterRequest;
 import beat.osu.shared.dto.auth.responses.LoginResponse;

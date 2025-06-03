@@ -2,7 +2,7 @@ package beat.osu.client.view.landing.component;
 
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
-import beat.osu.shared.dto.auth.UserDto;
+import beat.osu.shared.dto.user.UserDto;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;

@@ -4,7 +4,7 @@ import beat.osu.client.controller.AuthController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
-import beat.osu.shared.dto.auth.UserDto;
+import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.dto.auth.responses.LoginResponse;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;

@@ -1,4 +1,4 @@
-package beat.osu.shared.dto.auth;
+package beat.osu.shared.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
