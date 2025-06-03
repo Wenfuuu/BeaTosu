@@ -6,8 +6,6 @@ import beat.osu.client.view.Toast;
 import beat.osu.client.view.home.HomeView;
 import beat.osu.client.view.landing.component.bancho.BanchoButtons;
 import beat.osu.client.view.landing.component.bancho.BanchoPanel;
-import beat.osu.client.view.landing.component.bancho.ChatToggleButton;
-import beat.osu.client.view.landing.component.bancho.OnlineUsersButton;
 import beat.osu.client.view.landing.component.controls.MediaControls;
 import beat.osu.client.view.landing.component.controls.MenuButtons;
 import beat.osu.client.view.landing.component.controls.SubMenuButtons;
@@ -43,8 +41,6 @@ public class LandingView extends Page {
     private RegisterModal registerModalComponent;
 
     private BanchoPanel banchoPanel;
-//    private ChatToggleButton chatToggleButton;
-//    private OnlineUsersButton onlineUsersButton;
     private BanchoButtons banchoButtons;
 
     private double visualizerSize;
@@ -140,16 +136,21 @@ public class LandingView extends Page {
             logoSlideIn.play();
             menuSlideOut.play();
             isMenuPanelOpen = false;
+
+            updateBanchoButtonsVisibility();
         } else {
             BackgroundManager.setDarkBackground(scene, true);
 
             logoSlideOut.play();
             menuSlideIn.play();
             isMenuPanelOpen = true;
+
+            updateBanchoButtonsVisibility();
         }
     }
 
     private void showSubMenu() {
+        System.out.println(">>> showSubMenu() called - isMenuPanelOpen: " + isMenuPanelOpen);
         if (isMenuPanelOpen) {
             subMenuButtonsComponent.setVisible(true);
             subMenuButtonsComponent.setManaged(true);
@@ -165,6 +166,8 @@ public class LandingView extends Page {
 
             isMenuPanelOpen = false;
             isSubMenuOpen = true;
+
+            updateBanchoButtonsVisibility();
         }
     }
 
@@ -181,7 +184,15 @@ public class LandingView extends Page {
 
             isSubMenuOpen = false;
             isMenuPanelOpen = true;
+
+            updateBanchoButtonsVisibility();
         }
+    }
+
+    private void updateBanchoButtonsVisibility() {
+        boolean shouldShow = AuthManager.isAuthenticated() && (isMenuPanelOpen || isSubMenuOpen);
+        banchoButtons.setVisible(shouldShow);
+        banchoButtons.setManaged(shouldShow);
     }
 
     @Override
@@ -201,9 +212,10 @@ public class LandingView extends Page {
         registerModalComponent = new RegisterModal();
 
         banchoPanel = new BanchoPanel();
-//        chatToggleButton = new ChatToggleButton();
-//        onlineUsersButton = new OnlineUsersButton();
         banchoButtons = new BanchoButtons();
+
+        banchoButtons.setVisible(false);
+        banchoButtons.setManaged(false);
 
         visualizerComponent.getLogoRayGroup().getStyleClass().add("logo-ray-group");
         menuButtonsComponent.getStyleClass().add("menu-buttons");
@@ -298,6 +310,7 @@ public class LandingView extends Page {
         loginModalComponent.setOnLoginSuccessListener(user -> {
             if (user != null) {
                 topBarComponent.updateUserInfo(user);
+                updateBanchoButtonsVisibility();
             }
         });
 
