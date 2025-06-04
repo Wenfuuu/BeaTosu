@@ -388,7 +388,8 @@ public class GameView extends Page implements Observer {
             case SCORE_CHANGED:
                 ScoreChangeData scoreChangeData = event.getData(ScoreChangeData.class);
                 if (scoreChangeData != null) {
-                    uiPane.getScoreLabel().setText("Score: " + scoreChangeData.getScore());
+//                    uiPane.getScoreLabel().setText("Score: " + scoreChangeData.getScore());
+                    uiPane.updateScore(scoreChangeData.getScore());
                 }
                 break;
             case HIT_OBJECT_MISSED:
