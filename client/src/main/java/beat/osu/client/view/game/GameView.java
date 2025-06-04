@@ -338,7 +338,7 @@ public class GameView extends Page implements Observer {
 
         if (bottomLeftPanel != null) {
             bottomLeftPanel.setLayoutX(10);
-            bottomLeftPanel.setLayoutY(paneHeight - 30); // 30px from bottom
+            bottomLeftPanel.setLayoutY(paneHeight * 0.925);
         }
     }
 
@@ -383,7 +383,8 @@ public class GameView extends Page implements Observer {
             case COMBO_CHANGED:
                 ComboChangeData comboChangeData = event.getData(ComboChangeData.class);
                 if (comboChangeData != null) {
-                    uiPane.getComboLabel().setText("Combo: " + comboChangeData.getCombo() + "x");
+//                    uiPane.getComboLabel().setText("Combo: " + comboChangeData.getCombo() + "x");
+                    uiPane.updateCombo(comboChangeData.getCombo());
                 }
                 break;
             case SCORE_CHANGED:

@@ -18,16 +18,17 @@ import javafx.scene.text.FontWeight;
 import javafx.util.Duration;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 @Getter
 public class GameUI extends Pane {
-    private final Label comboLabel;
+//    private final Label comboLabel;
     private final ProgressBar healthBar;
-    private final Label hitResultLabel;
 
     // score
     private final ImageView[] scoreDigits;
+    private final ImageView scoreComma;
     private final HBox scoreContainer;
 
     // accuracy
@@ -35,15 +36,21 @@ public class GameUI extends Pane {
     private final ImageView percentSymbol;
     private final HBox accuracyContainer;
 
+    // combo
+    private final ArrayList<ImageView> comboDigits;
+    private final ImageView comboXSymbol;
+    private final HBox comboContainer;
+
     private final Image[] digitImages;
     private final Image percentImage;
-    private final Label decimalPoint;
+    private final Image xImage;
+    private final Image commaImage;
+//    private final Label decimalPoint;
     private final SequentialTransition hideTransition;
 
     private boolean stillPerfect = true;
 
     public GameUI() {
-        // Score display
         digitImages = new Image[10];
         for (int i = 0; i < 10; i++) {
             digitImages[i] = new Image(Objects.requireNonNull(Main.class
@@ -51,11 +58,14 @@ public class GameUI extends Pane {
         }
         percentImage = new Image(Objects.requireNonNull(Main.class
                 .getResource("/assets/images/score-percent.png")).toExternalForm());
+        xImage = new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/images/score-x.png")).toExternalForm());
+        commaImage = new Image(Objects.requireNonNull(Main.class
+                 .getResource("/assets/images/score-comma.png")).toExternalForm());
 
-        // Initialize score digit ImageViews (8 digits)
+        // Score display
         scoreDigits = new ImageView[8];
         scoreContainer = new HBox(2); // 2px spacing between digits
-
         for (int i = 0; i < 8; i++) {
             scoreDigits[i] = new ImageView(digitImages[0]); // Start with all zeros
             scoreDigits[i].setFitWidth(40); // Adjust size as needed
@@ -65,18 +75,27 @@ public class GameUI extends Pane {
         }
 
         // Combo display
-        comboLabel = new Label("Combo: 0x");
-        comboLabel.setFont(Font.font("Arial", FontWeight.BOLD, 18));
-        comboLabel.setTextFill(Color.YELLOW);
+        comboDigits = new ArrayList<>();
+        comboXSymbol = new ImageView(xImage);
+        comboContainer = new HBox(1);
+        ImageView initialDigit = new ImageView(digitImages[0]);
+        initialDigit.setFitWidth(45);
+        initialDigit.setFitHeight(55);
+        initialDigit.setPreserveRatio(true);
+        comboDigits.add(initialDigit);
+        comboXSymbol.setFitWidth(45);
+        comboXSymbol.setFitHeight(55);
+        comboXSymbol.setPreserveRatio(true);
+
+        comboContainer.getChildren().addAll(initialDigit, comboXSymbol);
 
         // Accuracy display
         accuracyDigits = new ImageView[4];
         percentSymbol = new ImageView(percentImage);
         accuracyContainer = new HBox(1);
-        decimalPoint = new Label(".");
-        decimalPoint.setFont(Font.font("Arial", FontWeight.BOLD, 16));
-        decimalPoint.setTextFill(Color.WHITE);
-        decimalPoint.setStyle("-fx-padding: 0 2 4 2;"); // Adjust positioning
+        scoreComma = new ImageView(commaImage);
+        scoreComma.setFitWidth(10);
+        scoreComma.setFitHeight(30);
 
         for (int i = 0; i < 4; i++) {
             if(i == 0) accuracyDigits[i] = new ImageView(digitImages[1]);
@@ -89,7 +108,7 @@ public class GameUI extends Pane {
 
             // Add decimal point for 100.0%
             if (i == 2) {
-                accuracyContainer.getChildren().add(decimalPoint);
+                accuracyContainer.getChildren().add(scoreComma);
             }
         }
 
@@ -97,11 +116,6 @@ public class GameUI extends Pane {
         percentSymbol.setFitHeight(30);
         percentSymbol.setPreserveRatio(true);
         accuracyContainer.getChildren().add(percentSymbol);
-
-        // Hit result display (appears temporarily when hitting objects)
-        hitResultLabel = new Label("Perfect!");
-        hitResultLabel.setFont(Font.font("Arial", FontWeight.BOLD, 20));
-        hitResultLabel.setVisible(false);
 
         // Health bar
         healthBar = new ProgressBar(1.0);
@@ -126,10 +140,10 @@ public class GameUI extends Pane {
 
         // Bottom-left: Combo
         VBox bottomLeftPanel = new VBox(5);
-        bottomLeftPanel.getChildren().add(comboLabel);
+        bottomLeftPanel.getChildren().add(comboContainer);
 
         // Use a Pane instead of VBox for absolute positioning
-        this.getChildren().addAll(topLeftPanel, topRightPanel, bottomLeftPanel, hitResultLabel);
+        this.getChildren().addAll(topLeftPanel, topRightPanel, bottomLeftPanel);
         // Store references for layout updates
         this.getProperties().put("topRightPanel", topRightPanel);
         this.getProperties().put("bottomLeftPanel", bottomLeftPanel);
@@ -165,7 +179,7 @@ public class GameUI extends Pane {
                 accuracyContainer.getChildren().add(accuracyDigits[i]);
                 // Add decimal point after the second digit like 99.99%
                 if (i == 1) {
-                    accuracyContainer.getChildren().add(decimalPoint);
+                    accuracyContainer.getChildren().add(scoreComma);
                 }
             }
             accuracyContainer.getChildren().add(percentSymbol);
@@ -176,5 +190,36 @@ public class GameUI extends Pane {
             int digit = Character.getNumericValue(accuracyStr.charAt(i));
             accuracyDigits[i].setImage(digitImages[digit]);
         }
+    }
+
+    public void updateCombo(int combo) {
+        String comboStr = String.valueOf(combo);
+        int requiredDigits = comboStr.length();
+
+        comboContainer.getChildren().clear();
+        comboDigits.clear();
+
+        while (comboDigits.size() < requiredDigits) {
+            ImageView newDigit = new ImageView(digitImages[0]);
+            newDigit.setFitWidth(45);
+            newDigit.setFitHeight(55);
+            newDigit.setPreserveRatio(true);
+            comboDigits.add(0, newDigit);
+        }
+
+        // Remove excess digits if combo got smaller (though this rarely happens in osu!)
+//        while (comboDigits.size() > requiredDigits) {
+//            comboDigits.remove(0);
+//        }
+
+        // Update digit images
+        for (int i = 0; i < requiredDigits; i++) {
+            int digit = Character.getNumericValue(comboStr.charAt(i));
+            comboDigits.get(i).setImage(digitImages[digit]);
+        }
+
+        // Add all digits to container, then add x symbol
+        comboContainer.getChildren().addAll(comboDigits);
+        comboContainer.getChildren().add(comboXSymbol);
     }
 }
