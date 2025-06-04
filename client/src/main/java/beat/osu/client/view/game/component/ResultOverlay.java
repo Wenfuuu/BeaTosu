@@ -2,6 +2,7 @@ package beat.osu.client.view.game.component;
 
 import beat.osu.client.Main;
 import beat.osu.client.game.GameEndData;
+import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.model.Beatmap;
 import javafx.animation.FadeTransition;
@@ -20,17 +21,46 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class ResultOverlay extends BorderPane {
-    private Label scoreLabel;
+    // Score display with images
+    private final ImageView[] scoreDigits;
+    private final HBox scoreContainer;
+
+    // Combo display with images
+    private final List<ImageView> comboDigits;
+    private final ImageView comboXSymbol;
+    private final HBox comboContainer;
+
+    // Accuracy display with images
+    private final ImageView[] accuracyDigits;
+    private final ImageView percentSymbol;
+    private final HBox accuracyContainer;
+    private final ImageView scoreComma;
+    private final ImageView gradeSymbol;
+
+    // Hit count displays with images
+    private final HBox[] hitCountRows;
+    private final ImageView[] hitCountLabels;
+    private final List<List<ImageView>> hitCountDigits;
+    private final ImageView[] hitCountXSymbols;
+
+    // Image resources
+    private final Image[] digitImages;
+    private final Image percentImage;
+    private final Image xImage;
+    private final Image commaImage;
+    private Image gradeImage;
+    private final Image[] hitImages;
+
     private Label songTitleLabel;
     private Label mapperLabel;
     private Label playedLabel;
-    private Label comboLabel;
-    private Label accuracyLabel;
     private VBox hitCountsBox;
-    private Label gradeLabel;
+//    private Label gradeLabel;
     private Button retryButton;
     private Button backButton;
     private ImageView rankingView;
@@ -39,7 +69,123 @@ public class ResultOverlay extends BorderPane {
     private final FadeTransition showTransition;
 
     public ResultOverlay() {
-        this.setVisible(false);
+//        this.setVisible(false);
+
+        // Load digit images
+        digitImages = new Image[10];
+        for (int i = 0; i < 10; i++) {
+            digitImages[i] = new Image(Objects.requireNonNull(Main.class
+                    .getResource("/assets/images/score-" + i + ".png")).toExternalForm());
+        }
+        percentImage = new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/images/score-percent.png")).toExternalForm());
+        xImage = new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/images/score-x.png")).toExternalForm());
+        commaImage = new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/images/score-comma.png")).toExternalForm());
+        gradeImage = new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/images/ranking-x.png")).toExternalForm());
+
+        // Load hit count images
+        hitImages = new Image[6];
+        hitImages[0] = new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/images/hit300.png")).toExternalForm());
+        hitImages[1] = new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/images/hit300g.png")).toExternalForm());
+        hitImages[2] = new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/images/hit100.png")).toExternalForm());
+        hitImages[3] = new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/images/hit100k.png")).toExternalForm());
+        hitImages[4] = new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/images/hit50.png")).toExternalForm());
+        hitImages[5] = new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/images/hit0.png")).toExternalForm());
+
+        // Initialize score display (8 digits)
+        scoreDigits = new ImageView[8];
+        scoreContainer = new HBox(3);
+        for (int i = 0; i < 8; i++) {
+            scoreDigits[i] = new ImageView(digitImages[0]);
+            scoreDigits[i].setFitWidth(30);
+            scoreDigits[i].setFitHeight(42);
+            scoreDigits[i].setPreserveRatio(true);
+            scoreContainer.getChildren().add(scoreDigits[i]);
+        }
+
+        // Initialize combo display
+        comboDigits = new ArrayList<>();
+        comboXSymbol = new ImageView(xImage);
+        comboContainer = new HBox(2);
+
+        // Start with "0x"
+        ImageView initialComboDigit = new ImageView(digitImages[0]);
+        initialComboDigit.setFitWidth(25);
+        initialComboDigit.setFitHeight(35);
+        initialComboDigit.setPreserveRatio(true);
+        comboDigits.add(initialComboDigit);
+
+        comboXSymbol.setFitWidth(25);
+        comboXSymbol.setFitHeight(35);
+        comboXSymbol.setPreserveRatio(true);
+
+        comboContainer.getChildren().addAll(initialComboDigit, comboXSymbol);
+
+        // Initialize accuracy display (4 digits + percent)
+        accuracyDigits = new ImageView[4];
+        percentSymbol = new ImageView(percentImage);
+        accuracyContainer = new HBox(1);
+        scoreComma = new ImageView(commaImage);
+        scoreComma.setFitWidth(10);
+        scoreComma.setFitHeight(30);
+
+        for (int i = 0; i < 4; i++) {
+            accuracyDigits[i] = new ImageView(digitImages[0]);
+            accuracyDigits[i].setFitWidth(20);
+            accuracyDigits[i].setFitHeight(28);
+            accuracyDigits[i].setPreserveRatio(true);
+            accuracyContainer.getChildren().add(accuracyDigits[i]);
+
+            // Add decimal point after 2nd digit for xx.xx% format
+            if (i == 1) {
+                accuracyContainer.getChildren().add(scoreComma);
+            }
+        }
+
+        percentSymbol.setFitWidth(20);
+        percentSymbol.setFitHeight(28);
+        percentSymbol.setPreserveRatio(true);
+        accuracyContainer.getChildren().add(percentSymbol);
+
+        // Initialize hit count displays (3 rows)
+        hitCountRows = new HBox[3];
+        hitCountLabels = new ImageView[6]; // 6 different hit types
+        hitCountDigits = new ArrayList<>();
+        hitCountXSymbols = new ImageView[6];
+
+        for (int i = 0; i < 6; i++) {
+            hitCountLabels[i] = new ImageView(hitImages[i]);
+            hitCountLabels[i].setFitWidth(40);
+            hitCountLabels[i].setFitHeight(40);
+            hitCountLabels[i].setPreserveRatio(true);
+
+            hitCountXSymbols[i] = new ImageView(xImage);
+            hitCountXSymbols[i].setFitWidth(20);
+            hitCountXSymbols[i].setFitHeight(28);
+            hitCountXSymbols[i].setPreserveRatio(true);
+
+            hitCountDigits.add(new ArrayList<>());
+        }
+
+        // Initialize 3 rows
+        for (int i = 0; i < 3; i++) {
+            hitCountRows[i] = new HBox(20);
+            hitCountRows[i].setAlignment(Pos.CENTER_LEFT);
+        }
+
+        // grade
+        gradeSymbol = new ImageView(gradeImage);
+        gradeSymbol.setFitHeight(200);
+        gradeSymbol.setPreserveRatio(true);
 
         initializeComponents();
         setupLayout();
@@ -60,16 +206,151 @@ public class ResultOverlay extends BorderPane {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String formatted = now.format(formatter);
-        playedLabel.setText("Played by Guest on " + formatted + ".");
+        String userName = AuthManager.isAuthenticated() ? AuthManager.getUser().getUsername() : "Guest";
+        playedLabel.setText("Played by " + userName + " on " + formatted + ".");
 
-        scoreLabel.setText(String.valueOf(gameEndData.getScore()));
-        comboLabel.setText(gameEndData.getHighestCombo() + "x");
-        accuracyLabel.setText(String.format("%.2f%%", gameEndData.getAccuracy()));
-        gradeLabel.setText(gameEndData.getGrade());
+        updateScore(gameEndData.getScore());
+        updateCombo(gameEndData.getHighestCombo());
+        updateAccuracy(gameEndData.getAccuracy());
+        updateGrade(gameEndData.getGrade());
 
-        setupHitCounts(gameEndData.getPerfectHits(), gameEndData.getGekiHits(),
+        updateHitCounts(gameEndData.getPerfectHits(), gameEndData.getGekiHits(),
                 gameEndData.getGreatHits(), gameEndData.getKatuHits(),
                 gameEndData.getGoodHits(), gameEndData.getMisses());
+    }
+
+    private void updateScore(long score) {
+        String scoreStr = String.format("%08d", Math.min(score, 99999999L));
+        for (int i = 0; i < 8; i++) {
+            int digit = Character.getNumericValue(scoreStr.charAt(i));
+            scoreDigits[i].setImage(digitImages[digit]);
+        }
+    }
+
+    private void updateCombo(int combo) {
+        String comboStr = String.valueOf(combo);
+        int requiredDigits = comboStr.length();
+
+        // Clear the container
+        comboContainer.getChildren().clear();
+
+        // Adjust the number of digit ImageViews
+        while (comboDigits.size() < requiredDigits) {
+            ImageView newDigit = new ImageView(digitImages[0]);
+            newDigit.setFitWidth(25);
+            newDigit.setFitHeight(35);
+            newDigit.setPreserveRatio(true);
+            comboDigits.add(0, newDigit);
+        }
+
+        while (comboDigits.size() > requiredDigits) {
+            comboDigits.remove(0);
+        }
+
+        // Update digit images
+        for (int i = 0; i < requiredDigits; i++) {
+            int digit = Character.getNumericValue(comboStr.charAt(i));
+            comboDigits.get(i).setImage(digitImages[digit]);
+        }
+
+        // Add all digits to container, then add x symbol
+        comboContainer.getChildren().addAll(comboDigits);
+        comboContainer.getChildren().add(comboXSymbol);
+    }
+
+    private void updateAccuracy(double accuracy) {
+        // Format accuracy to 2 decimal places (e.g., 96.24% -> "9624")
+        int accuracyInt = (int) Math.round(accuracy * 100);
+        String accuracyStr = String.format("%04d", Math.min(accuracyInt, 10000));
+
+        for (int i = 0; i < 4; i++) {
+            int digit = Character.getNumericValue(accuracyStr.charAt(i));
+            accuracyDigits[i].setImage(digitImages[digit]);
+        }
+    }
+
+    private void updateGrade(String grade) {
+        String gradeImagePath;
+        if(grade.equals("SS")) gradeImagePath = "/assets/images/ranking-x.png";
+        else gradeImagePath = "/assets/images/ranking-" + grade.toLowerCase() + ".png";
+        gradeImage = new Image(Objects.requireNonNull(Main.class.getResource(gradeImagePath)).toExternalForm());
+        gradeSymbol.setImage(gradeImage);
+    }
+
+    private void updateHitCounts(int perfectHits, int gekiHits, int greatHits,
+                                 int katuHits, int goodHits, int misses) {
+        // Update hit counts: 300, 300g, 100, 100k, 50, miss
+        int[] hitCounts = {perfectHits, gekiHits, greatHits, katuHits, goodHits, misses};
+
+        for (int i = 0; i < 6; i++) {
+            updateHitCountDigits(i, hitCounts[i]);
+        }
+
+        // Clear and rebuild rows
+        for (int i = 0; i < 3; i++) {
+            hitCountRows[i].getChildren().clear();
+        }
+
+        // Row 1: 300 and 300g (激)
+        hitCountRows[0].getChildren().addAll(
+                createHitCountDisplay(0), // 300
+                createHitCountDisplay(1)  // 300g
+        );
+
+        // Row 2: 100 and 100k (喝)
+        hitCountRows[1].getChildren().addAll(
+                createHitCountDisplay(2), // 100
+                createHitCountDisplay(3)  // 100k
+        );
+
+        // Row 3: 50 and miss
+        hitCountRows[2].getChildren().addAll(
+                createHitCountDisplay(4), // 50
+                createHitCountDisplay(5)  // miss
+        );
+    }
+
+    private void updateHitCountDigits(int hitType, int count) {
+        String countStr = String.valueOf(count);
+        int requiredDigits = countStr.length();
+
+        List<ImageView> digits = hitCountDigits.get(hitType);
+
+        // Adjust the number of digit ImageViews
+        while (digits.size() < requiredDigits) {
+            ImageView newDigit = new ImageView(digitImages[0]);
+            newDigit.setFitWidth(20);
+            newDigit.setFitHeight(28);
+            newDigit.setPreserveRatio(true);
+            digits.add(0, newDigit);
+        }
+
+        while (digits.size() > requiredDigits) {
+            digits.remove(0);
+        }
+
+        // Update digit images
+        for (int i = 0; i < requiredDigits; i++) {
+            int digit = Character.getNumericValue(countStr.charAt(i));
+            digits.get(i).setImage(digitImages[digit]);
+        }
+    }
+
+    private HBox createHitCountDisplay(int hitType) {
+        HBox display = new HBox(5);
+        display.setAlignment(Pos.CENTER_LEFT);
+        display.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.25);
+
+        // Add hit type image
+        display.getChildren().add(hitCountLabels[hitType]);
+
+        // Add count digits
+        display.getChildren().addAll(hitCountDigits.get(hitType));
+
+        // Add x symbol
+        display.getChildren().add(hitCountXSymbols[hitType]);
+
+        return display;
     }
 
     private void initializeComponents() {
@@ -78,19 +359,9 @@ public class ResultOverlay extends BorderPane {
         mapperLabel = new Label("Beatmap by bt24-2");
         playedLabel = new Label("Played by bt24-2 on 10/10/2013 04:30:28.");
 
-        // Score display
-        scoreLabel = new Label("03241090");
-
-        // Stats
-        comboLabel = new Label("313x");
-        accuracyLabel = new Label("96.24%");
-
         // Hit counts container
-        hitCountsBox = new VBox(ScreenManager.SCREEN_HEIGHT * 0.09);
-//        setupHitCounts();
-
-        // Rank
-        gradeLabel = new Label("A");
+        hitCountsBox = new VBox(ScreenManager.SCREEN_HEIGHT * 0.06);
+        hitCountsBox.getChildren().addAll(hitCountRows);
 
         // Buttons
         retryButton = new Button("Retry");
@@ -105,47 +376,6 @@ public class ResultOverlay extends BorderPane {
         rankingView.setMouseTransparent(true);
     }
 
-    private void setupHitCounts(int perfectHits, int gekiHits, int greatHits,
-                                int katuHits, int goodHits, int misses) {
-        hitCountsBox.getChildren().clear();
-
-        HBox row1 = createHitCountRow("300", perfectHits + "x", "激", gekiHits + "x");
-        HBox row2 = createHitCountRow("100", greatHits + "x", "喝", katuHits + "x");
-        HBox row3 = createHitCountRow("50", goodHits + "x", "×", misses + "x");
-
-        hitCountsBox.getChildren().addAll(row1, row2, row3);
-    }
-
-    private HBox createHitCountRow(String label1, String count1, String label2, String count2) {
-        HBox row = new HBox(200);
-        row.setAlignment(Pos.CENTER_LEFT);
-
-        // Left side
-        Label leftLabel = new Label(label1);
-        Label leftCount = new Label(count1);
-        leftLabel.setTextFill(Color.WHITE);
-        leftCount.setTextFill(Color.WHITE);
-        leftCount.setFont(Font.font("Arial", FontWeight.BOLD, 18));
-
-        // Right side
-        Label rightLabel = new Label(label2);
-        Label rightCount = new Label(count2);
-        rightLabel.setTextFill(Color.WHITE);
-        rightCount.setTextFill(Color.WHITE);
-        rightCount.setFont(Font.font("Arial", FontWeight.BOLD, 18));
-
-        HBox leftBox = new HBox(10);
-        leftBox.getChildren().addAll(leftLabel, leftCount);
-        leftBox.setAlignment(Pos.CENTER_LEFT);
-
-        HBox rightBox = new HBox(10);
-        rightBox.getChildren().addAll(rightLabel, rightCount);
-        rightBox.setAlignment(Pos.CENTER_LEFT);
-
-        row.getChildren().addAll(leftBox, rightBox);
-        return row;
-    }
-
     private void setupLayout() {
         // Header section
         VBox headerSection = new VBox(10);
@@ -157,26 +387,22 @@ public class ResultOverlay extends BorderPane {
         hitCountsPanel.getChildren().add(hitCountsBox);
 
         // Combo and accuracy
-        HBox comboAccuracyBox = new HBox(200);
+        HBox comboAccuracyBox = new HBox(ScreenManager.SCREEN_WIDTH * 0.175);
         comboAccuracyBox.setAlignment(Pos.CENTER_LEFT);
 
         comboAccuracyBox.getChildren().addAll(
-                new VBox(10, comboLabel),
-                new VBox(10, accuracyLabel)
+                new VBox(10, comboContainer),
+                new VBox(10, accuracyContainer)
         );
 
         // Right side - Rank
         VBox rightStats = new VBox(20);
         rightStats.setAlignment(Pos.CENTER);
 
-        Label rankingTitle = new Label("Ranking");
-        rankingTitle.setTextFill(Color.WHITE);
-        rankingTitle.setFont(Font.font("Arial", FontWeight.BOLD, 18));
-
-        rightStats.getChildren().addAll(rankingTitle, gradeLabel, retryButton);
+        rightStats.getChildren().addAll(gradeSymbol, retryButton);
 
         Pane contentPane = new Pane();
-        contentPane.getChildren().addAll(rankingView, scoreLabel,
+        contentPane.getChildren().addAll(rankingView, scoreContainer,
                 hitCountsPanel, comboAccuracyBox, backButton, rightStats);
 
         // Position ranking image as in original (towards the right)
@@ -184,9 +410,9 @@ public class ResultOverlay extends BorderPane {
         rankingView.setLayoutX(rankingImageX);
         rankingView.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.1);
 
-        // Position score label to align with the left edge of ranking image
-        scoreLabel.setLayoutX(rankingImageX + 50); // Align with ranking image left edge
-        scoreLabel.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.1);
+        // Position score container to align with the left edge of ranking image
+        scoreContainer.setLayoutX(rankingImageX + 50);
+        scoreContainer.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.1);
 
         // Position hit counts panel to align with ranking image left edge
         hitCountsPanel.setLayoutX(rankingImageX + 50);
@@ -222,27 +448,6 @@ public class ResultOverlay extends BorderPane {
         // Player name
         playedLabel.setTextFill(Color.WHITE);
         playedLabel.setFont(Font.font("Arial", 14));
-
-        // Score
-        scoreLabel.setTextFill(Color.WHITE);
-        scoreLabel.setFont(Font.font("Arial", FontWeight.BOLD, 36));
-
-        // Combo and accuracy
-        comboLabel.setTextFill(Color.WHITE);
-        comboLabel.setFont(Font.font("Arial", FontWeight.BOLD, 28));
-
-        accuracyLabel.setTextFill(Color.WHITE);
-        accuracyLabel.setFont(Font.font("Arial", FontWeight.BOLD, 28));
-
-        // Rank
-        gradeLabel.setTextFill(Color.LIME);
-        gradeLabel.setFont(Font.font("Arial", FontWeight.BOLD, 72));
-        DropShadow rankShadow = new DropShadow();
-        rankShadow.setColor(Color.BLACK);
-        rankShadow.setOffsetX(3);
-        rankShadow.setOffsetY(3);
-        rankShadow.setRadius(5);
-        gradeLabel.setEffect(rankShadow);
 
         // Buttons
         setupButton(retryButton, Color.ORANGE);
