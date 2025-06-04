@@ -332,7 +332,7 @@ public class GameView extends Page implements Observer {
         VBox bottomLeftPanel = (VBox) uiPane.getProperties().get("bottomLeftPanel");
 
         if (topRightPanel != null) {
-            topRightPanel.setLayoutX(paneWidth - 200); // 200px from right edge
+            topRightPanel.setLayoutX(paneWidth * 0.85);
             topRightPanel.setLayoutY(10);
         }
 
@@ -375,8 +375,9 @@ public class GameView extends Page implements Observer {
             case ACCURACY_CHANGED:
                 Double newAccuracy = event.getData(Double.class);
                 if (newAccuracy != null) {
-                    String accuracyText = String.format("%.2f%%", newAccuracy);
-                    uiPane.getAccuracyLabel().setText(accuracyText);
+//                    String accuracyText = String.format("%.2f%%", newAccuracy);
+//                    uiPane.getAccuracyLabel().setText(accuracyText);
+                    uiPane.updateAccuracy(newAccuracy);
                 }
                 break;
             case COMBO_CHANGED:

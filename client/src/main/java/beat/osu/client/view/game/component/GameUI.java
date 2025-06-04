@@ -22,9 +22,7 @@ import java.util.Objects;
 
 @Getter
 public class GameUI extends Pane {
-//    private final Label scoreLabel;
     private final Label comboLabel;
-    private final Label accuracyLabel;
     private final ProgressBar healthBar;
     private final Label hitResultLabel;
 
@@ -33,11 +31,16 @@ public class GameUI extends Pane {
     private final HBox scoreContainer;
 
     // accuracy
-
+    private final ImageView[] accuracyDigits;
+    private final ImageView percentSymbol;
+    private final HBox accuracyContainer;
 
     private final Image[] digitImages;
     private final Image percentImage;
+    private final Label decimalPoint;
     private final SequentialTransition hideTransition;
+
+    private boolean stillPerfect = true;
 
     public GameUI() {
         // Score display
@@ -55,8 +58,8 @@ public class GameUI extends Pane {
 
         for (int i = 0; i < 8; i++) {
             scoreDigits[i] = new ImageView(digitImages[0]); // Start with all zeros
-            scoreDigits[i].setFitWidth(20); // Adjust size as needed
-            scoreDigits[i].setFitHeight(28);
+            scoreDigits[i].setFitWidth(40); // Adjust size as needed
+            scoreDigits[i].setFitHeight(50);
             scoreDigits[i].setPreserveRatio(true);
             scoreContainer.getChildren().add(scoreDigits[i]);
         }
@@ -67,9 +70,33 @@ public class GameUI extends Pane {
         comboLabel.setTextFill(Color.YELLOW);
 
         // Accuracy display
-        accuracyLabel = new Label("Accuracy: 100.00%");
-        accuracyLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
-        accuracyLabel.setTextFill(Color.LIGHTGREEN);
+        accuracyDigits = new ImageView[4];
+        percentSymbol = new ImageView(percentImage);
+        accuracyContainer = new HBox(1);
+        decimalPoint = new Label(".");
+        decimalPoint.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+        decimalPoint.setTextFill(Color.WHITE);
+        decimalPoint.setStyle("-fx-padding: 0 2 4 2;"); // Adjust positioning
+
+        for (int i = 0; i < 4; i++) {
+            if(i == 0) accuracyDigits[i] = new ImageView(digitImages[1]);
+            else accuracyDigits[i] = new ImageView(digitImages[0]);
+
+            accuracyDigits[i].setFitWidth(20);
+            accuracyDigits[i].setFitHeight(30);
+            accuracyDigits[i].setPreserveRatio(true);
+            accuracyContainer.getChildren().add(accuracyDigits[i]);
+
+            // Add decimal point for 100.0%
+            if (i == 2) {
+                accuracyContainer.getChildren().add(decimalPoint);
+            }
+        }
+
+        percentSymbol.setFitWidth(20);
+        percentSymbol.setFitHeight(30);
+        percentSymbol.setPreserveRatio(true);
+        accuracyContainer.getChildren().add(percentSymbol);
 
         // Hit result display (appears temporarily when hitting objects)
         hitResultLabel = new Label("Perfect!");
@@ -93,8 +120,9 @@ public class GameUI extends Pane {
 
         // Top-right: Score and Accuracy
         VBox topRightPanel = new VBox(5);
-        topRightPanel.getChildren().addAll(scoreContainer, accuracyLabel);
+        topRightPanel.getChildren().addAll(scoreContainer, accuracyContainer);
         topRightPanel.setAlignment(Pos.TOP_RIGHT);
+        accuracyContainer.setAlignment(Pos.CENTER_RIGHT);
 
         // Bottom-left: Combo
         VBox bottomLeftPanel = new VBox(5);
@@ -122,6 +150,31 @@ public class GameUI extends Pane {
         for (int i = 0; i < 8; i++) {
             int digit = Character.getNumericValue(scoreStr.charAt(i));
             scoreDigits[i].setImage(digitImages[digit]);
+        }
+    }
+
+    public void updateAccuracy(double accuracy) {
+        if(accuracy == 100.0) return;
+        int accuracyInt = (int) Math.round(accuracy * 100); // Convert to integer (9945 for 99.45%)
+
+        String accuracyStr = String.format("%04d", Math.min(accuracyInt, 10000)); // Max 100.00%, pad to 4 digits
+
+        if(stillPerfect) {
+            accuracyContainer.getChildren().clear();
+            for (int i = 0; i < 4; i++) {
+                accuracyContainer.getChildren().add(accuracyDigits[i]);
+                // Add decimal point after the second digit like 99.99%
+                if (i == 1) {
+                    accuracyContainer.getChildren().add(decimalPoint);
+                }
+            }
+            accuracyContainer.getChildren().add(percentSymbol);
+            stillPerfect = false;
+        }
+
+        for (int i = 0; i < 4; i++) {
+            int digit = Character.getNumericValue(accuracyStr.charAt(i));
+            accuracyDigits[i].setImage(digitImages[digit]);
         }
     }
 }
