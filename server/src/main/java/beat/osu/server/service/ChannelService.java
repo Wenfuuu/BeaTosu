@@ -10,7 +10,7 @@ import beat.osu.shared.dto.chat.ChannelMessageDto;
 import beat.osu.shared.dto.chat.requests.JoinChannelRequest;
 import beat.osu.shared.dto.chat.requests.LeaveChannelRequest;
 import beat.osu.shared.dto.chat.requests.SendChannelMessageRequest;
-import beat.osu.shared.dto.chat.responses.GetChannelsResponse;
+import beat.osu.shared.dto.chat.responses.GetAllChannelsResponse;
 import beat.osu.shared.dto.chat.responses.JoinChannelResponse;
 import beat.osu.shared.dto.chat.responses.LeaveChannelResponse;
 import beat.osu.shared.dto.chat.responses.SendChannelMessageResponse;
@@ -38,9 +38,13 @@ public class ChannelService {
         channels.put(1, new Channel(1, "#osu", "The official osu! channel (english only)."));
         channels.put(2, new Channel(2, "#announce", "Automated announcements of stuff going on in osu!"));
         channels.put(3, new Channel(3, "english", "English community channel."));
+
+        channelMembers.put(1, ConcurrentHashMap.newKeySet());
+        channelMembers.put(2, ConcurrentHashMap.newKeySet());
+        channelMembers.put(3, ConcurrentHashMap.newKeySet());
     }
 
-    public Result<GetChannelsResponse> getAllChannels() {
+    public Result<GetAllChannelsResponse> getAllChannels() {
         List<ChannelDto> channelDtos = new ArrayList<>();
 
         List<Channel> channelList = new ArrayList<>(channels.values());
@@ -50,7 +54,7 @@ public class ChannelService {
             channelDtos.add(channelDto);
         }
 
-        Result<GetChannelsResponse> response = Result.success(new GetChannelsResponse(channelDtos));
+        Result<GetAllChannelsResponse> response = Result.success(new GetAllChannelsResponse(channelDtos));
         return response;
     }
 

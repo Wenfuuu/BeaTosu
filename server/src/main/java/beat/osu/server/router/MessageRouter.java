@@ -12,6 +12,7 @@ import beat.osu.shared.dto.beatmap.requests.InsertBeatmapRequest;
 import beat.osu.shared.dto.beatmap.requests.InsertBeatmapSetRequest;
 import beat.osu.shared.dto.chat.requests.JoinChannelRequest;
 import beat.osu.shared.dto.chat.requests.LeaveChannelRequest;
+import beat.osu.shared.dto.chat.requests.SendChannelMessageRequest;
 import beat.osu.shared.models.RequestMessage;
 import lombok.RequiredArgsConstructor;
 
@@ -79,6 +80,8 @@ public class MessageRouter {
                 return channelService.joinChannel((JoinChannelRequest) request.getPayload(), clientId);
             case LEAVE_CHANNEL:
                 return channelService.leaveChannel((LeaveChannelRequest) request.getPayload(), clientId);
+            case SEND_CHANNEL_MESSAGE:
+                return channelService.sendChannelMessage((SendChannelMessageRequest) request.getPayload(), clientId);
             default:
                 return Result.failure(Error.validation("Unknown channel action: " + request.getAction()));
         }
