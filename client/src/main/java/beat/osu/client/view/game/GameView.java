@@ -151,6 +151,8 @@ public class GameView extends Page implements Observer {
         hitImageView.setLayoutX(hitObject.getScreenCenterX() - hitImage.getWidth() / 2);
         hitImageView.setLayoutY(hitObject.getScreenCenterY() - hitImage.getHeight() / 2);
 
+        hitImageView.setFitWidth(50);
+        hitImageView.setFitHeight(50);
         hitImageView.setOpacity(0);
         hitImageView.setScaleX(0.5);
         hitImageView.setScaleY(0.5);
@@ -203,6 +205,8 @@ public class GameView extends Page implements Observer {
         ImageView hitImageView = new ImageView(hitImage);
         hitImageView.setLayoutX(hitObject.getScreenCenterX() - hitImage.getWidth() / 2);
         hitImageView.setLayoutY(hitObject.getScreenCenterY() - hitImage.getHeight() / 2);
+        hitImageView.setFitWidth(50);
+        hitImageView.setFitHeight(50);
         hitImageView.setScaleX(2.0);
         hitImageView.setScaleY(2.0);
 

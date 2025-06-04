@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -134,6 +135,18 @@ public class UploadPage extends Page {
         Task<Void> uploadTask = new Task<>() {
             @Override
             protected Void call() {
+//                Path beatmapDir = Paths.get("beatmaps"); // JAR-safe output directory
+//                Path tempRootDir = Paths.get("temp");    // JAR-safe temp directory
+
+//                try {
+//                    Files.createDirectories(beatmapDir);
+//                    Files.createDirectories(tempRootDir);
+//                } catch (IOException e) {
+//                    System.err.println("Failed to create beatmap or temp directory.");
+//                    e.printStackTrace();
+//                    return null;
+//                }
+
                 int totalFiles = files.size();
 
                 for (int i = 0; i < totalFiles; i++) {
@@ -141,6 +154,7 @@ public class UploadPage extends Page {
                     // Use replaceAll with regular expression to remove "[no video]"
                     String filename = file.getName().replaceAll("\\s*\\[no video\\]", "");
                     Path destPath = new File(beatmapDir, filename).toPath();
+//                    Path destPath = beatmapDir.resolve(filename);
 
                     if(!filename.endsWith(".osz")) continue;
                     try {
@@ -150,12 +164,15 @@ public class UploadPage extends Page {
                         String[] tempStr = filename.split(" ");
                         String beatmapSetId = tempStr[0];
                         //extract .osz and store in temp folder
-                        String filePath = String.format("./src/main/resources/beatmaps/%s", filename);
-                        File oszFile = new File(filePath);
+//                        String filePath = String.format("./src/main/resources/beatmaps/%s", filename);
+//                        File oszFile = new File(filePath);
+                        File oszFile = destPath.toFile();
 
                         System.out.println("extracting beatmap set id: " + beatmapSetId);
                         String outputPath = String.format("./src/main/resources/temp/%s", beatmapSetId);
                         File outputDir = new File(outputPath);
+//                        Path outputPath = tempRootDir.resolve(beatmapSetId);
+//                        File outputDir = outputPath.toFile();
                         OszExtractor.extractOsz(oszFile, outputDir);
                         //parse all .osu file in temp folder & insert db
                         File []files = outputDir.listFiles();
@@ -185,6 +202,7 @@ public class UploadPage extends Page {
                         // Store the duration in an array to access it from the lambda
                         final double[] audioDuration = {0.0};
                         File songFile = new File("./src/main/resources/temp/" + beatmapSetId + "/audio.mp3");
+//                        File songFile = outputPath.resolve("audio.mp3").toFile();
                         Media song = new Media(songFile.toURI().toString());
                         MediaPlayer player = new MediaPlayer(song);
                         player.setOnReady(() -> {

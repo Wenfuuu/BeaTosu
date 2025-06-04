@@ -4,7 +4,6 @@ import beat.osu.client.model.Beatmap;
 import beat.osu.client.utils.OsuParser;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.util.Duration;
 
 import java.io.File;
 
