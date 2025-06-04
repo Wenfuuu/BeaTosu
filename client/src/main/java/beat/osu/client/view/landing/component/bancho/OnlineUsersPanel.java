@@ -1,18 +1,24 @@
 package beat.osu.client.view.landing.component.bancho;
 
+import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import javafx.animation.FadeTransition;
+import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Set;
 
 public class OnlineUsersPanel extends VBox {
 
     private ArrayList<UserCard> userCards;
+
+    private Label onlineUsersLabel;
+    private ConnectedUsersController connectedUsersController;
 
     public OnlineUsersPanel() {
         super();
@@ -40,11 +46,15 @@ public class OnlineUsersPanel extends VBox {
 
         Label titleLabel = new Label("osu!Bancho");
         titleLabel.getStyleClass().add("online-users-title");
-        
-        Label onlineUsersLabel = new Label("11,048 Users Connected");
+
+        this.connectedUsersController = new ConnectedUsersController();
+
+        onlineUsersLabel = new Label("N/A Users Connected");
         onlineUsersLabel.getStyleClass().add("online-users-label");
 
         this.getChildren().addAll(titleLabel, onlineUsersLabel, userCards.get(0));
+
+        setupUserCountSubscription();
     }
     
     public void show() {
@@ -63,6 +73,20 @@ public class OnlineUsersPanel extends VBox {
         fadeOut.setToValue(0);
         fadeOut.setOnFinished(e -> this.setVisible(false));
         fadeOut.play();
+    }
+
+    private void setupUserCountSubscription() {
+        connectedUsersController.addUserCountCallback(this::updateUserCountLabel);
+    }
+
+    private void updateUserCountLabel(Integer userCount) {
+        Platform.runLater(() -> {
+            if (userCount != null) {
+                onlineUsersLabel.setText(userCount + " Users Connected");
+            } else {
+                onlineUsersLabel.setText("N/A Users Connected");
+            }
+        });
     }
     
     public boolean isShowing() {

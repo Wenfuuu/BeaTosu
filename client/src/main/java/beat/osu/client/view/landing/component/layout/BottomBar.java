@@ -1,8 +1,6 @@
 package beat.osu.client.view.landing.component.layout;
 
-import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.helper.CssManager;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -18,9 +16,6 @@ public class BottomBar extends HBox {
     private Label website;
     private VBox ppyBox;
 
-    private Label userCountLabel;
-    private ConnectedUsersController connectedUsersController;
-
     public BottomBar() {
         super(10);
         this.getStyleClass().add("bottom-bar");
@@ -34,8 +29,6 @@ public class BottomBar extends HBox {
 
         // Load CSS
         loadStyles();
-
-        setupUserCountSubscription();
     }
 
     private void initializeComponents() {
@@ -50,15 +43,11 @@ public class BottomBar extends HBox {
 
         ppyBox = new VBox(copyright, website);
         ppyBox.setAlignment(Pos.CENTER_LEFT);
-
-        connectedUsersController = new ConnectedUsersController();
-        userCountLabel = new Label("Users online: N/A");
-        userCountLabel.setAlignment(Pos.CENTER_RIGHT);
     }
 
     private void setupLayout() {
         this.setMaxHeight(65);
-        this.getChildren().addAll(ppyLbl, ppyBox, userCountLabel);
+        this.getChildren().addAll(ppyLbl, ppyBox);
     }
 
     private void loadStyles() {
@@ -70,32 +59,11 @@ public class BottomBar extends HBox {
         }
     }
 
-    private void setupUserCountSubscription() {
-        connectedUsersController.addUserCountCallback(this::updateUserCountLabel);
-    }
-
-    private void updateUserCountLabel(Integer userCount) {
-        Platform.runLater(() -> {
-            if (userCount != null) {
-                userCountLabel.setText("Users online: " + userCount);
-            } else {
-                userCountLabel.setText("Users online: N/A");
-            }
-        });
-    }
-
     public void setFullOpacity() {
         this.setOpacity(1);
     }
 
     public void setLowOpacity() {
         this.setOpacity(0.2);
-    }
-
-
-    public void cleanup() {
-        if (connectedUsersController != null) {
-            connectedUsersController.removeUserCountCallback(this::updateUserCountLabel);
-        }
     }
 }
