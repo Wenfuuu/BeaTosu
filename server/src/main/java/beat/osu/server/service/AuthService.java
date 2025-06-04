@@ -35,10 +35,9 @@ public class AuthService {
 
             userRepository.insertUser(request.getUsername(), request.getEmail(), request.getPassword(), request.getCountryCode());
 
-            boolean success = true;
             String message = "User registered successfully!";
 
-            return Result.success(new RegisterResponse(success, message));
+            return Result.success(new RegisterResponse(message));
         } catch (Exception e) {
             return Result.failure(Error.internal("Registration failed: " + e.getMessage()));
         }

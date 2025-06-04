@@ -10,6 +10,5 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RegisterResponse implements Serializable {
-    private boolean success;
     private String message;
 }

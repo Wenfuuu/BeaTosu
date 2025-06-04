@@ -10,6 +10,5 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InsertBeatmapSetResponse implements Serializable {
-    private boolean success;
     private String message;
 }
