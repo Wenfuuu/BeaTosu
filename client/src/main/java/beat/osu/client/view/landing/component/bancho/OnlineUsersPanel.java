@@ -1,23 +1,19 @@
 package beat.osu.client.view.landing.component.bancho;
 
 import beat.osu.client.helper.CssManager;
-import javafx.geometry.Insets;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 import java.net.URL;
 
-public class BanchoPanel extends VBox {
+public class OnlineUsersPanel extends VBox {
 
-    public BanchoPanel() {
+    public OnlineUsersPanel() {
         super();
-        this.getStyleClass().add("bancho-panel");
+        this.getStyleClass().add("online-users-panel");
         this.setVisible(false);
 
-        URL cssUrl = CssManager.getLandingCssURL("BanchoPanel.css");
+        URL cssUrl = CssManager.getLandingCssURL("OnlineUsersPanel.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {

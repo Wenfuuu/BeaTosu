@@ -30,12 +30,12 @@ public class BanchoButtons extends HBox {
         this.getChildren().addAll(showTickerButton, autoHideButton, onlineUsersButton, chatToggleButton);
     }
 
-    public void toggleChat(BanchoPanel banchoPanel) {
+    public void toggleChat(OnlineUsersPanel onlineUsersPanel) {
         if (chatToggleButton.isChatVisible()) {
-            banchoPanel.hide();
+            onlineUsersPanel.hide();
             chatToggleButton.setShowIcon();
         } else {
-            banchoPanel.show();
+            onlineUsersPanel.show();
             chatToggleButton.setHideIcon();
         }
     }

@@ -5,7 +5,7 @@ import beat.osu.client.view.Page;
 import beat.osu.client.view.Toast;
 import beat.osu.client.view.home.HomeView;
 import beat.osu.client.view.landing.component.bancho.BanchoButtons;
-import beat.osu.client.view.landing.component.bancho.BanchoPanel;
+import beat.osu.client.view.landing.component.bancho.OnlineUsersPanel;
 import beat.osu.client.view.landing.component.controls.MediaControls;
 import beat.osu.client.view.landing.component.controls.MenuButtons;
 import beat.osu.client.view.landing.component.controls.SubMenuButtons;
@@ -40,7 +40,7 @@ public class LandingView extends Page {
     private LoginModal loginModalComponent;
     private RegisterModal registerModalComponent;
 
-    private BanchoPanel banchoPanel;
+    private OnlineUsersPanel onlineUsersPanel;
     private BanchoButtons banchoButtons;
 
     private double visualizerSize;
@@ -211,7 +211,7 @@ public class LandingView extends Page {
         loginModalComponent = new LoginModal();
         registerModalComponent = new RegisterModal();
 
-        banchoPanel = new BanchoPanel();
+        onlineUsersPanel = new OnlineUsersPanel();
         banchoButtons = new BanchoButtons();
 
         banchoButtons.setVisible(false);
@@ -272,14 +272,8 @@ public class LandingView extends Page {
         StackPane.setAlignment(loginModalComponent, Pos.CENTER_LEFT);
         StackPane.setAlignment(registerModalComponent, Pos.CENTER);
 
-        root.getChildren().add(banchoPanel);
-        StackPane.setAlignment(banchoPanel, Pos.CENTER);
-
-//        root.getChildren().add(chatToggleButton);
-//        StackPane.setAlignment(chatToggleButton, Pos.BOTTOM_RIGHT);
-//
-//        root.getChildren().add(onlineUsersButton);
-//        StackPane.setAlignment(onlineUsersButton, Pos.BOTTOM_RIGHT);
+        root.getChildren().add(onlineUsersPanel);
+        StackPane.setAlignment(onlineUsersPanel, Pos.CENTER);
 
         root.getChildren().add(banchoButtons);
         StackPane.setAlignment(banchoButtons, Pos.BOTTOM_RIGHT);
@@ -363,7 +357,7 @@ public class LandingView extends Page {
         });
 
         banchoButtons.getChatToggleButton().setOnMouseClicked(e -> {
-            banchoButtons.toggleChat(banchoPanel);
+            banchoButtons.toggleChat(onlineUsersPanel);
         });
 
         banchoButtons.getOnlineUsersButton().setOnMouseClicked(e -> {
