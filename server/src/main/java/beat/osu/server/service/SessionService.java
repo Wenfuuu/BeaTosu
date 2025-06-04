@@ -31,4 +31,17 @@ public class SessionService {
     public void removeSession(String clientId) {
         sessions.remove(clientId);
     }
+
+    public String getClientIdByUserId(Integer userId) {
+        for (Map.Entry<String, Map<String, Object>> entry : sessions.entrySet()) {
+            String clientId = entry.getKey();
+            Map<String, Object> sessionData = entry.getValue();
+
+            Integer sessionUserId = (Integer) sessionData.get("userId");
+            if (sessionUserId != null && sessionUserId.equals(userId)) {
+                return clientId;
+            }
+        }
+        return null;
+    }
 }

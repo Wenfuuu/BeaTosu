@@ -36,4 +36,8 @@ public class Error implements Serializable {
     public static Error internal(String message) {
         return new Error("INTERNAL_ERROR", message);
     }
+
+    public static Error unauthorized(String message) {
+        return new Error("UNAUTHORIZED", message);
+    }
 }
