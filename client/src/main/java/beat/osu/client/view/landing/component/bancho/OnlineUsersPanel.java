@@ -2,8 +2,10 @@ package beat.osu.client.view.landing.component.bancho;
 
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import javafx.animation.FadeTransition;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 import java.net.URL;
 
@@ -21,7 +23,7 @@ public class OnlineUsersPanel extends VBox {
             System.err.println("CSS file not found!");
         }
 
-        this.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.6);
+        this.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.65);
 
         Label titleLabel = new Label("osu!Bancho");
         titleLabel.getStyleClass().add("online-users-title");
@@ -37,10 +39,20 @@ public class OnlineUsersPanel extends VBox {
     
     public void show() {
         this.setVisible(true);
+        this.setOpacity(0);
+        
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), this);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+        fadeIn.play();
     }
     
     public void hide() {
-        this.setVisible(false);
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), this);
+        fadeOut.setFromValue(1);
+        fadeOut.setToValue(0);
+        fadeOut.setOnFinished(e -> this.setVisible(false));
+        fadeOut.play();
     }
     
     public boolean isShowing() {

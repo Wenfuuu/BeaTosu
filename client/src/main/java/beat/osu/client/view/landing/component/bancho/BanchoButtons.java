@@ -38,8 +38,10 @@ public class BanchoButtons extends HBox {
             onlineUsersPanel.show();
             onlineUsersButton.setOnlineUsersShownIcon();
 
-            chatPanel.show();
-            chatToggleButton.setHideIcon();
+            if (!chatPanel.isShowing()) {
+                chatPanel.show();
+                chatToggleButton.setHideIcon();
+            }
         }
     }
 

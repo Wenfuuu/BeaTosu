@@ -2,8 +2,10 @@ package beat.osu.client.view.landing.component.bancho;
 
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import javafx.animation.TranslateTransition;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 import java.net.URL;
 
@@ -21,7 +23,7 @@ public class ChatPanel extends VBox {
             System.err.println("CSS file not found!");
         }
 
-        this.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.4);
+        this.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.35);
 
         Label titleLabel = new Label("Chat Panel");
         titleLabel.getStyleClass().add("chat-title");
@@ -31,10 +33,20 @@ public class ChatPanel extends VBox {
 
     public void show() {
         this.setVisible(true);
+        this.setTranslateY(this.getHeight());
+        
+        TranslateTransition slideIn = new TranslateTransition(Duration.millis(300), this);
+        slideIn.setFromY(this.getHeight());
+        slideIn.setToY(0);
+        slideIn.play();
     }
 
     public void hide() {
-        this.setVisible(false);
+        TranslateTransition slideOut = new TranslateTransition(Duration.millis(300), this);
+        slideOut.setFromY(0);
+        slideOut.setToY(this.getHeight());
+        slideOut.setOnFinished(e -> this.setVisible(false));
+        slideOut.play();
     }
 
     public boolean isShowing() {
