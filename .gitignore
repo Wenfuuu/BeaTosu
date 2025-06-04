@@ -42,5 +42,5 @@ bin/
 Thumbs.db
 
 # Client
-client/src/main/resources/assets/temp/
-client/src/main/resources/assets/beatmap/
+client/src/main/resources/temp/
+client/src/main/resources/beatmaps/

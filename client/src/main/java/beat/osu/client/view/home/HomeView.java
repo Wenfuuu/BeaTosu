@@ -89,7 +89,7 @@ public class HomeView extends Page {
     }
 
     private ArrayList<Beatmap> fetchBeatmaps() {
-        File tempDir = new File("./src/main/resources/assets/temp");
+        File tempDir = new File("./src/main/resources/temp");
         Set<String> validBeatmapDirs = new HashSet<>();
 
         if(tempDir.exists() && tempDir.isDirectory()) {

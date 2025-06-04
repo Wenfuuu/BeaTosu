@@ -10,7 +10,7 @@ import java.io.File;
 
 public class SfxManager {
     private static final String SFX_DIR = "./src/main/resources/assets/sfx/";
-    private static final String TEMP_DIR = "./src/main/resources/assets/temp/";
+    private static final String TEMP_DIR = "./src/main/resources/temp/";
 
     public static MediaPlayer createSfxPlayer(String sfxName) {
         String sfxPath = SFX_DIR + sfxName;

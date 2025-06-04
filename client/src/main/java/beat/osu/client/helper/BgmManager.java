@@ -15,7 +15,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class BgmManager {
-    private static final String TEMP_DIR = "./src/main/resources/assets/temp/";
+    private static final String TEMP_DIR = "./src/main/resources/temp/";
     private static String currentBgmHash = null;
 
     @Getter

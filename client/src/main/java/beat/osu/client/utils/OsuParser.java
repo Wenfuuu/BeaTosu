@@ -117,10 +117,10 @@ public class OsuParser {
     }
 
     public static void extractAndParse(Beatmap beatmap) {
-        String oszPath = String.format("./src/main/resources/assets/beatmap/%s",
+        String oszPath = String.format("./src/main/resources/beatmaps/%s",
                 getOszPath(beatmap));
         File oszFile = new File(oszPath);
-        String outputPath = String.format("./src/main/resources/assets/temp/%s", beatmap.getBeatmapSetId());
+        String outputPath = String.format("./src/main/resources/temp/%s", beatmap.getBeatmapSetId());
         File outputDir = new File(outputPath);
 
         try {
@@ -138,7 +138,7 @@ public class OsuParser {
 
     public static void parseBeatmap(Beatmap beatmap) throws IOException {
         currentBeatmap = beatmap;
-        String osuPath = String.format("./src/main/resources/assets/temp/%s/%s - %s (%s) [%s].osu",
+        String osuPath = String.format("./src/main/resources/temp/%s/%s - %s (%s) [%s].osu",
                 beatmap.getBeatmapSetId(),
                 beatmap.getBeatmapSet().getArtist(),
                 beatmap.getBeatmapSet().getTitle(),

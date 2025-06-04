@@ -119,7 +119,7 @@ public class UploadPage extends Page {
     }
 
     private void handleFileUpload(List<File> files) {
-        File beatmapDir = new File("./src/main/resources/assets/beatmap");
+        File beatmapDir = new File("./src/main/resources/beatmaps");
         if(!beatmapDir.exists()) {
             if(beatmapDir.mkdirs()){
                 System.out.println("creating beatmap directory");
@@ -150,11 +150,11 @@ public class UploadPage extends Page {
                         String[] tempStr = filename.split(" ");
                         String beatmapSetId = tempStr[0];
                         //extract .osz and store in temp folder
-                        String filePath = String.format("./src/main/resources/assets/beatmap/%s", filename);
+                        String filePath = String.format("./src/main/resources/beatmaps/%s", filename);
                         File oszFile = new File(filePath);
 
                         System.out.println("extracting beatmap set id: " + beatmapSetId);
-                        String outputPath = String.format("./src/main/resources/assets/temp/%s", beatmapSetId);
+                        String outputPath = String.format("./src/main/resources/temp/%s", beatmapSetId);
                         File outputDir = new File(outputPath);
                         OszExtractor.extractOsz(oszFile, outputDir);
                         //parse all .osu file in temp folder & insert db
@@ -184,7 +184,7 @@ public class UploadPage extends Page {
                         CountDownLatch latch = new CountDownLatch(1);
                         // Store the duration in an array to access it from the lambda
                         final double[] audioDuration = {0.0};
-                        File songFile = new File("./src/main/resources/assets/temp/" + beatmapSetId + "/audio.mp3");
+                        File songFile = new File("./src/main/resources/temp/" + beatmapSetId + "/audio.mp3");
                         Media song = new Media(songFile.toURI().toString());
                         MediaPlayer player = new MediaPlayer(song);
                         player.setOnReady(() -> {
