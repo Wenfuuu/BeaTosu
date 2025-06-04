@@ -7,8 +7,6 @@ import java.io.Serializable;
 
 @Data
 public class RealtimeMessage implements Serializable {
-    private static final long serialVersionUID = 1L;
-
     private RealtimeMessageType type;
     private String fromClientId;
     private Object payload;

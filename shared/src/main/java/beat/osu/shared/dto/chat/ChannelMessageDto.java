@@ -11,8 +11,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChannelMessageDto implements Serializable {
-    private static final long serialVersionUID = 1L;
-
     private int channelId;
     private int senderId;
     private String senderName;
