@@ -114,7 +114,7 @@ public class ClientHandler implements Runnable {
 
             if (disconnectedUser != null) {
                 RealtimeMessage userDisconnectedMessage = new RealtimeMessage(
-                        RealtimeMessageType.REMOVE_CONNECTED_USER,
+                        RealtimeMessageType.USER_DISCONNECTED,
                         "SYSTEM",
                         disconnectedUser
                 );

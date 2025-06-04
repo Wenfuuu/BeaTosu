@@ -83,7 +83,7 @@ public class ConnectedUsersController {
     }
     
     private void handleRealtimeMessage(RealtimeMessage message) {
-        if (message.getType() == RealtimeMessageType.ADD_CONNECTED_USER) {
+        if (message.getType() == RealtimeMessageType.USER_CONNECTED) {
             if (message.getPayload() instanceof UserDto) {
                 UserDto user = (UserDto) message.getPayload();
                 connectedUsers.add(user);
@@ -91,7 +91,7 @@ public class ConnectedUsersController {
                 notifyUserJoined(user);
                 notifyUserCountChanged();
             }
-        } else if (message.getType() == RealtimeMessageType.REMOVE_CONNECTED_USER) {
+        } else if (message.getType() == RealtimeMessageType.USER_DISCONNECTED) {
             if (message.getPayload() instanceof UserDto) {
                 UserDto user = (UserDto) message.getPayload();
                 connectedUsers.removeIf(u -> u.getId() == user.getId());

@@ -67,7 +67,7 @@ public class AuthService {
                     user.getProfilePicture(), user.getPerformance(), user.getAccuracy(), user.getPlayCount(), user.getLevel());
 
             RealtimeMessage userConnectedMessage = new RealtimeMessage(
-                    RealtimeMessageType.ADD_CONNECTED_USER,
+                    RealtimeMessageType.USER_CONNECTED,
                     "SYSTEM",
                     userData
             );

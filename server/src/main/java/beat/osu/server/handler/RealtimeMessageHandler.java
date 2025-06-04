@@ -24,16 +24,11 @@ public class RealtimeMessageHandler {
             message.setTimestamp(System.currentTimeMillis());
 
             switch (message.getType()) {
-                case CHAT_MESSAGE:
-                    broadcastToAllExcept(message, fromClientId);
-                    break;
                 case SYSTEM_NOTIFICATION:
-                    // System notifications go to all clients
                     broadcastToAll(message);
                     break;
                 default:
                     System.out.println("RealtimeMessageHandler: Unknown message type: " + message.getType());
-                    return;
             }
 
         } catch (Exception e) {
@@ -73,7 +68,7 @@ public class RealtimeMessageHandler {
     public void cleanup() {
         activeHandlers.remove(clientId);
 
-        RealtimeMessage userLeftMessage = new RealtimeMessage(RealtimeMessageType.REMOVE_CONNECTED_USER, "SYSTEM", null);
+        RealtimeMessage userLeftMessage = new RealtimeMessage(RealtimeMessageType.USER_DISCONNECTED, "SYSTEM", null);
         broadcastToAllExcept(userLeftMessage, clientId);
     }
 
