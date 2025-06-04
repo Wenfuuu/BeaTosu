@@ -363,11 +363,11 @@ public class LandingView extends Page {
         });
 
         banchoButtons.getOnlineUsersButton().setOnMouseClicked(e -> {
-            banchoButtons.toggleOnlineUsers(onlineUsersPanel, chatPanel);
+            banchoButtons.toggleOnlineUsers(onlineUsersPanel, chatPanel, topBarComponent, bottomBarComponent);
         });
 
         banchoButtons.getChatToggleButton().setOnMouseClicked(e -> {
-            banchoButtons.toggleChat(chatPanel);
+            banchoButtons.toggleChat(chatPanel, bottomBarComponent);
         });
 
         banchoButtons.getAutoHideButton().setOnMouseClicked(e -> {

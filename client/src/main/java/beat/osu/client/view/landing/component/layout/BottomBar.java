@@ -84,6 +84,15 @@ public class BottomBar extends HBox {
         });
     }
 
+    public void setFullOpacity() {
+        this.setOpacity(1);
+    }
+
+    public void setLowOpacity() {
+        this.setOpacity(0.2);
+    }
+
+
     public void cleanup() {
         if (connectedUsersController != null) {
             connectedUsersController.removeUserCountCallback(this::updateUserCountLabel);

@@ -146,6 +146,14 @@ public class TopBar extends HBox {
         }
     }
 
+    public void setFullOpacity() {
+        this.setOpacity(1);
+    }
+
+    public void setLowOpacity() {
+        this.setOpacity(0.2);
+    }
+
     // Set song title
     public void setSongTitle(String title) {
         songTitle.setText(title);

@@ -1,5 +1,7 @@
 package beat.osu.client.view.landing.component.bancho;
 
+import beat.osu.client.view.landing.component.layout.BottomBar;
+import beat.osu.client.view.landing.component.layout.TopBar;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -30,27 +32,32 @@ public class BanchoButtons extends HBox {
         this.getChildren().addAll(showTickerButton, autoHideButton, onlineUsersButton, chatToggleButton);
     }
 
-    public void toggleOnlineUsers(OnlineUsersPanel onlineUsersPanel, ChatPanel chatPanel) {
+    public void toggleOnlineUsers(OnlineUsersPanel onlineUsersPanel, ChatPanel chatPanel, TopBar topBar, BottomBar bottomBar) {
         if (onlineUsersButton.isOnlineUserShown()) {
             onlineUsersPanel.hide();
+            topBar.setFullOpacity();
             onlineUsersButton.setOnlineUsersHiddenIcon();
         } else {
             onlineUsersPanel.show();
+            topBar.setLowOpacity();
             onlineUsersButton.setOnlineUsersShownIcon();
 
             if (!chatPanel.isShowing()) {
                 chatPanel.show();
+                bottomBar.setLowOpacity();
                 chatToggleButton.setHideIcon();
             }
         }
     }
 
-    public void toggleChat(ChatPanel chatPanel) {
+    public void toggleChat(ChatPanel chatPanel, BottomBar bottomBar) {
         if (chatToggleButton.isChatVisible()) {
             chatPanel.hide();
+            bottomBar.setFullOpacity();
             chatToggleButton.setShowIcon();
         } else {
             chatPanel.show();
+            bottomBar.setLowOpacity();
             chatToggleButton.setHideIcon();
         }
     }

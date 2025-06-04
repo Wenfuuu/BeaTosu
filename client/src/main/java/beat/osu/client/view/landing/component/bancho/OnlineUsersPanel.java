@@ -16,6 +16,13 @@ public class OnlineUsersPanel extends VBox {
         this.getStyleClass().add("online-users-panel");
         this.setVisible(false);
 
+        URL globalCssUrl = CssManager.getGlobalCssURL();
+        if (globalCssUrl != null) {
+            this.getStylesheets().add(globalCssUrl.toExternalForm());
+        } else {
+            System.err.println("CSS file not found!");
+        }
+
         URL cssUrl = CssManager.getLandingCssURL("OnlineUsersPanel.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
@@ -28,13 +35,10 @@ public class OnlineUsersPanel extends VBox {
         Label titleLabel = new Label("osu!Bancho");
         titleLabel.getStyleClass().add("online-users-title");
         
-        Label usersLabel = new Label("11,048 Users Connected");
-        usersLabel.getStyleClass().add("online-users-title");
-        
-        Label contentLabel = new Label("Bancho content will go here...");
-        contentLabel.getStyleClass().add("online-users-title");
-        
-        this.getChildren().addAll(titleLabel, usersLabel, contentLabel);
+        Label onlineUsersLabel = new Label("11,048 Users Connected");
+        onlineUsersLabel.getStyleClass().add("online-users-label");
+
+        this.getChildren().addAll(titleLabel, onlineUsersLabel);
     }
     
     public void show() {

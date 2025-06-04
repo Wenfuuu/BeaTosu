@@ -1,9 +1,17 @@
 .online-users-panel {
     -fx-background-color: rgba(0, 0, 0, 0.7);
+    -fx-padding: 2px;
+}
+
+.online-users-title, .online-users-label {
+    -fx-text-fill: white;
+    -fx-font-family: 'Aller Light';
 }
 
 .online-users-title {
-    -fx-text-fill: white;
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
+    -fx-font-size: 40px;
+}
+
+.online-users-label {
+    -fx-font-size: 24px;
 }
