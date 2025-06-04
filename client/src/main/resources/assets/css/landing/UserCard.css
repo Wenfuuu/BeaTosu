@@ -1,0 +1,51 @@
+.user-card {
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-border-color: rgba(0, 0, 0, 0.5);
+    -fx-border-width: 2;
+    -fx-padding: 2;
+    -fx-spacing: 8;
+    -fx-alignment: center-left;
+}
+
+.user-card:hover {
+    -fx-border-color: white;
+    -fx-border-width: 2;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 8, 0, 0, 3);
+    -fx-background-insets: 0, 2;
+    -fx-background-color: 
+        linear-gradient(rgba(255,255,255,0.15), rgba(255,255,255,0.15)),
+        rgba(0, 0, 0, 0.5);
+}
+
+.profile-picture {
+    -fx-fit-height: 80;
+    -fx-fit-width: 80;
+    -fx-preserve-ratio: true;
+    -fx-smooth: true;
+}
+
+.gamemode-icon {
+    -fx-preserve-ratio: true;
+    -fx-smooth: true;
+    -fx-opacity: 0.3;
+}
+
+.user-stats {
+    -fx-spacing: 2;
+    -fx-alignment: center-left;
+}
+
+.username-label {
+    -fx-text-fill: white;
+    -fx-font-family: 'Aller Light';
+    -fx-font-size: 22px;
+}
+
+.stats-label, .performance-label, .accuracy-label {
+    -fx-text-fill: white;
+    -fx-font-family: 'Aller Light';
+    -fx-font-size: 14px;
+}

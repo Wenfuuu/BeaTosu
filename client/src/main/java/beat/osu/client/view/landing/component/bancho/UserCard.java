@@ -1,0 +1,221 @@
+package beat.osu.client.view.landing.component.bancho;
+
+import beat.osu.client.Main;
+import beat.osu.client.helper.CssManager;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.io.ByteArrayInputStream;
+import java.net.URL;
+import java.util.Objects;
+
+@Getter
+@Setter
+public class UserCard extends HBox {
+
+    private Integer userId;
+    private String username;
+    private String countryCode;
+    private byte[] profilePicture;
+    private int performance;
+    private double accuracy;
+    private int playCount;
+    private int level;
+
+    private ImageView profileImageView;
+    private ImageView gamemodeImageView;
+    private Label usernameLabel;
+    private Label performanceLabel;
+    private Label accuracyLabel;
+    private Label playCountLabel;
+
+    public UserCard(Integer userId, String username, String countryCode, byte[] profilePicture, 
+                    int performance, double accuracy, int playCount, int level) {
+        super(10);
+        this.userId = userId;
+        this.username = username;
+        this.countryCode = countryCode;
+        this.profilePicture = profilePicture;
+        this.performance = performance;
+        this.accuracy = accuracy;
+        this.playCount = playCount;
+        this.level = level;
+        
+        initializeComponents();
+        setupLayout();
+        setupStyling();
+        updateUserInfo();
+    }
+
+    private void initializeComponents() {
+        this.setMaxWidth(425);
+
+        profileImageView = new ImageView();
+        profileImageView.getStyleClass().add("profile-picture");
+
+        profileImageView.setFitWidth(96);
+        profileImageView.setFitHeight(96);
+        setDefaultProfilePicture();
+
+        gamemodeImageView = new ImageView();
+        gamemodeImageView.getStyleClass().add("gamemode-icon");
+        setGamemodeIcon();
+
+        usernameLabel = new Label("Guest");
+        usernameLabel.getStyleClass().add("username-label");
+
+        performanceLabel = new Label("Performance: 0pp");
+        performanceLabel.getStyleClass().add("performance-label");
+
+        accuracyLabel = new Label("Accuracy: 0.00%");
+        accuracyLabel.getStyleClass().add("accuracy-label");
+
+        playCountLabel = new Label("Play Count: 0 (Lv0)");
+        playCountLabel.getStyleClass().add("stats-label");
+    }
+
+    private void setupLayout() {
+        VBox userStats = new VBox(2);
+        userStats.setAlignment(Pos.CENTER_LEFT);
+        userStats.getStyleClass().add("user-stats");
+        userStats.getChildren().addAll(usernameLabel, performanceLabel, accuracyLabel, playCountLabel);
+
+        HBox mainContent = new HBox(10);
+        mainContent.setAlignment(Pos.CENTER_LEFT);
+        mainContent.getChildren().addAll(profileImageView, userStats);
+
+        StackPane cardContainer = new StackPane();
+        cardContainer.setPrefWidth(425);
+        cardContainer.setMaxWidth(425);
+        
+        cardContainer.getChildren().add(mainContent);
+        StackPane.setAlignment(mainContent, Pos.CENTER_LEFT);
+        
+        cardContainer.getChildren().add(gamemodeImageView);
+        StackPane.setAlignment(gamemodeImageView, Pos.TOP_RIGHT);
+        
+        StackPane.setMargin(gamemodeImageView, new Insets(8, 8, 0, 0));
+
+        this.setAlignment(Pos.CENTER_LEFT);
+        this.setPrefWidth(425);
+        this.setMaxWidth(425);
+        this.getChildren().add(cardContainer);
+    }
+
+    private void setupStyling() {
+        this.getStyleClass().add("user-card");
+
+        URL globalCssUrl = CssManager.getGlobalCssURL();
+        if (globalCssUrl != null) {
+            this.getStylesheets().add(globalCssUrl.toExternalForm());
+        } else {
+            System.err.println("CSS file not found!");
+        }
+
+        URL cssUrl = CssManager.getLandingCssURL("UserCard.css");
+        if (cssUrl != null) {
+            this.getStylesheets().add(cssUrl.toExternalForm());
+        } else {
+            System.err.println("CSS file not found!");
+        }
+    }
+
+    private void setDefaultProfilePicture() {
+        try {
+            Image defaultImage = new Image(Objects.requireNonNull(
+                Main.class.getResource("/assets/images/avatar-guest.png")).toExternalForm());
+            profileImageView.setImage(defaultImage);
+        } catch (Exception e) {
+            System.err.println("Could not load default avatar: " + e.getMessage());
+            profileImageView.setImage(null);
+        }
+    }
+
+    private void setGamemodeIcon() {
+        try {
+            Image gamemodeImage = new Image(Objects.requireNonNull(
+                Main.class.getResource("/assets/gamemode/osu-gamemode.png")).toExternalForm());
+            gamemodeImageView.setImage(gamemodeImage);
+            gamemodeImageView.setFitHeight(32);
+            gamemodeImageView.setFitWidth(32);
+        } catch (Exception e) {
+            System.err.println("Could not load gamemode icon: " + e.getMessage());
+            gamemodeImageView.setImage(null);
+        }
+    }
+
+    public void updateUserInfo() {
+        if (username != null) {
+            usernameLabel.setText(username);
+        }
+        
+        performanceLabel.setText("Performance: " + String.format("%,d", performance) + "pp");
+        accuracyLabel.setText("Accuracy: " + String.format("%.2f", accuracy) + "%");
+        playCountLabel.setText("Play Count: " + String.format("%,d", playCount) + " (Lv" + level + ")");
+        
+        updateProfilePicture();
+    }
+
+    public void updateProfilePicture() {
+        if (profilePicture != null && profilePicture.length > 0) {
+            try {
+                ByteArrayInputStream bis = new ByteArrayInputStream(profilePicture);
+                Image userImage = new Image(bis);
+                profileImageView.setImage(userImage);
+            } catch (Exception e) {
+                System.err.println("Could not load user profile picture: " + e.getMessage());
+                setDefaultProfilePicture();
+            }
+        } else {
+            setDefaultProfilePicture();
+        }
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+        if (usernameLabel != null) {
+            usernameLabel.setText(username != null ? username : "Guest");
+        }
+    }
+
+    public void setPerformance(int performance) {
+        this.performance = performance;
+        if (performanceLabel != null) {
+            performanceLabel.setText("Performance: " + String.format("%,d", performance) + "pp");
+        }
+    }
+
+    public void setAccuracy(double accuracy) {
+        this.accuracy = accuracy;
+        if (accuracyLabel != null) {
+            accuracyLabel.setText("Accuracy: " + String.format("%.2f", accuracy) + "%");
+        }
+    }
+
+    public void setPlayCount(int playCount) {
+        this.playCount = playCount;
+        if (playCountLabel != null) {
+            playCountLabel.setText("Play Count: " + String.format("%,d", playCount) + " (Lv" + level + ")");
+        }
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+        if (playCountLabel != null) {
+            playCountLabel.setText("Play Count: " + String.format("%,d", playCount) + " (Lv" + level + ")");
+        }
+    }
+
+    public void setProfilePicture(byte[] profilePicture) {
+        this.profilePicture = profilePicture;
+        updateProfilePicture();
+    }
+}

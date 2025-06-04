@@ -8,8 +8,11 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.net.URL;
+import java.util.ArrayList;
 
 public class OnlineUsersPanel extends VBox {
+
+    private ArrayList<UserCard> userCards;
 
     public OnlineUsersPanel() {
         super();
@@ -32,13 +35,16 @@ public class OnlineUsersPanel extends VBox {
 
         this.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.65);
 
+        this.userCards = new ArrayList<>();
+        this.userCards.add(new UserCard(1, "Test", "ID", null, 1067, 98.12, 3013, 90));
+
         Label titleLabel = new Label("osu!Bancho");
         titleLabel.getStyleClass().add("online-users-title");
         
         Label onlineUsersLabel = new Label("11,048 Users Connected");
         onlineUsersLabel.getStyleClass().add("online-users-label");
 
-        this.getChildren().addAll(titleLabel, onlineUsersLabel);
+        this.getChildren().addAll(titleLabel, onlineUsersLabel, userCards.get(0));
     }
     
     public void show() {
