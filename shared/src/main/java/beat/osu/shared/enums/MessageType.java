@@ -7,5 +7,6 @@ public enum MessageType implements Serializable {
     USER,
     AUTH,
     BEATMAP,
+    CHANNEL,
     CHAT,
 }

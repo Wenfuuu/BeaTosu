@@ -1,6 +1,5 @@
 package beat.osu.server;
 
-import beat.osu.server.entities.Beatmap;
 import beat.osu.server.handler.ClientHandler;
 import beat.osu.server.repositories.BeatmapRepository;
 import beat.osu.server.repositories.BeatmapSetRepository;
@@ -28,8 +27,9 @@ public class Main {
         UserService userService = new UserService(userRepository);
         AuthService authService = new AuthService(userRepository, sessionService);
         BeatmapService beatmapService = new BeatmapService(beatmapSetRepository, beatmapRepository);
+        ChannelService channelService = new ChannelService(sessionService, userService);
 
-        MessageRouter messageRouter = new MessageRouter(systemService, authService, beatmapService);
+        MessageRouter messageRouter = new MessageRouter(systemService, authService, beatmapService, channelService);
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Server started on port " + PORT + "...");

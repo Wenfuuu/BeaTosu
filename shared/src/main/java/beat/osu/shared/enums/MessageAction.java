@@ -17,7 +17,7 @@ public enum MessageAction implements Serializable {
     INSERT_BEATMAP_SET,
 
     // Message actions
-    GET_CHANNELS,
+    GET_ALL_CHANNELS,
     JOIN_CHANNEL,
     LEAVE_CHANNEL,
     SEND_CHANNEL_MESSAGE,
