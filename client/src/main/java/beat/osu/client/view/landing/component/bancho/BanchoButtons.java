@@ -30,21 +30,26 @@ public class BanchoButtons extends HBox {
         this.getChildren().addAll(showTickerButton, autoHideButton, onlineUsersButton, chatToggleButton);
     }
 
-    public void toggleChat(OnlineUsersPanel onlineUsersPanel) {
-        if (chatToggleButton.isChatVisible()) {
+    public void toggleOnlineUsers(OnlineUsersPanel onlineUsersPanel, ChatPanel chatPanel) {
+        if (onlineUsersButton.isOnlineUserShown()) {
             onlineUsersPanel.hide();
-            chatToggleButton.setShowIcon();
+            onlineUsersButton.setOnlineUsersHiddenIcon();
         } else {
             onlineUsersPanel.show();
+            onlineUsersButton.setOnlineUsersShownIcon();
+
+            chatPanel.show();
             chatToggleButton.setHideIcon();
         }
     }
 
-    public void toggleOnlineUsers() {
-        if (onlineUsersButton.isOnlineUserShown()) {
-            onlineUsersButton.setOnlineUsersHiddenIcon();
+    public void toggleChat(ChatPanel chatPanel) {
+        if (chatToggleButton.isChatVisible()) {
+            chatPanel.hide();
+            chatToggleButton.setShowIcon();
         } else {
-            onlineUsersButton.setOnlineUsersShownIcon();
+            chatPanel.show();
+            chatToggleButton.setHideIcon();
         }
     }
 

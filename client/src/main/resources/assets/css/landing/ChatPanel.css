@@ -1,8 +1,8 @@
-.online-users-panel {
+.chat-panel {
     -fx-background-color: rgba(0, 0, 0, 0.7);
 }
 
-.online-users-title {
+.chat-title {
     -fx-text-fill: white;
     -fx-font-size: 16px;
     -fx-font-weight: bold;

@@ -5,6 +5,7 @@ import beat.osu.client.view.Page;
 import beat.osu.client.view.Toast;
 import beat.osu.client.view.home.HomeView;
 import beat.osu.client.view.landing.component.bancho.BanchoButtons;
+import beat.osu.client.view.landing.component.bancho.ChatPanel;
 import beat.osu.client.view.landing.component.bancho.OnlineUsersPanel;
 import beat.osu.client.view.landing.component.controls.MediaControls;
 import beat.osu.client.view.landing.component.controls.MenuButtons;
@@ -41,6 +42,7 @@ public class LandingView extends Page {
     private RegisterModal registerModalComponent;
 
     private OnlineUsersPanel onlineUsersPanel;
+    private ChatPanel chatPanel;
     private BanchoButtons banchoButtons;
 
     private double visualizerSize;
@@ -212,6 +214,7 @@ public class LandingView extends Page {
         registerModalComponent = new RegisterModal();
 
         onlineUsersPanel = new OnlineUsersPanel();
+        chatPanel = new ChatPanel();
         banchoButtons = new BanchoButtons();
 
         banchoButtons.setVisible(false);
@@ -273,7 +276,10 @@ public class LandingView extends Page {
         StackPane.setAlignment(registerModalComponent, Pos.CENTER);
 
         root.getChildren().add(onlineUsersPanel);
-        StackPane.setAlignment(onlineUsersPanel, Pos.CENTER);
+        StackPane.setAlignment(onlineUsersPanel, Pos.TOP_CENTER);
+
+        root.getChildren().add(chatPanel);
+        StackPane.setAlignment(chatPanel, Pos.BOTTOM_CENTER);
 
         root.getChildren().add(banchoButtons);
         StackPane.setAlignment(banchoButtons, Pos.BOTTOM_RIGHT);
@@ -356,12 +362,12 @@ public class LandingView extends Page {
             hideSubMenu();
         });
 
-        banchoButtons.getChatToggleButton().setOnMouseClicked(e -> {
-            banchoButtons.toggleChat(onlineUsersPanel);
+        banchoButtons.getOnlineUsersButton().setOnMouseClicked(e -> {
+            banchoButtons.toggleOnlineUsers(onlineUsersPanel, chatPanel);
         });
 
-        banchoButtons.getOnlineUsersButton().setOnMouseClicked(e -> {
-            banchoButtons.toggleOnlineUsers();
+        banchoButtons.getChatToggleButton().setOnMouseClicked(e -> {
+            banchoButtons.toggleChat(chatPanel);
         });
 
         banchoButtons.getAutoHideButton().setOnMouseClicked(e -> {

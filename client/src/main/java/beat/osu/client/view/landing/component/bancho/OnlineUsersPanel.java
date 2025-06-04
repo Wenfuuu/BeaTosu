@@ -1,6 +1,7 @@
 package beat.osu.client.view.landing.component.bancho;
 
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ScreenManager;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
@@ -20,14 +21,16 @@ public class OnlineUsersPanel extends VBox {
             System.err.println("CSS file not found!");
         }
 
+        this.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.6);
+
         Label titleLabel = new Label("osu!Bancho");
-        titleLabel.getStyleClass().add("bancho-title");
+        titleLabel.getStyleClass().add("online-users-title");
         
         Label usersLabel = new Label("11,048 Users Connected");
-        usersLabel.getStyleClass().add("bancho-users");
+        usersLabel.getStyleClass().add("online-users-title");
         
         Label contentLabel = new Label("Bancho content will go here...");
-        contentLabel.getStyleClass().add("bancho-content");
+        contentLabel.getStyleClass().add("online-users-title");
         
         this.getChildren().addAll(titleLabel, usersLabel, contentLabel);
     }
