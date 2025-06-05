@@ -9,13 +9,14 @@ import java.io.File;
 
 public class SfxManager {
     private static final String SFX_DIR = "./src/main/resources/assets/sfx/";
-    private static final String TEMP_DIR = "./src/main/resources/temp/";
 
     public static MediaPlayer createSfxPlayer(String sfxName) {
+        Beatmap beatmap = OsuParser.getCurrentBeatmap();
         String sfxPath = SFX_DIR + sfxName;
         File sfxFile = new File(sfxPath);
         if (!sfxFile.exists()) {
-            sfxFile = new File(TEMP_DIR + sfxName);
+            File beatmapDir = new File(ResourceManager.getTempDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
+            sfxFile = new File(beatmapDir, sfxName);
             if (!sfxFile.exists()) {
                 System.err.println("SFX file not found: " + sfxName);
                 return null;
@@ -39,7 +40,8 @@ public class SfxManager {
 
         if (!sfxFile.exists()) {
             Beatmap beatmap = OsuParser.getCurrentBeatmap();
-            sfxFile = new File(TEMP_DIR + beatmap.getBeatmapSetId() + "/" + sfxName);
+            File beatmapDir = new File(ResourceManager.getTempDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
+            sfxFile = new File(beatmapDir, sfxName);
             if (!sfxFile.exists()) {
                 System.err.println("SFX file not found in both SFX and TEMP directories: " + sfxName);
                 return;

@@ -15,7 +15,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class BgmManager {
-    private static final String TEMP_DIR = "./src/main/resources/temp/";
     private static String currentBgmHash = null;
 
     @Getter
@@ -43,9 +42,10 @@ public class BgmManager {
 
     public static void playPreviewBgm() {
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
-        String bgmPath = TEMP_DIR + beatmap.getBeatmapSetId() + "/" + "audio.mp3";
+        File tempDir = ResourceManager.getTempDirectory();
+        File beatmapDir = new File(tempDir, String.valueOf(beatmap.getBeatmapSetId()));
+        File audioFile = new File(beatmapDir, "audio.mp3");
 
-        File audioFile = new File(bgmPath);
         if (!audioFile.exists()) {
             System.err.println("BGM file not found: " + audioFile.getAbsolutePath());
             return;
@@ -81,8 +81,9 @@ public class BgmManager {
 
     public static void prepareGameBgm() {
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
-        String bgmPath = TEMP_DIR + beatmap.getBeatmapSetId() + "/" + "audio.mp3";
-        File audioFile = new File(bgmPath);
+        File tempDir = ResourceManager.getTempDirectory();
+        File beatmapDir = new File(tempDir, String.valueOf(beatmap.getBeatmapSetId()));
+        File audioFile = new File(beatmapDir, "audio.mp3");
 
         if (!audioFile.exists()) {
             System.err.println("BGM file not found: " + audioFile.getAbsolutePath());

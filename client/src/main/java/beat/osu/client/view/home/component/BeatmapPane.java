@@ -75,8 +75,7 @@ public class BeatmapPane extends ScrollPane {
             beatmapContainer.setPrefHeight(70);
             beatmapContainer.getStyleClass().add("beatmap-container");
 
-            String oszPath = String.format("./src/main/resources/beatmaps/%s",
-                    OsuParser.getOszPath(beatmap));
+            String oszPath = OsuParser.getOszPath(beatmap);
             if(!oszPath.equals(currentOszPath)) {
                 System.out.println("different path, parsing beatmap");
 //                OsuParser.extractAndParse(beatmap);

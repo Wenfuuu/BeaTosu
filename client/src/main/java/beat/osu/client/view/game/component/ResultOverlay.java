@@ -69,7 +69,7 @@ public class ResultOverlay extends BorderPane {
     private final FadeTransition showTransition;
 
     public ResultOverlay() {
-//        this.setVisible(false);
+        this.setVisible(false);
 
         // Load digit images
         digitImages = new Image[10];

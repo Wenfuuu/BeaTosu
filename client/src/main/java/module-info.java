@@ -10,6 +10,7 @@ module beat.osu.client {
     requires java.sql;
     requires javafx.media;
     requires beat.osu.shared;
+    requires org.jetbrains.annotations;
 
     exports beat.osu.client;
 }

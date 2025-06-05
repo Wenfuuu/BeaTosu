@@ -1,6 +1,7 @@
 package beat.osu.client.utils;
 
 import beat.osu.client.controller.BeatmapController;
+import beat.osu.client.helper.ResourceManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BreakPoint;
 import beat.osu.client.model.TimingPoint;
@@ -117,11 +118,11 @@ public class OsuParser {
     }
 
     public static void extractAndParse(Beatmap beatmap) {
-        String oszPath = String.format("./src/main/resources/beatmaps/%s",
-                getOszPath(beatmap));
-        File oszFile = new File(oszPath);
-        String outputPath = String.format("./src/main/resources/temp/%s", beatmap.getBeatmapSetId());
-        File outputDir = new File(outputPath);
+//        String oszPath = String.format("./src/main/resources/beatmaps/%s",
+//                getOszPath(beatmap));
+        File oszFile = new File(ResourceManager.getBeatmapDirectory(), getOszPath(beatmap));
+//        String outputPath = String.format("./src/main/resources/temp/%s", beatmap.getBeatmapSetId());
+        File outputDir = new File(ResourceManager.getTempDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
 
         try {
             OszExtractor.extractOsz(oszFile, outputDir);
@@ -138,13 +139,13 @@ public class OsuParser {
 
     public static void parseBeatmap(Beatmap beatmap) throws IOException {
         currentBeatmap = beatmap;
-        String osuPath = String.format("./src/main/resources/temp/%s/%s - %s (%s) [%s].osu",
-                beatmap.getBeatmapSetId(),
+        String osuPath = String.format("%s - %s (%s) [%s].osu",
                 beatmap.getBeatmapSet().getArtist(),
                 beatmap.getBeatmapSet().getTitle(),
                 beatmap.getBeatmapSet().getCreator(),
                 beatmap.getVersion());
-        File osuFile = new File(osuPath);
+        File beatmapDir = new File(ResourceManager.getTempDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
+        File osuFile = new File(beatmapDir, osuPath);
 
         parseOsuFile(osuFile);
     }

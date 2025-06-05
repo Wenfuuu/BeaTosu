@@ -23,7 +23,6 @@ import java.util.Random;
 
 public class BackgroundManager {
     private static final String BACKGROUNDS_DIR = "./src/main/resources/assets/backgrounds/";
-    private static final String TEMP_DIR = "./src/main/resources/temp/";
     private static final Random random = new Random();
     private static List<String> backgroundFiles = null;
     private static boolean darkModeEnabled = false;
@@ -126,7 +125,9 @@ public class BackgroundManager {
         }
 
         try {
-            File imageFile = new File(TEMP_DIR + beatmap.getBeatmapSetId() + "/" + beatmapBg);
+            File tempDir = ResourceManager.getTempDirectory();
+            File beatmapDir = new File(tempDir, String.valueOf(beatmap.getBeatmapSetId()));
+            File imageFile = new File(beatmapDir, beatmapBg);
             System.out.println(imageFile.getAbsolutePath());
             if (!imageFile.exists()) {
                 System.err.println("Background image not found: " + imageFile.getAbsolutePath());
@@ -163,7 +164,9 @@ public class BackgroundManager {
         String gameBg = OsuParser.getBgFile();
 
         try {
-            File imageFile = new File(TEMP_DIR + beatmap.getBeatmapSetId() + "/" + gameBg);
+            File tempDir = ResourceManager.getTempDirectory();
+            File beatmapDir = new File(tempDir, String.valueOf(beatmap.getBeatmapSetId()));
+            File imageFile = new File(beatmapDir, gameBg);
             String imageUrl = imageFile.toURI().toURL().toString();
 
             String backgroundStyle =
