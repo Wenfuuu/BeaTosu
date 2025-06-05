@@ -1,5 +1,6 @@
 package beat.osu.server;
 
+import beat.osu.server.config.ConfigurationManager;
 import beat.osu.server.handler.ClientHandler;
 import beat.osu.server.repositories.BeatmapRepository;
 import beat.osu.server.repositories.BeatmapSetRepository;
@@ -13,10 +14,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Main {
-    private static final Integer PORT = 8081;
     private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 
     public Main() {
+        ConfigurationManager config = ConfigurationManager.getInstance();
+
         UserRepository userRepository = new UserRepository();
         BeatmapSetRepository beatmapSetRepository = new BeatmapSetRepository();
         BeatmapRepository beatmapRepository = new BeatmapRepository();
@@ -31,9 +33,9 @@ public class Main {
 
         MessageRouter messageRouter = new MessageRouter(systemService, authService, beatmapService, channelService);
 
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("Server started on port " + PORT + "...");
+        int serverPort = config.getServerPort();
 
+        try (ServerSocket serverSocket = new ServerSocket(serverPort)) {
             while (true) {
                 var clientSocket = serverSocket.accept();
                 ClientHandler clientHandler = new ClientHandler(clientSocket, messageRouter, sessionService, userService);

@@ -1,5 +1,6 @@
 package beat.osu.client.connection;
 
+import beat.osu.client.config.ConfigurationManager;
 import beat.osu.shared.enums.MessageAction;
 import beat.osu.shared.enums.MessageType;
 import beat.osu.shared.models.RealtimeMessage;
@@ -13,8 +14,7 @@ import java.net.Socket;
 import java.util.concurrent.CompletableFuture;
 
 public class ServerConnection {
-    private static final String SERVER_HOST = "localhost";
-    private static final Integer SERVER_PORT = 8081;
+    private ConfigurationManager configurationManager;
 
     private Socket socket;
     private ObjectOutputStream oos;
@@ -29,7 +29,11 @@ public class ServerConnection {
 
     public boolean connect() {
         try {
-            socket = new Socket(SERVER_HOST, SERVER_PORT);
+            configurationManager = ConfigurationManager.getInstance();
+            String serverHost = configurationManager.getServerHost();
+            int serverPort = configurationManager.getServerPort();
+
+            socket = new Socket(serverHost, serverPort);
             oos = new ObjectOutputStream(socket.getOutputStream());
             ois = new ObjectInputStream(socket.getInputStream());
 
@@ -39,7 +43,7 @@ public class ServerConnection {
             connected = true;
             startReaderThread();
 
-            System.out.println("Connected to server at " + SERVER_HOST + ":" + SERVER_PORT);
+            System.out.println("Connected to server at " + serverHost + ":" + serverPort);
             return true;
         } catch (Exception e) {
             System.err.println("Failed to connect to server: " + e.getMessage());
