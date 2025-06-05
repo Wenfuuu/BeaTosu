@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Getter
 public class ResultOverlay extends BorderPane {
     // Score display with images
     private final ImageView[] scoreDigits;

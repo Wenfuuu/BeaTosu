@@ -101,13 +101,19 @@ public class GameView extends Page implements Observer {
 
         pauseOverlay.getRetryButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
-//            new GameView(stage, beatmap);
             ViewManager.showGameView(beatmap);
         });
 
         pauseOverlay.getLeaveButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
-//            new HomeView(stage);
+            ViewManager.showHomeView();
+        });
+
+        resultOverlay.getRetryButton().setOnMouseClicked(e -> {
+            ViewManager.showGameView(beatmap);
+        });
+
+        resultOverlay.getBackButton().setOnMouseClicked(e -> {
             ViewManager.showHomeView();
         });
     }
