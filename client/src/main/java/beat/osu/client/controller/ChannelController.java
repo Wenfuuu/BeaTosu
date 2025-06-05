@@ -1,5 +1,7 @@
 package beat.osu.client.controller;
 
+import java.util.concurrent.CompletableFuture;
+
 import beat.osu.client.service.ClientService;
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
@@ -13,8 +15,6 @@ import beat.osu.shared.dto.chat.responses.SendChannelMessageResponse;
 import beat.osu.shared.enums.MessageAction;
 import beat.osu.shared.enums.MessageType;
 import beat.osu.shared.models.RequestMessage;
-
-import java.util.concurrent.CompletableFuture;
 
 public class ChannelController {
     private final ClientService clientService;
@@ -50,9 +50,6 @@ public class ChannelController {
             try {
                 Object response = clientService.getConnection().sendRequest(request).get();
 
-                System.out.println("Response type: " + response.getClass().getName());
-                System.out.println("Response content: " + response.toString());
-
                 Result<?> result = (Result<?>) response;
                 if (result.isSuccess()) {
                     return Result.success((JoinChannelResponse) result.getValue());
@@ -72,9 +69,6 @@ public class ChannelController {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 Object response = clientService.getConnection().sendRequest(request).get();
-
-                System.out.println("Response type: " + response.getClass().getName());
-                System.out.println("Response content: " + response.toString());
 
                 Result<?> result = (Result<?>) response;
                 if (result.isSuccess()) {

@@ -44,13 +44,25 @@ public class ChannelService {
         channelMembers.put(3, ConcurrentHashMap.newKeySet());
     }
 
-    public Result<GetAllChannelsResponse> getAllChannels() {
+    public Result<GetAllChannelsResponse> getAllChannels(String clientId) {
+        Integer userId = (Integer) sessionService.getSessionData(clientId, "userId");
+        if (userId == null) {
+            return Result.failure(Error.unauthorized("User not authenticated"));
+        }
+
         List<ChannelDto> channelDtos = new ArrayList<>();
 
         List<Channel> channelList = new ArrayList<>(channels.values());
         for (Channel channel : channelList) {
+            Set<Integer> membersOfThisChannel = channelMembers.get(channel.getId());
+            if (membersOfThisChannel == null) {
+                membersOfThisChannel = Collections.emptySet();
+            }
+
             int memberCount = channelMembers.get(channel.getId()).size();
-            ChannelDto channelDto = new ChannelDto(channel.getId(), channel.getName(), channel.getDescription(), memberCount);
+            boolean isJoined = membersOfThisChannel.contains(userId);
+
+            ChannelDto channelDto = new ChannelDto(channel.getId(), channel.getName(), channel.getDescription(), memberCount, isJoined);
             channelDtos.add(channelDto);
         }
 

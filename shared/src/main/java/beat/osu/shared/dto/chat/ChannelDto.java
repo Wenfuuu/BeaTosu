@@ -15,4 +15,5 @@ public class ChannelDto implements Serializable {
     private String description;
 
     private int memberCount;
+    private boolean isJoined;
 }
