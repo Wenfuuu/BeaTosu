@@ -1,6 +1,7 @@
 package beat.osu.client.view;
 
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ResourceManager;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.utils.OszExtractor;
 import javafx.concurrent.Task;
@@ -120,13 +121,7 @@ public class UploadPage extends Page {
     }
 
     private void handleFileUpload(List<File> files) {
-        File beatmapDir = new File("./src/main/resources/beatmaps");
-        if(!beatmapDir.exists()) {
-            if(beatmapDir.mkdirs()){
-                System.out.println("creating beatmap directory");
-            }
-        }
-
+        File beatmapDir = ResourceManager.getBeatmapDirectory();
         uploadedFile.getChildren().clear();
         // progress bar
 //        progressBar.setProgress(0);
@@ -135,18 +130,6 @@ public class UploadPage extends Page {
         Task<Void> uploadTask = new Task<>() {
             @Override
             protected Void call() {
-//                Path beatmapDir = Paths.get("beatmaps"); // JAR-safe output directory
-//                Path tempRootDir = Paths.get("temp");    // JAR-safe temp directory
-
-//                try {
-//                    Files.createDirectories(beatmapDir);
-//                    Files.createDirectories(tempRootDir);
-//                } catch (IOException e) {
-//                    System.err.println("Failed to create beatmap or temp directory.");
-//                    e.printStackTrace();
-//                    return null;
-//                }
-
                 int totalFiles = files.size();
 
                 for (int i = 0; i < totalFiles; i++) {
@@ -154,7 +137,6 @@ public class UploadPage extends Page {
                     // Use replaceAll with regular expression to remove "[no video]"
                     String filename = file.getName().replaceAll("\\s*\\[no video\\]", "");
                     Path destPath = new File(beatmapDir, filename).toPath();
-//                    Path destPath = beatmapDir.resolve(filename);
 
                     if(!filename.endsWith(".osz")) continue;
                     try {
@@ -163,17 +145,13 @@ public class UploadPage extends Page {
 
                         String[] tempStr = filename.split(" ");
                         String beatmapSetId = tempStr[0];
+
                         //extract .osz and store in temp folder
-//                        String filePath = String.format("./src/main/resources/beatmaps/%s", filename);
-//                        File oszFile = new File(filePath);
-                        File oszFile = destPath.toFile();
+                        File tempDir = ResourceManager.getTempDirectory();
+                        File outputDir = new File(tempDir, beatmapSetId);
 
                         System.out.println("extracting beatmap set id: " + beatmapSetId);
-                        String outputPath = String.format("./src/main/resources/temp/%s", beatmapSetId);
-                        File outputDir = new File(outputPath);
-//                        Path outputPath = tempRootDir.resolve(beatmapSetId);
-//                        File outputDir = outputPath.toFile();
-                        OszExtractor.extractOsz(oszFile, outputDir);
+                        OszExtractor.extractOsz(new File(beatmapDir, filename), outputDir);
                         //parse all .osu file in temp folder & insert db
                         File []files = outputDir.listFiles();
                         File detectedAudioFile = null;
@@ -201,8 +179,8 @@ public class UploadPage extends Page {
                         CountDownLatch latch = new CountDownLatch(1);
                         // Store the duration in an array to access it from the lambda
                         final double[] audioDuration = {0.0};
-                        File songFile = new File("./src/main/resources/temp/" + beatmapSetId + "/audio.mp3");
-//                        File songFile = outputPath.resolve("audio.mp3").toFile();
+//                        File songFile = new File("./src/main/resources/temp/" + beatmapSetId + "/audio.mp3");
+                        File songFile = new File(outputDir, "audio.mp3");
                         Media song = new Media(songFile.toURI().toString());
                         MediaPlayer player = new MediaPlayer(song);
                         player.setOnReady(() -> {
