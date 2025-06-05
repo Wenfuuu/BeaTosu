@@ -1,6 +1,8 @@
 package beat.osu.client.factory;
 
 import beat.osu.client.Main;
+import beat.osu.client.helper.BackgroundManager;
+import beat.osu.client.helper.SfxManager;
 import javafx.animation.Interpolator;
 import javafx.animation.ScaleTransition;
 import javafx.geometry.Pos;
@@ -13,6 +15,45 @@ import javafx.util.Duration;
 import java.net.URL;
 
 public class ButtonFactory {
+    private static Button createPauseButton() {
+        Button button = new Button();
+        button.setStyle("-fx-padding: 0; -fx-border-width: 0; -fx-background-color: transparent;");
+
+        button.setOnMouseEntered(e -> {
+            button.setStyle("-fx-padding: 0; -fx-border-width: 0; -fx-background-color: rgba(255, 255, 255, 0.2);");
+            SfxManager.playSfx("pause-hover.wav");
+        });
+        button.setOnMouseExited(e -> {
+            button.setStyle("-fx-padding: 0; -fx-border-width: 0; -fx-background-color: transparent;");
+        });
+
+        return button;
+    }
+
+    public static Button createContinueButton() {
+        Button continueButton = createPauseButton();
+        BackgroundManager.setPauseButtonBackground(continueButton, "pause-continue.png");
+        return continueButton;
+    }
+
+    public static Button createResultRetryButton() {
+        Button pauseButton = createPauseButton();
+        BackgroundManager.setResultButtonBackground(pauseButton, "pause-retry.png");
+        return pauseButton;
+    }
+
+    public static Button createRetryButton() {
+        Button continueButton = createPauseButton();
+        BackgroundManager.setPauseButtonBackground(continueButton, "pause-retry.png");
+        return continueButton;
+    }
+
+    public static Button createLeaveButton() {
+        Button continueButton = createPauseButton();
+        BackgroundManager.setPauseButtonBackground(continueButton, "pause-back.png");
+        return continueButton;
+    }
+
     public static Button createBackButton() {
         Button button = new Button();
         try {

@@ -11,11 +11,9 @@ import beat.osu.client.view.Page;
 import beat.osu.client.view.game.component.GameUI;
 import beat.osu.client.view.game.component.PauseOverlay;
 import beat.osu.client.view.game.component.ResultOverlay;
-import beat.osu.client.view.home.HomeView;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
@@ -107,7 +105,7 @@ public class GameView extends Page implements Observer {
             ViewManager.showGameView(beatmap);
         });
 
-        pauseOverlay.getBackButton().setOnMouseClicked(e -> {
+        pauseOverlay.getLeaveButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
 //            new HomeView(stage);
             ViewManager.showHomeView();
@@ -375,22 +373,18 @@ public class GameView extends Page implements Observer {
             case ACCURACY_CHANGED:
                 Double newAccuracy = event.getData(Double.class);
                 if (newAccuracy != null) {
-//                    String accuracyText = String.format("%.2f%%", newAccuracy);
-//                    uiPane.getAccuracyLabel().setText(accuracyText);
                     uiPane.updateAccuracy(newAccuracy);
                 }
                 break;
             case COMBO_CHANGED:
                 ComboChangeData comboChangeData = event.getData(ComboChangeData.class);
                 if (comboChangeData != null) {
-//                    uiPane.getComboLabel().setText("Combo: " + comboChangeData.getCombo() + "x");
                     uiPane.updateCombo(comboChangeData.getCombo());
                 }
                 break;
             case SCORE_CHANGED:
                 ScoreChangeData scoreChangeData = event.getData(ScoreChangeData.class);
                 if (scoreChangeData != null) {
-//                    uiPane.getScoreLabel().setText("Score: " + scoreChangeData.getScore());
                     uiPane.updateScore(scoreChangeData.getScore());
                 }
                 break;

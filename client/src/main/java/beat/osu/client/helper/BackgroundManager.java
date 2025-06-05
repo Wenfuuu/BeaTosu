@@ -72,6 +72,19 @@ public class BackgroundManager {
         }
     }
 
+    public static void setResultButtonBackground(Button button, String fileName) {
+        String imagePath = "/assets/buttons/pause-menu/" + fileName;
+        URL imageUrl = Main.class.getResource(imagePath);
+        if(imageUrl == null) return;
+
+        Image image = new Image(imageUrl.toExternalForm());
+        ImageView imageView = new ImageView(image);
+        imageView.setFitHeight(75);
+        imageView.setPreserveRatio(true);
+
+        button.setGraphic(imageView);
+    }
+
     public static void setPauseButtonBackground(Button button, String fileName) {
         String imagePath = "/assets/buttons/pause-menu/" + fileName;
         URL imageUrl = Main.class.getResource(imagePath);

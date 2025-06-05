@@ -184,7 +184,7 @@ public class ResultOverlay extends BorderPane {
 
         // grade
         gradeSymbol = new ImageView(gradeImage);
-        gradeSymbol.setFitHeight(200);
+        gradeSymbol.setFitHeight(175);
         gradeSymbol.setPreserveRatio(true);
 
         initializeComponents();
@@ -364,7 +364,7 @@ public class ResultOverlay extends BorderPane {
         hitCountsBox.getChildren().addAll(hitCountRows);
 
         // Buttons
-        retryButton = new Button("Retry");
+        retryButton = ButtonFactory.createResultRetryButton();
         backButton = ButtonFactory.createBackButton();
 
         // Ranking image
@@ -423,10 +423,10 @@ public class ResultOverlay extends BorderPane {
         comboAccuracyBox.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.6);
 
         // Keep back button at bottom left
-        backButton.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.9);
+        backButton.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.85);
 
         // Position right stats towards the right side as in original
-        rightStats.setLayoutX(ScreenManager.SCREEN_WIDTH - 200);
+        rightStats.setLayoutX(ScreenManager.SCREEN_WIDTH * 0.80);
         rightStats.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.2);
 
         this.setTop(headerSection);
@@ -447,37 +447,5 @@ public class ResultOverlay extends BorderPane {
         // Player name
         playedLabel.setTextFill(Color.WHITE);
         playedLabel.setFont(Font.font("Arial", 14));
-
-        // Buttons
-        setupButton(retryButton, Color.ORANGE);
-//        setupButton(backButton, Color.LIGHTBLUE);
-    }
-
-    private void setupButton(Button button, Color color) {
-        button.setPrefSize(120, 40);
-        button.setStyle(String.format(
-                "-fx-background-color: %s; " +
-                        "-fx-text-fill: white; " +
-                        "-fx-font-weight: bold; " +
-                        "-fx-font-size: 14; " +
-                        "-fx-background-radius: 5;",
-                toHexString(color)
-        ));
-
-        // Hover effect
-        button.setOnMouseEntered(e -> {
-            button.setStyle(button.getStyle() + "-fx-opacity: 0.8;");
-        });
-
-        button.setOnMouseExited(e -> {
-            button.setStyle(button.getStyle().replace("-fx-opacity: 0.8;", ""));
-        });
-    }
-
-    private String toHexString(Color color) {
-        return String.format("#%02X%02X%02X",
-                (int) (color.getRed() * 255),
-                (int) (color.getGreen() * 255),
-                (int) (color.getBlue() * 255));
     }
 }

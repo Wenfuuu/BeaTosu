@@ -1,7 +1,6 @@
 package beat.osu.client.view.game.component;
 
-import beat.osu.client.helper.BackgroundManager;
-import beat.osu.client.helper.SfxManager;
+import beat.osu.client.factory.ButtonFactory;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -18,22 +17,7 @@ public class PauseOverlay extends StackPane {
     private final Label pauseLabel;
     private final Button continueButton;
     private final Button retryButton;
-    private final Button backButton;
-
-    private Button createPauseButton() {
-        Button button = new Button();
-        button.setStyle("-fx-background-color: transparent; -fx-padding: 0; -fx-border-width: 0;");
-
-        button.setOnMouseEntered(e -> {
-            button.setStyle("-fx-background-color: rgba(255, 255, 255, 0.2);");
-            SfxManager.playSfx("pause-hover.wav");
-        });
-        button.setOnMouseExited(e -> {
-            button.setStyle("-fx-background-color: transparent;");
-        });
-
-        return button;
-    }
+    private final Button leaveButton;
 
     public PauseOverlay() {
         this.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);");
@@ -44,17 +28,12 @@ public class PauseOverlay extends StackPane {
         pauseLabel.setTextFill(Color.WHITE);
         pauseLabel.setEffect(new DropShadow(10, Color.BLACK));
 
-        continueButton = createPauseButton();
-        BackgroundManager.setPauseButtonBackground(continueButton, "pause-continue.png");
-
-        retryButton = createPauseButton();
-        BackgroundManager.setPauseButtonBackground(retryButton, "pause-retry.png");
-
-        backButton = createPauseButton();
-        BackgroundManager.setPauseButtonBackground(backButton, "pause-back.png");
+        continueButton = ButtonFactory.createContinueButton();
+        retryButton = ButtonFactory.createRetryButton();
+        leaveButton = ButtonFactory.createLeaveButton();
 
         VBox pauseContent = new VBox(20);
-        pauseContent.getChildren().addAll(pauseLabel, continueButton, retryButton, backButton);
+        pauseContent.getChildren().addAll(pauseLabel, continueButton, retryButton, leaveButton);
         pauseContent.setAlignment(Pos.CENTER);
 
         this.getChildren().add(pauseContent);
