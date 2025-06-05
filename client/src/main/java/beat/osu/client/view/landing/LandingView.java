@@ -1,5 +1,6 @@
 package beat.osu.client.view.landing;
 
+import beat.osu.client.Main;
 import beat.osu.client.helper.*;
 import beat.osu.client.view.Page;
 import beat.osu.client.view.Toast;
@@ -234,8 +235,14 @@ public class LandingView extends Page {
         subMenuButtonsComponent.setManaged(false);
         subMenuButtonsComponent.setOpacity(0.0);
 
-        String bgmPath = "./src/main/resources/assets/audio/nekodex-circles.mp3";
-        BgmManager.playBgm(bgmPath);
+        String bgmPath = "/assets/audio/nekodex-circles.mp3";
+        URL bgmUrl = Main.class.getResource(bgmPath);
+        if (bgmUrl != null) {
+            BgmManager.playBgm(bgmUrl.toExternalForm());
+        } else {
+            System.err.println("BGM file not found: " + bgmPath);
+        }
+
         if(BgmManager.getCurrentPlayer() != null) {
             visualizerComponent.setupAudioVisualization(BgmManager.getCurrentPlayer());
         } else {
