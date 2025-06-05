@@ -1,6 +1,7 @@
 package beat.osu.client.view.game.component;
 
 import beat.osu.client.Main;
+import beat.osu.client.factory.ButtonFactory;
 import beat.osu.client.game.GameEndData;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.ScreenManager;
@@ -60,7 +61,6 @@ public class ResultOverlay extends BorderPane {
     private Label mapperLabel;
     private Label playedLabel;
     private VBox hitCountsBox;
-//    private Label gradeLabel;
     private Button retryButton;
     private Button backButton;
     private ImageView rankingView;
@@ -365,7 +365,7 @@ public class ResultOverlay extends BorderPane {
 
         // Buttons
         retryButton = new Button("Retry");
-        backButton = new Button("Back");
+        backButton = ButtonFactory.createBackButton();
 
         // Ranking image
         Image rankingPanel = new Image(Objects.requireNonNull(Main.class
@@ -423,7 +423,6 @@ public class ResultOverlay extends BorderPane {
         comboAccuracyBox.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.6);
 
         // Keep back button at bottom left
-        backButton.setLayoutX(20);
         backButton.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.9);
 
         // Position right stats towards the right side as in original
@@ -451,7 +450,7 @@ public class ResultOverlay extends BorderPane {
 
         // Buttons
         setupButton(retryButton, Color.ORANGE);
-        setupButton(backButton, Color.LIGHTBLUE);
+//        setupButton(backButton, Color.LIGHTBLUE);
     }
 
     private void setupButton(Button button, Color color) {
