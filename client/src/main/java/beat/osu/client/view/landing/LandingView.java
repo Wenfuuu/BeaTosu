@@ -237,10 +237,8 @@ public class LandingView extends Page {
 
         String bgmPath = "/assets/audio/nekodex-circles.mp3";
         URL bgmUrl = Main.class.getResource(bgmPath);
-        if (bgmUrl != null) {
+        if (bgmUrl != null && BgmManager.getCurrentPlayer() == null) {
             BgmManager.playBgm(bgmUrl);
-        } else {
-            System.err.println("BGM file not found: " + bgmPath);
         }
 
         if(BgmManager.getCurrentPlayer() != null) {
