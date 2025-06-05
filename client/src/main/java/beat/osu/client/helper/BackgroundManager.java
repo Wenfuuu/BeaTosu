@@ -14,15 +14,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class BackgroundManager {
-    private static final String BACKGROUNDS_DIR = "./src/main/resources/assets/backgrounds/";
+    private static final String BACKGROUNDS_DIR = "/assets/backgrounds/";
     private static final Random random = new Random();
     private static List<String> backgroundFiles = null;
     private static boolean darkModeEnabled = false;
@@ -48,20 +47,34 @@ public class BackgroundManager {
 
     private static void loadBackgroundFiles() {
         backgroundFiles = new ArrayList<>();
-        File directory = new File(BACKGROUNDS_DIR);
 
-        if (directory.exists() && directory.isDirectory()) {
-            File[] files = directory.listFiles((dir, name) ->
-                    name.toLowerCase().endsWith(".jpg") ||
-                            name.toLowerCase().endsWith(".png") ||
-                            name.toLowerCase().endsWith(".jpeg")
-            );
-
-            if (files != null) {
-                for (File file : files) {
-                    backgroundFiles.add(file.getName());
+        try {
+            // Try to load as resources (works in IDE with file:/, NOT in JAR)
+            URL url = Main.class.getResource(BACKGROUNDS_DIR);
+            if (url != null && url.getProtocol().equals("file")) {
+                // Development mode: load files directly from filesystem
+                File dir = new File(url.toURI());
+                File[] files = dir.listFiles((d, name) ->
+                        name.toLowerCase().endsWith(".jpg") ||
+                                name.toLowerCase().endsWith(".png") ||
+                                name.toLowerCase().endsWith(".jpeg")
+                );
+                if (files != null) {
+                    for (File file : files) {
+                        backgroundFiles.add(file.getName());
+                    }
+                }
+            } else {
+                // JAR mode: resources are packed, can't list — fallback to hardcoded
+                for (int i = 1; i <= 10; i++) {
+                    String name = "bg-" + i + ".png";
+                    if (Main.class.getResource(BACKGROUNDS_DIR + name) != null) {
+                        backgroundFiles.add(name);
+                    }
                 }
             }
+        } catch (Exception e) {
+            System.err.println("Failed to load background images: " + e.getMessage());
         }
 
         if (backgroundFiles.isEmpty()) {
@@ -99,20 +112,17 @@ public class BackgroundManager {
 
     public static void setRandomBackground(Scene scene) {
         String randomBg = getRandomBackgroundURL();
-        try {
-            File imageFile = new File(BACKGROUNDS_DIR + randomBg);
-            String imageUrl = imageFile.toURI().toURL().toString();
-
-            String backgroundStyle = "-fx-background-image: url('" + imageUrl + "'); " +
-                    "-fx-background-size: cover; " +
-                    "-fx-background-position: center center;";
-
-            scene.getRoot().setStyle(backgroundStyle);
-            updateOverlaySmooth(scene);
-        } catch (Exception e) {
-            System.err.println("Error setting background image: " + e.getMessage());
-            e.printStackTrace();
+        URL imageUrl = Main.class.getResource(BACKGROUNDS_DIR + randomBg);
+        if (imageUrl == null) {
+            System.err.println("Background image not found: " + randomBg);
+            return;
         }
+
+        String backgroundStyle = "-fx-background-image: url('" + imageUrl.toExternalForm() + "'); " +
+                "-fx-background-size: cover; " +
+                "-fx-background-position: center center;";
+        scene.getRoot().setStyle(backgroundStyle);
+        updateOverlaySmooth(scene);
     }
 
     // get the beatmap set background

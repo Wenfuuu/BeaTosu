@@ -1,31 +1,38 @@
 package beat.osu.client.helper;
 
+import beat.osu.client.Main;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.utils.OsuParser;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
 import java.io.File;
+import java.net.URL;
 
 public class SfxManager {
-    private static final String SFX_DIR = "./src/main/resources/assets/sfx/";
+//    private static final String SFX_DIR = "./src/main/resources/assets/sfx/";
+    private static URL getSfxResource(String sfxName) {
+        return Main.class.getResource("/assets/sfx/" + sfxName);
+    }
 
     public static MediaPlayer createSfxPlayer(String sfxName) {
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
-        String sfxPath = SFX_DIR + sfxName;
-        File sfxFile = new File(sfxPath);
-        if (!sfxFile.exists()) {
+        URL sfxUrl = getSfxResource(sfxName);
+        Media media = null;
+
+        if (sfxUrl != null) {
+            media = new Media(sfxUrl.toString());
+        } else {
             File beatmapDir = new File(ResourceManager.getTempDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
-            sfxFile = new File(beatmapDir, sfxName);
+            File sfxFile = new File(beatmapDir, sfxName);
             if (!sfxFile.exists()) {
                 System.err.println("SFX file not found: " + sfxName);
                 return null;
             }
+            media = new Media(sfxFile.toURI().toString());
         }
 
-        Media media = new Media(sfxFile.toURI().toString());
         MediaPlayer player = new MediaPlayer(media);
-
         player.setOnReady(() -> {
             player.setOnEndOfMedia(player::play);
         });
@@ -35,20 +42,22 @@ public class SfxManager {
     }
 
     public static void playSfx(String sfxName) {
-        String sfxPath = SFX_DIR + sfxName;
-        File sfxFile = new File(sfxPath);
+        URL sfxUrl = getSfxResource(sfxName);
+        Media media = null;
 
-        if (!sfxFile.exists()) {
+        if (sfxUrl != null) {
+            media = new Media(sfxUrl.toString());
+        } else {
             Beatmap beatmap = OsuParser.getCurrentBeatmap();
             File beatmapDir = new File(ResourceManager.getTempDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
-            sfxFile = new File(beatmapDir, sfxName);
+            File sfxFile = new File(beatmapDir, sfxName);
             if (!sfxFile.exists()) {
                 System.err.println("SFX file not found in both SFX and TEMP directories: " + sfxName);
                 return;
             }
+            media = new Media(sfxFile.toURI().toString());
         }
 
-        Media media = new Media(sfxFile.toURI().toString());
         MediaPlayer player = new MediaPlayer(media);
         player.setVolume(0.2);
         player.setOnEndOfMedia(player::dispose);
