@@ -152,14 +152,14 @@ public class GameView extends Page implements Observer {
         Image hitImage = new Image(Objects.requireNonNull(Main.class
                 .getResource(imagePath)).toExternalForm());
         ImageView hitImageView = new ImageView(hitImage);
-        hitImageView.setLayoutX(hitObject.getScreenCenterX() - hitImage.getWidth() / 2);
-        hitImageView.setLayoutY(hitObject.getScreenCenterY() - hitImage.getHeight() / 2);
-
         hitImageView.setFitWidth(50);
         hitImageView.setFitHeight(50);
         hitImageView.setOpacity(0);
         hitImageView.setScaleX(0.5);
         hitImageView.setScaleY(0.5);
+
+        hitImageView.setLayoutX(hitObject.getScreenCenterX() - hitImageView.getFitWidth() / 2);
+        hitImageView.setLayoutY(hitObject.getScreenCenterY() - hitImageView.getFitHeight() / 2);
 
         // Add the image to the game pane
         gamePane.getChildren().add(hitImageView);
@@ -207,12 +207,13 @@ public class GameView extends Page implements Observer {
         Image hitImage = new Image(Objects.requireNonNull(Main.class
                 .getResource("/assets/images/hit0.png")).toExternalForm());
         ImageView hitImageView = new ImageView(hitImage);
-        hitImageView.setLayoutX(hitObject.getScreenCenterX() - hitImage.getWidth() / 2);
-        hitImageView.setLayoutY(hitObject.getScreenCenterY() - hitImage.getHeight() / 2);
         hitImageView.setFitWidth(50);
         hitImageView.setFitHeight(50);
         hitImageView.setScaleX(2.0);
         hitImageView.setScaleY(2.0);
+
+        hitImageView.setLayoutX(hitObject.getScreenCenterX() - hitImageView.getFitWidth() / 2);
+        hitImageView.setLayoutY(hitObject.getScreenCenterY() - hitImageView.getFitHeight() / 2);
 
         // Add the image to the game pane
         gamePane.getChildren().add(hitImageView);
