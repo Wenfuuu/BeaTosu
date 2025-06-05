@@ -4,6 +4,9 @@ import beat.osu.client.service.ClientService;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.system.responses.GetConnectedUsersResponse;
 import beat.osu.shared.dto.user.UserDto;
+import beat.osu.shared.dto.user.events.UserConnectedEvent;
+import beat.osu.shared.dto.user.events.UserCountChangedEvent;
+import beat.osu.shared.dto.user.events.UserDisconnectedEvent;
 import beat.osu.shared.enums.MessageAction;
 import beat.osu.shared.enums.MessageType;
 import beat.osu.shared.enums.RealtimeMessageType;
@@ -17,12 +20,12 @@ import java.util.function.Consumer;
 
 public class ConnectedUsersController {
     private final ClientService clientService;
-
     @Getter
     private List<UserDto> connectedUsers = new ArrayList<>();
-    private final List<Consumer<UserDto>> userJoinedCallbacks = new ArrayList<>();
-    private final List<Consumer<UserDto>> userLeftCallbacks = new ArrayList<>();
-    private final List<Consumer<Integer>> userCountCallbacks = new ArrayList<>();
+
+    private final List<Consumer<UserConnectedEvent>> userConnectedCallbacks = new ArrayList<>();
+    private final List<Consumer<UserDisconnectedEvent>> userDisconnectedCallbacks = new ArrayList<>();
+    private final List<Consumer<UserCountChangedEvent>> userCountCallbacks = new ArrayList<>();
 
     public ConnectedUsersController() {
         this.clientService = ClientService.getInstance();
@@ -30,27 +33,27 @@ public class ConnectedUsersController {
         setupRealtimeHandler();
     }
 
-    public void addUserJoinedCallback(Consumer<UserDto> callback) {
-        userJoinedCallbacks.add(callback);
+    public void addUserConnectedCallback(Consumer<UserConnectedEvent> callback) {
+        userConnectedCallbacks.add(callback);
     }
 
-    public void addUserLeftCallback(Consumer<UserDto> callback) {
-        userLeftCallbacks.add(callback);
+    public void addUserDisconnectedCallback(Consumer<UserDisconnectedEvent> callback) {
+        userDisconnectedCallbacks.add(callback);
     }
 
-    public void addUserCountCallback(Consumer<Integer> callback) {
+    public void addUserCountChangedCallback(Consumer<UserCountChangedEvent> callback) {
         userCountCallbacks.add(callback);
     }
 
-    public void removeUserJoinedCallback(Consumer<UserDto> callback) {
-        userJoinedCallbacks.remove(callback);
+    public void removeUserConnectedCallback(Consumer<UserConnectedEvent> callback) {
+        userConnectedCallbacks.remove(callback);
     }
 
-    public void removeUserLeftCallback(Consumer<UserDto> callback) {
-        userLeftCallbacks.remove(callback);
+    public void removeUserDisconnectedCallback(Consumer<UserDisconnectedEvent> callback) {
+        userDisconnectedCallbacks.remove(callback);
     }
 
-    public void removeUserCountCallback(Consumer<Integer> callback) {
+    public void removeUserCountCallback(Consumer<UserCountChangedEvent> callback) {
         userCountCallbacks.remove(callback);
     }
     
@@ -84,38 +87,36 @@ public class ConnectedUsersController {
     
     private void handleRealtimeMessage(RealtimeMessage message) {
         if (message.getType() == RealtimeMessageType.USER_CONNECTED) {
-            if (message.getPayload() instanceof UserDto) {
-                UserDto user = (UserDto) message.getPayload();
-                connectedUsers.add(user);
-
-                notifyUserJoined(user);
+            if (message.getPayload() instanceof UserConnectedEvent) {
+                UserConnectedEvent event = (UserConnectedEvent) message.getPayload();
+                connectedUsers.add(event.getUserDto());
+                notifyUserJoined(event);
                 notifyUserCountChanged();
             }
         } else if (message.getType() == RealtimeMessageType.USER_DISCONNECTED) {
-            if (message.getPayload() instanceof UserDto) {
-                UserDto user = (UserDto) message.getPayload();
-                connectedUsers.removeIf(u -> u.getId() == user.getId());
-
-                notifyUserLeft(user);
+            if (message.getPayload() instanceof UserDisconnectedEvent) {
+                UserDisconnectedEvent event = (UserDisconnectedEvent) message.getPayload();
+                connectedUsers.removeIf(u -> u.getId() == event.getUserDto().getId());
+                notifyUserLeft(event);
                 notifyUserCountChanged();
             }
         }
     }
 
-    private void notifyUserJoined(UserDto user) {
-        for (Consumer<UserDto> callback : userJoinedCallbacks) {
+    private void notifyUserJoined(UserConnectedEvent event) {
+        for (Consumer<UserConnectedEvent> callback : userConnectedCallbacks) {
             try {
-                callback.accept(user);
+                callback.accept(event);
             } catch (Exception e) {
                 System.err.println("Error in user joined callback: " + e.getMessage());
             }
         }
     }
 
-    private void notifyUserLeft(UserDto user) {
-        for (Consumer<UserDto> callback : userLeftCallbacks) {
+    private void notifyUserLeft(UserDisconnectedEvent event) {
+        for (Consumer<UserDisconnectedEvent> callback : userDisconnectedCallbacks) {
             try {
-                callback.accept(user);
+                callback.accept(event);
             } catch (Exception e) {
                 System.err.println("Error in user left callback: " + e.getMessage());
             }
@@ -123,9 +124,9 @@ public class ConnectedUsersController {
     }
     
     private void notifyUserCountChanged() {
-        for (Consumer<Integer> callback : userCountCallbacks) {
+        for (Consumer<UserCountChangedEvent> callback : userCountCallbacks) {
             try {
-                callback.accept(connectedUsers.size());
+                callback.accept(new UserCountChangedEvent(connectedUsers.size()));
             } catch (Exception e) {
                 System.err.println("Error in user count callback: " + e.getMessage());
             }

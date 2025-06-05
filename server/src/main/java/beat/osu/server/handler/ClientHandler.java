@@ -5,6 +5,7 @@ import beat.osu.server.router.MessageRouter;
 import beat.osu.server.service.SessionService;
 import beat.osu.server.service.UserService;
 import beat.osu.shared.dto.user.UserDto;
+import beat.osu.shared.dto.user.events.UserDisconnectedEvent;
 import beat.osu.shared.enums.RealtimeMessageType;
 import beat.osu.shared.models.RequestMessage;
 import beat.osu.shared.models.RealtimeMessage;
@@ -113,10 +114,11 @@ public class ClientHandler implements Runnable {
             }
 
             if (disconnectedUser != null) {
+                UserDisconnectedEvent event = new UserDisconnectedEvent(disconnectedUser);
                 RealtimeMessage userDisconnectedMessage = new RealtimeMessage(
                         RealtimeMessageType.USER_DISCONNECTED,
                         "SYSTEM",
-                        disconnectedUser
+                        event
                 );
                 RealtimeMessageHandler.broadcastToAll(userDisconnectedMessage);
             }

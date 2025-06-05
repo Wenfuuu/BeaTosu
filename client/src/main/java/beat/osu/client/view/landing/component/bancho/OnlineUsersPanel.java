@@ -4,6 +4,9 @@ import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.shared.dto.user.UserDto;
+import beat.osu.shared.dto.user.events.UserConnectedEvent;
+import beat.osu.shared.dto.user.events.UserCountChangedEvent;
+import beat.osu.shared.dto.user.events.UserDisconnectedEvent;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
@@ -82,12 +85,12 @@ public class OnlineUsersPanel extends VBox {
     }
 
     private void setupUserCountSubscription() {
-        connectedUsersController.addUserCountCallback(this::updateUserCountLabel);
+        connectedUsersController.addUserCountChangedCallback(this::updateUserCountLabel);
     }
 
     private void setupUserCallbacks() {
-        connectedUsersController.addUserJoinedCallback(this::onUserJoined);
-        connectedUsersController.addUserLeftCallback(this::onUserLeft);
+        connectedUsersController.addUserConnectedCallback(this::onUserJoined);
+        connectedUsersController.addUserDisconnectedCallback(this::onUserLeft);
         
         loadInitialUsers();
     }
@@ -101,12 +104,14 @@ public class OnlineUsersPanel extends VBox {
         });
     }
     
-    private void onUserJoined(UserDto user) {
-        Platform.runLater(() -> addUserCard(user));
+    private void onUserJoined(UserConnectedEvent event) {
+        UserDto userDto = event.getUserDto();
+        Platform.runLater(() -> addUserCard(userDto));
     }
     
-    private void onUserLeft(UserDto user) {
-        Platform.runLater(() -> removeUserCard(user));
+    private void onUserLeft(UserDisconnectedEvent event) {
+        UserDto userDto = event.getUserDto();
+        Platform.runLater(() -> removeUserCard(userDto));
     }
     
     private void addUserCard(UserDto user) {
@@ -153,13 +158,10 @@ public class OnlineUsersPanel extends VBox {
         fadeOut.play();
     }
 
-    private void updateUserCountLabel(Integer userCount) {
+    private void updateUserCountLabel(UserCountChangedEvent event) {
+        int userCount = event.getUserCount();
         Platform.runLater(() -> {
-            if (userCount != null) {
-                onlineUsersLabel.setText(userCount + " Users Connected");
-            } else {
-                onlineUsersLabel.setText("N/A Users Connected");
-            }
+            onlineUsersLabel.setText(userCount + " Users Connected");
         });
     }
     

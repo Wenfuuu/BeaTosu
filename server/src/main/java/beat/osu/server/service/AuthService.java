@@ -9,6 +9,7 @@ import beat.osu.shared.dto.auth.requests.LoginRequest;
 import beat.osu.shared.dto.auth.requests.RegisterRequest;
 import beat.osu.shared.dto.auth.responses.LoginResponse;
 import beat.osu.shared.dto.auth.responses.RegisterResponse;
+import beat.osu.shared.dto.user.events.UserConnectedEvent;
 import beat.osu.shared.enums.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
 import lombok.AllArgsConstructor;
@@ -65,10 +66,11 @@ public class AuthService {
             UserDto userData = new UserDto(user.getId(), user.getUsername(), user.getEmail(), user.getCountryCode(),
                     user.getProfilePicture(), user.getPerformance(), user.getAccuracy(), user.getPlayCount(), user.getLevel());
 
+            UserConnectedEvent event = new UserConnectedEvent(userData);
             RealtimeMessage userConnectedMessage = new RealtimeMessage(
                     RealtimeMessageType.USER_CONNECTED,
                     "SYSTEM",
-                    userData
+                    event
             );
             RealtimeMessageHandler.broadcastToAll(userConnectedMessage);
 
