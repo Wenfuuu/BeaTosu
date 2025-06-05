@@ -1,4 +1,4 @@
-package beat.osu.client.view.landing.component.bancho;
+package beat.osu.client.view.landing.component.bancho.buttons;
 
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
@@ -9,20 +9,18 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
-import lombok.Getter;
 
 import java.net.URL;
 import java.util.Objects;
 
-public class ShowTickerButton extends Button {
-    private ImageView showTickerOnIcon;
-    private ImageView showTickerOffIcon;
+public class ChatToggleButton extends Button {
+
+    private ImageView showChatIcon;
+    private ImageView hideChatIcon;
     private ImageView currentIcon;
+    private boolean isChatVisible = false;
 
-    @Getter
-    private boolean isTickerShown = false;
-
-    public ShowTickerButton() {
+    public ChatToggleButton() {
         super();
 
         URL cssUrl = CssManager.getLandingCssURL("BanchoButton.css");
@@ -35,16 +33,16 @@ public class ShowTickerButton extends Button {
         this.getStyleClass().add("bancho-button");
 
         try {
-            showTickerOnIcon = new ImageView(new Image(Objects.requireNonNull(
-                    Main.class.getResource("/assets/buttons/bancho/show_ticker_on.png")).toExternalForm()));
-            setupImageView(showTickerOnIcon);
+            showChatIcon = new ImageView(new Image(Objects.requireNonNull(
+                    Main.class.getResource("/assets/buttons/bancho/show_chat.png")).toExternalForm()));
+            setupImageView(showChatIcon);
 
-            showTickerOffIcon = new ImageView(new Image(Objects.requireNonNull(
-                    Main.class.getResource("/assets/buttons/bancho/show_ticker_off.png")).toExternalForm()));
-            setupImageView(showTickerOffIcon);
+            hideChatIcon = new ImageView(new Image(Objects.requireNonNull(
+                    Main.class.getResource("/assets/buttons/bancho/hide_chat.png")).toExternalForm()));
+            setupImageView(hideChatIcon);
 
-            currentIcon = showTickerOffIcon;
-            this.setGraphic(currentIcon);
+            this.setGraphic(showChatIcon);
+            currentIcon = showChatIcon;
 
         } catch (Exception e) {
             System.err.println("Failed to load chat toggle icons: " + e.getMessage());
@@ -63,7 +61,7 @@ public class ShowTickerButton extends Button {
         
         currentIcon.setOpacity(1.0);
         container.getChildren().add(currentIcon);
-
+        
         newIcon.setOpacity(0.0);
         container.getChildren().add(newIcon);
         
@@ -86,17 +84,17 @@ public class ShowTickerButton extends Button {
         parallelTransition.play();
     }
 
-    public void setShowTickerOnIcon() {
-        if (isTickerShown) return;
-
-        ImageView newIcon = showTickerOnIcon;
-        animateIconChange(newIcon, () -> isTickerShown = true);
+    public void setHideIcon() {
+        if (isChatVisible) return;
+        animateIconChange(hideChatIcon, () -> isChatVisible = true);
     }
 
-    public void setShowTickerOffIcon() {
-        if (!isTickerShown) return;
+    public void setShowIcon() {
+        if (!isChatVisible) return;
+        animateIconChange(showChatIcon, () -> isChatVisible = false);
+    }
 
-        ImageView newIcon = showTickerOffIcon;
-        animateIconChange(newIcon, () -> isTickerShown = false);
+    public boolean isChatVisible() {
+        return isChatVisible;
     }
 }

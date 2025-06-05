@@ -1,7 +1,8 @@
-package beat.osu.client.view.landing.component.bancho;
+package beat.osu.client.view.landing.component.bancho.panels;
 
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.view.landing.component.bancho.ChannelCard;
 import javafx.animation.TranslateTransition;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -28,7 +29,10 @@ public class ChatPanel extends VBox {
         Label titleLabel = new Label("Chat Panel");
         titleLabel.getStyleClass().add("chat-title");
 
-        this.getChildren().addAll(titleLabel);
+        ChannelCard channelCard = new ChannelCard(1, "#osu", "The official osu! channel (english only).", 12, false);
+        ChannelCard channelCard2 = new ChannelCard(2, "#announce", "Automated announcements of stuff going on in osu!", 14, true);
+
+        this.getChildren().addAll(titleLabel, channelCard, channelCard2);
     }
 
     public void show() {

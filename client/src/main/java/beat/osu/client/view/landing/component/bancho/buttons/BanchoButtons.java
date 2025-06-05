@@ -1,5 +1,7 @@
-package beat.osu.client.view.landing.component.bancho;
+package beat.osu.client.view.landing.component.bancho.buttons;
 
+import beat.osu.client.view.landing.component.bancho.panels.ChatPanel;
+import beat.osu.client.view.landing.component.bancho.panels.OnlineUsersPanel;
 import beat.osu.client.view.landing.component.layout.BottomBar;
 import beat.osu.client.view.landing.component.layout.TopBar;
 import javafx.geometry.Pos;

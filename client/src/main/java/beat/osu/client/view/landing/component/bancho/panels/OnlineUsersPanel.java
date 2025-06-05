@@ -1,8 +1,9 @@
-package beat.osu.client.view.landing.component.bancho;
+package beat.osu.client.view.landing.component.bancho.panels;
 
 import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.view.landing.component.bancho.UserCard;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.dto.user.events.UserConnectedEvent;
 import beat.osu.shared.dto.user.events.UserCountChangedEvent;

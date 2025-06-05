@@ -1,4 +1,4 @@
-package beat.osu.client.view.landing.component.bancho;
+package beat.osu.client.view.landing.component.bancho.buttons;
 
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
