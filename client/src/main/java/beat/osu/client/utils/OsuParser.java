@@ -139,11 +139,14 @@ public class OsuParser {
 
     public static void parseBeatmap(Beatmap beatmap) throws IOException {
         currentBeatmap = beatmap;
+        String title = beatmap.getBeatmapSet().getTitle().replace("<", "");
+        String fixedTitle = title.replace(">", "");
+        String version = beatmap.getVersion().replace("?", "");
         String osuPath = String.format("%s - %s (%s) [%s].osu",
                 beatmap.getBeatmapSet().getArtist(),
-                beatmap.getBeatmapSet().getTitle(),
+                fixedTitle,
                 beatmap.getBeatmapSet().getCreator(),
-                beatmap.getVersion());
+                version);
         File beatmapDir = new File(ResourceManager.getTempDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
         File osuFile = new File(beatmapDir, osuPath);
 
