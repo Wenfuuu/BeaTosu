@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -115,18 +116,18 @@ public class BgmManager {
         }
     }
 
-    public static void playBgm(String filePath) {
+    public static void playBgm(URL bgmUrl) {
         stopBgm(); // Stop if already playing
-        File audioFile = new File(filePath);
-        if (!audioFile.exists()) {
-            System.err.println("BGM file not found: " + audioFile.getAbsolutePath());
-            return;
-        }
 
-        Media media = new Media(audioFile.toURI().toString());
-        currentPlayer = new MediaPlayer(media);
-        currentPlayer.setAutoPlay(true);
-        currentPlayer.setVolume(0.2);
+        try {
+            Media media = new Media(bgmUrl.toString());
+            currentPlayer = new MediaPlayer(media);
+            currentPlayer.setAutoPlay(true);
+            currentPlayer.setVolume(0.2);
+        } catch (Exception e) {
+            System.err.println("Failed to load BGM: " + bgmUrl);
+            e.printStackTrace();
+        }
     }
 
     public static void pauseBgm() {

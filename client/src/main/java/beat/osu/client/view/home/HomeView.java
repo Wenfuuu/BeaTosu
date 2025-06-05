@@ -182,6 +182,7 @@ public class HomeView extends Page {
 
         bottomBar.getBackButton().setOnMouseClicked(e -> {
             System.out.println("Back button clicked");
+            ViewManager.showLandingView();
         });
     }
 }
