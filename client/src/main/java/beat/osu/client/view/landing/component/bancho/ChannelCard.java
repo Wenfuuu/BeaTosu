@@ -1,0 +1,83 @@
+package beat.osu.client.view.landing.component.bancho;
+
+import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ScreenManager;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+
+import java.net.URL;
+
+public class ChannelCard extends HBox {
+    private int id;
+    private String name;
+    private String description;
+    private int memberCount;
+    private boolean isJoined;
+
+    private Label nameLabel;
+    private Label descriptionLabel;
+    private Label memberCountLabel;
+
+    public ChannelCard(int id, String name, String description, int memberCount, boolean isJoined) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.memberCount = memberCount;
+        this.isJoined = isJoined;
+
+        initializeUI();
+        updateStyles();
+    }
+
+    private void initializeUI() {
+        this.setAlignment(Pos.CENTER);
+        this.setPadding(new Insets(8, 18, 8, 18));
+        this.setSpacing(15);
+        this.setPrefHeight(60);
+        this.setMaxWidth(ScreenManager.SCREEN_WIDTH / 2);
+        this.getStyleClass().add("channel-card");
+
+        nameLabel = new Label(name);
+        nameLabel.getStyleClass().add("channel-name");
+        nameLabel.setMinWidth(120);
+        nameLabel.setPrefWidth(120);
+
+        HBox descriptionContainer = new HBox();
+        descriptionContainer.setAlignment(Pos.CENTER_LEFT);
+        descriptionContainer.getStyleClass().add("description-container");
+
+        descriptionLabel = new Label(description);
+        descriptionLabel.getStyleClass().add("channel-description");
+
+        memberCountLabel = new Label("(" + memberCount + " users)");
+        memberCountLabel.getStyleClass().add("channel-description");
+
+        descriptionContainer.getChildren().addAll(descriptionLabel, memberCountLabel);
+        HBox.setHgrow(descriptionContainer, Priority.ALWAYS);
+        this.getChildren().addAll(nameLabel, descriptionContainer);
+    }
+
+    private void updateStyles() {
+        URL cssUrl = CssManager.getLandingCssURL("ChannelCard.css");
+        if (cssUrl != null) {
+            this.getStylesheets().add(cssUrl.toExternalForm());
+        } else {
+            System.err.println("CSS file not found!");
+        }
+
+        this.getStyleClass().removeAll("channel-card-joined", "channel-card-not-joined");
+
+        if (isJoined) {
+            this.getStyleClass().add("channel-card-joined");
+        } else {
+            this.getStyleClass().add("channel-card-not-joined");
+        }
+    }
+
+    public boolean isJoined() {
+        return isJoined;
+    }
+}
