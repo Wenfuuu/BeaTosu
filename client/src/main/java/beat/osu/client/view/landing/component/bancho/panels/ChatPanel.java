@@ -1,19 +1,31 @@
 package beat.osu.client.view.landing.component.bancho.panels;
 
+import java.net.URL;
+
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
-import beat.osu.client.view.landing.component.bancho.ChannelCard;
+import beat.osu.client.view.landing.component.bancho.SelectChannelModal;
+import beat.osu.client.view.landing.component.bancho.buttons.BanchoButtons;
+import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
-import java.net.URL;
-
 public class ChatPanel extends VBox {
 
-    public ChatPanel() {
+    private SelectChannelModal selectChannelModal;
+    private OnlineUsersPanel onlineUsersPanel;
+    private BanchoButtons banchoButtons;
+
+    public ChatPanel(SelectChannelModal selectChannelModal, OnlineUsersPanel onlineUsersPanel, BanchoButtons banchoButtons) {
         super();
+        this.selectChannelModal = selectChannelModal;
+        this.onlineUsersPanel = onlineUsersPanel;
+        this.banchoButtons = banchoButtons;
+
         this.getStyleClass().add("chat-panel");
         this.setVisible(false);
 
@@ -29,28 +41,49 @@ public class ChatPanel extends VBox {
         Label titleLabel = new Label("Chat Panel");
         titleLabel.getStyleClass().add("chat-title");
 
-        ChannelCard channelCard = new ChannelCard(1, "#osu", "The official osu! channel (english only).", 12, false);
-        ChannelCard channelCard2 = new ChannelCard(2, "#announce", "Automated announcements of stuff going on in osu!", 14, true);
+        Button testButton = new Button("Test Channel");
+        testButton.setOnMouseClicked(e -> {
+            selectChannelModal.show();
+            this.hide();
+            this.banchoButtons.setVisible(false);
 
-        this.getChildren().addAll(titleLabel, channelCard, channelCard2);
+            if (onlineUsersPanel.isShowing()) {
+                onlineUsersPanel.hide();
+            }
+        });
+
+        this.getChildren().addAll(titleLabel, testButton);
     }
 
     public void show() {
         this.setVisible(true);
         this.setTranslateY(this.getHeight());
-        
+        this.setOpacity(0);
+
         TranslateTransition slideIn = new TranslateTransition(Duration.millis(300), this);
-        slideIn.setFromY(this.getHeight());
+        slideIn.setFromY(this.getHeight() / 4);
         slideIn.setToY(0);
-        slideIn.play();
+        
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), this);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+        
+        ParallelTransition showTransition = new ParallelTransition(slideIn, fadeIn);
+        showTransition.play();
     }
 
     public void hide() {
         TranslateTransition slideOut = new TranslateTransition(Duration.millis(300), this);
         slideOut.setFromY(0);
-        slideOut.setToY(this.getHeight());
-        slideOut.setOnFinished(e -> this.setVisible(false));
-        slideOut.play();
+        slideOut.setToY(this.getHeight() / 4);
+
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), this);
+        fadeOut.setFromValue(1);
+        fadeOut.setToValue(0);
+        
+        ParallelTransition hideTransition = new ParallelTransition(slideOut, fadeOut);
+        hideTransition.setOnFinished(e -> this.setVisible(false));
+        hideTransition.play();
     }
 
     public boolean isShowing() {

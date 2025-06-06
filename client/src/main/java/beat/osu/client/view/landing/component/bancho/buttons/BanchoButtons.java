@@ -52,11 +52,17 @@ public class BanchoButtons extends HBox {
         }
     }
 
-    public void toggleChat(ChatPanel chatPanel, BottomBar bottomBar) {
+    public void toggleChat(ChatPanel chatPanel, BottomBar bottomBar, OnlineUsersPanel onlineUsersPanel, TopBar topBar) {
         if (chatToggleButton.isChatVisible()) {
             chatPanel.hide();
             bottomBar.setFullOpacity();
             chatToggleButton.setShowIcon();
+
+            if (onlineUsersPanel.isShowing()) {
+                onlineUsersPanel.hide();
+                topBar.setFullOpacity();
+                onlineUsersButton.setOnlineUsersHiddenIcon();
+            }
         } else {
             chatPanel.show();
             bottomBar.setLowOpacity();

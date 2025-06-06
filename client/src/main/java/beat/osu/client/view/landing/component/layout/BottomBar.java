@@ -1,13 +1,15 @@
 package beat.osu.client.view.landing.component.layout;
 
+import java.net.URL;
+
 import beat.osu.client.helper.CssManager;
+import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-
-import java.net.URL;
+import javafx.util.Duration;
 
 public class BottomBar extends HBox {
 
@@ -60,10 +62,16 @@ public class BottomBar extends HBox {
     }
 
     public void setFullOpacity() {
-        this.setOpacity(1);
+        FadeTransition fadeToFull = new FadeTransition(Duration.millis(300), this);
+        fadeToFull.setFromValue(this.getOpacity());
+        fadeToFull.setToValue(1.0);
+        fadeToFull.play();
     }
 
     public void setLowOpacity() {
-        this.setOpacity(0.2);
+        FadeTransition fadeToLow = new FadeTransition(Duration.millis(300), this);
+        fadeToLow.setFromValue(this.getOpacity());
+        fadeToLow.setToValue(0.2);
+        fadeToLow.play();
     }
 }

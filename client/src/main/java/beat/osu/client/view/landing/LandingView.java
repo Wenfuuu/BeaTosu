@@ -1,10 +1,18 @@
 package beat.osu.client.view.landing;
 
+import java.net.URL;
+
 import beat.osu.client.Main;
-import beat.osu.client.helper.*;
+import beat.osu.client.helper.AuthManager;
+import beat.osu.client.helper.BackgroundManager;
+import beat.osu.client.helper.BgmManager;
+import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.ViewManager;
 import beat.osu.client.view.Page;
 import beat.osu.client.view.Toast;
 import beat.osu.client.view.home.HomeView;
+import beat.osu.client.view.landing.component.bancho.SelectChannelModal;
 import beat.osu.client.view.landing.component.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.landing.component.bancho.panels.ChatPanel;
 import beat.osu.client.view.landing.component.bancho.panels.OnlineUsersPanel;
@@ -28,8 +36,6 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
-import java.net.URL;
-
 public class LandingView extends Page {
 
     private StackPane root;
@@ -44,6 +50,7 @@ public class LandingView extends Page {
 
     private OnlineUsersPanel onlineUsersPanel;
     private ChatPanel chatPanel;
+    private SelectChannelModal selectChannelModal;
     private BanchoButtons banchoButtons;
 
     private double visualizerSize;
@@ -214,12 +221,14 @@ public class LandingView extends Page {
         loginModalComponent = new LoginModal();
         registerModalComponent = new RegisterModal();
 
-        onlineUsersPanel = new OnlineUsersPanel();
-        chatPanel = new ChatPanel();
         banchoButtons = new BanchoButtons();
-
         banchoButtons.setVisible(false);
         banchoButtons.setManaged(false);
+
+        onlineUsersPanel = new OnlineUsersPanel();
+        selectChannelModal = new SelectChannelModal(banchoButtons, bottomBarComponent, topBarComponent);
+        chatPanel = new ChatPanel(selectChannelModal, onlineUsersPanel, banchoButtons);
+        selectChannelModal.setChatPanel(chatPanel);
 
         visualizerComponent.getLogoRayGroup().getStyleClass().add("logo-ray-group");
         menuButtonsComponent.getStyleClass().add("menu-buttons");
@@ -276,9 +285,10 @@ public class LandingView extends Page {
         root.getChildren().add(bottomBarComponent);
         StackPane.setAlignment(bottomBarComponent, Pos.BOTTOM_CENTER);
 
-        root.getChildren().addAll(loginModalComponent, registerModalComponent);
+        root.getChildren().addAll(loginModalComponent, registerModalComponent, selectChannelModal);
         StackPane.setAlignment(loginModalComponent, Pos.CENTER_LEFT);
         StackPane.setAlignment(registerModalComponent, Pos.CENTER);
+        StackPane.setAlignment(selectChannelModal, Pos.CENTER);
 
         root.getChildren().add(onlineUsersPanel);
         StackPane.setAlignment(onlineUsersPanel, Pos.TOP_CENTER);
@@ -372,7 +382,7 @@ public class LandingView extends Page {
         });
 
         banchoButtons.getChatToggleButton().setOnMouseClicked(e -> {
-            banchoButtons.toggleChat(chatPanel, bottomBarComponent);
+            banchoButtons.toggleChat(chatPanel, bottomBarComponent, onlineUsersPanel, topBarComponent);
         });
 
         banchoButtons.getAutoHideButton().setOnMouseClicked(e -> {

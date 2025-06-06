@@ -1,8 +1,12 @@
 package beat.osu.client.view.landing.component.layout;
 
+import java.net.URL;
+import java.util.Objects;
+
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
 import beat.osu.shared.dto.user.UserDto;
+import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -11,10 +15,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 import lombok.Getter;
-
-import java.net.URL;
-import java.util.Objects;
 
 public class TopBar extends HBox {
 
@@ -147,11 +149,17 @@ public class TopBar extends HBox {
     }
 
     public void setFullOpacity() {
-        this.setOpacity(1);
+        FadeTransition fadeToFull = new FadeTransition(Duration.millis(300), this);
+        fadeToFull.setFromValue(this.getOpacity());
+        fadeToFull.setToValue(1.0);
+        fadeToFull.play();
     }
 
     public void setLowOpacity() {
-        this.setOpacity(0.2);
+        FadeTransition fadeToLow = new FadeTransition(Duration.millis(300), this);
+        fadeToLow.setFromValue(this.getOpacity());
+        fadeToLow.setToValue(0.2);
+        fadeToLow.play();
     }
 
     // Set song title
