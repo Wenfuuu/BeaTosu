@@ -81,7 +81,7 @@ CREATE TABLE `beatmap_scores` (
   `beatmap_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `score` int(11) NOT NULL,
-  `highect_combo` int(11) NOT NULL,
+  `highest_combo` int(11) NOT NULL,
   `accuracy` double NOT NULL,
   `perfect_hit` int(11) NOT NULL,
   `geki_hit` int(11) NOT NULL,
