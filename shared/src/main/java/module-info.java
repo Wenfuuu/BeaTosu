@@ -15,6 +15,7 @@ module beat.osu.shared {
     exports beat.osu.shared.dto.chat;
     exports beat.osu.shared.dto.chat.requests;
     exports beat.osu.shared.dto.chat.responses;
+    exports beat.osu.shared.dto.chat.events;
 
     exports beat.osu.shared.dto.system.responses;
 
