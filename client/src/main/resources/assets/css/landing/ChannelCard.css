@@ -22,8 +22,8 @@
 }
 
 .channel-name {
-    -fx-font-family: 'Aller';
-    -fx-font-size: 16px;
+    -fx-font-family: 'Aller Light';
+    -fx-font-size: 18px;
 }
 
 .description-container {
@@ -32,16 +32,14 @@
 
 .channel-description {
     -fx-text-fill: white;
-    -fx-font-family: 'Aller';
-    -fx-font-size: 16px;
+    -fx-font-family: 'Aller Light';
+    -fx-font-size: 18px;
     -fx-font-weight: normal;
 }
 
 .channel-card:hover {
-    -fx-cursor: hand;
-    -fx-background-color:rgba(35, 153, 187, 0.2);
+    -fx-background-color:#000000, rgba(35, 153, 187, 0.2);
 }
 .channel-card-joined:hover {
-    -fx-cursor: hand;
-    -fx-background-color:rgba(209, 94, 116, 0.2);
+    -fx-background-color:#000000, rgba(209, 94, 116, 0.2);
 }

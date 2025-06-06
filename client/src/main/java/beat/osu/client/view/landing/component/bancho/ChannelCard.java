@@ -1,5 +1,7 @@
 package beat.osu.client.view.landing.component.bancho;
 
+import java.net.URL;
+
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import javafx.geometry.Insets;
@@ -8,9 +10,9 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
-import java.net.URL;
-
 public class ChannelCard extends HBox {
+    private static final double CARD_WIDTH = ScreenManager.SCREEN_WIDTH * 0.50;
+    
     private int id;
     private String name;
     private String description;
@@ -33,11 +35,15 @@ public class ChannelCard extends HBox {
     }
 
     private void initializeUI() {
-        this.setAlignment(Pos.CENTER);
+        this.setAlignment(Pos.CENTER_LEFT);
         this.setPadding(new Insets(8, 18, 8, 18));
         this.setSpacing(15);
         this.setPrefHeight(60);
-        this.setMaxWidth(ScreenManager.SCREEN_WIDTH / 2);
+        
+        this.setPrefWidth(CARD_WIDTH);
+        this.setMinWidth(CARD_WIDTH);
+        this.setMaxWidth(CARD_WIDTH);
+        
         this.getStyleClass().add("channel-card");
 
         nameLabel = new Label(name);

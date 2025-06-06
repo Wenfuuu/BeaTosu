@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import beat.osu.client.controller.ChannelController;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.view.landing.component.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.landing.component.bancho.panels.ChatPanel;
 import beat.osu.client.view.landing.component.layout.BottomBar;
@@ -63,41 +64,49 @@ public class SelectChannelModal extends VBox {
     }
 
     private void initializeUI() {
-        this.setAlignment(Pos.TOP_CENTER);
-        this.setPadding(new Insets(20));
+        this.setAlignment(Pos.TOP_LEFT);
         this.setSpacing(15);
         this.getStyleClass().add("select-channel-modal");
-        this.setPrefWidth(600);
-        this.setPrefHeight(500);
 
         selectChannelTitle = new Label("Select any channel you wish to join!");
         selectChannelTitle.getStyleClass().add("modal-title");
+        VBox.setMargin(selectChannelTitle, new Insets(0, 0, 0, 0));
 
         HBox searchSection = new HBox(10);
         searchSection.setAlignment(Pos.CENTER_LEFT);
-        
+        VBox.setMargin(searchSection, new Insets(0, 0, 0, 200));
+
         searchLabel = new Label("Search:");
         searchLabel.getStyleClass().add("search-label");
-        
+
         searchField = new TextField();
         searchField.getStyleClass().add("search-field");
-        searchField.setPrefWidth(200);
         searchField.textProperty().addListener((observable, oldValue, newValue) -> filterChannels(newValue));
         
         searchSection.getChildren().addAll(searchLabel, searchField);
 
         channelContainer = new VBox(8);
         channelContainer.setPadding(new Insets(10));
+        channelContainer.setAlignment(Pos.TOP_CENTER);
+        channelContainer.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.5);
+        channelContainer.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.5);
         
         scrollPane = new ScrollPane(channelContainer);
         scrollPane.getStyleClass().add("channel-scroll-pane");
-        scrollPane.setFitToWidth(true);
-        scrollPane.setPrefHeight(350);
+        scrollPane.setFitToWidth(false); 
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.5 + 50);
+        scrollPane.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.5 + 50);
         VBox.setVgrow(scrollPane, Priority.ALWAYS);
+        
+        HBox scrollContainer = new HBox();
+        scrollContainer.setAlignment(Pos.CENTER);
+        scrollContainer.getChildren().add(scrollPane);
 
-        closeButton = new Button("1. Close");
+        closeButton = new Button("Close");
         closeButton.getStyleClass().add("close-button");
-        closeButton.setPrefWidth(150);
+        closeButton.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.5 + 30);
         closeButton.setOnAction(e -> {
             this.setVisible(false);
             banchoButtons.setVisible(true);
@@ -106,7 +115,12 @@ public class SelectChannelModal extends VBox {
             chatPanel.show();
         });
 
-        this.getChildren().addAll(selectChannelTitle, searchSection, scrollPane, closeButton);
+        HBox buttonContainer = new HBox();
+        buttonContainer.setAlignment(Pos.CENTER);
+        buttonContainer.getChildren().add(closeButton);
+        HBox.setMargin(closeButton, new Insets(20, 0, 80, 0));
+
+        this.getChildren().addAll(selectChannelTitle, searchSection, scrollContainer, buttonContainer);
         this.setVisible(false);
     }
 
@@ -116,9 +130,6 @@ public class SelectChannelModal extends VBox {
             Platform.runLater(() -> {
                 if (result.isSuccess()) {
                     GetAllChannelsResponse response = result.getValue();
-                    for (ChannelDto channel : response.getChannels()) {
-                        System.out.println("Channel: " + channel.getName() + " (ID: " + channel.getId() + ")");
-                    }
                     this.allChannels = response.getChannels();
                     displayChannels(this.allChannels);
                 } else {
@@ -151,20 +162,12 @@ public class SelectChannelModal extends VBox {
     }
 
     private void handleChannelClick(ChannelCard card, ChannelDto channel) {
-        if (card.isJoined()) {
-            channelController.leaveChannel(channel.getId()).thenAccept(result -> {
-                Platform.runLater(() -> {
-                    if (result.isSuccess()) {
-                        channel.setJoined(false);
-                        refreshChannelDisplay();
-                    }
-                });
-            });
-        } else {
+        if (!card.isJoined()) {
             channelController.joinChannel(channel.getId()).thenAccept(result -> {
                 Platform.runLater(() -> {
                     if (result.isSuccess()) {
                         channel.setJoined(true);
+                        channel.setMemberCount(channel.getMemberCount() + 1);
                         refreshChannelDisplay();
                     }
                 });
