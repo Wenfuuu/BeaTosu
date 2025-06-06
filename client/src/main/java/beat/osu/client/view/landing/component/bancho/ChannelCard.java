@@ -9,15 +9,23 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import lombok.Getter;
 
 public class ChannelCard extends HBox {
     private static final double CARD_WIDTH = ScreenManager.SCREEN_WIDTH * 0.50;
-    
-    private int id;
+    private Integer id;
+
+    @Getter
     private String name;
+
+    @Getter
     private String description;
-    private int memberCount;
-    private boolean isJoined;
+
+    @Getter
+    private Integer memberCount;
+
+    @Getter
+    private Boolean isJoined;
 
     private Label nameLabel;
     private Label descriptionLabel;
@@ -85,5 +93,15 @@ public class ChannelCard extends HBox {
 
     public boolean isJoined() {
         return isJoined;
+    }
+
+    public void setMemberCount(int memberCount) {
+        this.memberCount = memberCount;
+        this.memberCountLabel.setText("(" + memberCount + " users)");
+    }
+
+    public void setJoined(boolean joined) {
+        this.isJoined = joined;
+        updateStyles();
     }
 }

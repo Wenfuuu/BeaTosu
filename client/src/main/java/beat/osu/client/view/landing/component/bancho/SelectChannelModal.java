@@ -15,6 +15,9 @@ import beat.osu.client.view.landing.component.layout.BottomBar;
 import beat.osu.client.view.landing.component.layout.TopBar;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.chat.ChannelDto;
+import beat.osu.shared.dto.chat.events.ChannelMessageEvent;
+import beat.osu.shared.dto.chat.events.UserJoinedChannelEvent;
+import beat.osu.shared.dto.chat.events.UserLeftChannelEvent;
 import beat.osu.shared.dto.chat.responses.GetAllChannelsResponse;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
@@ -61,6 +64,8 @@ public class SelectChannelModal extends VBox {
         
         initializeUI();
         loadStyles();
+
+        setupChannelCallbacks();
     }
 
     private void initializeUI() {
@@ -226,6 +231,46 @@ public class SelectChannelModal extends VBox {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {
             System.err.println("CSS file not found!");
+        }
+    }
+
+    private void setupChannelCallbacks() {
+        channelController.addUserJoinedChannelCallback(this::handleUserJoinedChannel);
+        channelController.addUserLeftChannelCallback(this::handleUserLeftChannel);
+    }
+
+    private void handleUserJoinedChannel(UserJoinedChannelEvent event) {
+        Platform.runLater(() -> {
+            ChannelDto targetChannel = allChannels.stream()
+                .filter(channel -> channel.getId() == event.getChannelId())
+                .findFirst()
+                .orElse(null);
+            
+            if (targetChannel != null) {
+                targetChannel.setMemberCount(targetChannel.getMemberCount() + 1);
+                refreshChannelDisplay();
+            }
+        });
+    }
+
+    private void handleUserLeftChannel(UserLeftChannelEvent event) {
+        Platform.runLater(() -> {
+            ChannelDto targetChannel = allChannels.stream()
+                .filter(channel -> channel.getId() == event.getChannelId())
+                .findFirst()
+                .orElse(null);
+            
+            if (targetChannel != null) {
+                targetChannel.setMemberCount(Math.max(0, targetChannel.getMemberCount() - 1));
+                refreshChannelDisplay();
+            }
+        });
+    }
+
+    public void cleanup() {
+        if (channelController != null) {
+            channelController.removeUserJoinedChannelCallback(this::handleUserJoinedChannel);
+            channelController.removeUserLeftChannelCallback(this::handleUserLeftChannel);
         }
     }
 }
