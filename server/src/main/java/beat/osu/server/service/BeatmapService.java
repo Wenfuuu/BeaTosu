@@ -60,7 +60,7 @@ public class BeatmapService {
                             beatmap.getCircleSize(),
                             beatmap.getOverallDifficulty(),
                             beatmap.getApproachRate(),
-                            beatmap.getSlideMultiplier(),
+                            beatmap.getSliderMultiplier(),
                             beatmap.getSliderTickRate(),
                             beatmap.getStarRating(),
                             beatmapSetDto
@@ -122,7 +122,7 @@ public class BeatmapService {
                     request.getCircleSize(),
                     request.getOverallDifficulty(),
                     request.getApproachRate(),
-                    request.getSlideMultiplier(),
+                    request.getSliderMultiplier(),
                     request.getSliderTickRate(),
                     request.getStarRating()
             );

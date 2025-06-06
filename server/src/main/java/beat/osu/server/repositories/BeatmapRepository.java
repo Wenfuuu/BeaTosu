@@ -33,7 +33,7 @@ public class BeatmapRepository {
                         rs.getDouble("circle_size"),
                         rs.getDouble("overall_difficulty"),
                         rs.getDouble("approach_rate"),
-                        rs.getDouble("slide_multiplier"),
+                        rs.getDouble("slider_multiplier"),
                         rs.getDouble("slider_tick_rate"),
                         rs.getDouble("star_rating")
                 );
@@ -58,7 +58,7 @@ public class BeatmapRepository {
             double starRating
     ) {
         String query = "INSERT INTO beatmaps (id, beatmap_set_id, version, hp_drain_rate, circle_size, " +
-                "overall_difficulty, approach_rate, slide_multiplier, slider_tick_rate, star_rating) " +
+                "overall_difficulty, approach_rate, slider_multiplier, slider_tick_rate, star_rating) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
         try {
             PreparedStatement statement = conn.prepareStatement(query);

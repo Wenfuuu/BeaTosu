@@ -35,7 +35,7 @@ CREATE TABLE `beatmaps` (
   `circle_size` double NOT NULL,
   `overall_difficulty` double NOT NULL,
   `approach_rate` double NOT NULL,
-  `slide_multiplier` double NOT NULL,
+  `slider_multiplier` double NOT NULL,
   `slider_tick_rate` double NOT NULL,
   `star_rating` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -44,7 +44,7 @@ CREATE TABLE `beatmaps` (
 -- Dumping data for table `beatmaps`
 --
 
-INSERT INTO `beatmaps` (`id`, `beatmap_set_id`, `version`, `hp_drain_rate`, `circle_size`, `overall_difficulty`, `approach_rate`, `slide_multiplier`, `slider_tick_rate`, `star_rating`) VALUES
+INSERT INTO `beatmaps` (`id`, `beatmap_set_id`, `version`, `hp_drain_rate`, `circle_size`, `overall_difficulty`, `approach_rate`, `slider_multiplier`, `slider_tick_rate`, `star_rating`) VALUES
 (1201284, 567148, 'Hard', 5, 4, 6, 7.5, 1.4, 1, 5.07),
 (1201410, 567148, 'Normal', 4, 3.5, 4, 5, 1.1, 1, 3.38),
 (1201550, 567148, 'Easy', 2, 3.2, 2, 3, 0.8, 1, 1.71),

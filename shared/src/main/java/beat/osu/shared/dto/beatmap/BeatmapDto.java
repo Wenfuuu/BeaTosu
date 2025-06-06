@@ -17,7 +17,7 @@ public class BeatmapDto implements Serializable {
     private double circleSize;
     private double overallDifficulty;
     private double approachRate;
-    private double slideMultiplier;
+    private double sliderMultiplier;
     private double sliderTickRate;
     private double starRating;
 

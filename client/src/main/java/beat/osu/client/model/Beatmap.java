@@ -1,6 +1,5 @@
 package beat.osu.client.model;
 
-import beat.osu.client.utils.OsuParser;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -16,7 +15,7 @@ public class Beatmap {
     private double circleSize;
     private double overallDifficulty;
     private double approachRate;
-    private double slideMultiplier;
+    private double sliderMultiplier;
     private double sliderTickRate;
     private double starRating;
 

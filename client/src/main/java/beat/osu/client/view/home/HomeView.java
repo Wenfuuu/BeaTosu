@@ -6,13 +6,11 @@ import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.view.Page;
-import beat.osu.client.view.game.GameView;
 import beat.osu.client.view.home.component.BeatmapPane;
 import beat.osu.client.view.home.component.BottomBar;
 import beat.osu.client.view.home.component.TopBar;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
-import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -132,7 +130,7 @@ public class HomeView extends Page {
                             beatmapDto.getCircleSize(),
                             beatmapDto.getOverallDifficulty(),
                             beatmapDto.getApproachRate(),
-                            beatmapDto.getSlideMultiplier(),
+                            beatmapDto.getSliderMultiplier(),
                             beatmapDto.getSliderTickRate(),
                             beatmapDto.getStarRating(),
                             beatmapSet

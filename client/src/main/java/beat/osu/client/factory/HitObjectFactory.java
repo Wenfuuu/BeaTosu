@@ -153,11 +153,10 @@ public class HitObjectFactory {
                     generateCircleSfxFilenames(hitSound, hitSample));
         }else if(hitType.equals("slider")){
             return new HitSlider(x, y, time, type, hitSound, objectParams, hitSample,
-                    approachRate, circleSize, selectedBeatmap.getSlideMultiplier(),
+                    approachRate, circleSize, selectedBeatmap.getSliderMultiplier(),
                     comboNumber, comboSetIndex, colorString, comboEnd,
                     generateCircleSfxFilenames(hitSound, hitSample));
-        }
-        else{
+        }else{
             return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate, circleSize,
                     comboNumber, comboSetIndex, colorString, comboEnd,
                     generateCircleSfxFilenames(hitSound, hitSample));
