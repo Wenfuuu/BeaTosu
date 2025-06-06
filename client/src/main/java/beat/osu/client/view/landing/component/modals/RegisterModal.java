@@ -1,5 +1,8 @@
 package beat.osu.client.view.landing.component.modals;
 
+import java.io.File;
+import java.net.URL;
+
 import beat.osu.client.controller.AuthController;
 import beat.osu.client.helper.CssManager;
 import beat.osu.shared.dto.auth.responses.RegisterResponse;
@@ -7,11 +10,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-
-import java.net.URL;
+import javafx.stage.FileChooser;
 
 public class RegisterModal extends StackPane {
 
@@ -38,6 +42,15 @@ public class RegisterModal extends StackPane {
     private PasswordField passwordField;
     private HBox passwordInputBox;
     private Label passwordHint;
+
+    // Profile picture components
+    private VBox profilePictureBox;
+    private Label profilePictureLabel;
+    private ImageView profileImageView;
+    private StackPane imageContainer;
+    private Label placeholderLabel;
+    private Label profilePictureHint;
+    private File selectedImageFile;
 
     private VBox buttonBox;
     private Button createButton;
@@ -97,6 +110,28 @@ public class RegisterModal extends StackPane {
         passwordHint.setWrapText(true);
         passwordHint.getStyleClass().add("hint");
 
+        profilePictureBox = new VBox(8);
+        profilePictureBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        profilePictureBox.getStyleClass().add("profile-picture-box");
+        profilePictureLabel = new Label("Profile Picture:");
+        profilePictureLabel.getStyleClass().add("label");
+        
+        profileImageView = new ImageView();
+        profileImageView.setFitWidth(580);
+        profileImageView.setFitHeight(380);
+        profileImageView.setPreserveRatio(true);
+        
+        placeholderLabel = new Label("Click here to upload image");
+        placeholderLabel.getStyleClass().add("upload-placeholder");
+        
+        imageContainer = new StackPane();
+        imageContainer.getChildren().addAll(profileImageView, placeholderLabel);
+        imageContainer.getStyleClass().add("image-upload-container");
+        
+        profilePictureHint = new Label("Optional: Upload a profile picture. It will be displayed on your profile and in game lobbies.");
+        profilePictureHint.setWrapText(true);
+        profilePictureHint.getStyleClass().add("hint");
+
         buttonBox = new VBox(20);
         buttonBox.getStyleClass().add("button-box");
 
@@ -115,15 +150,18 @@ public class RegisterModal extends StackPane {
         usernameInputBox.getStyleClass().add("hbox");
         emailInputBox.getStyleClass().add("hbox");
         passwordInputBox.getStyleClass().add("hbox");
+        imageContainer.getStyleClass().add("image-upload-container");
+        profileImageView.getStyleClass().add("profile-image-view");
     }
 
     private void setLayout() {
         usernameBox.getChildren().addAll(usernameInputBox, usernameHint);
         emailBox.getChildren().addAll(emailInputBox, emailHint);
         passwordBox.getChildren().addAll(passwordInputBox, passwordHint);
+        profilePictureBox.getChildren().addAll(profilePictureLabel, imageContainer, profilePictureHint);
         buttonBox.getChildren().addAll(createButton, cancelButton);
 
-        inputBox.getChildren().addAll(usernameBox, emailBox, passwordBox);
+        inputBox.getChildren().addAll(usernameBox, emailBox, passwordBox, profilePictureBox);
         root.getChildren().addAll(title, inputBox, buttonBox);
     }
 
@@ -146,6 +184,23 @@ public class RegisterModal extends StackPane {
 
         cancelButton.setOnMouseClicked(e -> {
             this.setVisible(false);
+        });
+
+        imageContainer.setOnMouseClicked(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Select Profile Picture");
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"),
+                    new FileChooser.ExtensionFilter("All Files", "*.*")
+            );
+
+            selectedImageFile = fileChooser.showOpenDialog(this.getScene().getWindow());
+
+            if (selectedImageFile != null) {
+                Image image = new Image(selectedImageFile.toURI().toString());
+                profileImageView.setImage(image);
+                placeholderLabel.setVisible(false);
+            }
         });
     }
 }

@@ -81,3 +81,36 @@
 .cancel-button:hover {
     -fx-background-color: #6c757d;
 }
+
+.image-upload-container {
+    -fx-border-color: #333333;
+    -fx-border-width: 2;
+    -fx-border-style: dashed;
+    -fx-alignment: CENTER;
+    -fx-padding: 5;
+    -fx-pref-width: 600;
+    -fx-pref-height: 400;
+    -fx-max-width: 600;
+    -fx-max-height: 400;
+}
+
+.image-upload-container:hover {
+    -fx-border-color: #4caf50;
+    -fx-background-color: #2a2a2a;
+}
+
+.upload-placeholder {
+    -fx-text-fill: #888888;
+    -fx-font-size: 14px;
+    -fx-text-alignment: CENTER;
+}
+
+.profile-image-view {
+    -fx-alignment: CENTER;
+    -fx-pref-width: 580;
+    -fx-max-width: 580;
+}
+
+.profile-picture-box {
+    -fx-alignment: CENTER_LEFT;
+}
