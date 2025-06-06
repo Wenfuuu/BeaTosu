@@ -51,7 +51,7 @@ public class RealtimeMessageHandler {
         }
     }
 
-    public void broadcastToAllExcept(RealtimeMessage message, String excludeClientId) {
+    public static void broadcastToAllExcept(RealtimeMessage message, String excludeClientId) {
         for (String clientId : activeHandlers.keySet()) {
             if (!clientId.equals(excludeClientId)) {
                 sendToClient(message, clientId);

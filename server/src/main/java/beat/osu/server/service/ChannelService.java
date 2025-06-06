@@ -7,6 +7,9 @@ import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.chat.ChannelDto;
 import beat.osu.shared.dto.chat.ChannelMessageDto;
+import beat.osu.shared.dto.chat.events.ChannelMessageEvent;
+import beat.osu.shared.dto.chat.events.UserJoinedChannelEvent;
+import beat.osu.shared.dto.chat.events.UserLeftChannelEvent;
 import beat.osu.shared.dto.chat.requests.JoinChannelRequest;
 import beat.osu.shared.dto.chat.requests.LeaveChannelRequest;
 import beat.osu.shared.dto.chat.requests.SendChannelMessageRequest;
@@ -120,8 +123,9 @@ public class ChannelService {
 
         Result<JoinChannelResponse> response = Result.success(new JoinChannelResponse("Successfully joined channel " + channel.getName()));
         if (response.isSuccess()) {
-            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_JOINED_CHANNEL, clientId, userId);
-            broadcastMessageToChannelMembers(clientId, channelId, realtimeMessage);
+            UserJoinedChannelEvent event = new UserJoinedChannelEvent(channelId, userId);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_JOINED_CHANNEL, clientId, event);
+            RealtimeMessageHandler.broadcastToAllExcept(realtimeMessage, clientId);
         }
 
         return response;
@@ -152,8 +156,9 @@ public class ChannelService {
 
         Result<LeaveChannelResponse> response = Result.success(new LeaveChannelResponse("Successfully left channel " + channel.getName()));
         if (response.isSuccess()) {
-            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_LEFT_CHANNEL, clientId, userId);
-            broadcastMessageToChannelMembers(clientId, channelId, realtimeMessage);
+            UserLeftChannelEvent event = new UserLeftChannelEvent(channelId, userId);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_LEFT_CHANNEL, clientId, event);
+            RealtimeMessageHandler.broadcastToAllExcept(realtimeMessage, clientId);
         }
 
         return response;
@@ -194,7 +199,8 @@ public class ChannelService {
 
         Result<SendChannelMessageResponse> response = Result.success(new SendChannelMessageResponse("Message sent successfully"));
         if (response.isSuccess()) {
-            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.CHANNEL_MESSAGE, clientId, channelMessageDto);
+            ChannelMessageEvent event = new ChannelMessageEvent(channelMessageDto);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.CHANNEL_MESSAGE, clientId, event);
             broadcastMessageToChannelMembers(clientId, channelId, realtimeMessage);
         }
 

@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChannelDto implements Serializable {
-    private int id;
+    private Integer id;
     private String name;
     private String description;
 
-    private int memberCount;
+    private Integer memberCount;
     private boolean isJoined;
 }
