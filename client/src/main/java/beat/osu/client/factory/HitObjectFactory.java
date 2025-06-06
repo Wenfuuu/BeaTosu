@@ -114,19 +114,20 @@ public class HitObjectFactory {
         int time = Integer.parseInt(parts[2]);
         int type = Integer.parseInt(parts[3]);
         int hitSound = Integer.parseInt(parts[4]);
+        int spinnerEndTime = time;
 
         String objectParams = "";
-        String hitSample = "0:0:0:0:";
+        String hitSample = parts[parts.length-1];
 
         String hitType = decodeType(type);
 
         if(parts.length == 6){// circle
             hitSample = parts[5];
         }else if(parts.length == 7){// spinner
-
+            spinnerEndTime = Integer.parseInt(parts[5]);
         }else{// slider
             objectParams = String.join(",", Arrays.copyOfRange(parts, 5, parts.length-1));
-            hitSample = parts[parts.length-1];
+//            hitSample = parts[parts.length-1];
         }
 
         // check if hitSample is invalid

@@ -1,5 +1,6 @@
 package beat.osu.client.model;
 
+import beat.osu.client.Main;
 import beat.osu.client.utils.OsuParser;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
@@ -8,6 +9,8 @@ import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
@@ -17,6 +20,7 @@ import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class HitSlider extends HitObject {
 
@@ -44,6 +48,8 @@ public class HitSlider extends HitObject {
     private List<MediaPlayer> activePlayers = new ArrayList<>();
 //    private boolean sfxPlayed = false;
     private ScaleTransition approachAnimation;
+    private final List<ImageView> reverseArrows = new ArrayList<>();
+    private int currentActiveArrowIndex = 0;
 
     // Visual Constants
     private final double PATH_STROKE_WIDTH;
@@ -247,8 +253,112 @@ public class HitSlider extends HitObject {
         sliderBall.setVisible(false);
         group.getChildren().add(sliderBall);
 
+        createReverseArrows();
+
         group.setUserData(this);
         handleEvent();
+    }
+
+    private void updateArrowVisibility(int currentTraversalIndex) {
+        if (reverseArrows.isEmpty()) return;
+
+        // Determine which arrow should be visible
+        // Traversal 0: going to end (show end arrow)
+        // Traversal 1: going to start (show start arrow if it exists)
+        // Traversal 2: going to end again (show end arrow)
+        // etc.
+        int totalTraversals = repeats;
+        if (currentTraversalIndex < totalTraversals - 1) { // Not the final traversal
+            if (currentTraversalIndex % 2 == 0) {
+                // Even traversal index: going towards end, show end arrow
+                reverseArrows.get(0).setVisible(true);
+                if (reverseArrows.size() >= 2) {
+                    reverseArrows.get(1).setVisible(false); // Hide start arrow
+                }
+            } else {
+                // Odd traversal index: going towards start, show start arrow
+                if (reverseArrows.size() >= 2) {
+                    reverseArrows.get(1).setVisible(true); // Start arrow
+                    reverseArrows.get(0).setVisible(false); // Hide end arrow
+                }
+            }
+        }else { // hide arrow for final traversal
+            for (ImageView arrow : reverseArrows) {
+                arrow.setVisible(false);
+            }
+        }
+    }
+
+    private void createReverseArrows() {
+        if (repeats < 2 || controlPoints.size() < 2) return;
+
+        // Clear any existing arrows
+        for (ImageView arrow : reverseArrows) {
+            group.getChildren().remove(arrow);
+        }
+        reverseArrows.clear();
+        currentActiveArrowIndex = 0;
+
+        Image arrowImage = new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/images/reversearrow.png")).toExternalForm());
+
+        Point2D startPoint = controlPoints.get(0);
+        Point2D endPoint = controlPoints.get(controlPoints.size() - 1);
+
+        // Create arrow at the end of the slider (where it will reverse)
+        ImageView endArrow = new ImageView(arrowImage);
+        endArrow.setFitWidth(getCircleRadius() * 2.5);
+        endArrow.setFitHeight(getCircleRadius() * 2.5);
+        endArrow.setPreserveRatio(true);
+
+        // Position at the end point (relative to slider start)
+        Point2D endRelative = endPoint.subtract(startPoint);
+        endArrow.setLayoutX(endRelative.getX() - endArrow.getFitWidth() / 2);
+        endArrow.setLayoutY(endRelative.getY() - endArrow.getFitHeight() / 2);
+
+        // Calculate rotation angle based on the direction of the last segment
+        if (controlPoints.size() >= 2) {
+            Point2D secondLast = controlPoints.get(controlPoints.size() - 2);
+            Point2D last = controlPoints.get(controlPoints.size() - 1);
+
+            double angle = Math.toDegrees(Math.atan2(
+                    last.getY() - secondLast.getY(),
+                    last.getX() - secondLast.getX()
+            ));
+            endArrow.setRotate(angle + 180); // +180 to point back towards the slider
+        }
+
+        reverseArrows.add(endArrow);
+        group.getChildren().add(endArrow);
+
+        // If there are multiple repeats (odd number means it ends at start, even at end)
+        // Add arrow at start point for even number of total traversals
+        if (repeats > 2) {
+            ImageView startArrow = new ImageView(arrowImage);
+            startArrow.setFitWidth(getCircleRadius() * 2.5);
+            startArrow.setFitHeight(getCircleRadius() * 2.5);
+            startArrow.setPreserveRatio(true);
+
+            // Position at start (0,0 relative to group)
+            startArrow.setLayoutX(-startArrow.getFitWidth() / 2);
+            startArrow.setLayoutY(-startArrow.getFitHeight() / 2);
+
+            // Calculate rotation for start arrow
+            if (controlPoints.size() >= 2) {
+                Point2D first = controlPoints.get(0);
+                Point2D second = controlPoints.get(1);
+
+                double angle = Math.toDegrees(Math.atan2(
+                        second.getY() - first.getY(),
+                        second.getX() - first.getX()
+                ));
+                startArrow.setRotate(angle + 180); // Point back along the slider
+            }
+
+            startArrow.setVisible(false);
+            reverseArrows.add(startArrow);
+            group.getChildren().add(startArrow);
+        }
     }
 
     private Path createSliderPath() {
@@ -461,10 +571,14 @@ public class HitSlider extends HitObject {
             if (getCurrTime() <= endTime) { // Ball is moving
                 tempGroup.setVisible(false);
                 sliderBall.setVisible(true); // Ensure visible if head was hit
+
                 double ballFraction = getBallFraction(timeSinceHitStart);
                 Point2D ballPos = getVisualPointAtFraction(ballFraction);
                 sliderBall.setCenterX(ballPos.getX());
                 sliderBall.setCenterY(ballPos.getY());
+
+                int currentTraversalIndex = (int) Math.floor((double)timeSinceHitStart / this.duration);
+                updateArrowVisibility(currentTraversalIndex);
             } else { // Slider finished
                 if (isVisible()) hide();
 
