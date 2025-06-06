@@ -178,7 +178,9 @@ public class OsuParser {
                     parseKeyValue(line, difficulty);
                     break;
                 case "Colours":
-                    parseKeyValue(line, colours);
+                    if(line.startsWith("Combo")) {
+                        parseKeyValue(line, colours);
+                    }
                     break;
                 case "HitObjects":
                     hitObjects.add(line);
