@@ -52,7 +52,7 @@ public class HitObjectFactory {
         String normalSet = getSampleSetName(normalSetId);
         String additionSet = getSampleSetName(additionSetId);
 
-        System.out.println(normalSet);
+//        System.out.println(normalSet);
         if(normalSet.equals("normal")) {
             if (hitSound == 0 || (hitSound & 1) != 0) {
                 sounds.add(buildCircleFilename(normalSet, "hitnormal", index));
@@ -76,6 +76,72 @@ public class HitObjectFactory {
         }
 
         System.out.println("total sounds: " + sounds.size());
+        return sounds;
+    }
+
+    public static ArrayList<ArrayList<String>> generateSliderEdgeSfxFilenames(
+            String edgeSounds, String edgeSets) {
+        String[] soundsArray = edgeSounds.isEmpty() ? new String[0] : edgeSounds.split("\\|");
+        String[] setsArray = edgeSets.isEmpty() ? new String[0] : edgeSets.split("\\|");
+
+        ArrayList<ArrayList<String>> allEdgeSounds = new ArrayList<>();
+
+        // Process each edge
+        int edgeCount = Math.max(soundsArray.length, setsArray.length);
+        for (int i = 0; i < edgeCount; i++) {
+            // Get hitsound for this edge (default to 0 if not specified)
+            int hitSound = 0;
+            if (i < soundsArray.length && !soundsArray[i].isEmpty()) {
+                hitSound = Integer.parseInt(soundsArray[i]);
+            }
+
+            // Get sample sets for this edge (default to "0:0" if not specified)
+            String sampleSet = "0:0";
+            if (i < setsArray.length && !setsArray[i].isEmpty()) {
+                sampleSet = setsArray[i];
+            }
+
+            // Generate sounds for this edge using similar logic to circle hitsounds
+            ArrayList<String> edgeSfx = generateEdgeSfxForSingleEdge(hitSound, sampleSet);
+            allEdgeSounds.add(edgeSfx);
+        }
+
+        return allEdgeSounds;
+    }
+
+    private static ArrayList<String> generateEdgeSfxForSingleEdge(
+            int hitSound, String sampleSet) {
+        String[] parts = sampleSet.split(":");
+        int normalSetId = parts.length > 0 && !parts[0].isEmpty() ? Integer.parseInt(parts[0]) : 0;
+        int additionSetId = parts.length > 1 && !parts[1].isEmpty() ? Integer.parseInt(parts[1]) : 0;
+        int index = 0;
+
+        ArrayList<String> sounds = new ArrayList<>();
+        String normalSet = getSampleSetName(normalSetId);
+        String additionSet = getSampleSetName(additionSetId);
+
+        if(normalSet.equals("normal")) {
+            if (hitSound == 0 || (hitSound & 1) != 0) {
+                sounds.add(buildCircleFilename(normalSet, "hitnormal", index));
+            }
+            if ((hitSound & 2) != 0 || (hitSound & 4) != 0 || (hitSound & 8) != 0) {
+                sounds.add(buildCircleFilename(additionSet, "hitnormal", index));
+            }
+        }else {
+            if (hitSound == 0 || (hitSound & 1) != 0) {
+                sounds.add(buildCircleFilename(normalSet, "hitnormal", index));
+            }
+            if ((hitSound & 2) != 0) {
+                sounds.add(buildCircleFilename(additionSet, "hitwhistle", index));
+            }
+            if ((hitSound & 4) != 0) {
+                sounds.add(buildCircleFilename(additionSet, "hitfinish", index));
+            }
+            if ((hitSound & 8) != 0) {
+                sounds.add(buildCircleFilename(additionSet, "hitclap", index));
+            }
+        }
+
         return sounds;
     }
 

@@ -1,6 +1,8 @@
 package beat.osu.client.model;
 
 import beat.osu.client.Main;
+import beat.osu.client.factory.HitObjectFactory;
+import beat.osu.client.helper.SfxManager;
 import beat.osu.client.utils.OsuParser;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
@@ -40,6 +42,7 @@ public class HitSlider extends HitObject {
     private double pixelLength = 0.0;
     private String edgeSoundsStr = "";
     private String edgeSetsStr = "";
+    private ArrayList<ArrayList<String>> edfeSfxFilenames;
 
     // Timing & Animation
     private long endTime;
@@ -49,7 +52,7 @@ public class HitSlider extends HitObject {
 //    private boolean sfxPlayed = false;
     private ScaleTransition approachAnimation;
     private final List<ImageView> reverseArrows = new ArrayList<>();
-    private int currentActiveArrowIndex = 0;
+    private int currentTraversalIndex = -1;
 
     // Visual Constants
     private final double PATH_STROKE_WIDTH;
@@ -115,9 +118,8 @@ public class HitSlider extends HitObject {
             return Double.POSITIVE_INFINITY; // Avoid division by zero
         }
 
-        // Duration = (Total Pixels / (Pixels / Beat)) * (Milliseconds / Beat)
-        double singlePassDuration = (pixelLength / effectivePixelsPerBeat) * msPerBeat;
-        return singlePassDuration;
+        // Single Pass Duration = (Total Pixels / (Pixels / Beat)) * (Milliseconds / Beat)
+        return (pixelLength / effectivePixelsPerBeat) * msPerBeat;
     }
 
 
@@ -200,6 +202,7 @@ public class HitSlider extends HitObject {
         BALL_RADIUS = getCircleRadius() * 0.8;
 
         parseSliderParams(objectParams, getOsuX(), getOsuY());
+        edfeSfxFilenames = HitObjectFactory.generateSliderEdgeSfxFilenames(edgeSoundsStr, edgeSetsStr);
 
         this.duration = calculateSliderDuration(sliderMultiplier, OsuParser.getTimingPointsList());
         if (Double.isInfinite(this.duration) || Double.isNaN(this.duration) || this.duration <= 0) {
@@ -297,7 +300,6 @@ public class HitSlider extends HitObject {
             group.getChildren().remove(arrow);
         }
         reverseArrows.clear();
-        currentActiveArrowIndex = 0;
 
         Image arrowImage = new Image(Objects.requireNonNull(Main.class
                 .getResource("/assets/images/reversearrow.png")).toExternalForm());
@@ -487,7 +489,6 @@ public class HitSlider extends HitObject {
         // Calculate total length of the path segments defined by controlPoints
         double totalVisualLength = 0;
         double[] segmentLengths = new double[controlPoints.size() - 1];
-        if (controlPoints.size() -1 < 0) return new Point2D(0,0); // Should be caught by size < 2 check
 
         for (int i = 0; i < controlPoints.size() - 1; i++) {
             segmentLengths[i] = controlPoints.get(i).distance(controlPoints.get(i + 1));
@@ -577,8 +578,15 @@ public class HitSlider extends HitObject {
                 sliderBall.setCenterX(ballPos.getX());
                 sliderBall.setCenterY(ballPos.getY());
 
-                int currentTraversalIndex = (int) Math.floor((double)timeSinceHitStart / this.duration);
-                updateArrowVisibility(currentTraversalIndex);
+                int traversalIndex = (int) Math.floor((double)timeSinceHitStart / this.duration);
+                if(traversalIndex != currentTraversalIndex) {
+                    ArrayList<String> sfxFilenames = edfeSfxFilenames.get(traversalIndex);
+                    for(String sfx : sfxFilenames) {
+                        SfxManager.playSfx(sfx);
+                    }
+                    currentTraversalIndex = traversalIndex;
+                    updateArrowVisibility(currentTraversalIndex);
+                }
             } else { // Slider finished
                 if (isVisible()) hide();
 

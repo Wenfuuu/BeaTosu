@@ -284,8 +284,10 @@ public class GameManager implements Subject {
         hitObject.setHit(true);
         hitObject.playHitEffect();
         // play sfx
-        for(String sfx : hitObject.getSfxFilenames()) {
-            SfxManager.playSfx(sfx);
+        if(hitObject instanceof HitCircle) {
+            for(String sfx : hitObject.getSfxFilenames()) {
+                SfxManager.playSfx(sfx);
+            }
         }
 
         masterComboNumber++;
