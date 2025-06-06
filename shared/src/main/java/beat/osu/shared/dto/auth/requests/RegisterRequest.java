@@ -14,4 +14,5 @@ public class RegisterRequest implements Serializable {
     private String password;
     private String email;
     private String countryCode;
+    private byte[] profilePicture;
 }

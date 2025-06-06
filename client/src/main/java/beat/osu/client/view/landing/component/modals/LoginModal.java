@@ -1,13 +1,17 @@
 package beat.osu.client.view.landing.component.modals;
 
+import java.net.URL;
+import java.util.function.Consumer;
+
 import beat.osu.client.controller.AuthController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.view.landing.component.layout.TopBar;
 import beat.osu.client.view.landing.component.ui.LightRays;
 import beat.osu.client.view.landing.component.ui.Visualizer;
-import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.dto.auth.responses.LoginResponse;
+import beat.osu.shared.dto.user.UserDto;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.ScaleTransition;
@@ -31,9 +35,6 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import lombok.Setter;
 
-import java.net.URL;
-import java.util.function.Consumer;
-
 public class LoginModal extends StackPane {
 
     private final AuthController authController;
@@ -48,14 +49,17 @@ public class LoginModal extends StackPane {
     private Button signInButton;
     private Button createAccountButton;
     private Button backButton;
-    private Label titleLabel; 
+    private Label titleLabel;
+
+    private TopBar topBar;
 
     @Setter
     private Consumer<UserDto> onLoginSuccessListener;
     @Setter
     private Runnable onCreateAccountListener;
 
-    public LoginModal() {
+    public LoginModal(TopBar topBar) {
+        this.topBar = topBar;
         this.authController = new AuthController();
 
         initialize();
@@ -196,6 +200,9 @@ public class LoginModal extends StackPane {
                                 System.out.println(response.getMessage());
 
                                 AuthManager.setUser(result.getValue().getUser());
+                                // Update the TopBar with the logged-in user information
+                                topBar.updateUserInfo(result.getValue().getUser());
+
                                 if (onLoginSuccessListener != null) {
                                     onLoginSuccessListener.accept(result.getValue().getUser());
                                 }

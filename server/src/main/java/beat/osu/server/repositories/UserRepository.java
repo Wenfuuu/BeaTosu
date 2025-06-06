@@ -1,11 +1,11 @@
 package beat.osu.server.repositories;
 
-import beat.osu.server.database.Connect;
-import beat.osu.server.entities.User;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
+import beat.osu.server.database.Connect;
+import beat.osu.server.entities.User;
 
 public class UserRepository {
     private final Connection conn;
@@ -14,15 +14,16 @@ public class UserRepository {
         this.conn = Connect.getInstance().getConn();
     }
 
-    public void insertUser(String username, String email, String password, String countryCode) {
-        String query = "INSERT INTO users (username, email, password_hash, country_code, performance, accuracy, play_count, level) " +
-                "VALUES (?, ?, ?, ?, 0, 0.00, 0, 1);";
+    public void insertUser(String username, String email, String password, String countryCode, byte[] profilePicture) {
+        String query = "INSERT INTO users (username, email, password_hash, country_code, profile_picture, performance, accuracy, play_count, level) " +
+                "VALUES (?, ?, ?, ?, ?, 0, 0.00, 0, 1);";
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, username);
             statement.setString(2, email);
             statement.setString(3, password);
-            statement.setString(4 , countryCode);
+            statement.setString(4, countryCode);
+            statement.setBytes(5, profilePicture); // Allow null for optional profile picture
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);

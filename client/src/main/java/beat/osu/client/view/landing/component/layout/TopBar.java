@@ -1,5 +1,6 @@
 package beat.osu.client.view.landing.component.layout;
 
+import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.Objects;
 
@@ -22,6 +23,7 @@ public class TopBar extends HBox {
 
     @Getter
     private HBox userInfoBox;
+
     private ImageView profilePic;
     private VBox userStats;
     private Label usernameLbl;
@@ -30,21 +32,15 @@ public class TopBar extends HBox {
     private HBox controlsBar;
     private Label songTitle;
 
-    // Expose these for menu page to access
     private HBox nowPlayingSection;
     private VBox songBox;
 
     public TopBar() {
-        super(20); // Spacing between children
+        super(20);
         this.getStyleClass().add("top-bar");
 
-        // Initialize components
         initializeComponents();
-
-        // Set layout
         setupLayout();
-
-        // Load CSS
         loadStyles();
     }
 
@@ -64,12 +60,10 @@ public class TopBar extends HBox {
         profilePic.setFitWidth(80);
         profilePic.getStyleClass().add("profile-pic");
 
-        // Try to load a placeholder profile image
         try {
             profilePic.setImage(new Image(Objects.requireNonNull(Main.class
                     .getResource("/assets/images/avatar-guest.png")).toExternalForm()));
         } catch (Exception e) {
-            // If image loading fails, create a colored rectangle as placeholder
             Region placeholder = new Region();
             placeholder.setPrefSize(60, 60);
             placeholder.setStyle("-fx-background-color: #888888; -fx-background-radius: 5;");
@@ -132,19 +126,43 @@ public class TopBar extends HBox {
         }
     }
 
-    // Add media controls
     public void addControlsToBar(HBox controls) {
         controlsBar.getChildren().setAll(controls.getChildren());
     }
 
-    // Update user info when logged in
     public void updateUserInfo(UserDto user) {
         if (user != null) {
             usernameLbl.setText(user.getUsername());
             signinLbl.setVisible(false);
+            updateProfilePicture(user.getProfilePicture());
         } else {
             usernameLbl.setText("Guest");
             signinLbl.setVisible(true);
+            updateProfilePicture(null);
+        }
+    }
+
+    public void updateProfilePicture(byte[] profilePictureBytes) {
+        if (profilePictureBytes != null && profilePictureBytes.length > 0) {
+            try {
+                ByteArrayInputStream bis = new ByteArrayInputStream(profilePictureBytes);
+                Image profileImage = new Image(bis);
+                profilePic.setImage(profileImage);
+            } catch (Exception e) {
+                System.err.println("Error loading profile picture: " + e.getMessage());
+                setDefaultProfilePicture();
+            }
+        } else {
+            setDefaultProfilePicture();
+        }
+    }
+
+    private void setDefaultProfilePicture() {
+        try {
+            profilePic.setImage(new Image(Objects.requireNonNull(Main.class
+                    .getResource("/assets/images/avatar-guest.png")).toExternalForm()));
+        } catch (Exception e) {
+            System.err.println("Error loading default profile picture: " + e.getMessage());
         }
     }
 
@@ -162,14 +180,11 @@ public class TopBar extends HBox {
         fadeToLow.play();
     }
 
-    // Set song title
     public void setSongTitle(String title) {
         songTitle.setText(title);
     }
 
-    // Get song title
     public String getSongTitle() {
         return songTitle.getText();
     }
-
 }

@@ -1,7 +1,9 @@
 package beat.osu.client.view.landing.component.modals;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 
 import beat.osu.client.controller.AuthController;
 import beat.osu.client.helper.CssManager;
@@ -170,8 +172,18 @@ public class RegisterModal extends StackPane {
             String username = usernameField.getText();
             String password = passwordField.getText();
             String email = emailField.getText();
+            byte[] profilePicture = null;
 
-            authController.register(username, password, email)
+            if (selectedImageFile != null) {
+                try {
+                    profilePicture = Files.readAllBytes(selectedImageFile.toPath());
+                } catch (IOException ex) {
+                    System.err.println("Failed to read profile picture: " + ex.getMessage());
+                    return;
+                }
+            }
+
+            authController.register(username, password, email, profilePicture)
                     .thenAcceptAsync(result -> {
                         if (result.isSuccess()) {
                             RegisterResponse response = result.getValue();

@@ -218,7 +218,7 @@ public class LandingView extends Page {
         subMenuButtonsComponent = new SubMenuButtons();
         visualizerComponent = new Visualizer(this.visualizerSize);
         bottomBarComponent = new BottomBar();
-        loginModalComponent = new LoginModal();
+        loginModalComponent = new LoginModal(topBarComponent);
         registerModalComponent = new RegisterModal();
 
         banchoButtons = new BanchoButtons();

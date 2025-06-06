@@ -131,7 +131,7 @@ CREATE TABLE `users` (
   `email` varchar(100) NOT NULL,
   `password_hash` varchar(255) NOT NULL,
   `country_code` varchar(5) DEFAULT NULL,
-  `profile_picture` blob DEFAULT NULL,
+  `profile_picture` longblob DEFAULT NULL,
   `performance` int(10) DEFAULT NULL,
   `accuracy` decimal(5,2) DEFAULT NULL,
   `play_count` int(10) DEFAULT NULL,

@@ -4,11 +4,11 @@ import beat.osu.server.handler.RealtimeMessageHandler;
 import beat.osu.server.repositories.UserRepository;
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
-import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.dto.auth.requests.LoginRequest;
 import beat.osu.shared.dto.auth.requests.RegisterRequest;
 import beat.osu.shared.dto.auth.responses.LoginResponse;
 import beat.osu.shared.dto.auth.responses.RegisterResponse;
+import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.dto.user.events.UserConnectedEvent;
 import beat.osu.shared.enums.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
@@ -34,7 +34,7 @@ public class AuthService {
                 return Result.failure(Error.validation("Password must be at least 8 characters!"));
             }
 
-            userRepository.insertUser(request.getUsername(), request.getEmail(), request.getPassword(), request.getCountryCode());
+            userRepository.insertUser(request.getUsername(), request.getEmail(), request.getPassword(), request.getCountryCode(), request.getProfilePicture());
 
             String message = "User registered successfully!";
 
