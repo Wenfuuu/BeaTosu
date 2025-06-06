@@ -1,5 +1,11 @@
 package beat.osu.client.view.landing.component.bancho.panels;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
@@ -11,19 +17,17 @@ import beat.osu.shared.dto.user.events.UserDisconnectedEvent;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class OnlineUsersPanel extends VBox {
 
     private ArrayList<UserCard> userCards;
     private Map<Integer, UserCard> userCardMap;
+    private FlowPane userCardsContainer;
+    private ScrollPane scrollPane;
 
     private Label onlineUsersLabel;
     private Label titleLabel;
@@ -49,6 +53,8 @@ public class OnlineUsersPanel extends VBox {
         }
 
         this.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.65);
+        this.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.65);
+        this.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.65);
 
         this.userCards = new ArrayList<>();
         this.userCardMap = new HashMap<>();
@@ -61,7 +67,18 @@ public class OnlineUsersPanel extends VBox {
         onlineUsersLabel = new Label("N/A Users Connected");
         onlineUsersLabel.getStyleClass().add("online-users-label");
 
-        this.getChildren().addAll(titleLabel, onlineUsersLabel);
+        userCardsContainer = new FlowPane();
+        userCardsContainer.getStyleClass().add("user-cards-container");
+        userCardsContainer.setHgap(5);
+        userCardsContainer.setVgap(3);
+        
+        scrollPane = new ScrollPane(userCardsContainer);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.getStyleClass().add("user-cards-scroll-pane");
+
+        this.getChildren().addAll(titleLabel, onlineUsersLabel, scrollPane);
 
         setupUserCallbacks();
         setupUserCountSubscription();
@@ -135,7 +152,7 @@ public class OnlineUsersPanel extends VBox {
         userCardMap.put(user.getId(), userCard);
         
         userCard.setOpacity(0);
-        this.getChildren().add(userCard);
+        userCardsContainer.getChildren().add(userCard);
         
         FadeTransition fadeIn = new FadeTransition(Duration.millis(300), userCard);
         fadeIn.setFromValue(0);
@@ -155,7 +172,7 @@ public class OnlineUsersPanel extends VBox {
         FadeTransition fadeOut = new FadeTransition(Duration.millis(300), userCard);
         fadeOut.setFromValue(1);
         fadeOut.setToValue(0);
-        fadeOut.setOnFinished(e -> this.getChildren().remove(userCard));
+        fadeOut.setOnFinished(e -> userCardsContainer.getChildren().remove(userCard));
         fadeOut.play();
     }
 

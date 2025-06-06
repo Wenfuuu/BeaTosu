@@ -37,6 +37,8 @@ public class ChatPanel extends VBox {
         }
 
         this.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.35);
+        this.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.35);
+        this.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.35);
 
         Label titleLabel = new Label("Chat Panel");
         titleLabel.getStyleClass().add("chat-title");

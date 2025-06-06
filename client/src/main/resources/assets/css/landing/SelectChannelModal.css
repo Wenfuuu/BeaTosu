@@ -73,10 +73,10 @@
 
 .close-button {
     -fx-background-color: #ce5e75;
-    -fx-padding: 8px 20px 8px 20px;
+    -fx-padding: 2px 20px 2px 20px;
     -fx-text-fill: white;
     -fx-font-family: 'Aller';
-    -fx-font-size: 40px;
+    -fx-font-size: 48px;
     -fx-border-radius: 5;
     -fx-alignment: center;
 }
