@@ -150,7 +150,10 @@ public class ChannelService {
 
         Result<JoinChannelResponse> response = Result.success(new JoinChannelResponse("Successfully joined channel " + channel.getName()));
         if (response.isSuccess()) {
-            UserJoinedChannelEvent event = new UserJoinedChannelEvent(channelId, userId);
+            int memberCount = channelMembers.get(channelId).size();
+            ChannelDto channelDto = new ChannelDto(channel.getId(), channel.getName(), channel.getDescription(), memberCount, true);
+
+            UserJoinedChannelEvent event = new UserJoinedChannelEvent(channelDto, userId);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_JOINED_CHANNEL, clientId, event);
             RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
