@@ -152,7 +152,7 @@ public class ChannelService {
         if (response.isSuccess()) {
             UserJoinedChannelEvent event = new UserJoinedChannelEvent(channelId, userId);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_JOINED_CHANNEL, clientId, event);
-            RealtimeMessageHandler.broadcastToAllExcept(realtimeMessage, clientId);
+            RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
 
         return response;
@@ -185,7 +185,7 @@ public class ChannelService {
         if (response.isSuccess()) {
             UserLeftChannelEvent event = new UserLeftChannelEvent(channelId, userId);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_LEFT_CHANNEL, clientId, event);
-            RealtimeMessageHandler.broadcastToAllExcept(realtimeMessage, clientId);
+            RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
 
         return response;

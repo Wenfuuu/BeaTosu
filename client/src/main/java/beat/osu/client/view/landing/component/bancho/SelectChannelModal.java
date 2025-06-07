@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import beat.osu.client.controller.ChannelController;
+import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.view.landing.component.bancho.buttons.BanchoButtons;
@@ -171,9 +172,7 @@ public class SelectChannelModal extends VBox {
             channelController.joinChannel(channel.getId()).thenAccept(result -> {
                 Platform.runLater(() -> {
                     if (result.isSuccess()) {
-                        channel.setJoined(true);
-                        channel.setMemberCount(channel.getMemberCount() + 1);
-                        refreshChannelDisplay();
+                        System.out.println("Joined channel: " + channel.getName());
                     }
                 });
             });
@@ -248,6 +247,10 @@ public class SelectChannelModal extends VBox {
 
             if (targetChannel != null) {
                 targetChannel.setMemberCount(targetChannel.getMemberCount() + 1);
+
+                if (event.getUserId() == AuthManager.getUser().getId()) {
+                    targetChannel.setJoined(true);
+                }
                 refreshChannelDisplay();
             }
         });
@@ -262,6 +265,10 @@ public class SelectChannelModal extends VBox {
             
             if (targetChannel != null) {
                 targetChannel.setMemberCount(Math.max(0, targetChannel.getMemberCount() - 1));
+
+                if (event.getUserId() == AuthManager.getUser().getId()) {
+                    targetChannel.setJoined(false);
+                }
                 refreshChannelDisplay();
             }
         });
