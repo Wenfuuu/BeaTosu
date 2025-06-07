@@ -1,7 +1,6 @@
 package beat.osu.client.view.landing.component.bancho.panels;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -10,7 +9,6 @@ import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.view.landing.component.bancho.SelectChannelModal;
-import beat.osu.client.view.landing.component.bancho.buttons.AddChatButton;
 import beat.osu.client.view.landing.component.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.landing.component.bancho.buttons.ChatTabButton;
 import beat.osu.shared.common.Result;
@@ -22,9 +20,6 @@ import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
-import javafx.geometry.Insets;
-import javafx.scene.Node;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
@@ -35,10 +30,7 @@ public class ChatPanel extends VBox {
     private OnlineUsersPanel onlineUsersPanel;
     private BanchoButtons banchoButtons;
 
-    private List<ChannelDto> joinedChannels;
-    private HBox channelTabsContainer;
-    private ChannelDto currentSelectedChannel;
-    private AddChatButton addChatButton;
+    private ChatTabs chatTabs;
 
     public ChatPanel(ChannelController channelController, SelectChannelModal selectChannelModal, OnlineUsersPanel onlineUsersPanel, BanchoButtons banchoButtons) {
         super();
@@ -46,8 +38,6 @@ public class ChatPanel extends VBox {
         this.selectChannelModal = selectChannelModal;
         this.onlineUsersPanel = onlineUsersPanel;
         this.banchoButtons = banchoButtons;
-
-        this.joinedChannels = new ArrayList<>();
 
         this.getStyleClass().add("chat-panel");
         this.setVisible(false);
@@ -106,8 +96,7 @@ public class ChatPanel extends VBox {
             Platform.runLater(() -> {
                 if (result.isSuccess()) {
                     GetJoinedChannelsResponse response = result.getValue();
-                    this.joinedChannels = response.getChannels();
-                    refreshChannelDisplay();
+                    chatTabs.setJoinedChannels(response.getChannels());
                 } else {
                     System.out.println(result.getError().getMessage());
                 }
@@ -120,21 +109,7 @@ public class ChatPanel extends VBox {
     private void handleUserJoinedChannel(UserJoinedChannelEvent event) {
         Platform.runLater(() -> {
             if (event.getUserId() == AuthManager.getUser().getId()) {
-                boolean channelExists = joinedChannels.stream()
-                        .anyMatch(channel -> channel.getId() == event.getChannelId());
-                
-                if (!channelExists) {
-                    loadJoinedChannels();
-                }
-            } else {
-                ChannelDto targetChannel = joinedChannels.stream()
-                        .filter(channel -> channel.getId() == event.getChannelId())
-                        .findFirst()
-                        .orElse(null);
-
-                if (targetChannel != null) {
-                    refreshChannelDisplay();
-                }
+                chatTabs.addChannel(event.getChannel());
             }
         });
     }
@@ -142,25 +117,7 @@ public class ChatPanel extends VBox {
     private void handleUserLeftChannel(UserLeftChannelEvent event) {
         Platform.runLater(() -> {
             if (event.getUserId() == AuthManager.getUser().getId()) {
-                joinedChannels.removeIf(channel -> channel.getId() == event.getChannelId());
-                
-                if (currentSelectedChannel != null && currentSelectedChannel.getId() == event.getChannelId()) {
-                    currentSelectedChannel = null;
-                    if (!joinedChannels.isEmpty()) {
-                        selectChannel(joinedChannels.get(0));
-                    }
-                }
-                
-                refreshChannelDisplay();
-            } else {
-                ChannelDto targetChannel = joinedChannels.stream()
-                        .filter(channel -> channel.getId() == event.getChannelId())
-                        .findFirst()
-                        .orElse(null);
-
-                if (targetChannel != null) {
-                    refreshChannelDisplay();
-                }
+                chatTabs.removeChannel(event.getChannelId());
             }
         });
     }
@@ -176,53 +133,23 @@ public class ChatPanel extends VBox {
     }
 
     private void setupUI() {
-        addChatButton = new AddChatButton();
-        addChatButton.setOnAction(e -> openChannelSelectionModal());
-
-        channelTabsContainer = new HBox();
-        channelTabsContainer.getStyleClass().add("channel-tabs");
-        channelTabsContainer.getChildren().add(addChatButton);
-
-        this.getChildren().addAll(channelTabsContainer);
-
-        refreshChannelDisplay();
+        // Initialize the chat tabs component
+        chatTabs = new ChatTabs();
+        
+        // Set up callbacks for chat tabs
+        chatTabs.setOnChannelSelected(this::onChannelSelected);
+        chatTabs.setOnChannelClosed(this::handleChannelClose);
+        chatTabs.setOnAddChannelRequested(this::openChannelSelectionModal);
+        
+        this.getChildren().add(chatTabs);
     }
-
-    private void refreshChannelDisplay() {
-        if (joinedChannels == null) return;
-
-        channelTabsContainer.getChildren().clear();
-        channelTabsContainer.getChildren().add(addChatButton);
-
-        for (ChannelDto channel : joinedChannels) {
-            ChatTabButton tabButton = new ChatTabButton(channel.getName());
-            tabButton.setOnAction(e -> selectChannel(channel));
-            tabButton.setOnCloseAction(this::closeChannelTab);
-
-            if (currentSelectedChannel != null && currentSelectedChannel.getId() == channel.getId()) {
-                tabButton.setSelected(true);
-            }
-
-            channelTabsContainer.getChildren().add(channelTabsContainer.getChildren().size() - 1, tabButton);
-        }
-
-        if (currentSelectedChannel == null && !joinedChannels.isEmpty()) {
-            selectChannel(joinedChannels.get(0));
-        }
+    
+    private void onChannelSelected(ChannelDto channel) {
+        System.out.println("Selected channel: " + channel.getName());
     }
-
-    private void selectChannel(ChannelDto channel) {
-        currentSelectedChannel = channel;
-
-        for (Node node : channelTabsContainer.getChildren()) {
-            if (node instanceof ChatTabButton) {
-                ChatTabButton tab = (ChatTabButton) node;
-                tab.setSelected(tab.getTabText().equals(channel.getName()));
-            }
-        }
-    }
-
-    private void closeChannelTab(ChatTabButton tabButton) {
+    
+    private void handleChannelClose(ChatTabButton tabButton) {
+        List<ChannelDto> joinedChannels = chatTabs.getJoinedChannels();
         ChannelDto channelToLeave = joinedChannels.stream()
                 .filter(channel -> channel.getName().equals(tabButton.getTabText()))
                 .findFirst()
@@ -233,16 +160,7 @@ public class ChatPanel extends VBox {
                     .thenAccept(result -> {
                         Platform.runLater(() -> {
                             if (result.isSuccess()) {
-                                joinedChannels.remove(channelToLeave);
-                                
-                                if (currentSelectedChannel != null && currentSelectedChannel.getId() == channelToLeave.getId()) {
-                                    currentSelectedChannel = null;
-                                    if (!joinedChannels.isEmpty()) {
-                                        selectChannel(joinedChannels.get(0));
-                                    }
-                                }
-                                
-                                refreshChannelDisplay();
+                                chatTabs.removeChannel(channelToLeave.getId());
                             } else {
                                 System.err.println("Failed to leave channel: " + result.getError().getMessage());
                             }

@@ -241,7 +241,7 @@ public class SelectChannelModal extends VBox {
     private void handleUserJoinedChannel(UserJoinedChannelEvent event) {
         Platform.runLater(() -> {
             ChannelDto targetChannel = allChannels.stream()
-                .filter(channel -> channel.getId() == event.getChannelId())
+                .filter(channel -> channel.getId() == event.getChannel().getId())
                 .findFirst()
                 .orElse(null);
 
