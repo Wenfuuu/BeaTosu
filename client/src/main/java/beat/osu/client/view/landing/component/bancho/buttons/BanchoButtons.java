@@ -4,9 +4,11 @@ import beat.osu.client.view.landing.component.bancho.panels.ChatPanel;
 import beat.osu.client.view.landing.component.bancho.panels.OnlineUsersPanel;
 import beat.osu.client.view.landing.component.layout.BottomBar;
 import beat.osu.client.view.landing.component.layout.TopBar;
+import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import javafx.util.Duration;
 import lombok.Getter;
 
 @Getter
@@ -84,5 +86,25 @@ public class BanchoButtons extends HBox {
         } else {
             showTickerButton.setShowTickerOnIcon();
         }
+    }
+
+    public void hide() {
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), this);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        fadeOut.setOnFinished(e -> {
+            this.setVisible(false);
+        });
+
+        fadeOut.play();
+    }
+
+    public void show() {
+        this.setVisible(true);
+
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), this);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+        fadeIn.play();
     }
 }

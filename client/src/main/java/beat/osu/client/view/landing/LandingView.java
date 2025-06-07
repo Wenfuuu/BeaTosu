@@ -235,7 +235,9 @@ public class LandingView extends Page {
         onlineUsersPanel = new OnlineUsersPanel(connectedUsersController);
         selectChannelModal = new SelectChannelModal(channelController, banchoButtons, bottomBarComponent, topBarComponent);
         chatPanel = new ChatPanel(channelController, selectChannelModal, onlineUsersPanel, banchoButtons);
+
         selectChannelModal.setChatPanel(chatPanel);
+        selectChannelModal.setOnlineUsersPanel(onlineUsersPanel);
 
         visualizerComponent.getLogoRayGroup().getStyleClass().add("logo-ray-group");
         menuButtonsComponent.getStyleClass().add("menu-buttons");

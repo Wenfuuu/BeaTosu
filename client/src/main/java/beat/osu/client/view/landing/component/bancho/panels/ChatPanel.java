@@ -133,10 +133,8 @@ public class ChatPanel extends VBox {
     }
 
     private void setupUI() {
-        // Initialize the chat tabs component
         chatTabs = new ChatTabs();
         
-        // Set up callbacks for chat tabs
         chatTabs.setOnChannelSelected(this::onChannelSelected);
         chatTabs.setOnChannelClosed(this::handleChannelClose);
         chatTabs.setOnAddChannelRequested(this::openChannelSelectionModal);
@@ -172,6 +170,12 @@ public class ChatPanel extends VBox {
     private void openChannelSelectionModal() {
         if (selectChannelModal != null) {
             selectChannelModal.show();
+            banchoButtons.hide();
+            this.hide();
+
+            if (onlineUsersPanel != null && onlineUsersPanel.isVisible()) {
+                onlineUsersPanel.hide();
+            }
         }
     }
 }

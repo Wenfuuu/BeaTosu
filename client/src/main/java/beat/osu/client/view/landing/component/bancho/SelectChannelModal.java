@@ -12,6 +12,7 @@ import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.view.landing.component.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.landing.component.bancho.panels.ChatPanel;
+import beat.osu.client.view.landing.component.bancho.panels.OnlineUsersPanel;
 import beat.osu.client.view.landing.component.layout.BottomBar;
 import beat.osu.client.view.landing.component.layout.TopBar;
 import beat.osu.shared.common.Result;
@@ -48,6 +49,8 @@ public class SelectChannelModal extends VBox {
     private ChannelController channelController;
     private List<ChannelDto> allChannels;
 
+    @Setter
+    private OnlineUsersPanel onlineUsersPanel;
     @Setter
     private ChatPanel chatPanel;
     private BanchoButtons banchoButtons;
@@ -114,10 +117,16 @@ public class SelectChannelModal extends VBox {
         closeButton.getStyleClass().add("close-button");
         closeButton.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.5 + 30);
         closeButton.setOnAction(e -> {
-            this.setVisible(false);
-            banchoButtons.setVisible(true);
-            bottomBar.setFullOpacity();
+            this.hide();
+            banchoButtons.show();
+            bottomBar.setLowOpacity();
             topBar.setFullOpacity();
+
+            if (banchoButtons.getOnlineUsersButton().isOnlineUserShown()) {
+                onlineUsersPanel.show();
+                topBar.setLowOpacity();
+            }
+
             chatPanel.show();
         });
 
@@ -208,9 +217,11 @@ public class SelectChannelModal extends VBox {
         FadeTransition fadeOut = new FadeTransition(Duration.millis(300), this);
         fadeOut.setFromValue(1.0);
         fadeOut.setToValue(0.0);
-        fadeOut.play();
+        fadeOut.setOnFinished(e -> {
+            this.setVisible(false);
+        });
 
-        this.setVisible(false);
+        fadeOut.play();
     }
 
     public void show() {

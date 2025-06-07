@@ -6,12 +6,12 @@
     -fx-background-radius: 6 6 0 0;
     -fx-border-color: transparent;
     -fx-background-insets: 0;
-    -fx-min-width: 22px;
-    -fx-max-width: 22px;
-    -fx-pref-width: 22px;
-    -fx-min-height: 22px;
-    -fx-max-height: 22px;
-    -fx-pref-height: 22px;
+    -fx-min-width: 24px;
+    -fx-max-width: 24px;
+    -fx-pref-width: 24px;
+    -fx-min-height: 24px;
+    -fx-max-height: 24px;
+    -fx-pref-height: 24px;
 }
 
 .add-button {

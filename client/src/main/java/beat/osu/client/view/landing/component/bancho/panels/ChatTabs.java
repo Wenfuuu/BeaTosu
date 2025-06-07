@@ -10,7 +10,11 @@ import beat.osu.client.view.landing.component.bancho.buttons.ChatTabButton;
 import beat.osu.shared.dto.chat.ChannelDto;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import lombok.Setter;
 
 public class ChatTabs extends HBox {
@@ -34,7 +38,13 @@ public class ChatTabs extends HBox {
     }
     
     private void setupUI() {
-        this.setPadding(new Insets(0, 5, 0, 5));
+        this.setPadding(new Insets(0, 2, 0, 2));
+        
+        BackgroundFill backgroundFill = new BackgroundFill(
+            Color.rgb(255, 255, 255, 0.1),
+            null,null
+        );
+        this.setBackground(new Background(backgroundFill));
 
         addChatButton = new AddChatButton();
         addChatButton.setOnAction(e -> {
