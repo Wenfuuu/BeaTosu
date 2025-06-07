@@ -11,6 +11,7 @@ import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.HitCircle;
 import beat.osu.client.model.HitObject;
 import beat.osu.client.utils.OsuParser;
+import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.scene.input.KeyCode;
@@ -33,6 +34,7 @@ public class GameManager implements Subject {
     private long totalPausedNanos = 0;
     private final long gameStartOffset = 2000;
     private GameState gameState = GameState.NOT_STARTED;
+    private boolean bgmStarted = false;
     private final InputManager inputManager;
 
     private final Set<KeyCode> previousKeys = new HashSet<>();
@@ -103,17 +105,11 @@ public class GameManager implements Subject {
             return;
         }
 
+        gameState = GameState.PLAYING;
+        bgmStarted = false;
         startTimeNanos = -1;
         totalPausedNanos = 0;
         notifyObservers(new GameEvent(GameEventType.GAME_STARTED, null));
-        // sync BGM with game start offset
-        PauseTransition bgmSync = new PauseTransition(Duration.millis(gameStartOffset));
-        bgmSync.setOnFinished(e -> {
-            BgmManager.playGameBgm();
-        });
-        bgmSync.play();
-
-        gameState = GameState.PLAYING;
 
         if (gameLoop != null) {
             gameLoop.stop();
@@ -122,12 +118,20 @@ public class GameManager implements Subject {
         gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
+                if (gameState != GameState.PLAYING) {
+                    return;
+                }
                 if (startTimeNanos == -1) {
                     startTimeNanos = now;
                 }
 
                 long elapsedNanos = now - startTimeNanos - totalPausedNanos;
                 long elapsedMillis = elapsedNanos / 1_000_000;
+
+                if (!bgmStarted && elapsedMillis >= gameStartOffset) {
+                    BgmManager.playGameBgm();
+                    bgmStarted = true;
+                }
 
                 updateGame(elapsedMillis - gameStartOffset);
             }
@@ -159,7 +163,7 @@ public class GameManager implements Subject {
         }
 
         gameState = GameState.PLAYING;
-        BgmManager.resumeBgm();
+        if(bgmStarted) BgmManager.resumeBgm();
         // add countdown later
         resumeAllAnimations();
         notifyObservers(new GameEvent(GameEventType.GAME_RESUMED, null));
