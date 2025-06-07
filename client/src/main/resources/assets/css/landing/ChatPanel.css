@@ -1,9 +1,69 @@
 .chat-panel {
-    -fx-background-color: rgba(0, 0, 0, 0.7);
+    -fx-background-color: rgba(0, 0, 0, 0.8);
+    -fx-spacing: 0;
 }
 
-.chat-title {
-    -fx-text-fill: white;
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
+.chat-tabs {
+    -fx-padding: 0 0 0 8px;
+}
+
+.messages-container {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 0 8px;
+}
+
+.messages-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-hbar-policy: never;
+    -fx-vbar-policy: as-needed;
+    -fx-fit-to-width: true;
+}
+
+.messages-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.messages-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-pref-width: 20;
+    -fx-min-width: 20;
+    -fx-max-width: 20;
+}
+
+.messages-scroll-pane .scroll-bar:vertical .increment-button,
+.messages-scroll-pane .scroll-bar:vertical .decrement-button {
+    -fx-pref-height: 0;
+    -fx-opacity: 0;
+}
+
+.messages-scroll-pane .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+
+.messages-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 0;
+}
+
+.message-item {
+    -fx-background-color: transparent;
+    -fx-alignment: center-left;
+}
+
+.message-text {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 22px;
+    -fx-font-family: "Aller Light";
+    -fx-wrap-text: true;
+}
+
+.chat-input {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 0 8px;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 22px;
+    -fx-font-family: "Aller Light";
+    -fx-prompt-text-fill: #888888;
 }

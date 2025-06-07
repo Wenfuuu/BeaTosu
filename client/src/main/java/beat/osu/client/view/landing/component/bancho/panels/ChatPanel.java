@@ -1,6 +1,9 @@
 package beat.osu.client.view.landing.component.bancho.panels;
 
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -13,6 +16,7 @@ import beat.osu.client.view.landing.component.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.landing.component.bancho.buttons.ChatTabButton;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.chat.ChannelDto;
+import beat.osu.shared.dto.chat.ChannelMessageDto;
 import beat.osu.shared.dto.chat.events.UserJoinedChannelEvent;
 import beat.osu.shared.dto.chat.events.UserLeftChannelEvent;
 import beat.osu.shared.dto.chat.responses.GetJoinedChannelsResponse;
@@ -20,6 +24,13 @@ import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
@@ -31,6 +42,10 @@ public class ChatPanel extends VBox {
     private BanchoButtons banchoButtons;
 
     private ChatTabs chatTabs;
+    private ArrayList<ChannelMessageDto> channelMessages = new ArrayList<>();
+    private TextField chatField;
+    private ScrollPane messagesScrollPane;
+    private VBox messagesContainer;
 
     public ChatPanel(ChannelController channelController, SelectChannelModal selectChannelModal, OnlineUsersPanel onlineUsersPanel, BanchoButtons banchoButtons) {
         super();
@@ -138,8 +153,30 @@ public class ChatPanel extends VBox {
         chatTabs.setOnChannelSelected(this::onChannelSelected);
         chatTabs.setOnChannelClosed(this::handleChannelClose);
         chatTabs.setOnAddChannelRequested(this::openChannelSelectionModal);
+        chatTabs.getStyleClass().add("chat-tabs");
+
+        messagesContainer = new VBox();
+        messagesContainer.getStyleClass().add("messages-container");
+        messagesContainer.setPadding(new Insets(10));
         
-        this.getChildren().add(chatTabs);
+        messagesScrollPane = new ScrollPane(messagesContainer);
+        messagesScrollPane.getStyleClass().add("messages-scroll-pane");
+        messagesScrollPane.setFitToWidth(true);
+        messagesScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        messagesScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        VBox.setVgrow(messagesScrollPane, Priority.ALWAYS);
+        
+        chatField = new TextField();
+        chatField.getStyleClass().add("chat-input");
+        chatField.setPromptText("Type a message...");
+        chatField.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                sendMessage();
+            }
+        });
+        
+        this.getChildren().addAll(chatTabs, messagesScrollPane, chatField);
+        loadMockMessages();
     }
     
     private void onChannelSelected(ChannelDto channel) {
@@ -176,6 +213,77 @@ public class ChatPanel extends VBox {
             if (onlineUsersPanel != null && onlineUsersPanel.isVisible()) {
                 onlineUsersPanel.hide();
             }
+        }
+    }
+    
+    private void loadMockMessages() {
+        LocalDateTime now = LocalDateTime.now();
+        
+        channelMessages.add(new ChannelMessageDto(1, 1, "jollizzzzz wtf", "is lazer slidebreak", now.minusMinutes(10)));
+        channelMessages.add(new ChannelMessageDto(1, 2, "Animen1249", "I love eggs", now.minusMinutes(9)));
+        channelMessages.add(new ChannelMessageDto(1, 3, "swagatronprime", "cur what do you think about japanese food?", now.minusMinutes(8)));
+        channelMessages.add(new ChannelMessageDto(1, 4, "cur", "japan", now.minusMinutes(7)));
+        channelMessages.add(new ChannelMessageDto(1, 5, "powerpointed", "cur: *palms are sweaty, mom's spaghetti*", now.minusMinutes(6)));
+        channelMessages.add(new ChannelMessageDto(1, 6, "Aureole", "pumpless alo's and their functionality are beyond me", now.minusMinutes(5)));
+        channelMessages.add(new ChannelMessageDto(1, 2, "Animen1249", "bye y'all", now.minusMinutes(4)));
+        channelMessages.add(new ChannelMessageDto(1, 7, "bro furoda", "o/", now.minusMinutes(3)));
+        channelMessages.add(new ChannelMessageDto(1, 8, "himankbhanwar", "bros playin lazer and thinks its gud", now.minusMinutes(2)));
+        channelMessages.add(new ChannelMessageDto(1, 9, "Amaretto", "see you later", now.minusMinutes(1)));
+        channelMessages.add(new ChannelMessageDto(1, 3, "swagatronprime", "lazer is good", now));
+        
+        displayMessages();
+    }
+    
+    private void displayMessages() {
+        messagesContainer.getChildren().clear();
+        
+        for (ChannelMessageDto message : channelMessages) {
+            HBox messageBox = createMessageItem(message);
+            messagesContainer.getChildren().add(messageBox);
+        }
+        
+        Platform.runLater(() -> {
+            messagesScrollPane.setVvalue(1.0);
+        });
+    }
+    
+    private HBox createMessageItem(ChannelMessageDto message) {
+        HBox messageBox = new HBox();
+        messageBox.getStyleClass().add("message-item");
+
+        String formattedMessage = String.format("%s %s: %s",
+            formatTimestamp(message.getTimestamp()),
+            message.getSenderName(),
+            message.getMessage());
+        
+        Label messageLabel = new Label(formattedMessage);
+        messageLabel.getStyleClass().add("message-text");
+        messageLabel.setWrapText(true);
+        
+        messageBox.getChildren().add(messageLabel);
+        
+        return messageBox;
+    }
+    
+    private String formatTimestamp(LocalDateTime timestamp) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        return timestamp.format(formatter);
+    }
+    
+    private void sendMessage() {
+        String messageText = chatField.getText().trim();
+        if (!messageText.isEmpty()) {
+            ChannelMessageDto newMessage = new ChannelMessageDto(
+                1, // channel id
+                999, // current user id
+                "You", // current username
+                messageText,
+                LocalDateTime.now()
+            );
+            
+            channelMessages.add(newMessage);
+            chatField.clear();
+            displayMessages();
         }
     }
 }

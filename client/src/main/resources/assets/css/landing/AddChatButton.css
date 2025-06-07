@@ -2,16 +2,16 @@
     -fx-background-color: #CAAB44;
     -fx-font-family: "Aller Bold";
     -fx-padding: 0;
-    -fx-border-radius: 6 6 0 0;
-    -fx-background-radius: 6 6 0 0;
-    -fx-border-color: transparent;
+    -fx-border-radius: 8 8 0 0;
+    -fx-background-radius: 8 8 0 0;
+    -fx-border-color: rgba(0, 0, 0, 0.9);
     -fx-background-insets: 0;
-    -fx-min-width: 24px;
-    -fx-max-width: 24px;
-    -fx-pref-width: 24px;
-    -fx-min-height: 24px;
-    -fx-max-height: 24px;
-    -fx-pref-height: 24px;
+    -fx-min-width: 30px;
+    -fx-max-width: 30px;
+    -fx-pref-width: 30px;
+    -fx-min-height: 30px;
+    -fx-max-height: 30px;
+    -fx-pref-height: 30px;
 }
 
 .add-button {
@@ -30,14 +30,14 @@
     -fx-text-fill: #CAAB44;
     -fx-font-family: "Aller Bold";
     -fx-background-color: rgba(255, 255, 255, 0.7);
-    -fx-font-size: 14px;
-    -fx-min-width: 18px;
-    -fx-max-width: 18px;
-    -fx-pref-width: 18px;
-    -fx-min-height: 18px;
-    -fx-max-height: 18px;
-    -fx-pref-height: 18px;
-    -fx-background-radius: 10px;
+    -fx-font-size: 18px;
+    -fx-min-width: 24px;
+    -fx-max-width: 24px;
+    -fx-pref-width: 24px;
+    -fx-min-height: 24px;
+    -fx-max-height: 24px;
+    -fx-pref-height: 24px;
+    -fx-background-radius: 12px;
     -fx-padding: 0;
     -fx-text-origin: center;
     -fx-label-padding: 0;
