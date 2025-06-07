@@ -68,14 +68,6 @@ public class HitSpinner extends HitObject{
         group.setUserData(this);
     }
 
-    private void playFadeInAnimation() {
-        group.setOpacity(0);
-        fadeInAnimation = new FadeTransition(Duration.millis(getFadeIn()), group);
-        fadeInAnimation.setFromValue(0);
-        fadeInAnimation.setToValue(1);
-        fadeInAnimation.play();
-    }
-
     @Override
     public Node getNode() {
         return group;
@@ -92,6 +84,11 @@ public class HitSpinner extends HitObject{
     }
 
     @Override
+    public void playMissEffect() {
+
+    }
+
+    @Override
     public void applyVisualsToNode(double centerX, double centerY, double scaledRadius) {
 
     }
@@ -101,8 +98,15 @@ public class HitSpinner extends HitObject{
         if(!isVisible()) {
             setVisible(true);
             group.setVisible(true); // Make the whole group visible
-            playFadeInAnimation();
+            playAppearAnimation();
         }
+    }
+
+    private void playAppearAnimation() {
+        fadeInAnimation = new FadeTransition(Duration.millis(getFadeIn()), group);
+        fadeInAnimation.setFromValue(0);
+        fadeInAnimation.setToValue(1);
+        fadeInAnimation.play();
     }
 
     @Override

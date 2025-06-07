@@ -353,7 +353,7 @@ public class GameManager implements Subject {
     private void handleMiss(HitObject hitObject) {
         perfectCombo = false;
         imperfectOrMissed = true;
-        hitObject.hide();
+        hitObject.playMissEffect();
 
         misses++;
         int oldCombo = masterComboNumber;

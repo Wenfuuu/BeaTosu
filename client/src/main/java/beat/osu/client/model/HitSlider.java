@@ -397,11 +397,11 @@ public class HitSlider extends HitObject {
         if(!isVisible()) {
             setVisible(true);
             group.setVisible(true);
-            playApproachAnimation();
+            playAppearAnimation();
         }
     }
 
-    private void playApproachAnimation() {
+    private void playAppearAnimation() {
         if (approachCircle == null || headHit) return;
 
         approachCircle.setVisible(true);
@@ -593,12 +593,7 @@ public class HitSlider extends HitObject {
                 }
             } else { // Slider finished
 //                if (isVisible()) hide();
-                FadeTransition hideAnimation = new FadeTransition(Duration.millis(150), group);
-                hideAnimation.setToValue(0);
-                hideAnimation.setOnFinished(e -> {
-                    hide();
-                });
-                hideAnimation.play();
+                playMissEffect();
 
                 for (MediaPlayer player : activePlayers) {
                     player.stop();
@@ -626,6 +621,16 @@ public class HitSlider extends HitObject {
         FadeTransition fade = new FadeTransition(Duration.millis(150), headCircle);
         fade.setToValue(0);
         fade.play();
+    }
+
+    @Override
+    public void playMissEffect() {
+        FadeTransition hideAnimation = new FadeTransition(Duration.millis(150), group);
+        hideAnimation.setToValue(0);
+        hideAnimation.setOnFinished(e -> {
+            hide();
+        });
+        hideAnimation.play();
     }
 
     @Override

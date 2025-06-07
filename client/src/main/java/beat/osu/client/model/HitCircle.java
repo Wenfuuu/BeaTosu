@@ -66,11 +66,11 @@ public class HitCircle extends HitObject{
         if(!isVisible()) {
             setVisible(true);
             group.setVisible(true); // Make the whole group visible
-            playApproachAnimation();
+            playAppearAnimation();
         }
     }
 
-    private void playApproachAnimation() {
+    private void playAppearAnimation() {
         // Reset scale before playing (in case updateLayout runs mid-animation)
         outerCircle.setScaleX(APPROACH_START_SCALE);
         outerCircle.setScaleY(APPROACH_START_SCALE);
@@ -91,6 +91,18 @@ public class HitCircle extends HitObject{
 
     @Override
     public void playHitEffect() {
+        if (parallelAnimation != null) parallelAnimation.stop();
+        hitEffectAnimation = new FadeTransition(Duration.millis(150), group);
+        hitEffectAnimation.setToValue(0);
+        // Remove from parent pane after fade out to clean up
+        hitEffectAnimation.setOnFinished(e -> {
+            hide();
+        });
+        hitEffectAnimation.play();
+    }
+
+    @Override
+    public void playMissEffect() {
         if (parallelAnimation != null) parallelAnimation.stop();
         hitEffectAnimation = new FadeTransition(Duration.millis(150), group);
         hitEffectAnimation.setToValue(0);

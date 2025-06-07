@@ -101,6 +101,7 @@ public abstract class HitObject {
     public abstract Node getNode();
     public abstract void update(long currentTime);
     public abstract void playHitEffect();
+    public abstract void playMissEffect();
     public abstract void applyVisualsToNode(double centerX, double centerY, double scaledRadius);
     public abstract void appear();
     public abstract void hide();
