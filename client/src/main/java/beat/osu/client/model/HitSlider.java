@@ -6,6 +6,7 @@ import beat.osu.client.helper.SfxManager;
 import beat.osu.client.utils.OsuParser;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -50,7 +51,7 @@ public class HitSlider extends HitObject {
     private boolean headHit = false;
     private List<MediaPlayer> activePlayers = new ArrayList<>();
 //    private boolean sfxPlayed = false;
-    private ScaleTransition approachAnimation;
+    private ParallelTransition parallelAnimation;
     private final List<ImageView> reverseArrows = new ArrayList<>();
     private int currentTraversalIndex = -1;
 
@@ -407,12 +408,18 @@ public class HitSlider extends HitObject {
         approachCircle.setScaleX(APPROACH_START_SCALE);
         approachCircle.setScaleY(APPROACH_START_SCALE);
 
-        approachAnimation = new ScaleTransition(Duration.millis(getPreempt()), approachCircle);
+        ScaleTransition approachAnimation = new ScaleTransition(Duration.millis(getPreempt()), approachCircle);
         approachAnimation.setFromX(APPROACH_START_SCALE);
         approachAnimation.setFromY(APPROACH_START_SCALE);
         approachAnimation.setToX(1.0);
         approachAnimation.setToY(1.0);
-        approachAnimation.play();
+
+        FadeTransition fadeInAnimation = new FadeTransition(Duration.millis(getFadeIn()), group);
+        fadeInAnimation.setFromValue(0);
+        fadeInAnimation.setToValue(1);
+
+        parallelAnimation = new ParallelTransition(approachAnimation, fadeInAnimation);
+        parallelAnimation.play();
     }
 
     @Override
@@ -426,15 +433,15 @@ public class HitSlider extends HitObject {
 
     @Override
     public void pauseAnimations() {
-        if(approachAnimation != null && approachAnimation.getStatus() == Animation.Status.RUNNING) {
-            approachAnimation.pause();
+        if(parallelAnimation != null && parallelAnimation.getStatus() == Animation.Status.RUNNING) {
+            parallelAnimation.pause();
         }
     }
 
     @Override
     public void resumeAnimations() {
-        if(approachAnimation != null && approachAnimation.getStatus() == Animation.Status.PAUSED) {
-            approachAnimation.play();
+        if(parallelAnimation != null && parallelAnimation.getStatus() == Animation.Status.PAUSED) {
+            parallelAnimation.play();
         }
     }
 
@@ -605,7 +612,7 @@ public class HitSlider extends HitObject {
     @Override
     public void playHitEffect() {
         headHit = true;
-        if (approachAnimation != null) approachAnimation.stop();
+        if (parallelAnimation != null) parallelAnimation.stop();
         approachCircle.setVisible(false);
         headCircle.setVisible(false);
         sliderBall.setVisible(true);
