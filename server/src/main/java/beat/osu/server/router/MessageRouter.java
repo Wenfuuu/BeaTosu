@@ -76,6 +76,8 @@ public class MessageRouter {
         switch (request.getAction()) {
             case GET_ALL_CHANNELS:
                 return channelService.getAllChannels(clientId);
+            case GET_JOINED_CHANNELS:
+                return channelService.getJoinedChannels(clientId);
             case JOIN_CHANNEL:
                 return channelService.joinChannel((JoinChannelRequest) request.getPayload(), clientId);
             case LEAVE_CHANNEL:

@@ -15,6 +15,7 @@ import beat.osu.shared.dto.chat.requests.JoinChannelRequest;
 import beat.osu.shared.dto.chat.requests.LeaveChannelRequest;
 import beat.osu.shared.dto.chat.requests.SendChannelMessageRequest;
 import beat.osu.shared.dto.chat.responses.GetAllChannelsResponse;
+import beat.osu.shared.dto.chat.responses.GetJoinedChannelsResponse;
 import beat.osu.shared.dto.chat.responses.JoinChannelResponse;
 import beat.osu.shared.dto.chat.responses.LeaveChannelResponse;
 import beat.osu.shared.dto.chat.responses.SendChannelMessageResponse;
@@ -129,6 +130,24 @@ public class ChannelController {
                 Result<?> result = (Result<?>) response;
                 if (result.isSuccess()) {
                     return Result.success((SendChannelMessageResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
+    }
+
+    public CompletableFuture<Result<GetJoinedChannelsResponse>> getJoinedChannels() {
+        RequestMessage request = new RequestMessage(MessageType.CHANNEL, MessageAction.GET_JOINED_CHANNELS, null);
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendRequest(request).get();
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((GetJoinedChannelsResponse) result.getValue());
                 } else {
                     return Result.failure(result.getError());
                 }

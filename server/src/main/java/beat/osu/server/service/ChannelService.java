@@ -1,5 +1,14 @@
 package beat.osu.server.service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import beat.osu.server.entities.Channel;
 import beat.osu.server.entities.User;
 import beat.osu.server.handler.RealtimeMessageHandler;
@@ -14,15 +23,12 @@ import beat.osu.shared.dto.chat.requests.JoinChannelRequest;
 import beat.osu.shared.dto.chat.requests.LeaveChannelRequest;
 import beat.osu.shared.dto.chat.requests.SendChannelMessageRequest;
 import beat.osu.shared.dto.chat.responses.GetAllChannelsResponse;
+import beat.osu.shared.dto.chat.responses.GetJoinedChannelsResponse;
 import beat.osu.shared.dto.chat.responses.JoinChannelResponse;
 import beat.osu.shared.dto.chat.responses.LeaveChannelResponse;
 import beat.osu.shared.dto.chat.responses.SendChannelMessageResponse;
 import beat.osu.shared.enums.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
-
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ChannelService {
 
@@ -99,6 +105,27 @@ public class ChannelService {
 
         Result<GetAllChannelsResponse> response = Result.success(new GetAllChannelsResponse(channelDtos));
         return response;
+    }
+
+    public Result<GetJoinedChannelsResponse> getJoinedChannels(String clientId) {
+        Integer userId = (Integer) sessionService.getSessionData(clientId, "userId");
+        if (userId == null) {
+            return Result.failure(Error.unauthorized("User not authenticated"));
+        }
+
+        List<ChannelDto> channelDtos = new ArrayList<>();
+        Set<Integer> userChannelIds = getUserChannels(userId);
+
+        for (Integer channelId : userChannelIds) {
+            Channel channel = channels.get(channelId);
+            if (channel != null) {
+                int memberCount = channelMembers.get(channelId).size();
+                ChannelDto channelDto = new ChannelDto(channel.getId(), channel.getName(), channel.getDescription(), memberCount, true);
+                channelDtos.add(channelDto);
+            }
+        }
+
+        return Result.success(new GetJoinedChannelsResponse(channelDtos));
     }
 
     public Result<JoinChannelResponse> joinChannel(JoinChannelRequest request, String clientId) {

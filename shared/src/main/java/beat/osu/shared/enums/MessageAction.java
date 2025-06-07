@@ -18,6 +18,7 @@ public enum MessageAction implements Serializable {
 
     // Channel actions
     GET_ALL_CHANNELS,
+    GET_JOINED_CHANNELS,
     JOIN_CHANNEL,
     LEAVE_CHANNEL,
     SEND_CHANNEL_MESSAGE,
