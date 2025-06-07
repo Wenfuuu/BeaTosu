@@ -10,6 +10,12 @@
     -fx-background-insets: 0;
 }
 
+.button:selected,
+.button.selected {
+    -fx-background-color: white;
+    -fx-text-fill: #333333;
+}
+
 .close-button {
     -fx-background-color: transparent;
     -fx-padding: 0;
@@ -46,4 +52,8 @@
     -fx-font-family: "Aller Bold";
     -fx-text-alignment: center;
     -fx-alignment: center;
+}
+
+.button.selected .chat-tab-text {
+    -fx-text-fill: #333333;
 }
