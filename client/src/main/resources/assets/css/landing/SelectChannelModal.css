@@ -8,7 +8,7 @@
 
 .modal-title {
     -fx-text-fill: white;
-    -fx-font-family: 'Aller';
+    -fx-font-family: 'Aller Light';
     -fx-font-size: 40px;
     -fx-text-alignment: left;
     -fx-padding: 10 0 4 20;
@@ -17,7 +17,7 @@
 
 .search-label {
     -fx-text-fill: white;
-    -fx-font-family: 'Aller';
+    -fx-font-family: 'Aller Light';
     -fx-font-size: 24px;
 }
 

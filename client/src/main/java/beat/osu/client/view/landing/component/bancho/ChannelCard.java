@@ -12,7 +12,7 @@ import javafx.scene.layout.Priority;
 import lombok.Getter;
 
 public class ChannelCard extends HBox {
-    private static final double CARD_WIDTH = ScreenManager.SCREEN_WIDTH * 0.50;
+    private static final double CARD_WIDTH = ScreenManager.SCREEN_WIDTH * 0.56;
     private Integer id;
 
     @Getter
@@ -56,8 +56,8 @@ public class ChannelCard extends HBox {
 
         nameLabel = new Label(name);
         nameLabel.getStyleClass().add("channel-name");
-        nameLabel.setMinWidth(120);
-        nameLabel.setPrefWidth(120);
+        nameLabel.setMinWidth(150);
+        nameLabel.setPrefWidth(150);
 
         HBox descriptionContainer = new HBox();
         descriptionContainer.setAlignment(Pos.CENTER_LEFT);

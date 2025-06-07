@@ -97,16 +97,16 @@ public class SelectChannelModal extends VBox {
         channelContainer = new VBox(8);
         channelContainer.setPadding(new Insets(10));
         channelContainer.setAlignment(Pos.TOP_CENTER);
-        channelContainer.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.5);
-        channelContainer.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.5);
+        channelContainer.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.56);
+        channelContainer.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.56);
         
         scrollPane = new ScrollPane(channelContainer);
         scrollPane.getStyleClass().add("channel-scroll-pane");
         scrollPane.setFitToWidth(false); 
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.5 + 50);
-        scrollPane.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.5 + 50);
+        scrollPane.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.56 + 50);
+        scrollPane.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.56 + 50);
         VBox.setVgrow(scrollPane, Priority.ALWAYS);
         
         HBox scrollContainer = new HBox();
@@ -115,7 +115,7 @@ public class SelectChannelModal extends VBox {
 
         closeButton = new Button("Close");
         closeButton.getStyleClass().add("close-button");
-        closeButton.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.5 + 30);
+        closeButton.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.56 + 30);
         closeButton.setOnAction(e -> {
             this.hide();
             banchoButtons.show();
