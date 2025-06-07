@@ -1,5 +1,5 @@
 .button {
-    -fx-background-color: #4a7bd6;
+    -fx-background-color: #314799ff;
     -fx-text-fill: white;
     -fx-font-size: 16px;
     -fx-font-family: "Aller Bold";
@@ -8,6 +8,9 @@
     -fx-background-radius: 6 6 0 0;
     -fx-border-color: transparent;
     -fx-background-insets: 0;
+    -fx-min-height: 22px;
+    -fx-max-height: 22px;
+    -fx-pref-height: 22px;
 }
 
 .button:selected,

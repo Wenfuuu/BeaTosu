@@ -1,0 +1,44 @@
+.button {
+    -fx-background-color: #CAAB44;
+    -fx-font-family: "Aller Bold";
+    -fx-padding: 0;
+    -fx-border-radius: 6 6 0 0;
+    -fx-background-radius: 6 6 0 0;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-min-width: 22px;
+    -fx-max-width: 22px;
+    -fx-pref-width: 22px;
+    -fx-min-height: 22px;
+    -fx-max-height: 22px;
+    -fx-pref-height: 22px;
+}
+
+.add-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-alignment: center;
+    -fx-content-display: graphic-only;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+}
+
+.plus-icon {
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-text-fill: #CAAB44;
+    -fx-font-family: "Aller Bold";
+    -fx-background-color: rgba(255, 255, 255, 0.7);
+    -fx-font-size: 14px;
+    -fx-min-width: 18px;
+    -fx-max-width: 18px;
+    -fx-pref-width: 18px;
+    -fx-min-height: 18px;
+    -fx-max-height: 18px;
+    -fx-pref-height: 18px;
+    -fx-background-radius: 10px;
+    -fx-padding: 0;
+    -fx-text-origin: center;
+    -fx-label-padding: 0;
+}
