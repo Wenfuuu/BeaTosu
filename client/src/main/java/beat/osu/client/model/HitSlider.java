@@ -57,8 +57,6 @@ public class HitSlider extends HitObject {
     // Visual Constants
     private final double PATH_STROKE_WIDTH;
     private final double BALL_RADIUS;
-    private static final double APPROACH_START_SCALE = 5.0;
-    private static final double CIRCLE_STROKE_WIDTH = 3.0;
 
     private double calculateSliderDuration(double baseSliderMultiplier, ArrayList<TimingPoint> timingPoints) {
         TimingPoint activeUninheritedTP = null;
@@ -259,7 +257,6 @@ public class HitSlider extends HitObject {
         createReverseArrows();
 
         group.setUserData(this);
-        handleEvent();
     }
 
     private void updateArrowVisibility(int currentTraversalIndex) {
@@ -588,7 +585,13 @@ public class HitSlider extends HitObject {
                     updateArrowVisibility(currentTraversalIndex);
                 }
             } else { // Slider finished
-                if (isVisible()) hide();
+//                if (isVisible()) hide();
+                FadeTransition hideAnimation = new FadeTransition(Duration.millis(150), group);
+                hideAnimation.setToValue(0);
+                hideAnimation.setOnFinished(e -> {
+                    hide();
+                });
+                hideAnimation.play();
 
                 for (MediaPlayer player : activePlayers) {
                     player.stop();
@@ -619,64 +622,6 @@ public class HitSlider extends HitObject {
     }
 
     @Override
-    public void handleEvent() {
-        group.setOnMousePressed(e -> { // Changed to group, OnMousePressed might feel more responsive for holds
-            if (isVisible() && !headHit && e.getTarget() != sliderBall) {
-                long clickTime = getCurrTime(); // Use the game's current time
-                long timingError = Math.abs(clickTime - getHitTime()); // Time difference from perfect head hit
-
-                // Check if click is within hit window for the head
-                // Assuming getHitWindowGreat() gives a reasonable timing window (e.g. ~80-150ms depending on OD)
-                if (timingError <= getHitWindowGreat()) {
-                    Point2D clickInGroup = new Point2D(e.getX(), e.getY());
-                    // Check if click is on or near the head circle
-                    if (clickInGroup.distance(0,0) <= getCircleRadius() * 1.5) { // Generous click area for head
-//                        System.out.println("Slider Head Hit: " + getOsuX() + "," + getOsuY() + " | Timing: " + (clickTime - getHitTime()) + "ms");
-                        headHit = true;
-                        setHit(true); // Mark the HitObject as hit
-
-                        if (approachAnimation != null) approachAnimation.stop();
-                        approachCircle.setVisible(false);
-                        headCircle.setVisible(false); // Hide static head
-                        sliderBall.setVisible(true);  // Show the moving ball immediately at start
-
-                        // Initialize ball position at fraction 0
-                        Point2D initialBallPos = getVisualPointAtFraction(0.0);
-                        sliderBall.setCenterX(initialBallPos.getX());
-                        sliderBall.setCenterY(initialBallPos.getY());
-
-                        // TODO: Play hitsound for slider head
-                    } else {
-                        // Clicked at the right time, but missed the head spatially
-                        // System.out.println("Slider Head Miss (Position): Dist: " + clickInGroup.distance(0,0));
-                        // hide(); // Optionally miss if clicked outside head area even if timing is right
-                    }
-                } else {
-                    // Clicked too early or too late for the head
-                    // System.out.println("Slider Head Miss (Timing): " + (clickTime - getHitTime()) + "ms");
-                    // If clicked too early before preempt, don't hide. If clicked way too late, it's a miss.
-                    if (clickTime > getHitTime() + getHitWindowMeh()){ // If clicked well past the hittable window
-                        hide();
-                    }
-                }
-            }
-        });
-
-        // Optional: Handle mouse release if you want to penalize releasing the slider early
-        // group.setOnMouseReleased(e -> {
-        //     if (headHit && isVisible()) {
-        //         // Check if slider was released before endTime
-        //         if (getCurrTime() < endTime - some_leniency) {
-        //             System.out.println("Slider broken!");
-        //             // Handle slider break (e.g., reduce score, change visual feedback)
-        //             // For simplicity, we can just let it complete, or hide it.
-        //             hide();
-        //         }
-        //     }
-        // });
-    }
-
-    @Override
     public void applyVisualsToNode(double centerX, double centerY, double scaledRadius) {
         if(group != null) {
             group.setLayoutX(centerX);
@@ -690,8 +635,4 @@ public class HitSlider extends HitObject {
             sliderBall.setRadius(scaledRadius * 0.8);
         }
     }
-
-    // Dummy methods for hit windows, replace with actual calculation based on OverallDifficulty
-    private long getHitWindowGreat() { return 150; } // Example
-    private long getHitWindowMeh() { return 250; } // Example
 }

@@ -1,9 +1,6 @@
 package beat.osu.client.factory;
 
-import beat.osu.client.model.Beatmap;
-import beat.osu.client.model.HitCircle;
-import beat.osu.client.model.HitObject;
-import beat.osu.client.model.HitSlider;
+import beat.osu.client.model.*;
 import beat.osu.client.utils.OsuParser;
 
 import java.util.ArrayList;
@@ -184,7 +181,6 @@ public class HitObjectFactory {
 
         String objectParams = "";
         String hitSample = parts[parts.length-1];
-
         String hitType = decodeType(type);
 
         if(parts.length == 6){// circle
@@ -193,7 +189,6 @@ public class HitObjectFactory {
             spinnerEndTime = Integer.parseInt(parts[5]);
         }else{// slider
             objectParams = String.join(",", Arrays.copyOfRange(parts, 5, parts.length-1));
-//            hitSample = parts[parts.length-1];
         }
 
         // check if hitSample is invalid
@@ -205,11 +200,6 @@ public class HitObjectFactory {
 //        for (String sfx : generateCircleSfxFilenames(hitSound, hitSample)) {
 //            System.out.println("sfx: " + sfx);
 //        }
-
-        if(hitType.equals("slider")) {
-            // get edge sounds using object params => edgeSounds & edgeSets
-
-        }
 
         double approachRate = selectedBeatmap.getApproachRate();
         double circleSize = selectedBeatmap.getCircleSize();
@@ -227,6 +217,10 @@ public class HitObjectFactory {
             return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate, circleSize,
                     comboNumber, comboSetIndex, colorString, comboEnd,
                     generateCircleSfxFilenames(hitSound, hitSample));
+//            return new HitSpinner(x, y, time, type, hitSound, hitSample,
+//                    spinnerEndTime, approachRate, circleSize,
+//                    comboNumber, comboSetIndex, colorString, comboEnd,
+//                    generateCircleSfxFilenames(hitSound, hitSample));
         }
     }
 

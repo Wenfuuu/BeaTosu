@@ -2,6 +2,7 @@ package beat.osu.client.model;
 
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -21,12 +22,8 @@ public class HitCircle extends HitObject{
     private final Circle outerCircle;
     private final Label comboLabel;
 
-    private ScaleTransition approachAnimation;
     private FadeTransition hitEffectAnimation;
-
-    // Define visual constants (could be based on CS later)
-    private static final double OUTER_RADIUS_START_SCALE = 5.0;
-    private static final double CIRCLE_STROKE_WIDTH = 3.0;
+    private ParallelTransition parallelAnimation;
 
     public HitCircle(int osuX, int osuY, long hitTime,
                      int type, int hitSound, String hitSample,
@@ -62,8 +59,6 @@ public class HitCircle extends HitObject{
 
         // --- CORE CHANGE: Link the Group node back to this HitCircle object ---
         group.setUserData(this);
-
-        handleEvent();
     }
 
     @Override
@@ -76,19 +71,22 @@ public class HitCircle extends HitObject{
     }
 
     private void playApproachAnimation() {
-        // Make sure outer circle exists
-        if(outerCircle == null) return;
-
         // Reset scale before playing (in case updateLayout runs mid-animation)
-        outerCircle.setScaleX(OUTER_RADIUS_START_SCALE);
-        outerCircle.setScaleY(OUTER_RADIUS_START_SCALE);
+        outerCircle.setScaleX(APPROACH_START_SCALE);
+        outerCircle.setScaleY(APPROACH_START_SCALE);
 
-        approachAnimation = new ScaleTransition(Duration.millis(getPreempt()), outerCircle);
-        approachAnimation.setFromX(OUTER_RADIUS_START_SCALE);
-        approachAnimation.setFromY(OUTER_RADIUS_START_SCALE);
+        ScaleTransition approachAnimation = new ScaleTransition(Duration.millis(getPreempt()), outerCircle);
+        approachAnimation.setFromX(APPROACH_START_SCALE);
+        approachAnimation.setFromY(APPROACH_START_SCALE);
         approachAnimation.setToX(1.0);
         approachAnimation.setToY(1.0);
-        approachAnimation.play();
+
+        FadeTransition fadeInAnimation = new FadeTransition(Duration.millis(getFadeIn()), group);
+        fadeInAnimation.setFromValue(0);
+        fadeInAnimation.setToValue(1);
+
+        parallelAnimation = new ParallelTransition(approachAnimation, fadeInAnimation);
+        parallelAnimation.play();
     }
 
     @Override
@@ -115,8 +113,8 @@ public class HitCircle extends HitObject{
 
     @Override
     public void pauseAnimations() {
-        if(approachAnimation != null && approachAnimation.getStatus() == Animation.Status.RUNNING) {
-            approachAnimation.pause();
+        if(parallelAnimation != null && parallelAnimation.getStatus() == Animation.Status.RUNNING) {
+            parallelAnimation.pause();
         }
         if(hitEffectAnimation != null && hitEffectAnimation.getStatus() == Animation.Status.RUNNING) {
             hitEffectAnimation.pause();
@@ -125,8 +123,8 @@ public class HitCircle extends HitObject{
 
     @Override
     public void resumeAnimations() {
-        if(approachAnimation != null && approachAnimation.getStatus() == Animation.Status.PAUSED) {
-            approachAnimation.play();
+        if(parallelAnimation != null && parallelAnimation.getStatus() == Animation.Status.PAUSED) {
+            parallelAnimation.play();
         }
         if(hitEffectAnimation != null && hitEffectAnimation.getStatus() == Animation.Status.PAUSED) {
             hitEffectAnimation.play();
@@ -149,20 +147,6 @@ public class HitCircle extends HitObject{
     }
 
     @Override
-    public void handleEvent() {
-        group.setOnMouseClicked(e -> { // Use group to catch clicks slightly outside innerCircle
-            if (isVisible() && !isHit()) {
-                long clickTime = getCurrTime();
-                long timingError = clickTime - getHitTime(); // Calculate hit timing
-                setHit(true);
-                playHitEffect();
-//                System.out.println("Hit: " + getOsuX() + "," + getOsuY() + " | Timing: " + timingError + "ms");
-                // calculate score based on timingError here
-            }
-        });
-    }
-
-    @Override
     public void applyVisualsToNode(double centerX, double centerY, double scaledRadius) {
         if (group != null) {
             // Position the Group so its local (0,0) point (which is the center of the circles)
@@ -173,14 +157,6 @@ public class HitCircle extends HitObject{
             // Update the radius of the circles based on the scaleFactor
             innerCircle.setRadius(scaledRadius);
             outerCircle.setRadius(scaledRadius); // Approach circle's base radius is also scaled
-
-            // Optional: Scale stroke width if desired.
-            // For a consistent look, stroke width might also need to be scaled.
-            // E.g., double newStrokeWidth = 2.0 * (scaledRadius / getUnscaledRadius());
-            // if (getUnscaledRadius() > 0) { // Avoid division by zero
-            //     innerCircle.setStrokeWidth(Math.max(1.0, newStrokeWidth));
-            //     outerCircle.setStrokeWidth(Math.max(1.0, newStrokeWidth));
-            // }
         }
     }
 }

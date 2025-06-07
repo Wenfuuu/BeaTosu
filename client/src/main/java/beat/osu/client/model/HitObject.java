@@ -34,6 +34,9 @@ public abstract class HitObject {
     private double screenCenterY;
     private double screenRadius;
 
+    protected final double APPROACH_START_SCALE = 5.0;
+    protected final double CIRCLE_STROKE_WIDTH = 3.0;
+
     public HitObject(int osuX, int osuY, long hitTime, int type, int hitSound,
                      String hitSample, double approachRate, double circleSize,
                      int comboNumber, int comboSetIndex, boolean comboEnd,
@@ -97,7 +100,6 @@ public abstract class HitObject {
 
     public abstract Node getNode();
     public abstract void update(long currentTime);
-    public abstract void handleEvent();
     public abstract void playHitEffect();
     public abstract void applyVisualsToNode(double centerX, double centerY, double scaledRadius);
     public abstract void appear();
