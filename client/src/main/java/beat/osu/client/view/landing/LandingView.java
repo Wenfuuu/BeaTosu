@@ -3,6 +3,8 @@ package beat.osu.client.view.landing;
 import java.net.URL;
 
 import beat.osu.client.Main;
+import beat.osu.client.controller.ChannelController;
+import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.BgmManager;
@@ -52,6 +54,9 @@ public class LandingView extends Page {
     private ChatPanel chatPanel;
     private SelectChannelModal selectChannelModal;
     private BanchoButtons banchoButtons;
+
+    private ConnectedUsersController connectedUsersController;
+    private ChannelController channelController;
 
     private double visualizerSize;
 
@@ -211,6 +216,8 @@ public class LandingView extends Page {
         root.getStyleClass().add("main-layout");
 
         this.visualizerSize = ScreenManager.SCREEN_HEIGHT * 0.6;
+        this.connectedUsersController = new ConnectedUsersController();
+        this.channelController = new ChannelController();
 
         mediaControlsComponent = new MediaControls();
         topBarComponent = new TopBar();
@@ -225,9 +232,9 @@ public class LandingView extends Page {
         banchoButtons.setVisible(false);
         banchoButtons.setManaged(false);
 
-        onlineUsersPanel = new OnlineUsersPanel();
-        selectChannelModal = new SelectChannelModal(banchoButtons, bottomBarComponent, topBarComponent);
-        chatPanel = new ChatPanel(selectChannelModal, onlineUsersPanel, banchoButtons);
+        onlineUsersPanel = new OnlineUsersPanel(connectedUsersController);
+        selectChannelModal = new SelectChannelModal(channelController, banchoButtons, bottomBarComponent, topBarComponent);
+        chatPanel = new ChatPanel(channelController, selectChannelModal, onlineUsersPanel, banchoButtons);
         selectChannelModal.setChatPanel(chatPanel);
 
         visualizerComponent.getLogoRayGroup().getStyleClass().add("logo-ray-group");

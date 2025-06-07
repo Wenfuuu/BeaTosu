@@ -1,5 +1,9 @@
 package beat.osu.client.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
 import beat.osu.client.service.ClientService;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.system.responses.GetConnectedUsersResponse;
@@ -13,10 +17,6 @@ import beat.osu.shared.enums.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
 import beat.osu.shared.models.RequestMessage;
 import lombok.Getter;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 
 public class ConnectedUsersController {
     private final ClientService clientService;

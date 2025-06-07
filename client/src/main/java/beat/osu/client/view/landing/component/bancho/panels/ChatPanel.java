@@ -2,6 +2,7 @@ package beat.osu.client.view.landing.component.bancho.panels;
 
 import java.net.URL;
 
+import beat.osu.client.controller.ChannelController;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.view.landing.component.bancho.SelectChannelModal;
@@ -16,12 +17,14 @@ import javafx.util.Duration;
 
 public class ChatPanel extends VBox {
 
+    private ChannelController channelController;
     private SelectChannelModal selectChannelModal;
     private OnlineUsersPanel onlineUsersPanel;
     private BanchoButtons banchoButtons;
 
-    public ChatPanel(SelectChannelModal selectChannelModal, OnlineUsersPanel onlineUsersPanel, BanchoButtons banchoButtons) {
+    public ChatPanel(ChannelController channelController, SelectChannelModal selectChannelModal, OnlineUsersPanel onlineUsersPanel, BanchoButtons banchoButtons) {
         super();
+        this.channelController = channelController;
         this.selectChannelModal = selectChannelModal;
         this.onlineUsersPanel = onlineUsersPanel;
         this.banchoButtons = banchoButtons;

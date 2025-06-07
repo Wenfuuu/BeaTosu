@@ -53,13 +53,13 @@ public class SelectChannelModal extends VBox {
     private BottomBar bottomBar;
     private TopBar topBar;
 
-    public SelectChannelModal(BanchoButtons banchoButtons, BottomBar bottomBar, TopBar topBar) {
+    public SelectChannelModal(ChannelController channelController, BanchoButtons banchoButtons, BottomBar bottomBar, TopBar topBar) {
+        this.channelController = channelController;
         this.banchoButtons = banchoButtons;
         this.bottomBar = bottomBar;
         this.topBar = topBar;
 
         this.channelCards = new ArrayList<>();
-        this.channelController = new ChannelController();
         this.allChannels = new ArrayList<>();
         
         initializeUI();
@@ -245,7 +245,7 @@ public class SelectChannelModal extends VBox {
                 .filter(channel -> channel.getId() == event.getChannelId())
                 .findFirst()
                 .orElse(null);
-            
+
             if (targetChannel != null) {
                 targetChannel.setMemberCount(targetChannel.getMemberCount() + 1);
                 refreshChannelDisplay();

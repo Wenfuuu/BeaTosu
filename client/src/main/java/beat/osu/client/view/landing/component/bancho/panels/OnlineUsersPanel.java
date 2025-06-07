@@ -33,7 +33,7 @@ public class OnlineUsersPanel extends VBox {
     private Label titleLabel;
     private ConnectedUsersController connectedUsersController;
 
-    public OnlineUsersPanel() {
+    public OnlineUsersPanel(ConnectedUsersController connectedUsersController) {
         super();
         this.getStyleClass().add("online-users-panel");
         this.setVisible(false);
@@ -62,8 +62,6 @@ public class OnlineUsersPanel extends VBox {
         titleLabel = new Label("osu!Bancho");
         titleLabel.getStyleClass().add("online-users-title");
 
-        this.connectedUsersController = new ConnectedUsersController();
-
         onlineUsersLabel = new Label("N/A Users Connected");
         onlineUsersLabel.getStyleClass().add("online-users-label");
 
@@ -80,6 +78,7 @@ public class OnlineUsersPanel extends VBox {
 
         this.getChildren().addAll(titleLabel, onlineUsersLabel, scrollPane);
 
+        this.connectedUsersController = connectedUsersController;
         setupUserCallbacks();
         setupUserCountSubscription();
     }

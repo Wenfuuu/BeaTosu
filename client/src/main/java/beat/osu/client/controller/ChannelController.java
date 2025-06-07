@@ -8,7 +8,6 @@ import java.util.function.Consumer;
 import beat.osu.client.service.ClientService;
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
-import beat.osu.shared.dto.chat.ChannelDto;
 import beat.osu.shared.dto.chat.events.ChannelMessageEvent;
 import beat.osu.shared.dto.chat.events.UserJoinedChannelEvent;
 import beat.osu.shared.dto.chat.events.UserLeftChannelEvent;
@@ -24,12 +23,9 @@ import beat.osu.shared.enums.MessageType;
 import beat.osu.shared.enums.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
 import beat.osu.shared.models.RequestMessage;
-import lombok.Getter;
 
 public class ChannelController {
     private final ClientService clientService;
-    @Getter
-    private List<ChannelDto> channels = new ArrayList<>();
 
     private final List<Consumer<ChannelMessageEvent>> channelMessageCallbacks = new ArrayList<>();
     private final List<Consumer<UserJoinedChannelEvent>> userJoinedChannelCallbacks = new ArrayList<>();
@@ -70,7 +66,6 @@ public class ChannelController {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 Object response = clientService.getConnection().sendRequest(request).get();
-
                 Result<?> result = (Result<?>) response;
                 if (result.isSuccess()) {
                     return Result.success((GetAllChannelsResponse) result.getValue());
