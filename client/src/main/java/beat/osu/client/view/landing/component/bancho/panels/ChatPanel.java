@@ -4,7 +4,9 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import beat.osu.client.controller.ChannelController;
@@ -21,7 +23,6 @@ import beat.osu.shared.dto.chat.ChannelMessageDto;
 import beat.osu.shared.dto.chat.events.ChannelMessageEvent;
 import beat.osu.shared.dto.chat.events.UserJoinedChannelEvent;
 import beat.osu.shared.dto.chat.events.UserLeftChannelEvent;
-import beat.osu.shared.dto.chat.requests.SendChannelMessageRequest;
 import beat.osu.shared.dto.chat.responses.GetJoinedChannelsResponse;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
@@ -45,7 +46,7 @@ public class ChatPanel extends VBox {
     private BanchoButtons banchoButtons;
 
     private ChatTabs chatTabs;
-    private ArrayList<ChannelMessageDto> channelMessages = new ArrayList<>();
+    private Map<Integer, List<ChannelMessageDto>> channelMessages = new HashMap<>();
     private TextField chatField;
     private ScrollPane messagesScrollPane;
     private VBox messagesContainer;
@@ -142,9 +143,13 @@ public class ChatPanel extends VBox {
 
     private void handleChannelMessage(ChannelMessageEvent event) {
         Platform.runLater(() -> {
+            ChannelMessageDto message = event.getChannelMessage();
+            int channelId = message.getChannelId();
+            
+            channelMessages.computeIfAbsent(channelId, k -> new ArrayList<>()).add(message);
+            
             if (chatTabs.getCurrentSelectedChannel() != null &&
-                chatTabs.getCurrentSelectedChannel().getId() == event.getChannelMessage().getChannelId()) {
-                channelMessages.add(event.getChannelMessage());
+                chatTabs.getCurrentSelectedChannel().getId() == channelId) {
                 displayMessages();
             }
         });
@@ -192,7 +197,7 @@ public class ChatPanel extends VBox {
     }
     
     private void onChannelSelected(ChannelDto channel) {
-        System.out.println("Selected channel: " + channel.getName());
+        displayMessages();
     }
     
     private void handleChannelClose(ChatTabButton tabButton) {
@@ -231,9 +236,15 @@ public class ChatPanel extends VBox {
     private void displayMessages() {
         messagesContainer.getChildren().clear();
         
-        for (ChannelMessageDto message : channelMessages) {
-            HBox messageBox = createMessageItem(message);
-            messagesContainer.getChildren().add(messageBox);
+        ChannelDto currentChannel = chatTabs.getCurrentSelectedChannel();
+        if (currentChannel != null) {
+            List<ChannelMessageDto> messages = channelMessages.get(currentChannel.getId());
+            if (messages != null) {
+                for (ChannelMessageDto message : messages) {
+                    HBox messageBox = createMessageItem(message);
+                    messagesContainer.getChildren().add(messageBox);
+                }
+            }
         }
         
         Platform.runLater(() -> {
@@ -267,18 +278,21 @@ public class ChatPanel extends VBox {
     private void sendMessage() {
         String messageText = chatField.getText().trim();
         if (!messageText.isEmpty()) {
-            channelController.sendChannelMessage(chatTabs.getCurrentSelectedChannel().getId(), messageText)
-                    .thenAccept(result -> {
-                        Platform.runLater(() -> {
-                            if (result.isSuccess()) {
-                                ChannelMessageDto sentMessage = result.getValue().getChannelMessage();
-                                channelMessages.add(sentMessage);
-                                displayMessages();
-                            } else {
-                                System.err.println("Failed to send message" + result.getError().getMessage());
-                            }
+            ChannelDto currentChannel = chatTabs.getCurrentSelectedChannel();
+            if (currentChannel != null) {
+                channelController.sendChannelMessage(currentChannel.getId(), messageText)
+                        .thenAccept(result -> {
+                            Platform.runLater(() -> {
+                                if (result.isSuccess()) {
+                                    ChannelMessageDto sentMessage = result.getValue().getChannelMessage();
+                                    channelMessages.computeIfAbsent(currentChannel.getId(), k -> new ArrayList<>()).add(sentMessage);
+                                    displayMessages();
+                                } else {
+                                    System.err.println("Failed to send message: " + result.getError().getMessage());
+                                }
+                            });
                         });
-                    });
+            }
             chatField.clear();
         }
     }
