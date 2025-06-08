@@ -39,6 +39,8 @@ public class HitSpinner extends HitObject{
     private double lastMouseAngle = 0;
     private boolean mousePressed = false;
 
+    private final double ROTATION_SPEED = 5.0;
+
     public HitSpinner(int osuX, int osuY, long hitTime, int type, int hitSound,
                       String hitSample, long endTime, double approachRate, double circleSize,
                       int comboNumber, int comboSetIndex, String colorString, boolean comboEnd,
@@ -124,6 +126,8 @@ public class HitSpinner extends HitObject{
 
     public void addRotation(double degrees) {
         if (!isCompleted && isActive) {
+            degrees *= ROTATION_SPEED;
+
             currentRotation += degrees;
             completedRotations = currentRotation / 360.0;
 
@@ -134,7 +138,7 @@ public class HitSpinner extends HitObject{
             // Check if spinner is completed
             if (completedRotations >= targetRotations) {
                 isCompleted = true;
-                setHit(true);
+//                setHit(true);
                 stopSpinning();
                 playHitEffect();
             }
@@ -169,13 +173,12 @@ public class HitSpinner extends HitObject{
             isActive = true;
         }
 
-        if (currentTime > endTime && !isCompleted) {
+        if (currentTime > endTime) {
             setVisible(false);
             playMissEffect();
 
             if (completedRotations >= targetRotations * 0.5) { // At least 50% completed
                 isCompleted = true;
-                setHit(true);
             }
             stopSpinning();
         }

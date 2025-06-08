@@ -300,6 +300,26 @@ public class GameManager implements Subject {
         return multiplier;
     }
 
+    private void updateHitCount(HitObject hitObject, HitResult hitResult) {
+        if(hitResult == HitResult.PERFECT) {
+            if(perfectCombo && hitObject.isComboEnd()) {
+                gekiHits++;
+            } else {
+                perfectHits++;
+            }
+        }else if(hitResult == HitResult.GREAT) {
+            if(!imperfectOrMissed && hitObject.isComboEnd()) {
+                greatKatuHits++;
+            }
+            else greatHits++;
+            perfectCombo = false;
+        }else if(hitResult == HitResult.GOOD) {
+            goodHits++;
+            perfectCombo = false;
+            imperfectOrMissed = true;
+        }
+    }
+
     private void handleHit(HitObject hitObject, long timingError) {
         if(hitObject instanceof HitCircle) hitObject.setVisible(false);
         if(hitObject.isNewCombo()) {
@@ -321,24 +341,11 @@ public class GameManager implements Subject {
 
         // Determine hit result based on timing
         HitResult hitResult = HitResult.fromTimingError(timingError, beatmap.getOverallDifficulty());
-        if(hitResult == HitResult.PERFECT) {
-            if(perfectCombo && hitObject.isComboEnd()) {
-                gekiHits++;
-            } else {
-                perfectHits++;
-            }
-        }else if(hitResult == HitResult.GREAT) {
-            if(!imperfectOrMissed && hitObject.isComboEnd()) {
-                greatKatuHits++;
-            }
-            else greatHits++;
-            perfectCombo = false;
-        }else if(hitResult == HitResult.GOOD) {
-            goodHits++;
-            perfectCombo = false;
-            imperfectOrMissed = true;
-        }
+        notifyHit(hitObject, hitResult);
+    }
 
+    public void notifyHit(HitObject hitObject, HitResult hitResult) {
+        updateHitCount(hitObject, hitResult);
         int hitValue = hitResult.getScore();
         double comboMultiplier = Math.max(masterComboNumber - 1, 0);
         int difficultyMultiplier = beatmap.getDifficultyMultiplier(hitObjects, OsuParser.getBreakPointsList());
@@ -357,15 +364,11 @@ public class GameManager implements Subject {
         // Notify observers
         notifyObservers(new GameEvent(GameEventType.SCORE_CHANGED,
                 new ScoreChangeData(score, hitScore)));
-
         notifyObservers(new GameEvent(GameEventType.COMBO_CHANGED,
                 new ComboChangeData(masterComboNumber, false)));
-
         notifyObservers(new GameEvent(GameEventType.HIT_OBJECT_HIT,
-                new HitObjectEventData(hitObject, timingError, hitResult,
+                new HitObjectEventData(hitObject, hitResult,
                         perfectCombo, imperfectOrMissed)));
-
-//        System.out.println("current accuracy: " + accuracy);
         notifyObservers(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
         notifyObservers(new GameEvent(GameEventType.HEALTH_CHANGED, health));
     }
@@ -388,12 +391,9 @@ public class GameManager implements Subject {
         // Notify observers
         notifyObservers(new GameEvent(GameEventType.COMBO_CHANGED,
                 new ComboChangeData(masterComboNumber, oldCombo > 0)));
-
         notifyObservers(new GameEvent(GameEventType.HIT_OBJECT_MISSED,
-                new HitObjectEventData(hitObject, 0, HitResult.MISS,
+                new HitObjectEventData(hitObject, HitResult.MISS,
                         false, true)));
-
-//        System.out.println("current accuracy: " + accuracy);
         notifyObservers(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
         notifyObservers(new GameEvent(GameEventType.HEALTH_CHANGED, health));
 
@@ -418,10 +418,6 @@ public class GameManager implements Subject {
     private long getHitWindow() {
         return 300; // 300ms hit window
     }
-
-//    private boolean areAllObjectsProcessed() {
-//
-//    }
 
     private void processBeatmap() {
 //        OsuParser.extractAndParse(beatmap);
