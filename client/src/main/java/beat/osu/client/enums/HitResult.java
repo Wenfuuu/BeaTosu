@@ -7,7 +7,9 @@ public enum HitResult {
     PERFECT(300),
     GREAT(100),
     GOOD(50),
-    MISS(0);
+    MISS(0),
+    SPIN(100),
+    COMPLETE_SPIN(1000);
 
     private final int score;
 

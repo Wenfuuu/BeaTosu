@@ -1,7 +1,9 @@
 package beat.osu.client.model;
 
 import beat.osu.client.Main;
+import beat.osu.client.enums.HitResult;
 import beat.osu.client.helper.BackgroundManager;
+import beat.osu.client.helper.GameManager;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;
@@ -32,14 +34,16 @@ public class HitSpinner extends HitObject{
 
     private double currentRotation = 0;
     private double targetRotations = 0;
+    private long prevRotation = 0;
     private double completedRotations = 0;
-    private boolean isSpinning = false;
-    private boolean isCompleted = false;
+//    private boolean isSpinning = false;
+//    private boolean isCompleted = false;
 
     private double lastMouseAngle = 0;
     private boolean mousePressed = false;
 
-    private final double ROTATION_SPEED = 5.0;
+    private final int TARGET_ROTATIONS = 10;
+    private final double ROTATION_SPEED = 15.0;
 
     public HitSpinner(int osuX, int osuY, long hitTime, int type, int hitSound,
                       String hitSample, long endTime, double approachRate, double circleSize,
@@ -48,9 +52,6 @@ public class HitSpinner extends HitObject{
         super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate, circleSize, comboNumber, comboSetIndex, comboEnd, sfxFilenames);
         Color circleColor = parseColorString(colorString);
         this.endTime = endTime;
-
-        long duration = endTime - hitTime;
-        this.targetRotations = Math.max(3, duration / 1000.0 * 2.0);
 
         double baseRadius = getCircleRadius() * 2.5; // Spinners are larger than hit circles
 
@@ -95,7 +96,7 @@ public class HitSpinner extends HitObject{
                 double deltaX = event.getX();
                 double deltaY = event.getY();
                 lastMouseAngle = Math.atan2(deltaY, deltaX);
-                startSpinning();
+//                startSpinning();
             }
         });
 
@@ -120,12 +121,12 @@ public class HitSpinner extends HitObject{
 
         group.setOnMouseReleased(event -> {
             mousePressed = false;
-            stopSpinning();
+//            stopSpinning();
         });
     }
 
     public void addRotation(double degrees) {
-        if (!isCompleted && isActive) {
+        if (isActive) {
             degrees *= ROTATION_SPEED;
 
             currentRotation += degrees;
@@ -134,25 +135,7 @@ public class HitSpinner extends HitObject{
             // Rotate the inner ring visually
             innerRing.setRotate(innerRing.getRotate() + degrees);
             spinnerImage.setRotate(spinnerImage.getRotate() + degrees);
-
-            // Check if spinner is completed
-            if (completedRotations >= targetRotations) {
-                isCompleted = true;
-//                setHit(true);
-                stopSpinning();
-                playHitEffect();
-            }
         }
-    }
-
-    public void startSpinning() {
-        if (!isSpinning && !isCompleted) {
-            isSpinning = true;
-        }
-    }
-
-    public void stopSpinning() {
-        isSpinning = false;
     }
 
     @Override
@@ -168,23 +151,18 @@ public class HitSpinner extends HitObject{
             appear();
         }
 
-        if (currentTime >= getHitTime() && currentTime <= endTime && !isCompleted) {
-            // Spinner is active and ready for input
+        if (currentTime >= getHitTime() && currentTime <= endTime) {
             isActive = true;
         }
 
         if (currentTime > endTime) {
+            isActive = false;
             setVisible(false);
             playMissEffect();
-
-            if (completedRotations >= targetRotations * 0.5) { // At least 50% completed
-                isCompleted = true;
-            }
-            stopSpinning();
         }
     }
 
-    public void updateSpinner(double mouseX, double mouseY) {
+    public void updateSpinner(double mouseX, double mouseY, GameManager gm) {
         if(isHit() && isActive) {
             double currentMouseAngle = Math.atan2(mouseY, mouseX);
             double angleDiff = currentMouseAngle - lastMouseAngle;
@@ -201,6 +179,26 @@ public class HitSpinner extends HitObject{
                 double degreesRotated = Math.toDegrees(Math.abs(angleDiff));
                 addRotation(degreesRotated);
                 lastMouseAngle = currentMouseAngle;
+            }
+
+            if(prevRotation != Math.max(0, Math.round(completedRotations) - 1)) {
+                System.out.println("current completed rotations: " + Math.round(completedRotations));
+                prevRotation = Math.round(completedRotations) - 1;
+                gm.notifyHit(this, HitResult.SPIN);
+                if(prevRotation > TARGET_ROTATIONS) {
+                    gm.notifyHit(this, HitResult.COMPLETE_SPIN);
+                }
+            }
+        }else if(isHit() && !isActive && !isVisible()) {
+            // check & notify judgement score
+            if(prevRotation < 2) {
+                gm.notifyMiss(this);
+            }else if(prevRotation < 9) {
+                gm.notifyHit(this, HitResult.GOOD);
+            }else if(prevRotation == 9) {
+                gm.notifyHit(this, HitResult.GREAT);
+            }else {
+                gm.notifyHit(this, HitResult.PERFECT);
             }
         }
     }

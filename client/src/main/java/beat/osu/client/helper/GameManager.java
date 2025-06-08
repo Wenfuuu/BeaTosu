@@ -219,10 +219,10 @@ public class GameManager implements Subject {
         Iterator<HitObject> iterator = hitObjects.iterator();
         while(iterator.hasNext()) {
             HitObject hitObject = iterator.next();
-            if(hitObject instanceof HitSpinner) {
-                ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
-            }
             hitObject.update(elapsedMillis);
+            if(hitObject instanceof HitSpinner) {
+                ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY, this);
+            }
             if(hitObject.getHitTime() > elapsedMillis + 5000) {
                 // If the hit object is still far, skip processing
                 break;
@@ -235,6 +235,7 @@ public class GameManager implements Subject {
                     }
                 }
 
+                if(hitObject instanceof HitSpinner) break; // Don't handle misses for spinners
                 // Check for miss (object passed its time window)
                 if (elapsedMillis > hitObject.getHitTime() + getHitWindow()) {
                     handleMiss(hitObject);
@@ -252,7 +253,7 @@ public class GameManager implements Subject {
         previousKeys.clear();
         previousKeys.addAll(currentKeys);
 
-        System.out.println("hit objects remaining: " + hitObjects.size());
+//        System.out.println("hit objects remaining: " + hitObjects.size());
         if(hitObjects.isEmpty()) {
             stopGame();
         }
@@ -301,6 +302,11 @@ public class GameManager implements Subject {
     }
 
     private void updateHitCount(HitObject hitObject, HitResult hitResult) {
+        if(hitResult != HitResult.SPIN && hitResult != HitResult.COMPLETE_SPIN) {
+            masterComboNumber++;
+            updateHighestCombo(masterComboNumber);
+        }
+
         if(hitResult == HitResult.PERFECT) {
             if(perfectCombo && hitObject.isComboEnd()) {
                 gekiHits++;
@@ -321,23 +327,25 @@ public class GameManager implements Subject {
     }
 
     private void handleHit(HitObject hitObject, long timingError) {
+        hitObject.setHit(true);
+        hitObject.playHitEffect();
+
+        if(hitObject instanceof HitSpinner) {
+            System.out.println("hitting spinner, returning");
+            return;
+        }
         if(hitObject instanceof HitCircle) hitObject.setVisible(false);
         if(hitObject.isNewCombo()) {
             perfectCombo = true;
             imperfectOrMissed = false;
         }
 
-        hitObject.setHit(true);
-        hitObject.playHitEffect();
         // play sfx
-        if(hitObject instanceof HitCircle || hitObject instanceof HitSpinner) {
+        if(hitObject instanceof HitCircle) {
             for(String sfx : hitObject.getSfxFilenames()) {
                 SfxManager.playSfx(sfx);
             }
         }
-
-        masterComboNumber++;
-        updateHighestCombo(masterComboNumber);
 
         // Determine hit result based on timing
         HitResult hitResult = HitResult.fromTimingError(timingError, beatmap.getOverallDifficulty());
@@ -345,7 +353,10 @@ public class GameManager implements Subject {
     }
 
     public void notifyHit(HitObject hitObject, HitResult hitResult) {
+//        masterComboNumber++;
+//        updateHighestCombo(masterComboNumber);
         updateHitCount(hitObject, hitResult);
+
         int hitValue = hitResult.getScore();
         double comboMultiplier = Math.max(masterComboNumber - 1, 0);
         int difficultyMultiplier = beatmap.getDifficultyMultiplier(hitObjects, OsuParser.getBreakPointsList());
@@ -359,7 +370,7 @@ public class GameManager implements Subject {
         updateAccuracy();
 
         // Update health (hitting increases health)
-        health = Math.min(100, health + 2);
+//        health = Math.min(100, health + 2);
 
         // Notify observers
         notifyObservers(new GameEvent(GameEventType.SCORE_CHANGED,
@@ -374,6 +385,11 @@ public class GameManager implements Subject {
     }
 
     private void handleMiss(HitObject hitObject) {
+        if(hitObject instanceof HitSpinner) return;
+        notifyMiss(hitObject);
+    }
+
+    public void notifyMiss(HitObject hitObject) {
         perfectCombo = false;
         imperfectOrMissed = true;
         hitObject.playMissEffect();

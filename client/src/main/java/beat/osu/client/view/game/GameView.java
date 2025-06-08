@@ -120,7 +120,7 @@ public class GameView extends Page implements Observer {
 
     private void showHitImage(HitObject hitObject, HitResult hitResult,
                               boolean perfectCombo, boolean imperfectOrMissed) {
-        String imagePath = "/assets/images/hit300.png";
+        String imagePath = "";
         switch (hitResult) {
             case PERFECT:
                 if(hitObject.isComboEnd()){
@@ -149,6 +149,7 @@ public class GameView extends Page implements Observer {
                 break;
         }
 
+        if(imagePath.isEmpty()) return;
         Image hitImage = new Image(Objects.requireNonNull(Main.class
                 .getResource(imagePath)).toExternalForm());
         ImageView hitImageView = new ImageView(hitImage);
