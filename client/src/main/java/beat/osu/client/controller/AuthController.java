@@ -21,10 +21,10 @@ public class AuthController {
         this.clientService = ClientService.getInstance();
     }
 
-    public CompletableFuture<Result<RegisterResponse>> register(String username, String password, String email, byte[] profilePicture) {
+    public CompletableFuture<Result<RegisterResponse>> register(String username, String password, String email, byte[] profilePicture, boolean isSupporter) {
         String countryCode = LocaleManager.getCurrentCountry();
 
-        RegisterRequest requestData = new RegisterRequest(username, password, email, countryCode, profilePicture);
+        RegisterRequest requestData = new RegisterRequest(username, password, email, countryCode, profilePicture, isSupporter);
         RequestMessage request = new RequestMessage(
                 MessageType.AUTH,
                 MessageAction.REGISTER,

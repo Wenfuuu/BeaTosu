@@ -135,49 +135,49 @@ CREATE TABLE `users` (
   `performance` int(10) DEFAULT NULL,
   `accuracy` decimal(5,2) DEFAULT NULL,
   `play_count` int(10) DEFAULT NULL,
-  `level` int(10) DEFAULT NULL
+  `level` int(10) DEFAULT NULL,
+  `is_supporter` BOOLEAN NOT NULL DEFAULT false
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `email`, `password_hash`, `country_code`, `profile_picture`, `performance`, `accuracy`, `play_count`, `level`) VALUES
-(1, 'wenfu', 'bertrand13022005@gmail.com', 'wenfu', 'ID', NULL, 3234, '94.67', 1023, 78),
-(2, 'paula', 'paula@gmail.com', 'paula', 'US', NULL, 7313, '78.23', 1343, 94),
-(3, 'kepin', 'kepin@gmail.com', 'kepin123', 'JP', NULL, 5723, '85.78', 653, 86);
+INSERT INTO `users` (`id`, `username`, `email`, `password_hash`, `country_code`, `profile_picture`, `performance`, `accuracy`, `play_count`, `level`, `is_supporter`) VALUES
+  (1, 'wenfu', 'bertrand13022005@gmail.com', 'wenfu', 'ID', NULL, 3234, '94.67', 1023, 78, false),
+  (2, 'artificed', 'artificed@gmail.com', 'artificed', 'US', NULL, 7313, '78.23', 1343, 94, true);
+
+-- --------------------------------------------------------
 
 --
 -- Indexes for dumped tables
 --
 
---
--- Indexes for table `beatmaps`
---
 ALTER TABLE `beatmaps`
-  ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `beatmaps`
   ADD KEY `beatmap_set_id` (`beatmap_set_id`);
 
---
--- Indexes for table `beatmap_scores`
---
 ALTER TABLE `beatmap_scores`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `beatmap_id` (`beatmap_id`),
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `beatmap_scores`
+  ADD KEY `beatmap_id` (`beatmap_id`);
+
+ALTER TABLE `beatmap_scores`
   ADD KEY `user_id` (`user_id`);
 
---
--- Indexes for table `beatmap_sets`
---
 ALTER TABLE `beatmap_sets`
   ADD PRIMARY KEY (`id`);
 
---
--- Indexes for table `users`
---
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `users`
   ADD UNIQUE KEY `email` (`email`);
+
+-- --------------------------------------------------------
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -188,6 +188,8 @@ ALTER TABLE `users`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+-- --------------------------------------------------------
 
 --
 -- Constraints for dumped tables
@@ -203,7 +205,9 @@ ALTER TABLE `beatmaps`
 -- Constraints for table `beatmap_scores`
 --
 ALTER TABLE `beatmap_scores`
-  ADD CONSTRAINT `beatmap_scores_ibfk_1` FOREIGN KEY (`beatmap_id`) REFERENCES `beatmaps` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `beatmap_scores_ibfk_1` FOREIGN KEY (`beatmap_id`) REFERENCES `beatmaps` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `beatmap_scores`
   ADD CONSTRAINT `beatmap_scores_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 

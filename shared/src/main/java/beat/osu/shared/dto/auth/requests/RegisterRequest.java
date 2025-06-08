@@ -15,4 +15,5 @@ public class RegisterRequest implements Serializable {
     private String email;
     private String countryCode;
     private byte[] profilePicture;
+    private boolean isSupporter;
 }

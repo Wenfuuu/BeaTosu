@@ -15,9 +15,9 @@ public class UserRepository {
         this.conn = Connect.getInstance().getConn();
     }
 
-    public void insertUser(String username, String email, String password, String countryCode, byte[] profilePicture) {
-        String query = "INSERT INTO users (username, email, password_hash, country_code, profile_picture, performance, accuracy, play_count, level) " +
-                "VALUES (?, ?, ?, ?, ?, 0, 0.00, 0, 1);";
+    public void insertUser(String username, String email, String password, String countryCode, byte[] profilePicture, boolean isSupporter) {
+        String query = "INSERT INTO users (username, email, password_hash, country_code, profile_picture, performance, accuracy, play_count, level, is_supporter) " +
+                "VALUES (?, ?, ?, ?, ?, 0, 0.00, 0, 1, ?);";
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, username);
@@ -25,6 +25,7 @@ public class UserRepository {
             statement.setString(3, password);
             statement.setString(4, countryCode);
             statement.setBytes(5, profilePicture); // Allow null for optional profile picture
+            statement.setBoolean(6, isSupporter);
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -49,7 +50,8 @@ public class UserRepository {
                         rs.getInt("performance"),
                         rs.getDouble("accuracy"),
                         rs.getInt("play_count"),
-                        rs.getInt("level")
+                        rs.getInt("level"),
+                        rs.getBoolean("is_supporter")
                 );
             } else {
                 return null;
@@ -77,7 +79,8 @@ public class UserRepository {
                         rs.getInt("performance"),
                         rs.getDouble("accuracy"),
                         rs.getInt("play_count"),
-                        rs.getInt("level")
+                        rs.getInt("level"),
+                        rs.getBoolean("is_supporter")
                 );
             } else {
                 return null;

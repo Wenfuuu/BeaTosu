@@ -9,6 +9,7 @@ import beat.osu.client.controller.AuthController;
 import beat.osu.client.helper.CssManager;
 import beat.osu.shared.dto.auth.responses.RegisterResponse;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -45,7 +46,6 @@ public class RegisterModal extends StackPane {
     private HBox passwordInputBox;
     private Label passwordHint;
 
-    // Profile picture components
     private VBox profilePictureBox;
     private Label profilePictureLabel;
     private ImageView profileImageView;
@@ -53,6 +53,10 @@ public class RegisterModal extends StackPane {
     private Label placeholderLabel;
     private Label profilePictureHint;
     private File selectedImageFile;
+
+    private VBox supporterBox;
+    private CheckBox supporterCheckBox;
+    private Label supporterLabel;
 
     private VBox buttonBox;
     private Button createButton;
@@ -134,6 +138,13 @@ public class RegisterModal extends StackPane {
         profilePictureHint.setWrapText(true);
         profilePictureHint.getStyleClass().add("hint");
 
+        supporterBox = new VBox(5);
+        supporterCheckBox = new CheckBox("Register as osu! supporter");
+        supporterCheckBox.getStyleClass().add("supporter-checkbox");
+        supporterLabel = new Label("Optional: Become an osu! supporter to help keep the game free and get some cool perks!");
+        supporterLabel.setWrapText(true);
+        supporterLabel.getStyleClass().add("hint");
+
         buttonBox = new VBox(20);
         buttonBox.getStyleClass().add("button-box");
 
@@ -161,9 +172,10 @@ public class RegisterModal extends StackPane {
         emailBox.getChildren().addAll(emailInputBox, emailHint);
         passwordBox.getChildren().addAll(passwordInputBox, passwordHint);
         profilePictureBox.getChildren().addAll(profilePictureLabel, imageContainer, profilePictureHint);
+        supporterBox.getChildren().addAll(supporterCheckBox, supporterLabel);
         buttonBox.getChildren().addAll(createButton, cancelButton);
 
-        inputBox.getChildren().addAll(usernameBox, emailBox, passwordBox, profilePictureBox);
+        inputBox.getChildren().addAll(usernameBox, emailBox, passwordBox, profilePictureBox, supporterBox);
         root.getChildren().addAll(title, inputBox, buttonBox);
     }
 
@@ -173,6 +185,7 @@ public class RegisterModal extends StackPane {
             String password = passwordField.getText();
             String email = emailField.getText();
             byte[] profilePicture = null;
+            boolean isSupporter = supporterCheckBox.isSelected();
 
             if (selectedImageFile != null) {
                 try {
@@ -183,7 +196,7 @@ public class RegisterModal extends StackPane {
                 }
             }
 
-            authController.register(username, password, email, profilePicture)
+            authController.register(username, password, email, profilePicture, isSupporter)
                     .thenAcceptAsync(result -> {
                         if (result.isSuccess()) {
                             RegisterResponse response = result.getValue();
