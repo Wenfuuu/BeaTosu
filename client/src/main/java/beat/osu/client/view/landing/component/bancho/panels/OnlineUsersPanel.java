@@ -245,9 +245,7 @@ public class OnlineUsersPanel extends VBox {
     
     private void setupSearchListener() {
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            Platform.runLater(() -> {
-                filterAndDisplayUsers();
-            });
+            Platform.runLater(this::filterAndDisplayUsers);
         });
     }
     
@@ -315,7 +313,7 @@ public class OnlineUsersPanel extends VBox {
             case "Location":
                 comparator = Comparator.comparing(card -> {
                     String countryName = LocaleManager.getCountryName(card.getCountryCode());
-                    return countryName != null ? countryName.toLowerCase() : "zzz";
+                    return countryName.toLowerCase();
                 });
                 break;
             case "Time Zone":
@@ -328,12 +326,8 @@ public class OnlineUsersPanel extends VBox {
                 comparator = Comparator.comparing(card -> card.getUsername().toLowerCase());
                 break;
         }
-        
-        if (comparator != null) {
-            userCards.sort(comparator);
-            
-            // Apply current search filter and display sorted results
-            filterAndDisplayUsers();
-        }
+
+        userCards.sort(comparator);
+        filterAndDisplayUsers();
     }
 }

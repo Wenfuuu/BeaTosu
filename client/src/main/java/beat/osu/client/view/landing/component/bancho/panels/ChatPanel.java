@@ -275,13 +275,13 @@ public class ChatPanel extends VBox {
         String messageText = chatField.getText().trim();
         if (!messageText.isEmpty()) {
             ChannelMessageDto newMessage = new ChannelMessageDto(
-                1, // channel id
+                chatTabs.getCurrentSelectedChannel().getId(),
                 999, // current user id
                 "You", // current username
                 messageText,
                 LocalDateTime.now()
             );
-            
+
             channelMessages.add(newMessage);
             chatField.clear();
             displayMessages();

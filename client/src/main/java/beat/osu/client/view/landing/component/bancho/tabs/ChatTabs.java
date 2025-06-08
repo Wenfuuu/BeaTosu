@@ -14,13 +14,16 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import lombok.Getter;
 import lombok.Setter;
 
 public class ChatTabs extends HBox {
-    
+
     private List<ChannelDto> joinedChannels;
-    private ChannelDto currentSelectedChannel;
     private AddChatButton addChatButton;
+
+    @Getter
+    private ChannelDto currentSelectedChannel;
 
     @Setter
     private Consumer<ChannelDto> onChannelSelected;
@@ -133,18 +136,4 @@ public class ChatTabs extends HBox {
     public List<ChannelDto> getJoinedChannels() {
         return new ArrayList<>(joinedChannels);
     }
-
-    public void setCurrentSelectedChannel(ChannelDto channel) {
-        this.currentSelectedChannel = channel;
-        updateTabSelection();
-    }
-    
-    public boolean hasChannels() {
-        return !joinedChannels.isEmpty();
-    }
-    
-    public ChannelDto getFirstChannel() {
-        return joinedChannels.isEmpty() ? null : joinedChannels.get(0);
-    }
-
 }

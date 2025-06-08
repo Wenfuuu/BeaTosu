@@ -39,6 +39,8 @@ public class ChannelService {
     private final SessionService sessionService;
     private final UserService userService;
 
+    private static final int OSU_CHANNEL_ID = 1;
+
     public ChannelService(SessionService sessionService, UserService userService) {
         this.sessionService = sessionService;
         this.userService = userService;
@@ -54,7 +56,6 @@ public class ChannelService {
         channels.put(8, new Channel(8, "#czechlovak", "Czechlovak community channel."));
         channels.put(9, new Channel(9, "#dutch", "Dutch community channel."));
         channels.put(10, new Channel(10, "#english", "English community channel."));
-
         channels.put(11, new Channel(11, "#french", "French community channel."));
         channels.put(12, new Channel(12, "#german", "German community channel."));
         channels.put(13, new Channel(13, "#japanese", "Japanese community channel."));
@@ -115,6 +116,12 @@ public class ChannelService {
 
         List<ChannelDto> channelDtos = new ArrayList<>();
         Set<Integer> userChannelIds = getUserChannels(userId);
+
+        if (userChannelIds.isEmpty()) {
+            autoJoinUserToOsuChannel(userId);
+        }
+
+        userChannelIds = getUserChannels(userId);
 
         for (Integer channelId : userChannelIds) {
             Channel channel = channels.get(channelId);
@@ -269,5 +276,27 @@ public class ChannelService {
 
     public Channel getChannelById(int channelId) {
         return channels.get(channelId);
+    }
+
+    private void autoJoinUserToOsuChannel(int userId) {
+        Set<Integer> userChannelIds = getUserChannels(userId);
+
+        if (!userChannelIds.contains(OSU_CHANNEL_ID)) {
+            autoJoinUserToChannel(userId, OSU_CHANNEL_ID);
+        }
+    }
+
+    private void autoJoinUserToChannel(int userId, int channelId) {
+        Channel channel = channels.get(channelId);
+        if (channel != null && !channelMembers.get(channelId).contains(userId)) {
+            channelMembers.get(channelId).add(userId);
+            userChannels.computeIfAbsent(userId, k -> ConcurrentHashMap.newKeySet()).add(channelId);
+
+            int memberCount = channelMembers.get(channelId).size();
+            ChannelDto channelDto = new ChannelDto(channel.getId(), channel.getName(), channel.getDescription(), memberCount, true);
+            UserJoinedChannelEvent event = new UserJoinedChannelEvent(channelDto, userId);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_JOINED_CHANNEL, null, event);
+            RealtimeMessageHandler.broadcastToAll(realtimeMessage);
+        }
     }
 }
