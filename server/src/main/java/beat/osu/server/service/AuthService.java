@@ -64,7 +64,7 @@ public class AuthService {
 
             String message = "Successfully logged in as " + user.getUsername() + "!";
             UserDto userData = new UserDto(user.getId(), user.getUsername(), user.getEmail(), user.getCountryCode(),
-                    user.getProfilePicture(), user.getPerformance(), user.getAccuracy(), user.getPlayCount(), user.getLevel(), userRepository.getUserRank(user.getId()));
+                    user.getProfilePicture(), user.getPerformance(), user.getAccuracy(), user.getPlayCount(), user.getLevel(), userRepository.getUserRank(user.getId()), user.isSupporter());
 
             UserConnectedEvent event = new UserConnectedEvent(userData);
             RealtimeMessage userConnectedMessage = new RealtimeMessage(

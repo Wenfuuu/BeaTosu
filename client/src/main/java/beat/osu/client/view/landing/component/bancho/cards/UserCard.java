@@ -31,6 +31,7 @@ public class UserCard extends HBox {
     private int playCount;
     private int level;
     private int rank;
+    private boolean isSupporter;
 
     private ImageView profileImageView;
     private ImageView gamemodeImageView;
@@ -41,7 +42,7 @@ public class UserCard extends HBox {
     private Label backgroundRankLabel;
 
     public UserCard(Integer userId, String username, String countryCode, byte[] profilePicture, 
-                    int performance, double accuracy, int playCount, int level, int rank) {
+                    int performance, double accuracy, int playCount, int level, int rank, boolean isSupporter) {
         super(10);
         this.userId = userId;
         this.username = username;
@@ -52,6 +53,7 @@ public class UserCard extends HBox {
         this.playCount = playCount;
         this.level = level;
         this.rank = rank;
+        this.isSupporter = isSupporter;
         
         initializeComponents();
         setupLayout();
@@ -127,6 +129,10 @@ public class UserCard extends HBox {
 
     private void setupStyling() {
         this.getStyleClass().add("user-card");
+        
+        if (isSupporter) {
+            this.getStyleClass().add("user-card-supporter");
+        }
 
         URL globalCssUrl = CssManager.getGlobalCssURL();
         if (globalCssUrl != null) {
@@ -232,6 +238,19 @@ public class UserCard extends HBox {
     public void setProfilePicture(byte[] profilePicture) {
         this.profilePicture = profilePicture;
         updateProfilePicture();
+    }
+
+    public void setIsSupporter(boolean isSupporter) {
+        this.isSupporter = isSupporter;
+        updateSupporterStyling();
+    }
+
+    private void updateSupporterStyling() {
+        this.getStyleClass().remove("user-card-supporter");
+        
+        if (isSupporter) {
+            this.getStyleClass().add("user-card-supporter");
+        }
     }
 
     public void setRank(int rank) {

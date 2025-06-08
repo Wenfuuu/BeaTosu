@@ -178,7 +178,8 @@ public class OnlineUsersPanel extends VBox {
             user.getAccuracy(),
             user.getPlayCount(),
             user.getLevel(),
-            user.getRank()
+            user.getRank(),
+            user.isSupporter()
         );
         
         userCards.add(userCard);

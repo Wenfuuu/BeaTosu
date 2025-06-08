@@ -48,7 +48,8 @@ public class SystemService {
                         user.getAccuracy(),
                         user.getPlayCount(),
                         user.getLevel(),
-                        userRepository.getUserRank(userId)
+                        userRepository.getUserRank(userId),
+                        user.isSupporter()
                 ));
             } else {
                 return Result.failure(Error.notFound("User with ID " + userId + " not found."));

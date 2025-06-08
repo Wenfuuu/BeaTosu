@@ -20,4 +20,5 @@ public class UserDto implements Serializable {
     private int playCount;
     private int level;
     private int rank;
+    private boolean isSupporter;
 }

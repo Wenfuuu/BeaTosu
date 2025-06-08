@@ -40,13 +40,33 @@
 .username-label {
     -fx-text-fill: white;
     -fx-font-family: 'Aller Light';
-    -fx-font-size: 24px;
+    -fx-font-size: 28px;
+    -fx-effect: dropshadow(one-pass-box, black, 1, 0, 1, 1),
+                dropshadow(one-pass-box, black, 1, 0, -1, 1),
+                dropshadow(one-pass-box, black, 1, 0, 1, -1),
+                dropshadow(one-pass-box, black, 1, 0, -1, -1);
 }
 
 .stats-label, .performance-label, .accuracy-label {
     -fx-text-fill: white;
     -fx-font-family: 'Aller Light';
     -fx-font-size: 16px;
+    -fx-effect: dropshadow(one-pass-box, black, 1, 0, 1, 1),
+                dropshadow(one-pass-box, black, 1, 0, -1, 1),
+                dropshadow(one-pass-box, black, 1, 0, 1, -1),
+                dropshadow(one-pass-box, black, 1, 0, -1, -1);
+}
+
+.user-card-supporter {
+    -fx-background-color: rgba(0, 0, 0, 0.4), #c69d00;
+    -fx-border-color: #c69d00;
+}
+
+.user-card-supporter:hover {
+    -fx-background-color: 
+        linear-gradient(rgba(255,255,255,0.15), rgba(255,255,255,0.15)),
+        rgba(0, 0, 0, 0.4),
+        #c69d00;
 }
 
 .background-rank-label {
