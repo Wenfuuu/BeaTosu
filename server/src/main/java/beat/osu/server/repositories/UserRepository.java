@@ -2,6 +2,7 @@ package beat.osu.server.repositories;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import beat.osu.server.database.Connect;
@@ -84,5 +85,26 @@ public class UserRepository {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public int getUserRank(int userId) {
+        User user = findUserById(userId);
+        if (user == null) {
+            return -1;
+        }
+        
+        String query = "SELECT COUNT(*) + 1 as user_rank FROM users WHERE performance > ?";
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setInt(1, user.getPerformance());
+            ResultSet rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getInt("user_rank");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return -1;
     }
 }
