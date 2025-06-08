@@ -34,7 +34,8 @@
 
 .user-stats {
     -fx-spacing: 2;
-    -fx-alignment: center-left;
+    -fx-alignment: top-left;
+    -fx-min-height: 80;
 }
 
 .username-label {
@@ -74,4 +75,14 @@
     -fx-font-family: 'Aller Light';
     -fx-font-size: 52px;
     -fx-font-weight: bold;
+}
+
+.time-label {
+    -fx-text-fill: white;
+    -fx-font-family: 'Aller Light';
+    -fx-font-size: 18px;
+    -fx-effect: dropshadow(one-pass-box, black, 1, 0, 1, 1),
+                dropshadow(one-pass-box, black, 1, 0, -1, 1),
+                dropshadow(one-pass-box, black, 1, 0, 1, -1),
+                dropshadow(one-pass-box, black, 1, 0, -1, -1);
 }

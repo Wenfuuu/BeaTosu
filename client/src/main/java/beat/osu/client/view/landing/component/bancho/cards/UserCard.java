@@ -2,10 +2,13 @@ package beat.osu.client.view.landing.component.bancho.cards;
 
 import java.io.ByteArrayInputStream;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.LocaleManager;
 import beat.osu.client.helper.ScreenManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -41,7 +44,11 @@ public class UserCard extends HBox {
     private Label playCountLabel;
     private Label backgroundRankLabel;
 
-    public UserCard(Integer userId, String username, String countryCode, byte[] profilePicture, 
+    private Label timeLabel;
+    private VBox userStats;
+    private boolean isHovering = false;
+
+    public UserCard(Integer userId, String username, String countryCode, byte[] profilePicture,
                     int performance, double accuracy, int playCount, int level, int rank, boolean isSupporter) {
         super(10);
         this.userId = userId;
@@ -54,7 +61,7 @@ public class UserCard extends HBox {
         this.level = level;
         this.rank = rank;
         this.isSupporter = isSupporter;
-        
+
         initializeComponents();
         setupLayout();
         setupStyling();
@@ -86,14 +93,19 @@ public class UserCard extends HBox {
 
         playCountLabel = new Label("Play Count: 0 (Lv0)");
         playCountLabel.getStyleClass().add("stats-label");
-        
+
         backgroundRankLabel = new Label("#" + rank);
         backgroundRankLabel.getStyleClass().add("background-rank-label");
+
+        timeLabel = new Label("");
+        timeLabel.getStyleClass().add("time-label");
     }
 
     private void setupLayout() {
-        VBox userStats = new VBox(2);
-        userStats.setAlignment(Pos.CENTER_LEFT);
+        userStats = new VBox(2);
+        userStats.setAlignment(Pos.TOP_LEFT);
+        userStats.setMinHeight(80);
+        userStats.setPrefHeight(80);
         userStats.getStyleClass().add("user-stats");
         userStats.getChildren().addAll(usernameLabel, performanceLabel, accuracyLabel, playCountLabel);
 
@@ -108,11 +120,11 @@ public class UserCard extends HBox {
         cardContainer.setMinWidth(ScreenManager.SCREEN_WIDTH / 4 - 28);
 
         cardContainer.getChildren().add(mainContent);
-        StackPane.setAlignment(mainContent, Pos.CENTER_LEFT);
-        
+        StackPane.setAlignment(mainContent, Pos.TOP_LEFT);
+
         cardContainer.getChildren().add(gamemodeImageView);
         StackPane.setAlignment(gamemodeImageView, Pos.TOP_RIGHT);
-        
+
         StackPane.setMargin(gamemodeImageView, new Insets(4, 8, 0, 0));
 
         cardContainer.getChildren().add(backgroundRankLabel);
@@ -125,11 +137,61 @@ public class UserCard extends HBox {
         this.setPrefWidth(ScreenManager.SCREEN_WIDTH / 4 - 20);
         this.setMaxWidth(ScreenManager.SCREEN_WIDTH / 4 - 20);
         this.getChildren().add(cardContainer);
+
+        setupHoverEffect();
+    }
+
+    private void setupHoverEffect() {
+        this.setOnMouseEntered(e -> {
+            isHovering = true;
+            showTimeAndCountry();
+        });
+
+        this.setOnMouseExited(e -> {
+            isHovering = false;
+            showNormalStats();
+        });
+    }
+
+    private void showTimeAndCountry() {
+        if (userStats != null) {
+            userStats.getChildren().clear();
+            userStats.getChildren().add(usernameLabel);
+
+            String timeAndCountry = getTimeAndCountryString();
+            timeLabel.setText(timeAndCountry);
+            userStats.getChildren().add(timeLabel);
+        }
+    }
+
+    private void showNormalStats() {
+        if (userStats != null) {
+            userStats.getChildren().clear();
+            userStats.getChildren().addAll(usernameLabel, performanceLabel, accuracyLabel, playCountLabel);
+        }
+    }
+
+    private String getTimeAndCountryString() {
+        if (countryCode == null || countryCode.trim().isEmpty()) {
+            return "Time unavailable";
+        }
+
+        LocalDateTime currentTime = LocaleManager.getCurrentTime(countryCode);
+        String countryName = LocaleManager.getCountryName(countryCode);
+
+        if (currentTime == null) {
+            return "Time unavailable @ " + countryName;
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        String formattedTime = currentTime.format(formatter);
+
+        return formattedTime + " @ " + countryName;
     }
 
     private void setupStyling() {
         this.getStyleClass().add("user-card");
-        
+
         if (isSupporter) {
             this.getStyleClass().add("user-card-supporter");
         }
@@ -152,7 +214,7 @@ public class UserCard extends HBox {
     private void setDefaultProfilePicture() {
         try {
             Image defaultImage = new Image(Objects.requireNonNull(
-                Main.class.getResource("/assets/images/avatar-guest.png")).toExternalForm());
+                    Main.class.getResource("/assets/images/avatar-guest.png")).toExternalForm());
             profileImageView.setImage(defaultImage);
         } catch (Exception e) {
             System.err.println("Could not load default avatar: " + e.getMessage());
@@ -163,7 +225,7 @@ public class UserCard extends HBox {
     private void setGamemodeIcon() {
         try {
             Image gamemodeImage = new Image(Objects.requireNonNull(
-                Main.class.getResource("/assets/gamemode/osu-gamemode.png")).toExternalForm());
+                    Main.class.getResource("/assets/gamemode/osu-gamemode.png")).toExternalForm());
             gamemodeImageView.setImage(gamemodeImage);
             gamemodeImageView.setFitHeight(40);
             gamemodeImageView.setFitWidth(40);
@@ -177,11 +239,11 @@ public class UserCard extends HBox {
         if (username != null) {
             usernameLabel.setText(username);
         }
-        
+
         performanceLabel.setText("Performance: " + String.format("%,d", performance) + "pp");
         accuracyLabel.setText("Accuracy: " + String.format("%.2f", accuracy) + "%");
         playCountLabel.setText("Play Count: " + String.format("%,d", playCount) + " (Lv" + level + ")");
-        
+
         updateProfilePicture();
     }
 
@@ -247,7 +309,7 @@ public class UserCard extends HBox {
 
     private void updateSupporterStyling() {
         this.getStyleClass().remove("user-card-supporter");
-        
+
         if (isSupporter) {
             this.getStyleClass().add("user-card-supporter");
         }
