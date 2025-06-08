@@ -2,13 +2,10 @@ package beat.osu.client.model;
 
 import beat.osu.client.Main;
 import beat.osu.client.enums.HitResult;
-import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.GameManager;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;
-import javafx.animation.ScaleTransition;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -187,9 +184,11 @@ public class HitSpinner extends HitObject{
                 gm.notifyHit(this, HitResult.SPIN);
                 if(prevRotation > TARGET_ROTATIONS) {
                     gm.notifyHit(this, HitResult.COMPLETE_SPIN);
+                    int totalRotation = (int) prevRotation;
+                    gm.notifyAdditionalSpin(totalRotation - TARGET_ROTATIONS);
                 }
             }
-        }else if(isHit() && !isActive && !isVisible()) {
+        }else if(!isActive && !isVisible()) {
             // check & notify judgement score
             if(prevRotation < 2) {
                 gm.notifyMiss(this);

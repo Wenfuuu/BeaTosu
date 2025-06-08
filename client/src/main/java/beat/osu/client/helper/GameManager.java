@@ -12,11 +12,8 @@ import beat.osu.client.model.HitCircle;
 import beat.osu.client.model.HitObject;
 import beat.osu.client.model.HitSpinner;
 import beat.osu.client.utils.OsuParser;
-import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
-import javafx.animation.PauseTransition;
 import javafx.scene.input.KeyCode;
-import javafx.util.Duration;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -382,6 +379,10 @@ public class GameManager implements Subject {
                         perfectCombo, imperfectOrMissed)));
         notifyObservers(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
         notifyObservers(new GameEvent(GameEventType.HEALTH_CHANGED, health));
+    }
+
+    public void notifyAdditionalSpin(int totalRotation) {
+        System.out.println("total additional rotations: " + totalRotation);
     }
 
     private void handleMiss(HitObject hitObject) {
