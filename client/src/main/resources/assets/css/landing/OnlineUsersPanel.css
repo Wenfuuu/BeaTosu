@@ -1,6 +1,6 @@
 .online-users-panel {
     -fx-background-color: rgba(0, 0, 0, 0.7);
-    -fx-padding: 2px;
+    -fx-padding: 0 8px 0 8px;
 }
 
 .online-users-title, .online-users-label {
@@ -9,11 +9,11 @@
 }
 
 .online-users-title {
-    -fx-font-size: 40px;
+    -fx-font-size: 60px;
 }
 
 .online-users-label {
-    -fx-font-size: 24px;
+    -fx-font-size: 28px;
 }
 
 .user-cards-container {

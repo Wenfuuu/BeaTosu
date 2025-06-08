@@ -31,6 +31,7 @@ public class OnlineUsersPanel extends VBox {
 
     private Label onlineUsersLabel;
     private Label titleLabel;
+    private SortUserTabs sortUserTabs;
     private ConnectedUsersController connectedUsersController;
 
     public OnlineUsersPanel(ConnectedUsersController connectedUsersController) {
@@ -65,6 +66,8 @@ public class OnlineUsersPanel extends VBox {
         onlineUsersLabel = new Label("N/A Users Connected");
         onlineUsersLabel.getStyleClass().add("online-users-label");
 
+        sortUserTabs = new SortUserTabs();
+
         userCardsContainer = new FlowPane();
         userCardsContainer.getStyleClass().add("user-cards-container");
         userCardsContainer.setHgap(5);
@@ -76,7 +79,7 @@ public class OnlineUsersPanel extends VBox {
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.getStyleClass().add("user-cards-scroll-pane");
 
-        this.getChildren().addAll(titleLabel, onlineUsersLabel, scrollPane);
+        this.getChildren().addAll(titleLabel, onlineUsersLabel, sortUserTabs, scrollPane);
 
         this.connectedUsersController = connectedUsersController;
         setupUserCallbacks();
