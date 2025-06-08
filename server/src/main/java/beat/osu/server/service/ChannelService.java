@@ -234,7 +234,7 @@ public class ChannelService {
                 LocalDateTime.now()
         );
 
-        Result<SendChannelMessageResponse> response = Result.success(new SendChannelMessageResponse("Message sent successfully"));
+        Result<SendChannelMessageResponse> response = Result.success(new SendChannelMessageResponse(channelMessageDto));
         if (response.isSuccess()) {
             ChannelMessageEvent event = new ChannelMessageEvent(channelMessageDto);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.CHANNEL_MESSAGE, clientId, event);
