@@ -9,11 +9,32 @@
 }
 
 .online-users-title {
-    -fx-font-size: 60px;
+    -fx-font-size: 56px;
 }
 
 .online-users-label {
     -fx-font-size: 28px;
+}
+
+.search-label {
+    -fx-text-fill: white;
+    -fx-font-family: 'Aller Light';
+    -fx-font-size: 24px;
+}
+
+.search-field {
+    -fx-font-family: 'Aller';
+    -fx-background-color: #1e1e1e;
+    -fx-text-fill: white;
+    -fx-min-width: 250px;
+    -fx-font-size: 18px;
+    -fx-border-color: rgba(255, 255, 255, 0.8);
+    -fx-border-width: 3px;
+    -fx-padding: 2px 6px;
+}
+
+.search-field:focused {
+    -fx-border-color: white;
 }
 
 .user-cards-container {

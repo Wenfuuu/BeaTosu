@@ -17,10 +17,16 @@ import beat.osu.shared.dto.user.events.UserCountChangedEvent;
 import beat.osu.shared.dto.user.events.UserDisconnectedEvent;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.Priority;
 import javafx.util.Duration;
 
 public class OnlineUsersPanel extends VBox {
@@ -33,6 +39,9 @@ public class OnlineUsersPanel extends VBox {
     private Label onlineUsersLabel;
     private Label titleLabel;
     private SortUserTabs sortUserTabs;
+    private Label searchLabel;
+    private TextField searchField;
+
     private ConnectedUsersController connectedUsersController;
 
     public OnlineUsersPanel(ConnectedUsersController connectedUsersController) {
@@ -67,7 +76,27 @@ public class OnlineUsersPanel extends VBox {
         onlineUsersLabel = new Label("N/A Users Connected");
         onlineUsersLabel.getStyleClass().add("online-users-label");
 
+        HBox searchSection = new HBox(10);
+        searchSection.setAlignment(Pos.CENTER_LEFT);
+        VBox.setMargin(searchSection, new Insets(0, 0, 0, 200));
+
+        searchLabel = new Label("Search:");
+        searchLabel.getStyleClass().add("search-label");
+
+        searchField = new TextField();
+        searchField.getStyleClass().add("search-field");
+
+        searchSection.getChildren().addAll(searchLabel, searchField);
+
+        VBox topLeftSection = new VBox(0);
+        topLeftSection.getChildren().addAll(titleLabel, onlineUsersLabel);
+
+        HBox topSection = new HBox(0);
+        topSection.getChildren().addAll(topLeftSection, searchSection);
+        HBox.setMargin(searchSection, new Insets(20, 0, 0, 80));
+
         sortUserTabs = new SortUserTabs();
+        VBox.setMargin(sortUserTabs, new Insets(8, 0, 0, 0));
 
         userCardsContainer = new FlowPane();
         userCardsContainer.getStyleClass().add("user-cards-container");
@@ -80,7 +109,7 @@ public class OnlineUsersPanel extends VBox {
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.getStyleClass().add("user-cards-scroll-pane");
 
-        this.getChildren().addAll(titleLabel, onlineUsersLabel, sortUserTabs, scrollPane);
+        this.getChildren().addAll(topSection, sortUserTabs, scrollPane);
 
         this.connectedUsersController = connectedUsersController;
         setupUserCallbacks();
