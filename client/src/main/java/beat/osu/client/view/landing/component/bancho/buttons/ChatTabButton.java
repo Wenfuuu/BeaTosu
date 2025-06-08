@@ -53,16 +53,14 @@ public class ChatTabButton extends Button {
         closeButton = new Button();
         closeButton.setGraphic(graphicWrapper);
         closeButton.getStyleClass().add("close-button");
-        closeButton.setVisible(true);
         closeButton.setOnAction(e -> {
             if (onCloseAction != null) {
                 onCloseAction.accept(this);
             }
         });
         
-        crossLabel.setVisible(false);
-        closeButton.setOnMouseEntered(e -> crossLabel.setVisible(true));
-        closeButton.setOnMouseExited(e -> crossLabel.setVisible(false));
+        this.setOnMouseEntered(e -> closeButton.getStyleClass().add("visible"));
+        this.setOnMouseExited(e -> closeButton.getStyleClass().remove("visible"));
 
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);
         
