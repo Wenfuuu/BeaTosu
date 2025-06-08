@@ -187,11 +187,34 @@ public class OnlineUsersPanel extends VBox {
         userCards.add(userCard);
         userCardMap.put(user.getId(), userCard);
         
-        String currentSortType = sortUserTabs.getSelectedSortType();
-        if (currentSortType != null) {
-            sortUserCards(currentSortType);
+        String searchText = searchField.getText();
+        if (searchText == null) {
+            searchText = "";
+        }
+        searchText = searchText.toLowerCase().trim();
+        
+        boolean matchesFilter = searchText.isEmpty() || 
+                               (userCard.getUsername() != null && 
+                                userCard.getUsername().toLowerCase().contains(searchText));
+        
+        if (matchesFilter) {
+            String currentSortType = sortUserTabs.getSelectedSortType();
+            if (currentSortType != null) {
+                sortUserCards(currentSortType);
+            } else {
+                userCard.setOpacity(0);
+                userCardsContainer.getChildren().add(userCard);
+                
+                FadeTransition fadeIn = new FadeTransition(Duration.millis(200), userCard);
+                fadeIn.setFromValue(0);
+                fadeIn.setToValue(1);
+                fadeIn.play();
+            }
         } else {
-            filterAndDisplayUsers();
+            String currentSortType = sortUserTabs.getSelectedSortType();
+            if (currentSortType != null) {
+                sortUserCards(currentSortType);
+            }
         }
     }
     
@@ -204,11 +227,13 @@ public class OnlineUsersPanel extends VBox {
         userCards.remove(userCard);
         userCardMap.remove(user.getId());
         
-        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), userCard);
-        fadeOut.setFromValue(1);
-        fadeOut.setToValue(0);
-        fadeOut.setOnFinished(e -> userCardsContainer.getChildren().remove(userCard));
-        fadeOut.play();
+        if (userCardsContainer.getChildren().contains(userCard)) {
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(200), userCard);
+            fadeOut.setFromValue(1);
+            fadeOut.setToValue(0);
+            fadeOut.setOnFinished(e -> userCardsContainer.getChildren().remove(userCard));
+            fadeOut.play();
+        }
     }
 
     private void updateUserCountLabel(UserCountChangedEvent event) {
@@ -238,11 +263,28 @@ public class OnlineUsersPanel extends VBox {
         searchText = searchText.toLowerCase().trim();
         userCardsContainer.getChildren().clear();
         
+        List<UserCard> filteredCards = new ArrayList<>();
         for (UserCard card : userCards) {
             String username = card.getUsername();
             if (username != null && username.toLowerCase().contains(searchText)) {
-                userCardsContainer.getChildren().add(card);
+                filteredCards.add(card);
             }
+        }
+        
+        addCardsWithAnimation(filteredCards);
+    }
+    
+    private void addCardsWithAnimation(List<UserCard> cardsToAdd) {
+        for (int i = 0; i < cardsToAdd.size(); i++) {
+            UserCard card = cardsToAdd.get(i);
+            card.setOpacity(0);
+            userCardsContainer.getChildren().add(card);
+            
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(200), card);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+            fadeIn.setDelay(Duration.millis(i * 50));
+            fadeIn.play();
         }
     }
     
