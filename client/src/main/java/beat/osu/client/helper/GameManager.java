@@ -435,7 +435,7 @@ public class GameManager implements Subject {
     }
 
     private long getHitWindow() {
-        return 300; // 300ms hit window
+        return Math.round(200 - 10 * beatmap.getOverallDifficulty());
     }
 
     private void processBeatmap() {
