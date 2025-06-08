@@ -2,12 +2,14 @@ package beat.osu.client.view.landing.component.bancho.panels;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.LocaleManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.view.landing.component.bancho.cards.UserCard;
 import beat.osu.client.view.landing.component.bancho.tabs.SortUserTabs;
@@ -25,8 +27,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.Priority;
 import javafx.util.Duration;
 
 public class OnlineUsersPanel extends VBox {
@@ -96,6 +96,7 @@ public class OnlineUsersPanel extends VBox {
         HBox.setMargin(searchSection, new Insets(20, 0, 0, 80));
 
         sortUserTabs = new SortUserTabs();
+        sortUserTabs.setOnSelectionChanged(this::onSortTypeChanged);
         VBox.setMargin(sortUserTabs, new Insets(8, 0, 0, 0));
 
         userCardsContainer = new FlowPane();
@@ -114,6 +115,7 @@ public class OnlineUsersPanel extends VBox {
         this.connectedUsersController = connectedUsersController;
         setupUserCallbacks();
         setupUserCountSubscription();
+        setupSearchListener();
     }
     
     public void show() {
@@ -185,13 +187,12 @@ public class OnlineUsersPanel extends VBox {
         userCards.add(userCard);
         userCardMap.put(user.getId(), userCard);
         
-        userCard.setOpacity(0);
-        userCardsContainer.getChildren().add(userCard);
-        
-        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), userCard);
-        fadeIn.setFromValue(0);
-        fadeIn.setToValue(1);
-        fadeIn.play();
+        String currentSortType = sortUserTabs.getSelectedSortType();
+        if (currentSortType != null) {
+            sortUserCards(currentSortType);
+        } else {
+            filterAndDisplayUsers();
+        }
     }
     
     private void removeUserCard(UserDto user) {
@@ -217,7 +218,80 @@ public class OnlineUsersPanel extends VBox {
         });
     }
     
+    private void setupSearchListener() {
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            Platform.runLater(() -> {
+                filterAndDisplayUsers();
+            });
+        });
+    }
+    
+    private void filterAndDisplayUsers() {
+        if (userCards == null || userCards.isEmpty()) {
+            return;
+        }
+        
+        String searchText = searchField.getText();
+        if (searchText == null) {
+            searchText = "";
+        }
+        searchText = searchText.toLowerCase().trim();
+        userCardsContainer.getChildren().clear();
+        
+        for (UserCard card : userCards) {
+            String username = card.getUsername();
+            if (username != null && username.toLowerCase().contains(searchText)) {
+                userCardsContainer.getChildren().add(card);
+            }
+        }
+    }
+    
     public boolean isShowing() {
         return this.isVisible();
+    }
+    
+    private void onSortTypeChanged(String sortType) {
+        Platform.runLater(() -> {
+            sortUserCards(sortType);
+        });
+    }
+    
+    private void sortUserCards(String sortType) {
+        if (userCards == null || userCards.isEmpty()) {
+            return;
+        }
+        
+        Comparator<UserCard> comparator = null;
+        
+        switch (sortType) {
+            case "Name":
+                comparator = Comparator.comparing(card -> card.getUsername().toLowerCase());
+                break;
+            case "Rank":
+                comparator = Comparator.comparingInt(UserCard::getRank);
+                break;
+            case "Location":
+                comparator = Comparator.comparing(card -> {
+                    String countryName = LocaleManager.getCountryName(card.getCountryCode());
+                    return countryName != null ? countryName.toLowerCase() : "zzz";
+                });
+                break;
+            case "Time Zone":
+                comparator = Comparator.comparing(card -> {
+                    String timezone = LocaleManager.getTimezone(card.getCountryCode());
+                    return timezone != null ? timezone : "zzz";
+                });
+                break;
+            default:
+                comparator = Comparator.comparing(card -> card.getUsername().toLowerCase());
+                break;
+        }
+        
+        if (comparator != null) {
+            userCards.sort(comparator);
+            
+            // Apply current search filter and display sorted results
+            filterAndDisplayUsers();
+        }
     }
 }
