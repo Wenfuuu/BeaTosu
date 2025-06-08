@@ -10,6 +10,8 @@ import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.LocaleManager;
 import beat.osu.client.helper.ScreenManager;
+import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -18,6 +20,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -46,7 +49,10 @@ public class UserCard extends HBox {
 
     private Label timeLabel;
     private VBox userStats;
+    private VBox timeStats;
+    private StackPane contentContainer;
     private boolean isHovering = false;
+    private ParallelTransition currentTransition;
 
     public UserCard(Integer userId, String username, String countryCode, byte[] profilePicture,
                     int performance, double accuracy, int playCount, int level, int rank, boolean isSupporter) {
@@ -104,14 +110,27 @@ public class UserCard extends HBox {
     private void setupLayout() {
         userStats = new VBox(2);
         userStats.setAlignment(Pos.TOP_LEFT);
-        userStats.setMinHeight(80);
-        userStats.setPrefHeight(80);
         userStats.getStyleClass().add("user-stats");
-        userStats.getChildren().addAll(usernameLabel, performanceLabel, accuracyLabel, playCountLabel);
+        userStats.getChildren().addAll(performanceLabel, accuracyLabel, playCountLabel);
+
+        timeStats = new VBox(2);
+        timeStats.setAlignment(Pos.TOP_LEFT);
+        timeStats.getStyleClass().add("user-stats");
+        timeStats.getChildren().add(timeLabel);
+        
+        timeStats.setOpacity(0.0);
+
+        contentContainer = new StackPane();
+        contentContainer.setAlignment(Pos.TOP_LEFT);
+        contentContainer.getChildren().addAll(userStats, timeStats);
+
+        VBox mainStats = new VBox(2);
+        mainStats.setAlignment(Pos.TOP_LEFT);
+        mainStats.getChildren().addAll(usernameLabel, contentContainer);
 
         HBox mainContent = new HBox(10);
         mainContent.setAlignment(Pos.CENTER_LEFT);
-        mainContent.getChildren().addAll(profileImageView, userStats);
+        mainContent.getChildren().addAll(profileImageView, mainStats);
 
         StackPane cardContainer = new StackPane();
 
@@ -143,32 +162,53 @@ public class UserCard extends HBox {
 
     private void setupHoverEffect() {
         this.setOnMouseEntered(e -> {
+            if (currentTransition != null) {
+                currentTransition.stop();
+            }
             isHovering = true;
-            showTimeAndCountry();
+            showTimeAndCountryWithTransition();
         });
 
         this.setOnMouseExited(e -> {
+            if (currentTransition != null) {
+                currentTransition.stop();
+            }
             isHovering = false;
-            showNormalStats();
+            showNormalStatsWithTransition();
         });
     }
 
-    private void showTimeAndCountry() {
-        if (userStats != null) {
-            userStats.getChildren().clear();
-            userStats.getChildren().add(usernameLabel);
+    private void showTimeAndCountryWithTransition() {
+        if (userStats == null || timeStats == null) return;
 
-            String timeAndCountry = getTimeAndCountryString();
-            timeLabel.setText(timeAndCountry);
-            userStats.getChildren().add(timeLabel);
-        }
+        String timeAndCountry = getTimeAndCountryString();
+        timeLabel.setText(timeAndCountry);
+
+        FadeTransition fadeOutStats = new FadeTransition(Duration.millis(200), userStats);
+        fadeOutStats.setFromValue(1.0);
+        fadeOutStats.setToValue(0.0);
+
+        FadeTransition fadeInTime = new FadeTransition(Duration.millis(200), timeStats);
+        fadeInTime.setFromValue(0.0);
+        fadeInTime.setToValue(1.0);
+
+        currentTransition = new ParallelTransition(fadeOutStats, fadeInTime);
+        currentTransition.play();
     }
 
-    private void showNormalStats() {
-        if (userStats != null) {
-            userStats.getChildren().clear();
-            userStats.getChildren().addAll(usernameLabel, performanceLabel, accuracyLabel, playCountLabel);
-        }
+    private void showNormalStatsWithTransition() {
+        if (userStats == null || timeStats == null) return;
+
+        FadeTransition fadeOutTime = new FadeTransition(Duration.millis(200), timeStats);
+        fadeOutTime.setFromValue(1.0);
+        fadeOutTime.setToValue(0.0);
+
+        FadeTransition fadeInStats = new FadeTransition(Duration.millis(200), userStats);
+        fadeInStats.setFromValue(0.0);
+        fadeInStats.setToValue(1.0);
+
+        currentTransition = new ParallelTransition(fadeOutTime, fadeInStats);
+        currentTransition.play();
     }
 
     private String getTimeAndCountryString() {
