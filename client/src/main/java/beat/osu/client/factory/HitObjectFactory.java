@@ -72,7 +72,7 @@ public class HitObjectFactory {
             }
         }
 
-        System.out.println("total sounds: " + sounds.size());
+//        System.out.println("total sounds: " + sounds.size());
         return sounds;
     }
 

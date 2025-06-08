@@ -549,9 +549,11 @@ public class HitSlider extends HitObject {
 
                 int traversalIndex = (int) Math.floor((double)timeSinceHitStart / this.duration);
                 if(traversalIndex != currentTraversalIndex) {
-                    ArrayList<String> sfxFilenames = edfeSfxFilenames.get(Math.max(0, traversalIndex));
-                    for(String sfx : sfxFilenames) {
-                        SfxManager.playSfx(sfx);
+                    if(traversalIndex >= 0) {
+                        ArrayList<String> sfxFilenames = edfeSfxFilenames.get(traversalIndex);
+                        for(String sfx : sfxFilenames) {
+                            SfxManager.playSfx(sfx);
+                        }
                     }
                     currentTraversalIndex = traversalIndex;
                     updateArrowVisibility(currentTraversalIndex);
