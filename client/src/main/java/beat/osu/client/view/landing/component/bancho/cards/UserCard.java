@@ -2,6 +2,7 @@ package beat.osu.client.view.landing.component.bancho.cards;
 
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ScreenManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -56,7 +57,7 @@ public class UserCard extends HBox {
     }
 
     private void initializeComponents() {
-        this.setMaxWidth(500);
+        this.setMaxWidth(475);
 
         profileImageView = new ImageView();
         profileImageView.getStyleClass().add("profile-picture");
@@ -95,7 +96,7 @@ public class UserCard extends HBox {
         StackPane cardContainer = new StackPane();
         cardContainer.setPrefWidth(425);
         cardContainer.setMaxWidth(425);
-        
+
         cardContainer.getChildren().add(mainContent);
         StackPane.setAlignment(mainContent, Pos.CENTER_LEFT);
         
@@ -105,8 +106,9 @@ public class UserCard extends HBox {
         StackPane.setMargin(gamemodeImageView, new Insets(8, 8, 0, 0));
 
         this.setAlignment(Pos.CENTER_LEFT);
-        this.setPrefWidth(425);
-        this.setMaxWidth(425);
+        this.setMinWidth(ScreenManager.SCREEN_WIDTH / 4 - 20);
+        this.setPrefWidth(ScreenManager.SCREEN_WIDTH / 4 - 20);
+        this.setMaxWidth(ScreenManager.SCREEN_WIDTH / 4 - 20);
         this.getChildren().add(cardContainer);
     }
 
