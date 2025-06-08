@@ -1,7 +1,9 @@
 package beat.osu.client.model;
 
 import javafx.animation.Animation;
+import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import lombok.Data;
 
@@ -37,6 +39,8 @@ public abstract class HitObject {
     protected final double APPROACH_START_SCALE = 5.0;
     protected final double CIRCLE_STROKE_WIDTH = 3.0;
 
+    protected final Group group;
+
     public HitObject(int osuX, int osuY, long hitTime, int type, int hitSound,
                      String hitSample, double approachRate, double circleSize,
                      int comboNumber, int comboSetIndex, boolean comboEnd,
@@ -56,6 +60,9 @@ public abstract class HitObject {
         this.newCombo = comboNumber == 1;
         this.comboEnd = comboEnd;
         this.sfxFilenames = sfxFilenames != null ? sfxFilenames : new ArrayList<>();
+
+        group = new Group();
+        group.setVisible(false);
     }
 
     public void updateVisuals(double centerX, double centerY, double scaledRadius) {
@@ -89,6 +96,22 @@ public abstract class HitObject {
         }
     }
 
+    public void appear() {
+        if(!isVisible()) {
+            setVisible(true);
+            group.setVisible(true); // Make the whole group visible
+            playAppearAnimation();
+        }
+    }
+
+    public void hide() {
+        group.setVisible(false);
+        setVisible(false); // Also update HitObject's visibility
+        if(group.getParent() instanceof Pane) {
+            ((Pane) group.getParent()).getChildren().remove(group);
+        }
+    }
+
     protected Color parseColorString(String colorString) {
         String[] rgb = colorString.split(",");
         return Color.rgb(
@@ -100,11 +123,10 @@ public abstract class HitObject {
 
     public abstract Node getNode();
     public abstract void update(long currentTime);
+    public abstract void playAppearAnimation();
     public abstract void playHitEffect();
     public abstract void playMissEffect();
     public abstract void applyVisualsToNode(double centerX, double centerY, double scaledRadius);
-    public abstract void appear();
-    public abstract void hide();
     public abstract void pauseAnimations();
     public abstract void resumeAnimations();
 }

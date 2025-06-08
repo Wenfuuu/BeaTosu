@@ -10,6 +10,7 @@ import beat.osu.client.interfaces.Subject;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.HitCircle;
 import beat.osu.client.model.HitObject;
+import beat.osu.client.model.HitSpinner;
 import beat.osu.client.utils.OsuParser;
 import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
@@ -218,6 +219,9 @@ public class GameManager implements Subject {
         Iterator<HitObject> iterator = hitObjects.iterator();
         while(iterator.hasNext()) {
             HitObject hitObject = iterator.next();
+            if(hitObject instanceof HitSpinner) {
+                ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
+            }
             hitObject.update(elapsedMillis);
             if(hitObject.getHitTime() > elapsedMillis + 5000) {
                 // If the hit object is still far, skip processing
@@ -248,7 +252,7 @@ public class GameManager implements Subject {
         previousKeys.clear();
         previousKeys.addAll(currentKeys);
 
-        System.out.println("hit objects remaining: " + hitObjects.size());
+//        System.out.println("hit objects remaining: " + hitObjects.size());
         if(hitObjects.isEmpty()) {
             stopGame();
         }
@@ -258,6 +262,7 @@ public class GameManager implements Subject {
         double objCenterX = hitObject.getScreenCenterX();
         double objCenterY = hitObject.getScreenCenterY();
         double objRadius = hitObject.getScreenRadius();
+        if(hitObject instanceof HitSpinner) objRadius *= 2.5;
 
         double dx = currentMouseX - objCenterX;
         double dy = currentMouseY - objCenterY;
@@ -279,7 +284,7 @@ public class GameManager implements Subject {
     }
 
     private void handleHit(HitObject hitObject, long timingError) {
-        if(hitObject instanceof HitCircle) hitObject.setVisible(false);
+//        if(hitObject instanceof HitCircle) hitObject.setVisible(false);
         if(hitObject.isNewCombo()) {
             perfectCombo = true;
             imperfectOrMissed = false;
@@ -288,7 +293,7 @@ public class GameManager implements Subject {
         hitObject.setHit(true);
         hitObject.playHitEffect();
         // play sfx
-        if(hitObject instanceof HitCircle) {
+        if(hitObject instanceof HitCircle || hitObject instanceof HitSpinner) {
             for(String sfx : hitObject.getSfxFilenames()) {
                 SfxManager.playSfx(sfx);
             }
@@ -317,12 +322,7 @@ public class GameManager implements Subject {
             imperfectOrMissed = true;
         }
 
-//        System.out.println("perfect hits: " + perfectHits);
-//        System.out.println("great hits: " + greatHits);
-//        System.out.println("geki hits: " + gekiHits);
-//        System.out.println("great katu hits: " + greatKatuHits);
         int hitValue = hitResult.getScore();
-//        System.out.println("hit value: " + hitValue);
         int difficultyMultiplier = beatmap.getDifficultyMultiplier(hitObjects, OsuParser.getBreakPointsList());
         int hitScore = hitValue * (1 + (masterComboNumber * difficultyMultiplier));
         score += hitScore;

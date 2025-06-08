@@ -1,26 +1,32 @@
 package beat.osu.client.model;
 
+import beat.osu.client.Main;
+import beat.osu.client.helper.BackgroundManager;
+import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;
 import javafx.animation.ScaleTransition;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class HitSpinner extends HitObject{
     private long endTime;
+    private boolean isActive = false;
 
-    private final Group group;
     private final Circle outerRing;
     private final Circle innerRing;
     private final Circle centerDot;
+    private final ImageView spinnerImage;
 
     private RotateTransition spinAnimation;
-    private ScaleTransition approachAnimation;
     private FadeTransition hitEffectAnimation;
     private FadeTransition fadeInAnimation;
 
@@ -29,6 +35,9 @@ public class HitSpinner extends HitObject{
     private double completedRotations = 0;
     private boolean isSpinning = false;
     private boolean isCompleted = false;
+
+    private double lastMouseAngle = 0;
+    private boolean mousePressed = false;
 
     public HitSpinner(int osuX, int osuY, long hitTime, int type, int hitSound,
                       String hitSample, long endTime, double approachRate, double circleSize,
@@ -47,7 +56,6 @@ public class HitSpinner extends HitObject{
         outerRing = new Circle(0, 0, baseRadius);
         outerRing.setFill(Color.TRANSPARENT);
         outerRing.setStroke(Color.WHITE);
-//        outerRing.setStrokeWidth(CIRCLE_STROKE_WIDTH * 2);
         outerRing.setStrokeWidth(CIRCLE_STROKE_WIDTH);
         outerRing.getStrokeDashArray().addAll(15.0, 10.0); // Dashed border
 
@@ -57,15 +65,90 @@ public class HitSpinner extends HitObject{
         innerRing.setStroke(Color.WHITE);
         innerRing.setStrokeWidth(CIRCLE_STROKE_WIDTH);
 
+        spinnerImage = new ImageView(new Image(Objects.requireNonNull
+                (Main.class.getResourceAsStream("/assets/images/avatar-guest.png"))));
+        spinnerImage.setFitWidth(baseRadius * 0.8);
+        spinnerImage.setFitHeight(baseRadius * 0.8);
+        spinnerImage.setPreserveRatio(true);
+        spinnerImage.setLayoutX(-baseRadius * 0.4);
+        spinnerImage.setLayoutY(-baseRadius * 0.4);
+
         // Center dot
         centerDot = new Circle(0, 0, 8);
         centerDot.setFill(Color.WHITE);
         centerDot.setStroke(Color.BLACK);
         centerDot.setStrokeWidth(2);
 
-        group = new Group(outerRing, innerRing, centerDot);
-        group.setVisible(false);
+//        group = new Group(outerRing, innerRing, centerDot);
+        group.getChildren().addAll(outerRing, innerRing, spinnerImage, centerDot);
         group.setUserData(this);
+
+        handleEvent();
+    }
+
+    private void handleEvent() {
+        group.setOnMousePressed(event -> {
+            if (isActive) {
+                mousePressed = true;
+                double deltaX = event.getX();
+                double deltaY = event.getY();
+                lastMouseAngle = Math.atan2(deltaY, deltaX);
+                startSpinning();
+            }
+        });
+
+        group.setOnMouseDragged(event -> {
+            if (mousePressed && isActive) {
+                double deltaX = event.getX();
+                double deltaY = event.getY();
+                double currentMouseAngle = Math.atan2(deltaY, deltaX);
+                double angleDiff = currentMouseAngle - lastMouseAngle;
+
+                if (angleDiff > Math.PI) {
+                    angleDiff -= 2 * Math.PI;
+                } else if (angleDiff < -Math.PI) {
+                    angleDiff += 2 * Math.PI;
+                }
+                double degreesRotated = Math.toDegrees(Math.abs(angleDiff));
+                addRotation(degreesRotated);
+
+                lastMouseAngle = currentMouseAngle;
+            }
+        });
+
+        group.setOnMouseReleased(event -> {
+            mousePressed = false;
+            stopSpinning();
+        });
+    }
+
+    public void addRotation(double degrees) {
+        if (!isCompleted && isActive) {
+            currentRotation += degrees;
+            completedRotations = currentRotation / 360.0;
+
+            // Rotate the inner ring visually
+            innerRing.setRotate(innerRing.getRotate() + degrees);
+            spinnerImage.setRotate(spinnerImage.getRotate() + degrees);
+
+            // Check if spinner is completed
+            if (completedRotations >= targetRotations) {
+                isCompleted = true;
+                setHit(true);
+                stopSpinning();
+                playHitEffect();
+            }
+        }
+    }
+
+    public void startSpinning() {
+        if (!isSpinning && !isCompleted) {
+            isSpinning = true;
+        }
+    }
+
+    public void stopSpinning() {
+        isSpinning = false;
     }
 
     @Override
@@ -75,7 +158,56 @@ public class HitSpinner extends HitObject{
 
     @Override
     public void update(long currentTime) {
+        long timeUntilHit = getHitTime() - currentTime;// time left for perfect hit
 
+        if (!isVisible() && timeUntilHit <= getPreempt()) {
+            appear();
+        }
+
+        if (currentTime >= getHitTime() && currentTime <= endTime && !isCompleted) {
+            // Spinner is active and ready for input
+            isActive = true;
+        }
+
+        if (currentTime > endTime && !isCompleted) {
+            if (completedRotations >= targetRotations * 0.5) { // At least 50% completed
+                isCompleted = true;
+                setHit(true);
+            } else {
+                // Spinner failed
+                playMissEffect();
+            }
+            stopSpinning();
+        }
+    }
+
+    public void updateSpinner(double mouseX, double mouseY) {
+        if(isHit() && isActive) {
+            double currentMouseAngle = Math.atan2(mouseY, mouseX);
+            double angleDiff = currentMouseAngle - lastMouseAngle;
+
+            // Normalize angle difference
+            if (angleDiff > Math.PI) {
+                angleDiff -= 2 * Math.PI;
+            } else if (angleDiff < -Math.PI) {
+                angleDiff += 2 * Math.PI;
+            }
+
+            // Only add rotation if there's actual mouse movement
+            if (Math.abs(angleDiff) > 0.001) { // Small threshold to avoid jitter
+                double degreesRotated = Math.toDegrees(Math.abs(angleDiff));
+                addRotation(degreesRotated);
+                lastMouseAngle = currentMouseAngle;
+            }
+        }
+    }
+
+    @Override
+    public void playAppearAnimation() {
+        fadeInAnimation = new FadeTransition(Duration.millis(getFadeIn()), group);
+        fadeInAnimation.setFromValue(0);
+        fadeInAnimation.setToValue(1);
+        fadeInAnimation.play();
     }
 
     @Override
@@ -85,42 +217,51 @@ public class HitSpinner extends HitObject{
 
     @Override
     public void playMissEffect() {
-
+        FadeTransition hideAnimation = new FadeTransition(Duration.millis(150), group);
+        hideAnimation.setToValue(0);
+        hideAnimation.setOnFinished(e -> {
+            hide();
+        });
+        hideAnimation.play();
     }
 
     @Override
     public void applyVisualsToNode(double centerX, double centerY, double scaledRadius) {
+        if (group != null) {
+            // Position the Group at the center of the screen (spinners are always centered)
+            group.setLayoutX(centerX);
+            group.setLayoutY(centerY);
 
-    }
-
-    @Override
-    public void appear() {
-        if(!isVisible()) {
-            setVisible(true);
-            group.setVisible(true); // Make the whole group visible
-            playAppearAnimation();
+            // Scale the spinner elements based on the scale factor
+            double baseRadius = scaledRadius * 2.5; // Spinners are larger
+            outerRing.setRadius(baseRadius);
+            innerRing.setRadius(baseRadius * 0.8);
         }
-    }
-
-    private void playAppearAnimation() {
-        fadeInAnimation = new FadeTransition(Duration.millis(getFadeIn()), group);
-        fadeInAnimation.setFromValue(0);
-        fadeInAnimation.setToValue(1);
-        fadeInAnimation.play();
-    }
-
-    @Override
-    public void hide() {
-
     }
 
     @Override
     public void pauseAnimations() {
-
+        if (spinAnimation != null && spinAnimation.getStatus() == Animation.Status.RUNNING) {
+            spinAnimation.pause();
+        }
+        if (hitEffectAnimation != null && hitEffectAnimation.getStatus() == Animation.Status.RUNNING) {
+            hitEffectAnimation.pause();
+        }
+        if (fadeInAnimation != null && fadeInAnimation.getStatus() == Animation.Status.RUNNING) {
+            fadeInAnimation.pause();
+        }
     }
 
     @Override
     public void resumeAnimations() {
-
+        if (spinAnimation != null && spinAnimation.getStatus() == Animation.Status.PAUSED) {
+            spinAnimation.play();
+        }
+        if (hitEffectAnimation != null && hitEffectAnimation.getStatus() == Animation.Status.PAUSED) {
+            hitEffectAnimation.play();
+        }
+        if (fadeInAnimation != null && fadeInAnimation.getStatus() == Animation.Status.PAUSED) {
+            fadeInAnimation.play();
+        }
     }
 }

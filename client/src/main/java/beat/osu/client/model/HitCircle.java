@@ -7,7 +7,6 @@ import javafx.animation.ScaleTransition;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
@@ -17,7 +16,6 @@ import java.util.ArrayList;
 
 public class HitCircle extends HitObject{
 
-    private final Group group;
     private final Circle innerCircle;
     private final Circle outerCircle;
     private final Label comboLabel;
@@ -54,23 +52,16 @@ public class HitCircle extends HitObject{
             comboLabel.setLayoutY(-newBounds.getHeight() / 2);
         });
 
-        group = new Group(outerCircle, innerCircle, comboLabel);
-        group.setVisible(false); // Start invisible
+//        group = new Group(outerCircle, innerCircle, comboLabel);
+//        group.setVisible(false); // Start invisible
+        group.getChildren().addAll(outerCircle, innerCircle, comboLabel);
 
         // --- CORE CHANGE: Link the Group node back to this HitCircle object ---
         group.setUserData(this);
     }
 
     @Override
-    public void appear() {
-        if(!isVisible()) {
-            setVisible(true);
-            group.setVisible(true); // Make the whole group visible
-            playAppearAnimation();
-        }
-    }
-
-    private void playAppearAnimation() {
+    public void playAppearAnimation() {
         // Reset scale before playing (in case updateLayout runs mid-animation)
         outerCircle.setScaleX(APPROACH_START_SCALE);
         outerCircle.setScaleY(APPROACH_START_SCALE);
@@ -111,17 +102,6 @@ public class HitCircle extends HitObject{
             hide();
         });
         hitEffectAnimation.play();
-    }
-
-    @Override
-    public void hide() {
-        // Could add a fade out here too for misses
-        group.setVisible(false);
-        setVisible(false);
-        // remove from parent pane on hide/miss as well
-        if(group.getParent() instanceof Pane) {
-            ((Pane) group.getParent()).getChildren().remove(group);
-        }
     }
 
     @Override

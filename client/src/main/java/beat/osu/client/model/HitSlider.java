@@ -14,7 +14,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
@@ -27,7 +26,6 @@ import java.util.Objects;
 
 public class HitSlider extends HitObject {
 
-    private final Group group;
     private final Group tempGroup;
     private final Circle headCircle;
     private final Path sliderPath;
@@ -187,6 +185,15 @@ public class HitSlider extends HitObject {
         if (mainParts.length > 4) {
             this.edgeSetsStr = mainParts[4];
         }
+
+        if (this.edgeSoundsStr.isEmpty()) {
+            this.edgeSoundsStr = "0|".repeat(this.repeats);
+            this.edgeSoundsStr = this.edgeSoundsStr.substring(0, this.edgeSoundsStr.length() - 1);
+        }
+        if(this.edgeSetsStr.isEmpty()) {
+            this.edgeSetsStr = "0:0|".repeat(this.repeats);
+            this.edgeSetsStr = this.edgeSetsStr.substring(0, this.edgeSetsStr.length() - 1);
+        }
     }
 
     public HitSlider(int osuX, int osuY, long hitTime, int type, int hitSound,
@@ -210,9 +217,6 @@ public class HitSlider extends HitObject {
         }
 
         this.endTime = getHitTime() + (long) (this.duration * this.repeats);
-
-        group = new Group();
-        group.setVisible(false);
 
         // get colors
         Color circleColor = parseColorString(colorString);
@@ -393,45 +397,6 @@ public class HitSlider extends HitObject {
     }
 
     @Override
-    public void appear() {
-        if(!isVisible()) {
-            setVisible(true);
-            group.setVisible(true);
-            playAppearAnimation();
-        }
-    }
-
-    private void playAppearAnimation() {
-        if (approachCircle == null || headHit) return;
-
-        approachCircle.setVisible(true);
-        approachCircle.setScaleX(APPROACH_START_SCALE);
-        approachCircle.setScaleY(APPROACH_START_SCALE);
-
-        ScaleTransition approachAnimation = new ScaleTransition(Duration.millis(getPreempt()), approachCircle);
-        approachAnimation.setFromX(APPROACH_START_SCALE);
-        approachAnimation.setFromY(APPROACH_START_SCALE);
-        approachAnimation.setToX(1.0);
-        approachAnimation.setToY(1.0);
-
-        FadeTransition fadeInAnimation = new FadeTransition(Duration.millis(getFadeIn()), group);
-        fadeInAnimation.setFromValue(0);
-        fadeInAnimation.setToValue(1);
-
-        parallelAnimation = new ParallelTransition(approachAnimation, fadeInAnimation);
-        parallelAnimation.play();
-    }
-
-    @Override
-    public void hide() {
-        group.setVisible(false);
-        setVisible(false); // Also update HitObject's visibility
-        if(group.getParent() instanceof Pane) {
-            ((Pane) group.getParent()).getChildren().remove(group);
-        }
-    }
-
-    @Override
     public void pauseAnimations() {
         if(parallelAnimation != null && parallelAnimation.getStatus() == Animation.Status.RUNNING) {
             parallelAnimation.pause();
@@ -584,7 +549,7 @@ public class HitSlider extends HitObject {
 
                 int traversalIndex = (int) Math.floor((double)timeSinceHitStart / this.duration);
                 if(traversalIndex != currentTraversalIndex) {
-                    ArrayList<String> sfxFilenames = edfeSfxFilenames.get(traversalIndex);
+                    ArrayList<String> sfxFilenames = edfeSfxFilenames.get(Math.max(0, traversalIndex));
                     for(String sfx : sfxFilenames) {
                         SfxManager.playSfx(sfx);
                     }
@@ -602,6 +567,28 @@ public class HitSlider extends HitObject {
                 activePlayers.clear();
             }
         }
+    }
+
+    @Override
+    public void playAppearAnimation() {
+        if (approachCircle == null || headHit) return;
+
+        approachCircle.setVisible(true);
+        approachCircle.setScaleX(APPROACH_START_SCALE);
+        approachCircle.setScaleY(APPROACH_START_SCALE);
+
+        ScaleTransition approachAnimation = new ScaleTransition(Duration.millis(getPreempt()), approachCircle);
+        approachAnimation.setFromX(APPROACH_START_SCALE);
+        approachAnimation.setFromY(APPROACH_START_SCALE);
+        approachAnimation.setToX(1.0);
+        approachAnimation.setToY(1.0);
+
+        FadeTransition fadeInAnimation = new FadeTransition(Duration.millis(getFadeIn()), group);
+        fadeInAnimation.setFromValue(0);
+        fadeInAnimation.setToValue(1);
+
+        parallelAnimation = new ParallelTransition(approachAnimation, fadeInAnimation);
+        parallelAnimation.play();
     }
 
     @Override

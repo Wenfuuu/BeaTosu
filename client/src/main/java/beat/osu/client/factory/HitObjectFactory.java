@@ -214,13 +214,13 @@ public class HitObjectFactory {
                     comboNumber, comboSetIndex, colorString, comboEnd,
                     generateCircleSfxFilenames(hitSound, hitSample));
         }else{
-            return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate, circleSize,
-                    comboNumber, comboSetIndex, colorString, comboEnd,
-                    generateCircleSfxFilenames(hitSound, hitSample));
-//            return new HitSpinner(x, y, time, type, hitSound, hitSample,
-//                    spinnerEndTime, approachRate, circleSize,
+//            return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate, circleSize,
 //                    comboNumber, comboSetIndex, colorString, comboEnd,
 //                    generateCircleSfxFilenames(hitSound, hitSample));
+            return new HitSpinner(x, y, time, type, hitSound, hitSample,
+                    spinnerEndTime, approachRate, circleSize,
+                    comboNumber, comboSetIndex, colorString, comboEnd,
+                    generateCircleSfxFilenames(hitSound, hitSample));
         }
     }
 
