@@ -1,4 +1,4 @@
-package beat.osu.client.view.landing.component.bancho.panels;
+package beat.osu.client.view.landing.component.bancho.tabs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,6 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import lombok.Setter;

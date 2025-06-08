@@ -1,4 +1,4 @@
-package beat.osu.client.view.landing.component.bancho;
+package beat.osu.client.view.landing.component.bancho.cards;
 
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
@@ -56,7 +56,7 @@ public class UserCard extends HBox {
     }
 
     private void initializeComponents() {
-        this.setMaxWidth(425);
+        this.setMaxWidth(500);
 
         profileImageView = new ImageView();
         profileImageView.getStyleClass().add("profile-picture");

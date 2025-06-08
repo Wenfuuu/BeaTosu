@@ -14,6 +14,7 @@ import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.view.landing.component.bancho.SelectChannelModal;
 import beat.osu.client.view.landing.component.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.landing.component.bancho.buttons.ChatTabButton;
+import beat.osu.client.view.landing.component.bancho.tabs.ChatTabs;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.chat.ChannelDto;
 import beat.osu.shared.dto.chat.ChannelMessageDto;

@@ -1,4 +1,4 @@
-package beat.osu.client.view.landing.component.bancho.panels;
+package beat.osu.client.view.landing.component.bancho.tabs;
 
 import java.util.ArrayList;
 import java.util.List;

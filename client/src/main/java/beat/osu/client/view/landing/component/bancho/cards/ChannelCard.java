@@ -1,4 +1,4 @@
-package beat.osu.client.view.landing.component.bancho;
+package beat.osu.client.view.landing.component.bancho.cards;
 
 import java.net.URL;
 
