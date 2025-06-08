@@ -40,7 +40,7 @@ public class HitSpinner extends HitObject{
     private boolean mousePressed = false;
 
     private final int TARGET_ROTATIONS = 10;
-    private final double ROTATION_SPEED = 15.0;
+    private final double ROTATION_SPEED = 1;
 
     public HitSpinner(int osuX, int osuY, long hitTime, int type, int hitSound,
                       String hitSample, long endTime, double approachRate, double circleSize,
@@ -122,19 +122,6 @@ public class HitSpinner extends HitObject{
         });
     }
 
-    public void addRotation(double degrees) {
-        if (isActive) {
-            degrees *= ROTATION_SPEED;
-
-            currentRotation += degrees;
-            completedRotations = currentRotation / 360.0;
-
-            // Rotate the inner ring visually
-            innerRing.setRotate(innerRing.getRotate() + degrees);
-            spinnerImage.setRotate(spinnerImage.getRotate() + degrees);
-        }
-    }
-
     @Override
     public Node getNode() {
         return group;
@@ -160,9 +147,25 @@ public class HitSpinner extends HitObject{
         }
     }
 
+    public void addRotation(double degrees) {
+        if (isActive) {
+            degrees *= ROTATION_SPEED;
+
+            currentRotation += degrees;
+            completedRotations = currentRotation / 360.0;
+
+            // Rotate the inner ring visually
+            innerRing.setRotate(innerRing.getRotate() + degrees);
+            spinnerImage.setRotate(spinnerImage.getRotate() + degrees);
+        }
+    }
+
     public void updateSpinner(double mouseX, double mouseY, GameManager gm) {
         if(isHit() && isActive) {
-            double currentMouseAngle = Math.atan2(mouseY, mouseX);
+             double relativeX = mouseX - group.getLayoutX();
+             double relativeY = mouseY - group.getLayoutY();
+
+            double currentMouseAngle = Math.atan2(relativeY, relativeX);
             double angleDiff = currentMouseAngle - lastMouseAngle;
 
             // Normalize angle difference
@@ -179,9 +182,9 @@ public class HitSpinner extends HitObject{
                 lastMouseAngle = currentMouseAngle;
             }
 
-            if(prevRotation != Math.max(0, Math.round(completedRotations) - 1)) {
+            if(prevRotation != Math.max(0, Math.round(completedRotations))) {
                 System.out.println("current completed rotations: " + Math.round(completedRotations));
-                prevRotation = Math.round(completedRotations) - 1;
+                prevRotation = Math.round(completedRotations);
                 gm.notifyHit(this, HitResult.SPIN);
                 if(prevRotation > TARGET_ROTATIONS) {
                     gm.notifyHit(this, HitResult.COMPLETE_SPIN);
