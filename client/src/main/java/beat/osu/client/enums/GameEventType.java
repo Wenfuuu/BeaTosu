@@ -10,5 +10,6 @@ public enum GameEventType {
     GAME_RESUMED,
     GAME_ENDED,
     HEALTH_CHANGED,
-    ACCURACY_CHANGED
+    ACCURACY_CHANGED,
+    ADDITIONAL_SPIN,
 }
