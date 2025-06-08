@@ -557,8 +557,8 @@ public class HitSlider extends HitObject {
                     updateArrowVisibility(currentTraversalIndex);
                 }
             } else { // Slider finished
-                if (isVisible()) hide();
-//                playMissEffect();
+                setVisible(false);
+                playMissEffect();
 
                 for (MediaPlayer player : activePlayers) {
                     player.stop();

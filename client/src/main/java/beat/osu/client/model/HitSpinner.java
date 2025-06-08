@@ -170,13 +170,12 @@ public class HitSpinner extends HitObject{
         }
 
         if (currentTime > endTime && !isCompleted) {
-            if(isVisible()) hide();
+            setVisible(false);
+            playMissEffect();
+
             if (completedRotations >= targetRotations * 0.5) { // At least 50% completed
                 isCompleted = true;
                 setHit(true);
-            } else {
-                // Spinner failed
-                playMissEffect();
             }
             stopSpinning();
         }
