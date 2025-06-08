@@ -153,6 +153,7 @@ public class HitSpinner extends HitObject{
         }
 
         if (currentTime > endTime) {
+            setHit(true);
             isActive = false;
             setVisible(false);
             playMissEffect();
@@ -185,10 +186,10 @@ public class HitSpinner extends HitObject{
                 if(prevRotation > TARGET_ROTATIONS) {
                     gm.notifyHit(this, HitResult.COMPLETE_SPIN);
                     int totalRotation = (int) prevRotation;
-                    gm.notifyAdditionalSpin(totalRotation - TARGET_ROTATIONS);
+                    gm.notifyAdditionalSpin(this, totalRotation - TARGET_ROTATIONS);
                 }
             }
-        }else if(!isActive && !isVisible()) {
+        }else if(isHit() && !isActive && !isVisible()) {
             // check & notify judgement score
             if(prevRotation < 2) {
                 gm.notifyMiss(this);

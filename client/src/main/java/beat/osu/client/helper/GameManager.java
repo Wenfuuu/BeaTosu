@@ -381,8 +381,10 @@ public class GameManager implements Subject {
         notifyObservers(new GameEvent(GameEventType.HEALTH_CHANGED, health));
     }
 
-    public void notifyAdditionalSpin(int totalRotation) {
-        System.out.println("total additional rotations: " + totalRotation);
+    public void notifyAdditionalSpin(HitObject hitObject, int additionalSpin) {
+        System.out.println("total additional spins: " + additionalSpin);
+        notifyObservers(new GameEvent(GameEventType.ADDITIONAL_SPIN,
+                new AdditionalSpinEventData(hitObject, additionalSpin)));
     }
 
     private void handleMiss(HitObject hitObject) {

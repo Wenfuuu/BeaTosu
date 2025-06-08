@@ -16,6 +16,7 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -48,6 +49,9 @@ public class GameView extends Page implements Observer {
     private final Beatmap beatmap;
     private final GameManager gm;
 
+    // additional spins
+    private Image[] digitImages;
+
     public GameView(Stage stage, Beatmap selectedBeatmap) {
         super(stage);
         this.beatmap = selectedBeatmap;
@@ -65,13 +69,16 @@ public class GameView extends Page implements Observer {
         updateLayout();
         BgmManager.prepareGameBgm();
 
-//        PauseTransition delay = new PauseTransition(Duration.seconds(3));
-//        delay.setOnFinished(e -> gm.startGame());
-//        delay.play();
         gm.startGame();
     }
 
     private void initializeUI() {
+        digitImages = new Image[10];
+        for (int i = 0; i < 10; i++) {
+            digitImages[i] = new Image(Objects.requireNonNull(Main.class
+                    .getResource("/assets/images/score-" + i + ".png")).toExternalForm());
+        }
+
         uiPane = new GameUI();
         pauseOverlay = new PauseOverlay();
         resultOverlay = new ResultOverlay();
@@ -164,7 +171,100 @@ public class GameView extends Page implements Observer {
 
         // Add the image to the game pane
         gamePane.getChildren().add(hitImageView);
+        animateHitImage(hitImageView);
+    }
 
+    private void showAdditionalSpinImage(HitObject hitObject, int additionalSpins) {
+        int totalScore = 1000 * additionalSpins;
+
+        // Create a new container for this specific spin score display
+        HBox spinScoreContainer = new HBox(2);
+        String scoreStr = String.valueOf(totalScore);
+        int numDigits = scoreStr.length();
+        ImageView[] spinDigits = new ImageView[6]; // Use local array for this display
+
+        for (int i = 0; i < numDigits; i++) {
+            int digit = Character.getNumericValue(scoreStr.charAt(i));
+            spinDigits[i] = new ImageView(digitImages[digit]);
+            spinDigits[i].setFitWidth(50); // Smaller than hit images
+            spinDigits[i].setFitHeight(60);
+            spinDigits[i].setPreserveRatio(true);
+            spinScoreContainer.getChildren().add(spinDigits[i]);
+        }
+
+        // Initially hide the container
+        spinScoreContainer.setOpacity(0);
+
+        // Add the container to the game pane
+        gamePane.getChildren().add(spinScoreContainer);
+
+        // Position the container at the center of the spinner
+        // Note: You'll need to calculate the container's bounds for proper centering
+        Platform.runLater(() -> {
+            spinScoreContainer.autosize(); // Force size calculation
+            double containerWidth = spinScoreContainer.getBoundsInLocal().getWidth();
+            double containerHeight = spinScoreContainer.getBoundsInLocal().getHeight();
+
+            spinScoreContainer.setLayoutX(hitObject.getScreenCenterX() - containerWidth / 2);
+            spinScoreContainer.setLayoutY(hitObject.getScreenCenterY() - containerHeight / 2);
+
+            // Start animation after positioning
+            animateSpinScore(spinScoreContainer);
+        });
+    }
+
+    private void animateSpinScore(HBox spinScoreContainer) {
+        // Create fade-in and scale-up animation
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(200), spinScoreContainer);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+
+        ScaleTransition scaleUp = new ScaleTransition(Duration.millis(200), spinScoreContainer);
+        scaleUp.setFromX(0.5);
+        scaleUp.setFromY(0.5);
+        scaleUp.setToX(1.2);
+        scaleUp.setToY(1.2);
+
+        // Create a gentle bounce effect
+        ScaleTransition bounce = new ScaleTransition(Duration.millis(150), spinScoreContainer);
+        bounce.setFromX(1.2);
+        bounce.setFromY(1.2);
+        bounce.setToX(1.0);
+        bounce.setToY(1.0);
+
+        // Create upward movement animation
+        TranslateTransition moveUp = new TranslateTransition(Duration.millis(800), spinScoreContainer);
+        moveUp.setFromY(0);
+        moveUp.setToY(-50); // Move up by 50 pixels
+
+        // Create fade-out animation
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(400), spinScoreContainer);
+        fadeOut.setFromValue(1);
+        fadeOut.setToValue(0);
+
+        // Combine initial animations
+        ParallelTransition initialAnimation = new ParallelTransition(fadeIn, scaleUp);
+
+        // Create the complete sequence
+        SequentialTransition fullAnimation = new SequentialTransition(
+                initialAnimation,
+                bounce,
+                new PauseTransition(Duration.millis(200))
+        );
+
+        // Create final fade-out with upward movement
+        ParallelTransition finalAnimation = new ParallelTransition(moveUp, fadeOut);
+
+        // Chain the animations
+        fullAnimation.setOnFinished(e -> finalAnimation.play());
+
+        // Remove the container when animation completes
+        finalAnimation.setOnFinished(e -> gamePane.getChildren().remove(spinScoreContainer));
+
+        fullAnimation.play();
+    }
+
+    private void animateHitImage(ImageView hitImageView) {
         // Create fade-in and scale-up animation
         FadeTransition fadeIn = new FadeTransition(Duration.millis(150), hitImageView);
         fadeIn.setFromValue(0);
@@ -414,6 +514,16 @@ public class GameView extends Page implements Observer {
                     boolean imperfectOrMissed = hitData.isImperfectOrMissed();
                     if (hitObject != null) {
                         showHitImage(hitObject, hitResult, perfectCombo, imperfectOrMissed);
+                    }
+                }
+                break;
+            case ADDITIONAL_SPIN:
+                AdditionalSpinEventData additionalSpinData = event.getData(AdditionalSpinEventData.class);
+                if(additionalSpinData != null) {
+                    HitObject hitObject = additionalSpinData.getHitObject();
+                    int additionalSpins = additionalSpinData.getAdditionalSpin();
+                    if(hitObject != null && additionalSpins > 0) {
+                        showAdditionalSpinImage(hitObject, additionalSpins);
                     }
                 }
                 break;
