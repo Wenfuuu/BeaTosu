@@ -119,7 +119,7 @@ public class GameManager implements Subject {
         gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                if (gameState != GameState.PLAYING) {
+                if (gameState == GameState.PAUSED) {
                     return;
                 }
                 if (startTimeNanos == -1) {
@@ -252,7 +252,7 @@ public class GameManager implements Subject {
         previousKeys.clear();
         previousKeys.addAll(currentKeys);
 
-//        System.out.println("hit objects remaining: " + hitObjects.size());
+        System.out.println("hit objects remaining: " + hitObjects.size());
         if(hitObjects.isEmpty()) {
             stopGame();
         }
@@ -283,8 +283,25 @@ public class GameManager implements Subject {
         }
     }
 
+    private double getModMultiplier() {
+        double multiplier = 1.0;
+//        if (OsuParser.isDoubleTime()) {
+//            multiplier *= 1.5; // Double Time
+//        }
+//        if (OsuParser.isHalfTime()) {
+//            multiplier *= 0.75; // Half Time
+//        }
+//        if (OsuParser.isHardRock()) {
+//            multiplier *= 1.06; // Hard Rock
+//        }
+//        if (OsuParser.isEasy()) {
+//            multiplier *= 0.5; // Easy
+//        }
+        return multiplier;
+    }
+
     private void handleHit(HitObject hitObject, long timingError) {
-//        if(hitObject instanceof HitCircle) hitObject.setVisible(false);
+        if(hitObject instanceof HitCircle) hitObject.setVisible(false);
         if(hitObject.isNewCombo()) {
             perfectCombo = true;
             imperfectOrMissed = false;
@@ -303,7 +320,7 @@ public class GameManager implements Subject {
         updateHighestCombo(masterComboNumber);
 
         // Determine hit result based on timing
-        HitResult hitResult = HitResult.fromTimingError(timingError);
+        HitResult hitResult = HitResult.fromTimingError(timingError, beatmap.getOverallDifficulty());
         if(hitResult == HitResult.PERFECT) {
             if(perfectCombo && hitObject.isComboEnd()) {
                 gekiHits++;
@@ -323,8 +340,11 @@ public class GameManager implements Subject {
         }
 
         int hitValue = hitResult.getScore();
+        double comboMultiplier = Math.max(masterComboNumber - 1, 0);
         int difficultyMultiplier = beatmap.getDifficultyMultiplier(hitObjects, OsuParser.getBreakPointsList());
-        int hitScore = hitValue * (1 + (masterComboNumber * difficultyMultiplier));
+        double modMultiplier = getModMultiplier();
+        double scoreFactor = 1 + (comboMultiplier * difficultyMultiplier * modMultiplier / 25.0);
+        int hitScore = (int) Math.round(hitValue * scoreFactor);
         score += hitScore;
 //        System.out.println(score);
 

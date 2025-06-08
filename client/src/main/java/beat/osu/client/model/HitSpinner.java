@@ -170,6 +170,7 @@ public class HitSpinner extends HitObject{
         }
 
         if (currentTime > endTime && !isCompleted) {
+            if(isVisible()) hide();
             if (completedRotations >= targetRotations * 0.5) { // At least 50% completed
                 isCompleted = true;
                 setHit(true);

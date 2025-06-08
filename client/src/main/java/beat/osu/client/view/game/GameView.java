@@ -428,6 +428,7 @@ public class GameView extends Page implements Observer {
                 pauseOverlay.setVisible(false);
                 break;
             case GAME_ENDED:
+                System.out.println("game ended, show result overlay here");
                 GameEndData gameEndData = event.getData(GameEndData.class);
                 if(gameEndData != null) {
                     resultOverlay.updateResult(gameEndData, beatmap);
