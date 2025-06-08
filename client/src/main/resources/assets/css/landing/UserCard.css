@@ -4,7 +4,6 @@
     -fx-border-radius: 4;
     -fx-border-color: rgba(0, 0, 0, 0.5);
     -fx-border-width: 2;
-    -fx-padding: 2;
     -fx-spacing: 8;
     -fx-alignment: center-left;
 }
@@ -41,11 +40,18 @@
 .username-label {
     -fx-text-fill: white;
     -fx-font-family: 'Aller Light';
-    -fx-font-size: 22px;
+    -fx-font-size: 24px;
 }
 
 .stats-label, .performance-label, .accuracy-label {
     -fx-text-fill: white;
     -fx-font-family: 'Aller Light';
-    -fx-font-size: 14px;
+    -fx-font-size: 16px;
+}
+
+.background-rank-label {
+    -fx-text-fill: rgba(255, 255, 255, 0.2);
+    -fx-font-family: 'Aller Light';
+    -fx-font-size: 52px;
+    -fx-font-weight: bold;
 }

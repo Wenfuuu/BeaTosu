@@ -1,5 +1,9 @@
 package beat.osu.client.view.landing.component.bancho.cards;
 
+import java.io.ByteArrayInputStream;
+import java.net.URL;
+import java.util.Objects;
+
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
@@ -14,10 +18,6 @@ import javafx.scene.layout.VBox;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.ByteArrayInputStream;
-import java.net.URL;
-import java.util.Objects;
-
 @Getter
 @Setter
 public class UserCard extends HBox {
@@ -30,6 +30,7 @@ public class UserCard extends HBox {
     private double accuracy;
     private int playCount;
     private int level;
+    private int rank;
 
     private ImageView profileImageView;
     private ImageView gamemodeImageView;
@@ -37,9 +38,10 @@ public class UserCard extends HBox {
     private Label performanceLabel;
     private Label accuracyLabel;
     private Label playCountLabel;
+    private Label backgroundRankLabel;
 
     public UserCard(Integer userId, String username, String countryCode, byte[] profilePicture, 
-                    int performance, double accuracy, int playCount, int level) {
+                    int performance, double accuracy, int playCount, int level, int rank) {
         super(10);
         this.userId = userId;
         this.username = username;
@@ -49,6 +51,7 @@ public class UserCard extends HBox {
         this.accuracy = accuracy;
         this.playCount = playCount;
         this.level = level;
+        this.rank = rank;
         
         initializeComponents();
         setupLayout();
@@ -62,8 +65,8 @@ public class UserCard extends HBox {
         profileImageView = new ImageView();
         profileImageView.getStyleClass().add("profile-picture");
 
-        profileImageView.setFitWidth(96);
-        profileImageView.setFitHeight(96);
+        profileImageView.setFitWidth(100);
+        profileImageView.setFitHeight(100);
         setDefaultProfilePicture();
 
         gamemodeImageView = new ImageView();
@@ -81,6 +84,9 @@ public class UserCard extends HBox {
 
         playCountLabel = new Label("Play Count: 0 (Lv0)");
         playCountLabel.getStyleClass().add("stats-label");
+        
+        backgroundRankLabel = new Label("#" + rank);
+        backgroundRankLabel.getStyleClass().add("background-rank-label");
     }
 
     private void setupLayout() {
@@ -94,8 +100,10 @@ public class UserCard extends HBox {
         mainContent.getChildren().addAll(profileImageView, userStats);
 
         StackPane cardContainer = new StackPane();
-        cardContainer.setPrefWidth(425);
-        cardContainer.setMaxWidth(425);
+
+        cardContainer.setPrefWidth(ScreenManager.SCREEN_WIDTH / 4 - 28);
+        cardContainer.setMaxWidth(ScreenManager.SCREEN_WIDTH / 4 - 28);
+        cardContainer.setMinWidth(ScreenManager.SCREEN_WIDTH / 4 - 28);
 
         cardContainer.getChildren().add(mainContent);
         StackPane.setAlignment(mainContent, Pos.CENTER_LEFT);
@@ -103,7 +111,12 @@ public class UserCard extends HBox {
         cardContainer.getChildren().add(gamemodeImageView);
         StackPane.setAlignment(gamemodeImageView, Pos.TOP_RIGHT);
         
-        StackPane.setMargin(gamemodeImageView, new Insets(8, 8, 0, 0));
+        StackPane.setMargin(gamemodeImageView, new Insets(4, 8, 0, 0));
+
+        cardContainer.getChildren().add(backgroundRankLabel);
+        StackPane.setAlignment(backgroundRankLabel, Pos.BOTTOM_RIGHT);
+
+        StackPane.setMargin(backgroundRankLabel, new Insets(0, 8, 0, 0));
 
         this.setAlignment(Pos.CENTER_LEFT);
         this.setMinWidth(ScreenManager.SCREEN_WIDTH / 4 - 20);
@@ -146,8 +159,8 @@ public class UserCard extends HBox {
             Image gamemodeImage = new Image(Objects.requireNonNull(
                 Main.class.getResource("/assets/gamemode/osu-gamemode.png")).toExternalForm());
             gamemodeImageView.setImage(gamemodeImage);
-            gamemodeImageView.setFitHeight(32);
-            gamemodeImageView.setFitWidth(32);
+            gamemodeImageView.setFitHeight(40);
+            gamemodeImageView.setFitWidth(40);
         } catch (Exception e) {
             System.err.println("Could not load gamemode icon: " + e.getMessage());
             gamemodeImageView.setImage(null);
@@ -219,5 +232,12 @@ public class UserCard extends HBox {
     public void setProfilePicture(byte[] profilePicture) {
         this.profilePicture = profilePicture;
         updateProfilePicture();
+    }
+
+    public void setRank(int rank) {
+        this.rank = rank;
+        if (backgroundRankLabel != null) {
+            backgroundRankLabel.setText("#" + rank);
+        }
     }
 }
