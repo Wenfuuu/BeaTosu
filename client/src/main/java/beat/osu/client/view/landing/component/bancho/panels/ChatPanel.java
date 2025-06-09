@@ -186,14 +186,21 @@ public class ChatPanel extends VBox {
         
         chatField = new TextField();
         chatField.getStyleClass().add("chat-input");
-        chatField.setPromptText("Type a message...");
         chatField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
                 sendMessage();
             }
         });
         
-        this.getChildren().addAll(chatTabs, messagesScrollPane, chatField);
+        Label chatPrompt = new Label(">");
+        chatPrompt.getStyleClass().add("chat-prompt");
+        
+        HBox chatInputContainer = new HBox();
+        chatInputContainer.getStyleClass().add("chat-input-container");
+        chatInputContainer.getChildren().addAll(chatPrompt, chatField);
+        HBox.setHgrow(chatField, Priority.ALWAYS);
+        
+        this.getChildren().addAll(chatTabs, messagesScrollPane, chatInputContainer);
     }
     
     private void onChannelSelected(ChannelDto channel) {

@@ -80,9 +80,21 @@
     -fx-wrap-text: true;
 }
 
+.chat-input-container {
+    -fx-alignment: center-left;
+    -fx-spacing: 5;
+    -fx-padding: 0 0 0 8px;
+}
+
+.chat-prompt {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 22px;
+    -fx-font-family: "Aller Light";
+}
+
 .chat-input {
     -fx-background-color: transparent;
-    -fx-padding: 0 0 0 8px;
+    -fx-padding: 0;
     -fx-text-fill: #ffffff;
     -fx-font-size: 22px;
     -fx-font-family: "Aller Light";
