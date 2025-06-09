@@ -31,6 +31,7 @@ public class GameManager implements Subject {
     private long pauseStartNanos = -1;
     private long totalPausedNanos = 0;
     private final long gameStartOffset = 2000;
+    private long lastHpDrainMillis = 0;
     private GameState gameState = GameState.NOT_STARTED;
     private boolean bgmStarted = false;
     private final InputManager inputManager;
@@ -125,6 +126,13 @@ public class GameManager implements Subject {
 
                 long elapsedNanos = now - startTimeNanos - totalPausedNanos;
                 long elapsedMillis = elapsedNanos / 1_000_000;
+
+                if(elapsedMillis > lastHpDrainMillis + 1000) {
+                    lastHpDrainMillis = elapsedMillis;
+                    health = Math.max(0, health - beatmap.getHpDrainRate());
+                    System.out.println("draining health, health: " + health);
+                    notifyObservers(new GameEvent(GameEventType.HEALTH_CHANGED, health));
+                }
 
                 if (!bgmStarted && elapsedMillis >= gameStartOffset) {
                     BgmManager.playGameBgm();

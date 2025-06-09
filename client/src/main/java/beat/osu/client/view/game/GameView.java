@@ -505,6 +505,12 @@ public class GameView extends Page implements Observer {
                     }
                 }
                 break;
+            case HEALTH_CHANGED:
+                Double newHealth = event.getData(Double.class);
+                if (newHealth != null) {
+                    uiPane.updateHealth(newHealth / 100.0);
+                }
+                break;
             case HIT_OBJECT_HIT:
                 HitObjectEventData hitData = event.getData(HitObjectEventData.class);
                 if (hitData != null) {

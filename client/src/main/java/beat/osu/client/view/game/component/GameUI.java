@@ -4,6 +4,7 @@ import beat.osu.client.Main;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -156,6 +157,14 @@ public class GameUI extends Pane {
                 fadeOutTransition,
                 new PauseTransition(Duration.millis(500))
         );
+    }
+
+    public void updateHealth(double health) {
+        Platform.runLater(() -> {
+            if (healthBar.getProgress() != health) {
+                healthBar.setProgress(health);
+            }
+        });
     }
 
     public void updateScore(long score) {
