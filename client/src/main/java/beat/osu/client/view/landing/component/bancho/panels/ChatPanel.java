@@ -256,16 +256,22 @@ public class ChatPanel extends VBox {
         HBox messageBox = new HBox();
         messageBox.getStyleClass().add("message-item");
 
-        String formattedMessage = String.format("%s %s: %s",
+        String timestampAndSender = String.format("%s %s: ",
             formatTimestamp(message.getTimestamp()),
-            message.getSenderName(),
-            message.getMessage());
+            message.getSenderName());
         
-        Label messageLabel = new Label(formattedMessage);
-        messageLabel.getStyleClass().add("message-text");
-        messageLabel.setWrapText(true);
+        Label timestampSenderLabel = new Label(timestampAndSender);
+        if (message.isFromSupporter()) {
+            timestampSenderLabel.getStyleClass().add("message-timestamp-sender-supporter");
+        } else {
+            timestampSenderLabel.getStyleClass().add("message-timestamp-sender");
+        }
         
-        messageBox.getChildren().add(messageLabel);
+        Label messageContentLabel = new Label(message.getMessage());
+        messageContentLabel.getStyleClass().add("message-content");
+        messageContentLabel.setWrapText(true);
+        
+        messageBox.getChildren().addAll(timestampSenderLabel, messageContentLabel);
         
         return messageBox;
     }

@@ -230,6 +230,7 @@ public class ChannelService {
                 channel.getId(),
                 userId,
                 username,
+                user.isSupporter(),
                 message,
                 LocalDateTime.now()
         );

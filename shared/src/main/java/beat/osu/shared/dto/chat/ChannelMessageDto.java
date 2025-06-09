@@ -14,6 +14,7 @@ public class ChannelMessageDto implements Serializable {
     private int channelId;
     private int senderId;
     private String senderName;
+    private boolean fromSupporter;
     private String message;
     private LocalDateTime timestamp;
 }

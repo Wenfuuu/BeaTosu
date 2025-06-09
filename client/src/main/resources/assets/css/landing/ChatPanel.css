@@ -52,6 +52,27 @@
     -fx-alignment: center-left;
 }
 
+.message-timestamp-sender {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 22px;
+    -fx-font-family: "Aller Light";
+    -fx-wrap-text: false;
+}
+
+.message-timestamp-sender-supporter {
+    -fx-text-fill: #c69d00;
+    -fx-font-size: 22px;
+    -fx-font-family: "Aller Light";
+    -fx-wrap-text: false;
+}
+
+.message-content {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 22px;
+    -fx-font-family: "Aller Light";
+    -fx-wrap-text: true;
+}
+
 .message-text {
     -fx-text-fill: #ffffff;
     -fx-font-size: 22px;
