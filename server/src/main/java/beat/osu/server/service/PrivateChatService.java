@@ -7,7 +7,6 @@ import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.chat.PrivateChatDto;
 import beat.osu.shared.dto.chat.PrivateChatMessageDto;
-import beat.osu.shared.dto.chat.events.ChannelMessageEvent;
 import beat.osu.shared.dto.chat.events.PrivateChatMessageEvent;
 import beat.osu.shared.dto.chat.events.PrivateChatStartedEvent;
 import beat.osu.shared.dto.chat.events.UserLeftPrivateChatEvent;
@@ -20,7 +19,6 @@ import beat.osu.shared.dto.chat.responses.SendPrivateChatMessageResponse;
 import beat.osu.shared.dto.chat.responses.StartPrivateChatResponse;
 import beat.osu.shared.enums.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
-import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -206,12 +204,13 @@ public class PrivateChatService {
         return smaller + "-" + larger;
     }
 
-    private PrivateChat createOrGetPrivateChat(int userIdA, int userIdB) {
+    private void createOrGetPrivateChat(int userIdA, int userIdB) {
         String userPair = createUserPairKey(userIdA, userIdB);
 
         Integer chatId = userPairToChatId.get(userPair);
         if (chatId != null) {
-            return privateChats.get(chatId);
+            privateChats.get(chatId);
+            return;
         }
 
         int newChatId = nextChatId++;
@@ -224,6 +223,5 @@ public class PrivateChatService {
         privateChats.put(newChatId, newChat);
         userPairToChatId.put(userPair, newChatId);
 
-        return newChat;
     }
 }
