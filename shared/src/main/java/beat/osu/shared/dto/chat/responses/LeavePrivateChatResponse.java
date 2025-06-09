@@ -1,4 +1,4 @@
-package beat.osu.shared.dto.chat.requests;
+package beat.osu.shared.dto.chat.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,6 +9,6 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClosePrivateChatRequest implements Serializable {
-    private int otherUserId;
+public class LeavePrivateChatResponse implements Serializable {
+    private String message;
 }
