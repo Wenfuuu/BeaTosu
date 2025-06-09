@@ -395,7 +395,7 @@ public class GameManager implements Subject {
         // Update accuracy
         updateAccuracy();
 
-        // Update health (hitting increases health)
+        // Update health based on judgement
         health = Math.min(100, health + 10);
 
         // Notify observers
@@ -450,7 +450,7 @@ public class GameManager implements Subject {
         // Check for game over (health reaches 0)
         if (health <= 0) {
             System.out.println("hp reached 0, stopping game");
-            stopGame();
+//            stopGame();
         }
     }
 
