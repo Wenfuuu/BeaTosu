@@ -1,4 +1,4 @@
-package beat.osu.client.view.landing.component.bancho;
+package beat.osu.client.view.landing.component.bancho.modals;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -14,8 +14,8 @@ import beat.osu.client.view.landing.component.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.landing.component.bancho.cards.ChannelCard;
 import beat.osu.client.view.landing.component.bancho.panels.ChatPanel;
 import beat.osu.client.view.landing.component.bancho.panels.OnlineUsersPanel;
-import beat.osu.client.view.landing.component.layout.BottomBar;
-import beat.osu.client.view.landing.component.layout.TopBar;
+import beat.osu.client.view.landing.component.menu.layout.BottomBar;
+import beat.osu.client.view.landing.component.menu.layout.TopBar;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.chat.ChannelDto;
 import beat.osu.shared.dto.chat.events.UserJoinedChannelEvent;

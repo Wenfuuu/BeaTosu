@@ -2,8 +2,8 @@ package beat.osu.client.view.landing.component.bancho.buttons;
 
 import beat.osu.client.view.landing.component.bancho.panels.ChatPanel;
 import beat.osu.client.view.landing.component.bancho.panels.OnlineUsersPanel;
-import beat.osu.client.view.landing.component.layout.BottomBar;
-import beat.osu.client.view.landing.component.layout.TopBar;
+import beat.osu.client.view.landing.component.menu.layout.BottomBar;
+import beat.osu.client.view.landing.component.menu.layout.TopBar;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;

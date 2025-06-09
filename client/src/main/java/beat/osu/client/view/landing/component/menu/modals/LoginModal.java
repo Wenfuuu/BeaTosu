@@ -1,4 +1,4 @@
-package beat.osu.client.view.landing.component.modals;
+package beat.osu.client.view.landing.component.menu.modals;
 
 import java.net.URL;
 import java.util.function.Consumer;
@@ -7,9 +7,9 @@ import beat.osu.client.controller.AuthController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
-import beat.osu.client.view.landing.component.layout.TopBar;
-import beat.osu.client.view.landing.component.ui.LightRays;
-import beat.osu.client.view.landing.component.ui.Visualizer;
+import beat.osu.client.view.landing.component.menu.layout.TopBar;
+import beat.osu.client.view.landing.component.menu.ui.LightRays;
+import beat.osu.client.view.landing.component.menu.ui.Visualizer;
 import beat.osu.shared.dto.auth.responses.LoginResponse;
 import beat.osu.shared.dto.user.UserDto;
 import javafx.animation.Animation;

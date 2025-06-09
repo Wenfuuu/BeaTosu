@@ -1,4 +1,4 @@
-package beat.osu.client.view.landing.component.modals;
+package beat.osu.client.view.landing.component.menu.modals;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package beat.osu.client.view.landing.component.controls;
+package beat.osu.client.view.landing.component.menu.controls;
 
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;

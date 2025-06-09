@@ -13,7 +13,7 @@ import beat.osu.client.controller.ChannelController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
-import beat.osu.client.view.landing.component.bancho.SelectChannelModal;
+import beat.osu.client.view.landing.component.bancho.modals.SelectChannelModal;
 import beat.osu.client.view.landing.component.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.landing.component.bancho.buttons.ChatTabButton;
 import beat.osu.client.view.landing.component.bancho.tabs.ChatTabs;

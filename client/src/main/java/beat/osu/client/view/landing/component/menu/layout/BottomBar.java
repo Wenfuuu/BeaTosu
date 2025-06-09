@@ -1,4 +1,4 @@
-package beat.osu.client.view.landing.component.layout;
+package beat.osu.client.view.landing.component.menu.layout;
 
 import java.net.URL;
 
