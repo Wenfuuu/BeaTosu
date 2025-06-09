@@ -21,10 +21,10 @@ public class Beatmap {
 
     private BeatmapSet beatmapSet;
 
-    private double getDrainTimeInSeconds(ArrayList<HitObject> hitObjects, ArrayList<BreakPoint> breakPoints) {
+    private double getDrainTimeInSeconds(ArrayList<HitObject> hitObjects, ArrayList<BreakPeriod> breakPeriods) {
         int totalBreakTime = 0;
-        for (BreakPoint breakPoint : breakPoints) {
-            totalBreakTime += breakPoint.getEndTime() - breakPoint.getStartTime();
+        for (BreakPeriod breakPeriod : breakPeriods) {
+            totalBreakTime += breakPeriod.getEndTime() - breakPeriod.getStartTime();
         }
 
         int startTime = (int) hitObjects.get(0).getHitTime();
@@ -34,8 +34,8 @@ public class Beatmap {
         return totalTime / 1000.0;
     }
 
-    public int getDifficultyMultiplier(ArrayList<HitObject> hitObjects, ArrayList<BreakPoint> breakPoints) {
-        double drainTimeInSeconds = getDrainTimeInSeconds(hitObjects, breakPoints);
+    public int getDifficultyMultiplier(ArrayList<HitObject> hitObjects, ArrayList<BreakPeriod> breakPeriods) {
+        double drainTimeInSeconds = getDrainTimeInSeconds(hitObjects, breakPeriods);
         double hitObjectDensity = hitObjects.size() / drainTimeInSeconds * 8.0;
         double clampedDensity = Math.max(0, Math.min(hitObjectDensity, 16));
 

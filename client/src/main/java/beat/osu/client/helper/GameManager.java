@@ -7,10 +7,7 @@ import beat.osu.client.factory.HitObjectFactory;
 import beat.osu.client.game.*;
 import beat.osu.client.interfaces.Observer;
 import beat.osu.client.interfaces.Subject;
-import beat.osu.client.model.Beatmap;
-import beat.osu.client.model.HitCircle;
-import beat.osu.client.model.HitObject;
-import beat.osu.client.model.HitSpinner;
+import beat.osu.client.model.*;
 import beat.osu.client.utils.OsuParser;
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
@@ -127,7 +124,7 @@ public class GameManager implements Subject {
                 long elapsedNanos = now - startTimeNanos - totalPausedNanos;
                 long elapsedMillis = elapsedNanos / 1_000_000;
 
-                if(elapsedMillis > lastHpDrainMillis + 1000) {
+                if (elapsedMillis > lastHpDrainMillis + 1000 && gameState == GameState.PLAYING) {
                     lastHpDrainMillis = elapsedMillis;
                     health = Math.max(0, health - beatmap.getHpDrainRate());
                     System.out.println("draining health, health: " + health);
@@ -169,7 +166,8 @@ public class GameManager implements Subject {
         }
 
         gameState = GameState.PLAYING;
-        if(bgmStarted) BgmManager.resumeBgm();
+        if (bgmStarted)
+            BgmManager.resumeBgm();
         // add countdown later
         resumeAllAnimations();
         notifyObservers(new GameEvent(GameEventType.GAME_RESUMED, null));
@@ -184,8 +182,7 @@ public class GameManager implements Subject {
 
         notifyObservers(new GameEvent(GameEventType.GAME_ENDED, new GameEndData(
                 score, perfectHits, gekiHits, greatHits, greatKatuHits, goodHits,
-                misses, highestCombo, accuracy, grade
-        )));
+                misses, highestCombo, accuracy, grade)));
     }
 
     private void updateGame(long elapsedMillis) {
@@ -193,11 +190,32 @@ public class GameManager implements Subject {
 
         boolean pressedEsc = currentKeys.contains(KeyCode.ESCAPE) &&
                 !previousKeys.contains(KeyCode.ESCAPE);
+                
+        // validate break period here
+        boolean inBreakPeriod = false;
+        for (BreakPeriod breakPeriod : OsuParser.getBreakPeriodsList()) {
+            int startTime = breakPeriod.getStartTime();
+            int endTime = breakPeriod.getEndTime();
+            if (elapsedMillis >= startTime && elapsedMillis <= endTime) {
+                inBreakPeriod = true;
+                if (gameState != GameState.BREAK_PERIOD) {
+                    System.out.println("Entering break period");
+                    gameState = GameState.BREAK_PERIOD;
+                }
+                break;
+            }
+        }
 
-        if(pressedEsc) {
-            if(gameState == GameState.PLAYING) {
+        // Return to playing state if not in break period time
+        if (!inBreakPeriod && gameState == GameState.BREAK_PERIOD) {
+            System.out.println("Exiting break period, returning to playing state");
+            gameState = GameState.PLAYING;
+        }
+
+        if (pressedEsc) {
+            if (gameState == GameState.PLAYING || gameState == GameState.BREAK_PERIOD) {
                 pauseGame();
-            } else if(gameState == GameState.PAUSED) {
+            } else if (gameState == GameState.PAUSED) {
                 resumeGame(); // Use a separate resume method
             }
             previousKeys.clear();
@@ -205,8 +223,8 @@ public class GameManager implements Subject {
             return;
         }
 
-        // Only process game logic when playing
-        if (gameState != GameState.PLAYING) {
+        // Only process game logic when playing & break period
+        if (gameState != GameState.PLAYING && gameState != GameState.BREAK_PERIOD) {
             previousKeys.clear();
             previousKeys.addAll(currentKeys);
             return;
@@ -222,13 +240,13 @@ public class GameManager implements Subject {
         }
 
         Iterator<HitObject> iterator = hitObjects.iterator();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             HitObject hitObject = iterator.next();
             hitObject.update(elapsedMillis);
-            if(hitObject instanceof HitSpinner) {
+            if (hitObject instanceof HitSpinner) {
                 ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY, this);
             }
-            if(hitObject.getHitTime() > elapsedMillis + 5000) {
+            if (hitObject.getHitTime() > elapsedMillis + 5000) {
                 // If the hit object is still far, skip processing
                 break;
             }
@@ -240,7 +258,8 @@ public class GameManager implements Subject {
                     }
                 }
 
-                if(hitObject instanceof HitSpinner) break; // Don't handle misses for spinners
+                if (hitObject instanceof HitSpinner)
+                    break; // Don't handle misses for spinners
                 // Check for miss (object passed its time window)
                 if (elapsedMillis > hitObject.getHitTime() + getHitWindow()) {
                     handleMiss(hitObject);
@@ -248,7 +267,7 @@ public class GameManager implements Subject {
                     System.out.println("Removing missed HitObject: " + hitObject);
                 }
             }
-            if(hitObject.isHit() && !hitObject.isVisible()) {
+            if (hitObject.isHit() && !hitObject.isVisible()) {
                 // If the hit object is already hit and not visible, remove it
                 iterator.remove();
                 System.out.println("Removing HitObject after it was hit and is no longer visible: " + hitObject);
@@ -258,8 +277,8 @@ public class GameManager implements Subject {
         previousKeys.clear();
         previousKeys.addAll(currentKeys);
 
-//        System.out.println("hit objects remaining: " + hitObjects.size());
-        if(hitObjects.isEmpty()) {
+        // System.out.println("hit objects remaining: " + hitObjects.size());
+        if (hitObjects.isEmpty()) {
             stopGame();
         }
     }
@@ -268,7 +287,8 @@ public class GameManager implements Subject {
         double objCenterX = hitObject.getScreenCenterX();
         double objCenterY = hitObject.getScreenCenterY();
         double objRadius = hitObject.getScreenRadius();
-        if(hitObject instanceof HitSpinner) objRadius *= 2.5;
+        if (hitObject instanceof HitSpinner)
+            objRadius *= 2.5;
 
         double dx = currentMouseX - objCenterX;
         double dy = currentMouseY - objCenterY;
@@ -291,40 +311,40 @@ public class GameManager implements Subject {
 
     private double getModMultiplier() {
         double multiplier = 1.0;
-//        if (OsuParser.isDoubleTime()) {
-//            multiplier *= 1.5; // Double Time
-//        }
-//        if (OsuParser.isHalfTime()) {
-//            multiplier *= 0.75; // Half Time
-//        }
-//        if (OsuParser.isHardRock()) {
-//            multiplier *= 1.06; // Hard Rock
-//        }
-//        if (OsuParser.isEasy()) {
-//            multiplier *= 0.5; // Easy
-//        }
+        // if (OsuParser.isDoubleTime()) {
+        // multiplier *= 1.5; // Double Time
+        // }
+        // if (OsuParser.isHalfTime()) {
+        // multiplier *= 0.75; // Half Time
+        // }
+        // if (OsuParser.isHardRock()) {
+        // multiplier *= 1.06; // Hard Rock
+        // }
+        // if (OsuParser.isEasy()) {
+        // multiplier *= 0.5; // Easy
+        // }
         return multiplier;
     }
 
     private void updateHitCount(HitObject hitObject, HitResult hitResult) {
-        if(hitResult != HitResult.SPIN && hitResult != HitResult.COMPLETE_SPIN) {
+        if (hitResult != HitResult.SPIN && hitResult != HitResult.COMPLETE_SPIN) {
             masterComboNumber++;
             updateHighestCombo(masterComboNumber);
         }
 
-        if(hitResult == HitResult.PERFECT) {
-            if(perfectCombo && hitObject.isComboEnd()) {
+        if (hitResult == HitResult.PERFECT) {
+            if (perfectCombo && hitObject.isComboEnd()) {
                 gekiHits++;
             } else {
                 perfectHits++;
             }
-        }else if(hitResult == HitResult.GREAT) {
-            if(!imperfectOrMissed && hitObject.isComboEnd()) {
+        } else if (hitResult == HitResult.GREAT) {
+            if (!imperfectOrMissed && hitObject.isComboEnd()) {
                 greatKatuHits++;
-            }
-            else greatHits++;
+            } else
+                greatHits++;
             perfectCombo = false;
-        }else if(hitResult == HitResult.GOOD) {
+        } else if (hitResult == HitResult.GOOD) {
             goodHits++;
             perfectCombo = false;
             imperfectOrMissed = true;
@@ -335,19 +355,20 @@ public class GameManager implements Subject {
         hitObject.setHit(true);
         hitObject.playHitEffect();
 
-        if(hitObject instanceof HitSpinner) {
+        if (hitObject instanceof HitSpinner) {
             System.out.println("hitting spinner, returning");
             return;
         }
-        if(hitObject instanceof HitCircle) hitObject.setVisible(false);
-        if(hitObject.isNewCombo()) {
+        if (hitObject instanceof HitCircle)
+            hitObject.setVisible(false);
+        if (hitObject.isNewCombo()) {
             perfectCombo = true;
             imperfectOrMissed = false;
         }
 
         // play sfx
-        if(hitObject instanceof HitCircle) {
-            for(String sfx : hitObject.getSfxFilenames()) {
+        if (hitObject instanceof HitCircle) {
+            for (String sfx : hitObject.getSfxFilenames()) {
                 SfxManager.playSfx(sfx);
             }
         }
@@ -358,24 +379,24 @@ public class GameManager implements Subject {
     }
 
     public void notifyHit(HitObject hitObject, HitResult hitResult) {
-//        masterComboNumber++;
-//        updateHighestCombo(masterComboNumber);
+        // masterComboNumber++;
+        // updateHighestCombo(masterComboNumber);
         updateHitCount(hitObject, hitResult);
 
         int hitValue = hitResult.getScore();
         double comboMultiplier = Math.max(masterComboNumber - 1, 0);
-        int difficultyMultiplier = beatmap.getDifficultyMultiplier(hitObjects, OsuParser.getBreakPointsList());
+        int difficultyMultiplier = beatmap.getDifficultyMultiplier(hitObjects, OsuParser.getBreakPeriodsList());
         double modMultiplier = getModMultiplier();
         double scoreFactor = 1 + (comboMultiplier * difficultyMultiplier * modMultiplier / 25.0);
         int hitScore = (int) Math.round(hitValue * scoreFactor);
         score += hitScore;
-//        System.out.println(score);
+        // System.out.println(score);
 
         // Update accuracy
         updateAccuracy();
 
         // Update health (hitting increases health)
-//        health = Math.min(100, health + 2);
+        health = Math.min(100, health + 10);
 
         // Notify observers
         notifyObservers(new GameEvent(GameEventType.SCORE_CHANGED,
@@ -396,7 +417,8 @@ public class GameManager implements Subject {
     }
 
     private void handleMiss(HitObject hitObject) {
-        if(hitObject instanceof HitSpinner) return;
+        if (hitObject instanceof HitSpinner)
+            return;
         notifyMiss(hitObject);
     }
 
@@ -413,7 +435,7 @@ public class GameManager implements Subject {
         updateAccuracy();
 
         // Update health (missing decreases health)
-//        health = Math.max(0, health - beatmap.getHpDrainRate());
+        // health = Math.max(0, health - beatmap.getHpDrainRate());
 
         // Notify observers
         notifyObservers(new GameEvent(GameEventType.COMBO_CHANGED,
@@ -447,7 +469,7 @@ public class GameManager implements Subject {
     }
 
     private void processBeatmap() {
-//        OsuParser.extractAndParse(beatmap);
+        // OsuParser.extractAndParse(beatmap);
         try {
             OsuParser.parseBeatmap(beatmap);
         } catch (IOException e) {
@@ -461,12 +483,12 @@ public class GameManager implements Subject {
         comboSkipCounter = 0;
 
         ArrayList<String> hitObjectData = OsuParser.getHitObjects();
-        for(int i = 0; i < hitObjectData.size(); i++) {
+        for (int i = 0; i < hitObjectData.size(); i++) {
             String data = hitObjectData.get(i);
 
             boolean comboEnd = false;
             String nextData = (i + 1 < hitObjectData.size()) ? hitObjectData.get(i + 1) : null;
-            if(nextData != null) {
+            if (nextData != null) {
                 comboEnd = HitObjectFactory.checkNewCombo(nextData);
             }
 
@@ -480,9 +502,14 @@ public class GameManager implements Subject {
 
         if (isThisObjectANewCombo) {
             currentComboNumberInSet = 1; // Reset number for this new combo set
-            // Apply combo skip from the *previous* new combo object, or this one if it's the first.
+            // Apply combo skip from the *previous* new combo object, or this one if it's
+            // the first.
             // The comboSetIndex is incremented by 1 + the number of colors to skip.
-            currentComboSetIndex = (currentComboSetIndex + 1 + comboSkipCounter) % OsuParser.getColours().size(); // Modulo beatmap's combo color count
+            currentComboSetIndex = (currentComboSetIndex + 1 + comboSkipCounter) % OsuParser.getColours().size(); // Modulo
+                                                                                                                  // beatmap's
+                                                                                                                  // combo
+                                                                                                                  // color
+                                                                                                                  // count
             comboSkipCounter = comboSkipFromThisObject; // Store skip for NEXT new combo
         } else {
             currentComboNumberInSet++;
@@ -512,7 +539,7 @@ public class GameManager implements Subject {
 
     @Override
     public void notifyObservers(GameEvent event) {
-        for(Observer observer : observerList) {
+        for (Observer observer : observerList) {
             observer.update(event);
         }
     }

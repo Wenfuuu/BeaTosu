@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class BreakPoint {
+public class BreakPeriod {
     private int startTime;
     private int endTime;
 }
