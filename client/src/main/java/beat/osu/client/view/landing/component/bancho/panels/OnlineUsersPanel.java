@@ -28,8 +28,14 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import lombok.Setter;
 
 public class OnlineUsersPanel extends VBox {
+
+    @FunctionalInterface
+    public interface UserCardClickCallback {
+        void onUserCardClicked(UserCard userCard);
+    }
 
     private ArrayList<UserCard> userCards;
     private Map<Integer, UserCard> userCardMap;
@@ -43,6 +49,8 @@ public class OnlineUsersPanel extends VBox {
     private TextField searchField;
 
     private ConnectedUsersController connectedUsersController;
+    @Setter
+    private UserCardClickCallback userCardClickCallback;
 
     public OnlineUsersPanel(ConnectedUsersController connectedUsersController) {
         super();
@@ -183,6 +191,12 @@ public class OnlineUsersPanel extends VBox {
             user.getRank(),
             user.isSupporter()
         );
+        
+        userCard.setOnMouseClicked(event -> {
+            if (userCardClickCallback != null) {
+                userCardClickCallback.onUserCardClicked(userCard);
+            }
+        });
         
         userCards.add(userCard);
         userCardMap.put(user.getId(), userCard);

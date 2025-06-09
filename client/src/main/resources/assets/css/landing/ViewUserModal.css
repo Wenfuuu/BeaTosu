@@ -1,0 +1,42 @@
+.view-user-modal {
+    -fx-background-color: rgba(0, 0, 0, 0.90);
+}
+
+.buttons-container {
+    -fx-alignment: center;
+    -fx-spacing: 24;
+    -fx-vgrow: always;
+}
+
+.modal-button {
+    -fx-padding: 2px 20px 2px 20px;
+    -fx-text-fill: white;
+    -fx-font-family: 'Aller';
+    -fx-font-size: 48px;
+    -fx-border-radius: 5;
+    -fx-alignment: center;
+}
+
+.spectate-button {
+    -fx-background-color: linear-gradient(to bottom, #77A31B, #85B81F);
+}
+
+.spectate-button:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 12, 0.3, 0, 3);
+}
+
+.chat-button {
+    -fx-background-color: linear-gradient(to bottom, #6C4EAA, #7E5BC5);
+}
+
+.chat-button:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 12, 0.3, 0, 3);
+}
+
+.close-button {
+    -fx-background-color: linear-gradient(to bottom, #808080, #949494);
+}
+
+.close-button:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 12, 0.3, 0, 3);
+}

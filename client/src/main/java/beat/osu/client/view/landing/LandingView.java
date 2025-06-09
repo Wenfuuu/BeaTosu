@@ -14,8 +14,10 @@ import beat.osu.client.helper.ViewManager;
 import beat.osu.client.view.Page;
 import beat.osu.client.view.Toast;
 import beat.osu.client.view.home.HomeView;
-import beat.osu.client.view.landing.component.bancho.modals.SelectChannelModal;
 import beat.osu.client.view.landing.component.bancho.buttons.BanchoButtons;
+import beat.osu.client.view.landing.component.bancho.cards.UserCard;
+import beat.osu.client.view.landing.component.bancho.modals.SelectChannelModal;
+import beat.osu.client.view.landing.component.bancho.modals.ViewUserModal;
 import beat.osu.client.view.landing.component.bancho.panels.ChatPanel;
 import beat.osu.client.view.landing.component.bancho.panels.OnlineUsersPanel;
 import beat.osu.client.view.landing.component.menu.controls.MediaControls;
@@ -54,6 +56,7 @@ public class LandingView extends Page {
     private ChatPanel chatPanel;
     private SelectChannelModal selectChannelModal;
     private BanchoButtons banchoButtons;
+    private ViewUserModal viewUserModal;
 
     private ConnectedUsersController connectedUsersController;
     private ChannelController channelController;
@@ -236,6 +239,26 @@ public class LandingView extends Page {
         selectChannelModal = new SelectChannelModal(channelController, banchoButtons, bottomBarComponent, topBarComponent);
         chatPanel = new ChatPanel(channelController, selectChannelModal, onlineUsersPanel, banchoButtons);
 
+        viewUserModal = new ViewUserModal();
+
+        onlineUsersPanel.setUserCardClickCallback(userCard -> {
+            // Create a new UserCard with the same data instead of cloning
+            UserCard modalUserCard = new UserCard(
+                userCard.getUserId(),
+                userCard.getUsername(), 
+                userCard.getCountryCode(),
+                userCard.getProfilePicture(),
+                userCard.getPerformance(),
+                userCard.getAccuracy(),
+                userCard.getPlayCount(),
+                userCard.getLevel(),
+                userCard.getRank(),
+                userCard.isSupporter()
+            );
+            viewUserModal.updateUserCard(modalUserCard);
+            viewUserModal.show();
+        });
+
         selectChannelModal.setChatPanel(chatPanel);
         selectChannelModal.setOnlineUsersPanel(onlineUsersPanel);
 
@@ -307,6 +330,9 @@ public class LandingView extends Page {
 
         root.getChildren().add(banchoButtons);
         StackPane.setAlignment(banchoButtons, Pos.BOTTOM_RIGHT);
+
+        root.getChildren().add(viewUserModal);
+        StackPane.setAlignment(viewUserModal, Pos.CENTER);
     }
 
     public void handleEvent() {
