@@ -417,8 +417,7 @@ public class GameManager implements Subject {
     }
 
     private void handleMiss(HitObject hitObject) {
-        if (hitObject instanceof HitSpinner)
-            return;
+        if (hitObject instanceof HitSpinner) return;
         notifyMiss(hitObject);
     }
 
@@ -435,7 +434,9 @@ public class GameManager implements Subject {
         updateAccuracy();
 
         // Update health (missing decreases health)
-        // health = Math.max(0, health - beatmap.getHpDrainRate());
+        double hpLoss = (0.12 + 0.04 * beatmap.getHpDrainRate()) * 100;
+//        System.out.println("hp loss: " + hpLoss);
+        health = Math.max(0, health - hpLoss);
 
         // Notify observers
         notifyObservers(new GameEvent(GameEventType.COMBO_CHANGED,
