@@ -2,6 +2,7 @@ package beat.osu.client.helper;
 
 import beat.osu.client.enums.GameEventType;
 import beat.osu.client.enums.GameState;
+import beat.osu.client.enums.HealthRecover;
 import beat.osu.client.enums.HitResult;
 import beat.osu.client.factory.HitObjectFactory;
 import beat.osu.client.game.*;
@@ -341,8 +342,7 @@ public class GameManager implements Subject {
         } else if (hitResult == HitResult.GREAT) {
             if (!imperfectOrMissed && hitObject.isComboEnd()) {
                 greatKatuHits++;
-            } else
-                greatHits++;
+            } else greatHits++;
             perfectCombo = false;
         } else if (hitResult == HitResult.GOOD) {
             goodHits++;
@@ -359,8 +359,8 @@ public class GameManager implements Subject {
             System.out.println("hitting spinner, returning");
             return;
         }
-        if (hitObject instanceof HitCircle)
-            hitObject.setVisible(false);
+
+        if (hitObject instanceof HitCircle) hitObject.setVisible(false);
         if (hitObject.isNewCombo()) {
             perfectCombo = true;
             imperfectOrMissed = false;
@@ -376,6 +376,32 @@ public class GameManager implements Subject {
         // Determine hit result based on timing
         HitResult hitResult = HitResult.fromTimingError(timingError, beatmap.getOverallDifficulty());
         notifyHit(hitObject, hitResult);
+    }
+
+    private HealthRecover getHealthRecover(HitObject hitObject, HitResult hitResult) {
+        switch (hitResult) {
+            case PERFECT:
+                if (hitObject.isComboEnd()) {
+                    if(perfectCombo) return HealthRecover.GEKI;
+                    else return HealthRecover.PERFECT_KATU;
+                } else {
+                    return HealthRecover.PERFECT;
+                }
+            case GREAT:
+                if (!imperfectOrMissed && hitObject.isComboEnd()) {
+                    return HealthRecover.GREAT_KATU;
+                } else {
+                    return HealthRecover.GREAT;
+                }
+            case GOOD:
+                return HealthRecover.GOOD;
+            case SPIN:
+                return HealthRecover.SPIN;
+            case COMPLETE_SPIN:
+                return HealthRecover.COMPLETE_SPIN;
+            default:
+                return HealthRecover.NONE;
+        }
     }
 
     public void notifyHit(HitObject hitObject, HitResult hitResult) {
@@ -396,7 +422,9 @@ public class GameManager implements Subject {
         updateAccuracy();
 
         // Update health based on judgement
-        health = Math.min(100, health + 10);
+        HealthRecover healthRecover = getHealthRecover(hitObject, hitResult);
+        double hpRecover = healthRecover.getHpRecover();
+        health = Math.min(100, health + hpRecover);
 
         // Notify observers
         notifyObservers(new GameEvent(GameEventType.SCORE_CHANGED,

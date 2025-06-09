@@ -12,7 +12,8 @@ public enum HealthRecover {
     COMPLETE_SPIN(15.0),
     GEKI(15.0),
     PERFECT_KATU(12.5),
-    GREAT_KATU(7.5);
+    GREAT_KATU(7.5),
+    NONE(0.0);
 
     private final double hpRecover;
 
