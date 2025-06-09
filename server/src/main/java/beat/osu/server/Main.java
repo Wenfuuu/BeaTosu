@@ -30,8 +30,9 @@ public class Main {
         AuthService authService = new AuthService(userRepository, sessionService);
         BeatmapService beatmapService = new BeatmapService(beatmapSetRepository, beatmapRepository);
         ChannelService channelService = new ChannelService(sessionService, userService);
+        PrivateChatService privateChatService = new PrivateChatService(sessionService, userService);
 
-        MessageRouter messageRouter = new MessageRouter(systemService, authService, beatmapService, channelService);
+        MessageRouter messageRouter = new MessageRouter(systemService, authService, beatmapService, channelService, privateChatService);
 
         int serverPort = config.getServerPort();
 

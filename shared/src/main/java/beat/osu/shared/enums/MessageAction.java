@@ -22,4 +22,10 @@ public enum MessageAction implements Serializable {
     JOIN_CHANNEL,
     LEAVE_CHANNEL,
     SEND_CHANNEL_MESSAGE,
+
+    // Private chat actions
+    GET_PRIVATE_CHATS,
+    START_PRIVATE_CHAT,
+    LEAVE_PRIVATE_CHAT,
+    SEND_PRIVATE_CHAT_MESSAGE,
 }

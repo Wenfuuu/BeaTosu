@@ -1,18 +1,13 @@
 package beat.osu.server.router;
 
-import beat.osu.server.service.AuthService;
-import beat.osu.server.service.BeatmapService;
-import beat.osu.server.service.ChannelService;
-import beat.osu.server.service.SystemService;
+import beat.osu.server.service.*;
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.auth.requests.LoginRequest;
 import beat.osu.shared.dto.auth.requests.RegisterRequest;
 import beat.osu.shared.dto.beatmap.requests.InsertBeatmapRequest;
 import beat.osu.shared.dto.beatmap.requests.InsertBeatmapSetRequest;
-import beat.osu.shared.dto.chat.requests.JoinChannelRequest;
-import beat.osu.shared.dto.chat.requests.LeaveChannelRequest;
-import beat.osu.shared.dto.chat.requests.SendChannelMessageRequest;
+import beat.osu.shared.dto.chat.requests.*;
 import beat.osu.shared.models.RequestMessage;
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +18,7 @@ public class MessageRouter {
     private final AuthService authService;
     private final BeatmapService beatmapService;
     private final ChannelService channelService;
+    private final PrivateChatService privateChatService;
 
     public Object routeRequestMessage(RequestMessage request, String clientId) {
         switch (request.getType()) {
@@ -34,6 +30,8 @@ public class MessageRouter {
                 return handleBeatmapRequest(request, clientId);
             case CHANNEL:
                 return handleChannelRequest(request, clientId);
+            case PRIVATE_CHAT:
+                return handlePrivateChatRequest(request, clientId);
             default:
                 return Result.failure(Error.validation("Unknown request type: " + request.getType()));
         }
@@ -86,6 +84,21 @@ public class MessageRouter {
                 return channelService.sendChannelMessage((SendChannelMessageRequest) request.getPayload(), clientId);
             default:
                 return Result.failure(Error.validation("Unknown channel action: " + request.getAction()));
+        }
+    }
+
+    private Object handlePrivateChatRequest(RequestMessage request, String clientId) {
+        switch (request.getAction()) {
+            case GET_PRIVATE_CHATS:
+                return privateChatService.getPrivateChats(clientId);
+            case START_PRIVATE_CHAT:
+                return privateChatService.startPrivateChat((StartPrivateChatRequest) request.getPayload(), clientId);
+            case LEAVE_PRIVATE_CHAT:
+                return privateChatService.leavePrivateChat((LeavePrivateChatRequest) request.getPayload(), clientId);
+            case SEND_PRIVATE_CHAT_MESSAGE:
+                return privateChatService.sendPrivateMessage((SendPrivateChatMessageRequest) request.getPayload(), clientId);
+            default:
+                return Result.failure(Error.validation("Unknown private chat action: " + request.getAction()));
         }
     }
 }
