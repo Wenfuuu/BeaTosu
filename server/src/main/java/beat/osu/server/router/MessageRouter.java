@@ -89,12 +89,6 @@ public class MessageRouter {
 
     private Object handlePrivateChatRequest(RequestMessage request, String clientId) {
         switch (request.getAction()) {
-            case GET_PRIVATE_CHATS:
-                return privateChatService.getPrivateChats(clientId);
-            case START_PRIVATE_CHAT:
-                return privateChatService.startPrivateChat((StartPrivateChatRequest) request.getPayload(), clientId);
-            case LEAVE_PRIVATE_CHAT:
-                return privateChatService.leavePrivateChat((LeavePrivateChatRequest) request.getPayload(), clientId);
             case SEND_PRIVATE_CHAT_MESSAGE:
                 return privateChatService.sendPrivateMessage((SendPrivateChatMessageRequest) request.getPayload(), clientId);
             default:
