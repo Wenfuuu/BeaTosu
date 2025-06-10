@@ -77,13 +77,29 @@ public class ChatTabs extends HBox {
     }
     
     public void removeChannel(int channelId) {
+        int removedIndex = -1;
+        for (int i = 0; i < joinedChannels.size(); i++) {
+            if (joinedChannels.get(i).getId() == channelId) {
+                removedIndex = i;
+                break;
+            }
+        }
+        
         boolean removed = joinedChannels.removeIf(channel -> channel.getId() == channelId);
         
         if (removed) {
+            Object newSelectedTab = null;
+            
             if (currentSelectedTab instanceof ChannelDto && ((ChannelDto) currentSelectedTab).getId() == channelId) {
-                currentSelectedTab = null;
+                newSelectedTab = selectNewTabAfterRemoval(removedIndex);
+                currentSelectedTab = newSelectedTab;
             }
+            
             refreshDisplay();
+            
+            if (newSelectedTab != null && onTabSelected != null) {
+                onTabSelected.accept(newSelectedTab);
+            }
         }
     }
     
@@ -97,13 +113,45 @@ public class ChatTabs extends HBox {
     }
 
     public void removePrivateChat(int otherUserId) {
+        int removedIndex = joinedChannels.size(); 
+        for (int i = 0; i < privateChats.size(); i++) {
+            if (privateChats.get(i).getOtherUserId() == otherUserId) {
+                removedIndex += i;
+                break;
+            }
+        }
+        
         boolean removed = privateChats.removeIf(chat -> chat.getOtherUserId() == otherUserId);
         if (removed) {
+            Object newSelectedTab = null;
+            
             if (currentSelectedTab instanceof PrivateChatDto && ((PrivateChatDto) currentSelectedTab).getOtherUserId() == otherUserId) {
-                currentSelectedTab = null;
+                newSelectedTab = selectNewTabAfterRemoval(removedIndex);
+                currentSelectedTab = newSelectedTab;
             }
+            
             refreshDisplay();
+            
+            if (newSelectedTab != null && onTabSelected != null) {
+                onTabSelected.accept(newSelectedTab);
+            }
         }
+    }
+
+    private Object selectNewTabAfterRemoval(int removedIndex) {
+        List<Object> allTabs = new ArrayList<>();
+        allTabs.addAll(joinedChannels);
+        allTabs.addAll(privateChats);
+        
+        if (allTabs.isEmpty()) {
+            return null;
+        }
+        
+        if (removedIndex < allTabs.size()) {
+            return allTabs.get(removedIndex);
+        }
+        
+        return allTabs.get(allTabs.size() - 1);
     }
 
     public void selectTab(Object tab) {
@@ -137,10 +185,10 @@ public class ChatTabs extends HBox {
             this.getChildren().add(this.getChildren().size() - 1, tabButton);
         }
 
-        if (currentSelectedTab == null) {
+        if (currentSelectedTab == null && (!joinedChannels.isEmpty() || !privateChats.isEmpty())) {
             if (!joinedChannels.isEmpty()) {
                 selectTab(joinedChannels.get(0));
-            } else if (!privateChats.isEmpty()) {
+            } else {
                 selectTab(privateChats.get(0));
             }
         }
