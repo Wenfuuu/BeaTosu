@@ -261,6 +261,7 @@ public class ChatPanel extends VBox {
                         Platform.runLater(() -> {
                             if (result.isSuccess()) {
                                 chatTabs.removeChannel(channelToLeave.getId());
+                                channelMessages.remove(channelToLeave.getId());
                             } else {
                                 Toast.error("Failed to leave channel: " + result.getError().getMessage());
                             }
@@ -274,6 +275,7 @@ public class ChatPanel extends VBox {
             
             if (privateChatToClose != null) {
                 chatTabs.removePrivateChat(privateChatToClose.getOtherUserId());
+                privateChatMessages.remove(privateChatToClose.getOtherUserId());
                 displayMessages();
             }
         }
