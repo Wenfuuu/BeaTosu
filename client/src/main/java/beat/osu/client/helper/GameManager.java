@@ -144,10 +144,7 @@ public class GameManager implements Subject {
     }
 
     public void pauseGame() {
-        if (gameState != GameState.PLAYING) {
-            return;
-        }
-
+        System.out.println("pausing game");
         pauseStartNanos = System.nanoTime();
         gameState = GameState.PAUSED;
         BgmManager.pauseBgm();
