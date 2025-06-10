@@ -30,22 +30,19 @@ public class HitSpinner extends HitObject{
     private FadeTransition fadeInAnimation;
 
     private double currentRotation = 0;
-    private double targetRotations = 0;
-    private long prevRotation = 0;
-    private double completedRotations = 0;
-//    private boolean isSpinning = false;
-//    private boolean isCompleted = false;
+    private long prevSpin = 0;
+    private double completedSpins = 0;
 
     private double lastMouseAngle = 0;
     private boolean mousePressed = false;
 
-    private final int TARGET_ROTATIONS = 10;
+    private double TARGET_SPINS;
     private final double ROTATION_SPEED = 1;
 
     public HitSpinner(int osuX, int osuY, long hitTime, int type, int hitSound,
                       String hitSample, long endTime, double approachRate, double circleSize,
-                      int comboNumber, int comboSetIndex, String colorString, boolean comboEnd,
-                      ArrayList<String> sfxFilenames) {
+                      double overallDifficulty, int comboNumber, int comboSetIndex, String colorString,
+                      boolean comboEnd, ArrayList<String> sfxFilenames) {
         super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate, circleSize, comboNumber, comboSetIndex, comboEnd, sfxFilenames);
         Color circleColor = parseColorString(colorString);
         this.endTime = endTime;
@@ -83,7 +80,17 @@ public class HitSpinner extends HitObject{
         group.getChildren().addAll(outerRing, innerRing, spinnerImage, centerDot);
         group.setUserData(this);
 
+        calculateMinimumSpin(overallDifficulty);
         handleEvent();
+    }
+
+    private void calculateMinimumSpin(double overallDifficulty) {
+        double spinnerDuration = (endTime - getHitTime()) / 1000.0;
+        if (overallDifficulty < 5) {
+            TARGET_SPINS = spinnerDuration * (1.5 + 0.2 * overallDifficulty) + 0.5;
+        } else {
+            TARGET_SPINS = spinnerDuration * (1.25 + 0.25 * overallDifficulty) + 0.5;
+        }
     }
 
     private void handleEvent() {
@@ -152,7 +159,7 @@ public class HitSpinner extends HitObject{
             degrees *= ROTATION_SPEED;
 
             currentRotation += degrees;
-            completedRotations = currentRotation / 360.0;
+            completedSpins = currentRotation / 360.0;
 
             // Rotate the inner ring visually
             innerRing.setRotate(innerRing.getRotate() + degrees);
@@ -182,26 +189,27 @@ public class HitSpinner extends HitObject{
                 lastMouseAngle = currentMouseAngle;
             }
 
-            if(prevRotation != Math.max(0, Math.round(completedRotations))) {
-                System.out.println("current completed rotations: " + Math.round(completedRotations));
-                prevRotation = Math.round(completedRotations);
+            if(prevSpin < completedSpins - 1) {
+                System.out.println("current completed rotations: " + completedSpins);
+                prevSpin = Math.round(completedSpins);
+                System.out.println("previous completed rotations: " + prevSpin);
                 gm.notifyHit(this, HitResult.SPIN);
-                if(prevRotation > TARGET_ROTATIONS) {
+                if(prevSpin > TARGET_SPINS) {
                     gm.notifyHit(this, HitResult.COMPLETE_SPIN);
-                    int totalRotation = (int) prevRotation;
-                    gm.notifyAdditionalSpin(this, totalRotation - TARGET_ROTATIONS);
+                    int totalRotation = (int) prevSpin;
+                    gm.notifyAdditionalSpin(this, totalRotation - (int) TARGET_SPINS);
                 }
             }
         }else if(isHit() && !isActive && !isVisible()) {
             // check & notify judgement score
-            if(prevRotation < 2) {
-                gm.notifyMiss(this);
-            }else if(prevRotation < 9) {
-                gm.notifyHit(this, HitResult.GOOD);
-            }else if(prevRotation == 9) {
-                gm.notifyHit(this, HitResult.GREAT);
-            }else {
+            if(completedSpins >= TARGET_SPINS) {
                 gm.notifyHit(this, HitResult.PERFECT);
+            }else if(completedSpins >= TARGET_SPINS - 1) {
+                gm.notifyHit(this, HitResult.GREAT);
+            } else if(completedSpins >= TARGET_SPINS * 0.25) {
+                gm.notifyHit(this, HitResult.GOOD);
+            } else {
+                gm.notifyHit(this, HitResult.MISS);
             }
         }
     }

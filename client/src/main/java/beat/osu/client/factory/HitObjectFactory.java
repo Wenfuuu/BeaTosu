@@ -203,6 +203,8 @@ public class HitObjectFactory {
 
         double approachRate = selectedBeatmap.getApproachRate();
         double circleSize = selectedBeatmap.getCircleSize();
+        double sliderMultiplier = selectedBeatmap.getSliderMultiplier();
+        double overallDifficulty = selectedBeatmap.getOverallDifficulty();
 //        return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate);
         if(hitType.equals("circle")){
             return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate, circleSize,
@@ -210,7 +212,7 @@ public class HitObjectFactory {
                     generateCircleSfxFilenames(hitSound, hitSample));
         }else if(hitType.equals("slider")){
             return new HitSlider(x, y, time, type, hitSound, objectParams, hitSample,
-                    approachRate, circleSize, selectedBeatmap.getSliderMultiplier(),
+                    approachRate, circleSize, sliderMultiplier,
                     comboNumber, comboSetIndex, colorString, comboEnd,
                     generateCircleSfxFilenames(hitSound, hitSample));
         }else{
@@ -218,7 +220,7 @@ public class HitObjectFactory {
 //                    comboNumber, comboSetIndex, colorString, comboEnd,
 //                    generateCircleSfxFilenames(hitSound, hitSample));
             return new HitSpinner(x, y, time, type, hitSound, hitSample,
-                    spinnerEndTime, approachRate, circleSize,
+                    spinnerEndTime, approachRate, circleSize, overallDifficulty,
                     comboNumber, comboSetIndex, colorString, comboEnd,
                     generateCircleSfxFilenames(hitSound, hitSample));
         }
