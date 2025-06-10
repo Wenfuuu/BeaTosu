@@ -1,24 +1,22 @@
 package beat.osu.client.view.game.component;
 
 import beat.osu.client.Main;
+import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ScreenManager;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
-import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.util.Duration;
 import lombok.Getter;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -46,7 +44,6 @@ public class GameUI extends Pane {
     private final Image percentImage;
     private final Image xImage;
     private final Image commaImage;
-//    private final Label decimalPoint;
     private final SequentialTransition hideTransition;
 
     private boolean stillPerfect = true;
@@ -120,16 +117,12 @@ public class GameUI extends Pane {
 
         // Health bar
         healthBar = new ProgressBar(1.0);
-        healthBar.setPrefWidth(200);
-        healthBar.setPrefHeight(20);
-        healthBar.setStyle("-fx-accent: #ff4444;");
-
-        Label healthLabel = new Label("Health");
-        healthLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 12));
-        healthLabel.setTextFill(Color.WHITE);
+        healthBar.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.5);
+        healthBar.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.02);
+        healthBar.getStyleClass().add("health-bar");
 
         VBox topLeftPanel = new VBox(5);
-        topLeftPanel.getChildren().addAll(healthLabel, healthBar);
+        topLeftPanel.getChildren().addAll(healthBar);
         topLeftPanel.setLayoutX(10);
         topLeftPanel.setLayoutY(10);
 
@@ -143,9 +136,7 @@ public class GameUI extends Pane {
         VBox bottomLeftPanel = new VBox(5);
         bottomLeftPanel.getChildren().add(comboContainer);
 
-        // Use a Pane instead of VBox for absolute positioning
         this.getChildren().addAll(topLeftPanel, topRightPanel, bottomLeftPanel);
-        // Store references for layout updates
         this.getProperties().put("topRightPanel", topRightPanel);
         this.getProperties().put("bottomLeftPanel", bottomLeftPanel);
 
@@ -157,14 +148,23 @@ public class GameUI extends Pane {
                 fadeOutTransition,
                 new PauseTransition(Duration.millis(500))
         );
+
+        loadStyles();
+    }
+
+    private void loadStyles() {
+        URL cssUrl = CssManager.getGameCssURL("GameUI.css");
+        if (cssUrl != null) {
+            this.getStylesheets().add(cssUrl.toExternalForm());
+        } else {
+            System.err.println("CSS file not found!");
+        }
     }
 
     public void updateHealth(double health) {
-        Platform.runLater(() -> {
-            if (healthBar.getProgress() != health) {
-                healthBar.setProgress(health);
-            }
-        });
+        if (healthBar.getProgress() != health) {
+            healthBar.setProgress(health);
+        }
     }
 
     public void updateScore(long score) {

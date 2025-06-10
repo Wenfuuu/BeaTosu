@@ -1,0 +1,15 @@
+.health-bar {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-control-inner-background: transparent;
+}
+
+.health-bar .bar {
+    -fx-background-color: linear-gradient(to right, #4d0b0e, #df4d50);
+    -fx-background-radius: 2;
+}
+
+.health-bar .track {
+    -fx-background-color: transparent;
+    -fx-background-radius: 2;
+}
