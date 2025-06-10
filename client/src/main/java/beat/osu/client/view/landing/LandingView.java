@@ -5,6 +5,7 @@ import java.net.URL;
 import beat.osu.client.Main;
 import beat.osu.client.controller.ChannelController;
 import beat.osu.client.controller.ConnectedUsersController;
+import beat.osu.client.controller.PrivateChatController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.BgmManager;
@@ -60,6 +61,7 @@ public class LandingView extends Page {
 
     private ConnectedUsersController connectedUsersController;
     private ChannelController channelController;
+    private PrivateChatController privateChatController;
 
     private double visualizerSize;
 
@@ -168,7 +170,6 @@ public class LandingView extends Page {
     }
 
     private void showSubMenu() {
-        System.out.println(">>> showSubMenu() called - isMenuPanelOpen: " + isMenuPanelOpen);
         if (isMenuPanelOpen) {
             subMenuButtonsComponent.setVisible(true);
             subMenuButtonsComponent.setManaged(true);
@@ -221,6 +222,7 @@ public class LandingView extends Page {
         this.visualizerSize = ScreenManager.SCREEN_HEIGHT * 0.6;
         this.connectedUsersController = new ConnectedUsersController();
         this.channelController = new ChannelController();
+        this.privateChatController = new PrivateChatController();
 
         mediaControlsComponent = new MediaControls();
         topBarComponent = new TopBar();
@@ -237,12 +239,18 @@ public class LandingView extends Page {
 
         onlineUsersPanel = new OnlineUsersPanel(connectedUsersController);
         selectChannelModal = new SelectChannelModal(channelController, banchoButtons, bottomBarComponent, topBarComponent);
-        chatPanel = new ChatPanel(channelController, selectChannelModal, onlineUsersPanel, banchoButtons);
+        chatPanel = new ChatPanel(channelController, privateChatController, selectChannelModal, onlineUsersPanel, banchoButtons);
 
         viewUserModal = new ViewUserModal();
 
+        viewUserModal.setOnStartChatCallback(privateChat -> {
+            chatPanel.startPrivateChat(privateChat.getOtherUserId(), privateChat.getOtherUserName());
+            if (!chatPanel.isShowing()) {
+                banchoButtons.toggleChat(chatPanel, bottomBarComponent, onlineUsersPanel, topBarComponent);
+            }
+        });
+
         onlineUsersPanel.setUserCardClickCallback(userCard -> {
-            // Create a new UserCard with the same data instead of cloning
             UserCard modalUserCard = new UserCard(
                 userCard.getUserId(),
                 userCard.getUsername(), 

@@ -1,10 +1,12 @@
 package beat.osu.client.view.landing.component.bancho.modals;
 
 import java.net.URL;
+import java.util.function.Consumer;
 
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.view.landing.component.bancho.cards.UserCard;
+import beat.osu.shared.dto.chat.PrivateChatDto;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -19,6 +21,8 @@ public class ViewUserModal extends VBox {
     private Button startChatButton;
     private Button closeButton;
     private VBox buttonsContainer;
+    
+    private Consumer<PrivateChatDto> onStartChatCallback;
 
     public ViewUserModal() {
         initializeComponents();
@@ -51,7 +55,16 @@ public class ViewUserModal extends VBox {
         buttonsContainer.getChildren().addAll(startSpectateButton, startChatButton, closeButton);
 
 //        startSpectateButton.setOnAction(event -> startSpectating());
-//        startChatButton.setOnAction(event -> startChat());
+        startChatButton.setOnAction(event -> {
+            if (onStartChatCallback != null && userCard != null) {
+                PrivateChatDto privateChat = new PrivateChatDto(
+                    userCard.getUserId(),
+                    userCard.getUsername()
+                );
+                onStartChatCallback.accept(privateChat);
+                hide(); // Close the modal after starting chat
+            }
+        });
     }
 
     private void setLayout() {
@@ -110,5 +123,9 @@ public class ViewUserModal extends VBox {
         this.getChildren().remove(userCard);
         this.userCard = newUserCard;
         this.getChildren().add(0, userCard);
+    }
+    
+    public void setOnStartChatCallback(Consumer<PrivateChatDto> callback) {
+        this.onStartChatCallback = callback;
     }
 }

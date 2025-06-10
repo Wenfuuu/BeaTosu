@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import beat.osu.client.view.landing.component.bancho.buttons.AddChatButton;
 import beat.osu.client.view.landing.component.bancho.buttons.ChatTabButton;
 import beat.osu.shared.dto.chat.ChannelDto;
+import beat.osu.shared.dto.chat.PrivateChatDto;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.layout.Background;
@@ -20,22 +21,24 @@ import lombok.Setter;
 public class ChatTabs extends HBox {
 
     private List<ChannelDto> joinedChannels;
+    private List<PrivateChatDto> privateChats;
+
     private AddChatButton addChatButton;
 
     @Getter
-    private ChannelDto currentSelectedChannel;
+    private Object currentSelectedTab; 
 
     @Setter
-    private Consumer<ChannelDto> onChannelSelected;
+    private Consumer<Object> onTabSelected; 
     @Setter
-    private Consumer<ChatTabButton> onChannelClosed;
+    private Consumer<ChatTabButton> onTabClosed;
     @Setter
     private Runnable onAddChannelRequested;
     
     public ChatTabs() {
         super();
         this.joinedChannels = new ArrayList<>();
-        
+        this.privateChats = new ArrayList<>();
         setupUI();
     }
     
@@ -77,63 +80,113 @@ public class ChatTabs extends HBox {
         boolean removed = joinedChannels.removeIf(channel -> channel.getId() == channelId);
         
         if (removed) {
-            if (currentSelectedChannel != null && currentSelectedChannel.getId() == channelId) {
-                currentSelectedChannel = null;
-                if (!joinedChannels.isEmpty() && onChannelSelected != null) {
-                    selectChannel(joinedChannels.get(0));
+            if (currentSelectedTab instanceof ChannelDto && ((ChannelDto) currentSelectedTab).getId() == channelId) {
+                currentSelectedTab = null;
+                if (!joinedChannels.isEmpty()) {
+                    selectTab(joinedChannels.get(0));
+                } else if (!privateChats.isEmpty()) {
+                    selectTab(privateChats.get(0));
                 }
             }
             refreshDisplay();
         }
     }
     
-    public void selectChannel(ChannelDto channel) {
-        currentSelectedChannel = channel;
-        updateTabSelection();
-        
-        if (onChannelSelected != null) {
-            onChannelSelected.accept(channel);
+    public void setPrivateChats(List<PrivateChatDto> privateChats) {
+        this.privateChats = new ArrayList<>(privateChats);
+        refreshDisplay();
+    }
+
+    public void addPrivateChat(PrivateChatDto privateChat) {
+        boolean alreadyExists = privateChats.stream()
+                .anyMatch(c -> c.getOtherUserId() == privateChat.getOtherUserId());
+        if (!alreadyExists) {
+            privateChats.add(privateChat);
+            refreshDisplay();
         }
     }
-    
+
+    public void removePrivateChat(int otherUserId) {
+        boolean removed = privateChats.removeIf(chat -> chat.getOtherUserId() == otherUserId);
+        if (removed) {
+            if (currentSelectedTab instanceof PrivateChatDto && ((PrivateChatDto) currentSelectedTab).getOtherUserId() == otherUserId) {
+                currentSelectedTab = null;
+                if (!joinedChannels.isEmpty()) {
+                    selectTab(joinedChannels.get(0));
+                } else if (!privateChats.isEmpty()) {
+                    selectTab(privateChats.get(0));
+                }
+            }
+            refreshDisplay();
+        }
+    }
+
+    public void selectTab(Object tab) {
+        currentSelectedTab = tab;
+        updateTabSelection();
+        if (onTabSelected != null) {
+            onTabSelected.accept(tab);
+        }
+    }
+
     private void refreshDisplay() {
         this.getChildren().clear();
         this.getChildren().add(addChatButton);
-        
         for (ChannelDto channel : joinedChannels) {
             ChatTabButton tabButton = new ChatTabButton(channel.getName());
-            tabButton.setOnAction(e -> selectChannel(channel));
-            tabButton.setOnCloseAction(this::handleChannelClose);
-            
-            if (currentSelectedChannel != null && Objects.equals(currentSelectedChannel.getId(), channel.getId())) {
+            tabButton.setOnAction(e -> selectTab(channel));
+            tabButton.setOnCloseAction(this::handleTabClose);
+            if (currentSelectedTab instanceof ChannelDto && Objects.equals(((ChannelDto) currentSelectedTab).getId(), channel.getId())) {
                 tabButton.setSelected(true);
             }
-            
             this.getChildren().add(this.getChildren().size() - 1, tabButton);
         }
-        
-        if (currentSelectedChannel == null && !joinedChannels.isEmpty()) {
-            selectChannel(joinedChannels.get(0));
+        for (PrivateChatDto privateChat : privateChats) {
+            String tabName = "@" + privateChat.getOtherUserName();
+            ChatTabButton tabButton = new ChatTabButton(tabName);
+            tabButton.setOnAction(e -> selectTab(privateChat));
+            tabButton.setOnCloseAction(this::handleTabClose);
+            if (currentSelectedTab instanceof PrivateChatDto && ((PrivateChatDto) currentSelectedTab).getOtherUserId() == privateChat.getOtherUserId()) {
+                tabButton.setSelected(true);
+            }
+            this.getChildren().add(this.getChildren().size() - 1, tabButton);
+        }
+        // Auto-select if nothing is selected
+        if (currentSelectedTab == null) {
+            if (!joinedChannels.isEmpty()) {
+                selectTab(joinedChannels.get(0));
+            } else if (!privateChats.isEmpty()) {
+                selectTab(privateChats.get(0));
+            }
         }
     }
-    
+
     private void updateTabSelection() {
         for (Node node : this.getChildren()) {
             if (node instanceof ChatTabButton) {
                 ChatTabButton tab = (ChatTabButton) node;
-                tab.setSelected(currentSelectedChannel != null && 
-                    tab.getTabText().equals(currentSelectedChannel.getName()));
+                boolean selected = false;
+                if (currentSelectedTab instanceof ChannelDto) {
+                    selected = tab.getTabText().equals(((ChannelDto) currentSelectedTab).getName());
+                } else if (currentSelectedTab instanceof PrivateChatDto) {
+                    selected = tab.getTabText().equals("@" + ((PrivateChatDto) currentSelectedTab).getOtherUserName());
+                }
+                tab.setSelected(selected);
             }
         }
     }
-    
-    private void handleChannelClose(ChatTabButton tabButton) {
-        if (onChannelClosed != null) {
-            onChannelClosed.accept(tabButton);
+
+    private void handleTabClose(ChatTabButton tabButton) {
+        if (onTabClosed != null) {
+            onTabClosed.accept(tabButton);
         }
     }
-    
+
     public List<ChannelDto> getJoinedChannels() {
         return new ArrayList<>(joinedChannels);
+    }
+
+    public List<PrivateChatDto> getPrivateChats() {
+        return new ArrayList<>(privateChats);
     }
 }
