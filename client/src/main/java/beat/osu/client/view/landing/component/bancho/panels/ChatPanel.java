@@ -14,6 +14,7 @@ import beat.osu.client.controller.PrivateChatController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.view.Toast;
 import beat.osu.client.view.landing.component.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.landing.component.bancho.buttons.ChatTabButton;
 import beat.osu.client.view.landing.component.bancho.modals.SelectChannelModal;
@@ -261,18 +262,19 @@ public class ChatPanel extends VBox {
                             if (result.isSuccess()) {
                                 chatTabs.removeChannel(channelToLeave.getId());
                             } else {
-                                System.err.println("Failed to leave channel: " + result.getError().getMessage());
+                                Toast.error("Failed to leave channel: " + result.getError().getMessage());
                             }
                         });
                     });
         } else {
             PrivateChatDto privateChatToClose = privateChats.stream()
-                    .filter(chat -> ("@" + chat.getOtherUserName()).equals(tabButton.getTabText()))
+                    .filter(chat -> chat.getOtherUserName().equals(tabButton.getTabText()))
                     .findFirst()
                     .orElse(null);
             
             if (privateChatToClose != null) {
                 chatTabs.removePrivateChat(privateChatToClose.getOtherUserId());
+                displayMessages();
             }
         }
     }

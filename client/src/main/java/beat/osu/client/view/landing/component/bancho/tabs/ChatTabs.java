@@ -82,21 +82,11 @@ public class ChatTabs extends HBox {
         if (removed) {
             if (currentSelectedTab instanceof ChannelDto && ((ChannelDto) currentSelectedTab).getId() == channelId) {
                 currentSelectedTab = null;
-                if (!joinedChannels.isEmpty()) {
-                    selectTab(joinedChannels.get(0));
-                } else if (!privateChats.isEmpty()) {
-                    selectTab(privateChats.get(0));
-                }
             }
             refreshDisplay();
         }
     }
     
-    public void setPrivateChats(List<PrivateChatDto> privateChats) {
-        this.privateChats = new ArrayList<>(privateChats);
-        refreshDisplay();
-    }
-
     public void addPrivateChat(PrivateChatDto privateChat) {
         boolean alreadyExists = privateChats.stream()
                 .anyMatch(c -> c.getOtherUserId() == privateChat.getOtherUserId());
@@ -111,11 +101,6 @@ public class ChatTabs extends HBox {
         if (removed) {
             if (currentSelectedTab instanceof PrivateChatDto && ((PrivateChatDto) currentSelectedTab).getOtherUserId() == otherUserId) {
                 currentSelectedTab = null;
-                if (!joinedChannels.isEmpty()) {
-                    selectTab(joinedChannels.get(0));
-                } else if (!privateChats.isEmpty()) {
-                    selectTab(privateChats.get(0));
-                }
             }
             refreshDisplay();
         }
@@ -142,7 +127,7 @@ public class ChatTabs extends HBox {
             this.getChildren().add(this.getChildren().size() - 1, tabButton);
         }
         for (PrivateChatDto privateChat : privateChats) {
-            String tabName = "@" + privateChat.getOtherUserName();
+            String tabName = privateChat.getOtherUserName();
             ChatTabButton tabButton = new ChatTabButton(tabName);
             tabButton.setOnAction(e -> selectTab(privateChat));
             tabButton.setOnCloseAction(this::handleTabClose);
@@ -151,7 +136,7 @@ public class ChatTabs extends HBox {
             }
             this.getChildren().add(this.getChildren().size() - 1, tabButton);
         }
-        // Auto-select if nothing is selected
+
         if (currentSelectedTab == null) {
             if (!joinedChannels.isEmpty()) {
                 selectTab(joinedChannels.get(0));
@@ -169,7 +154,7 @@ public class ChatTabs extends HBox {
                 if (currentSelectedTab instanceof ChannelDto) {
                     selected = tab.getTabText().equals(((ChannelDto) currentSelectedTab).getName());
                 } else if (currentSelectedTab instanceof PrivateChatDto) {
-                    selected = tab.getTabText().equals("@" + ((PrivateChatDto) currentSelectedTab).getOtherUserName());
+                    selected = tab.getTabText().equals(((PrivateChatDto) currentSelectedTab).getOtherUserName());
                 }
                 tab.setSelected(selected);
             }

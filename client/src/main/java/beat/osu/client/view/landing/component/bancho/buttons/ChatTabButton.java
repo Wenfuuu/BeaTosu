@@ -54,6 +54,7 @@ public class ChatTabButton extends Button {
         closeButton.setGraphic(graphicWrapper);
         closeButton.getStyleClass().add("close-button");
         closeButton.setOnAction(e -> {
+            e.consume();
             if (onCloseAction != null) {
                 onCloseAction.accept(this);
             }

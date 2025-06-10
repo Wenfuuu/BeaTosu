@@ -244,6 +244,11 @@ public class LandingView extends Page {
         viewUserModal = new ViewUserModal();
 
         viewUserModal.setOnStartChatCallback(privateChat -> {
+            if (AuthManager.getUser().getId() == privateChat.getOtherUserId()) {
+                Toast.error("You cannot start a chat with yourself!").show();
+                return;
+            }
+
             chatPanel.startPrivateChat(privateChat.getOtherUserId(), privateChat.getOtherUserName());
             if (!chatPanel.isShowing()) {
                 banchoButtons.toggleChat(chatPanel, bottomBarComponent, onlineUsersPanel, topBarComponent);
