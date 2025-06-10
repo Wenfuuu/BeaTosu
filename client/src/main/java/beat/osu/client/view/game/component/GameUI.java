@@ -3,9 +3,9 @@ package beat.osu.client.view.game.component;
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
-import javafx.animation.FadeTransition;
-import javafx.animation.PauseTransition;
-import javafx.animation.SequentialTransition;
+import javafx.animation.*;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Pos;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
@@ -24,6 +24,8 @@ import java.util.Objects;
 public class GameUI extends Pane {
 //    private final Label comboLabel;
     private final ProgressBar healthBar;
+    private Timeline healthAnimation;
+    private final DoubleProperty animatedHealth = new SimpleDoubleProperty();
 
     // score
     private final ImageView[] scoreDigits;
@@ -119,6 +121,8 @@ public class GameUI extends Pane {
         healthBar = new ProgressBar(1.0);
         healthBar.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.5);
         healthBar.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.02);
+        healthBar.progressProperty().bind(animatedHealth);
+        animatedHealth.set(1.0);
         healthBar.getStyleClass().add("health-bar");
 
         VBox topLeftPanel = new VBox(5);
@@ -163,7 +167,20 @@ public class GameUI extends Pane {
 
     public void updateHealth(double health) {
         if (healthBar.getProgress() != health) {
-            healthBar.setProgress(health);
+            if (healthAnimation != null) {
+                healthAnimation.stop();
+            }
+
+            double currentHealth = healthBar.getProgress();
+            double difference = Math.abs(currentHealth - health);
+            Duration duration = Duration.millis(200 + (difference * 300));
+
+            healthAnimation = new Timeline(
+                    new KeyFrame(duration,
+                            new KeyValue(animatedHealth, health, Interpolator.EASE_BOTH)
+                    )
+            );
+            healthAnimation.play();
         }
     }
 
