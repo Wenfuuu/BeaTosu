@@ -77,9 +77,11 @@ public class ChatPanel extends VBox {
             System.err.println("CSS file not found!");
         }
 
-        this.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.35);
-        this.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.35);
-        this.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.35);
+        double panelHeight = ScreenManager.SCREEN_HEIGHT * 0.35;
+        
+        this.setMaxHeight(panelHeight);
+        this.setMinHeight(panelHeight);
+        this.setPrefHeight(panelHeight);
 
         setupEventHandlers();
         setupUI();

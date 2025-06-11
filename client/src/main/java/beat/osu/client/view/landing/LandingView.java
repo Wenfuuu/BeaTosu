@@ -33,6 +33,7 @@ import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.CacheHint;
 import javafx.scene.Node;
@@ -337,9 +338,12 @@ public class LandingView extends Page {
 
         root.getChildren().add(onlineUsersPanel);
         StackPane.setAlignment(onlineUsersPanel, Pos.TOP_CENTER);
+        onlineUsersPanel.setMaxWidth(Double.MAX_VALUE);
 
         root.getChildren().add(chatPanel);
-        StackPane.setAlignment(chatPanel, Pos.BOTTOM_CENTER);
+        StackPane.setAlignment(chatPanel, Pos.TOP_CENTER);
+        chatPanel.setMaxWidth(Double.MAX_VALUE);
+        StackPane.setMargin(chatPanel, new Insets(ScreenManager.SCREEN_HEIGHT * 0.65, 0, 0, 0));
 
         root.getChildren().add(banchoButtons);
         StackPane.setAlignment(banchoButtons, Pos.BOTTOM_RIGHT);

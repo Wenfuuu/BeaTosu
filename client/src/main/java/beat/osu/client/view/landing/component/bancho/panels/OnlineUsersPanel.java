@@ -71,9 +71,11 @@ public class OnlineUsersPanel extends VBox {
             System.err.println("CSS file not found!");
         }
 
-        this.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.65);
-        this.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.65);
-        this.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.65);
+        double panelHeight = ScreenManager.SCREEN_HEIGHT * 0.65;
+        
+        this.setMaxHeight(panelHeight);
+        this.setMinHeight(panelHeight);
+        this.setPrefHeight(panelHeight);
 
         this.userCards = new ArrayList<>();
         this.userCardMap = new HashMap<>();
