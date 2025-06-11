@@ -1,5 +1,6 @@
 package beat.osu.client.factory;
 
+import beat.osu.client.interfaces.HitObjectListener;
 import beat.osu.client.model.*;
 import beat.osu.client.utils.OsuParser;
 
@@ -160,7 +161,7 @@ public class HitObjectFactory {
 
     public static HitObject createHitObject(String data, Beatmap selectedBeatmap,
                                             int comboNumber, int comboSetIndex,
-                                            boolean comboEnd){
+                                            boolean comboEnd, HitObjectListener listener){
         // Circle (length 6) => 382,305,6867,1,2,3:2:0:0:
         // Slider => 59,124,2279,6,0,P|116:91|220:132,1,171.73332756836,2|0,0:2|0:2,0:0:0:0:
         Map<String, String> colours = OsuParser.getColours();
@@ -217,13 +218,10 @@ public class HitObjectFactory {
                     comboNumber, comboSetIndex, colorString, comboEnd,
                     generateCircleSfxFilenames(hitSound, hitSample));
         }else{
-//            return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate, circleSize,
-//                    comboNumber, comboSetIndex, colorString, comboEnd,
-//                    generateCircleSfxFilenames(hitSound, hitSample));
             return new HitSpinner(x, y, time, type, hitSound, hitSample,
                     spinnerEndTime, approachRate, circleSize, overallDifficulty,
                     comboNumber, comboSetIndex, colorString, comboEnd,
-                    generateCircleSfxFilenames(hitSound, hitSample));
+                    generateCircleSfxFilenames(hitSound, hitSample), listener);
         }
     }
 

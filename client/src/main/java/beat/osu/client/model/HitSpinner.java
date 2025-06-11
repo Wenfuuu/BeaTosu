@@ -3,6 +3,7 @@ package beat.osu.client.model;
 import beat.osu.client.Main;
 import beat.osu.client.enums.HitResult;
 import beat.osu.client.helper.GameManager;
+import beat.osu.client.interfaces.HitObjectListener;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;
@@ -19,6 +20,7 @@ import java.util.Objects;
 public class HitSpinner extends HitObject{
     private long endTime;
     private boolean isActive = false;
+    private HitObjectListener listener;
 
     private final Circle outerRing;
     private final Circle innerRing;
@@ -42,10 +44,11 @@ public class HitSpinner extends HitObject{
     public HitSpinner(int osuX, int osuY, long hitTime, int type, int hitSound,
                       String hitSample, long endTime, double approachRate, double circleSize,
                       double overallDifficulty, int comboNumber, int comboSetIndex, String colorString,
-                      boolean comboEnd, ArrayList<String> sfxFilenames) {
+                      boolean comboEnd, ArrayList<String> sfxFilenames, HitObjectListener listener) {
         super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate, circleSize, comboNumber, comboSetIndex, comboEnd, sfxFilenames);
         Color circleColor = parseColorString(colorString);
         this.endTime = endTime;
+        this.listener = listener;
 
         double baseRadius = getCircleRadius() * 2.5; // Spinners are larger than hit circles
 
@@ -167,7 +170,7 @@ public class HitSpinner extends HitObject{
         }
     }
 
-    public void updateSpinner(double mouseX, double mouseY, GameManager gm) {
+    public void updateSpinner(double mouseX, double mouseY) {
         if(isHit() && isActive) {
              double relativeX = mouseX - group.getLayoutX();
              double relativeY = mouseY - group.getLayoutY();
@@ -193,23 +196,23 @@ public class HitSpinner extends HitObject{
                 System.out.println("current completed rotations: " + completedSpins);
                 prevSpin = Math.round(completedSpins);
                 System.out.println("previous completed rotations: " + prevSpin);
-                gm.notifyHit(this, HitResult.SPIN);
+                listener.onHit(this, HitResult.SPIN);
                 if(prevSpin > TARGET_SPINS) {
-                    gm.notifyHit(this, HitResult.COMPLETE_SPIN);
+                    listener.onHit(this, HitResult.COMPLETE_SPIN);
                     int totalRotation = (int) prevSpin;
-                    gm.notifyAdditionalSpin(this, totalRotation - (int) TARGET_SPINS);
+                    listener.onAdditionalSpin(this, totalRotation - (int) TARGET_SPINS);
                 }
             }
         }else if(isHit() && !isActive && !isVisible()) {
             // check & notify judgement score
             if(completedSpins >= TARGET_SPINS) {
-                gm.notifyHit(this, HitResult.PERFECT);
+                listener.onHit(this, HitResult.PERFECT);
             }else if(completedSpins >= TARGET_SPINS - 1) {
-                gm.notifyHit(this, HitResult.GREAT);
+                listener.onHit(this, HitResult.GREAT);
             } else if(completedSpins >= TARGET_SPINS * 0.25) {
-                gm.notifyHit(this, HitResult.GOOD);
+                listener.onHit(this, HitResult.GOOD);
             } else {
-                gm.notifyMiss(this);
+                listener.onMiss(this);
             }
         }
     }

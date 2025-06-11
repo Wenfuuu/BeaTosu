@@ -243,7 +243,7 @@ public class GameManager implements Subject, HitObjectListener {
             HitObject hitObject = iterator.next();
             hitObject.update(elapsedMillis);
             if (hitObject instanceof HitSpinner) {
-                ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY, this);
+                ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
             }else if(hitObject instanceof HitSlider) {
                 ((HitSlider) hitObject).updateSlider(this);
             }
@@ -450,12 +450,6 @@ public class GameManager implements Subject, HitObjectListener {
         notifyObservers(new GameEvent(GameEventType.HEALTH_CHANGED, health));
     }
 
-    public void notifyAdditionalSpin(HitObject hitObject, int additionalSpin) {
-        System.out.println("total additional spins: " + additionalSpin);
-        notifyObservers(new GameEvent(GameEventType.ADDITIONAL_SPIN,
-                new AdditionalSpinEventData(hitObject, additionalSpin)));
-    }
-
     private void handleMiss(HitObject hitObject) {
         if (hitObject instanceof HitSpinner) return;
         notifyMiss(hitObject);
@@ -553,7 +547,7 @@ public class GameManager implements Subject, HitObjectListener {
         }
 
         HitObject newHitObject = HitObjectFactory.createHitObject(data, beatmap,
-                currentComboNumberInSet, currentComboSetIndex, comboEnd);
+                currentComboNumberInSet, currentComboSetIndex, comboEnd, this);
         hitObjects.add(newHitObject);
     }
 
@@ -592,7 +586,8 @@ public class GameManager implements Subject, HitObjectListener {
     }
 
     @Override
-    public void onAdditionalSpin(HitObject hitObject, int extraSpins) {
-        
+    public void onAdditionalSpin(HitObject hitObject, int additionalSpin) {
+        notifyObservers(new GameEvent(GameEventType.ADDITIONAL_SPIN,
+                new AdditionalSpinEventData(hitObject, additionalSpin)));
     }
 }
