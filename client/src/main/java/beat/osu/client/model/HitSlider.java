@@ -19,6 +19,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,7 @@ import java.util.Objects;
 
 public class HitSlider extends HitObject {
 
-    private final Group tempGroup;
+    private final Group headGroup;
     private final Circle headCircle;
     private final Path sliderPath;
     private final Path borderPath;
@@ -44,8 +45,14 @@ public class HitSlider extends HitObject {
     private ArrayList<ArrayList<String>> edfeSfxFilenames;
 
     // Timing & Animation
-    private long endTime;
+    private long clickTime;
+    private final long endTime;
+    @Getter
     private double duration; // Duration of a SINGLE traversal of the slider in milliseconds
+    private double sliderVelocity;
+    private double msPerBeat;
+    @Getter
+    private int tickCount = 0;
     private boolean headHit = false;
     private List<MediaPlayer> activePlayers = new ArrayList<>();
 //    private boolean sfxPlayed = false;
@@ -57,7 +64,19 @@ public class HitSlider extends HitObject {
     private final double PATH_STROKE_WIDTH;
     private final double BALL_RADIUS;
 
-    private double calculateSliderDuration(double baseSliderMultiplier, ArrayList<TimingPoint> timingPoints) {
+    private int calculateTickCount(double tickRate) {
+        if (tickRate <= 0 || this.msPerBeat <= 0 || this.duration <= 0) {
+            return 0;
+        }
+
+        double tickSpacing = msPerBeat / tickRate;
+        double sliderBeat = (this.duration - 1e-3) / tickSpacing;
+        int ticksPerSpan = Math.max(0, (int) Math.floor(sliderBeat));
+
+        return ticksPerSpan * this.repeats;
+    }
+
+    private void calculateSliderDuration(double baseSliderMultiplier, ArrayList<TimingPoint> timingPoints) {
         TimingPoint activeUninheritedTP = null;
         TimingPoint lastRelevantTPForSV = null; // Could be inherited or uninherited, influences SV_Multiplier
 
@@ -79,7 +98,6 @@ public class HitSlider extends HitObject {
             }
         }
 
-        double msPerBeat;
         if (activeUninheritedTP != null) {
             msPerBeat = activeUninheritedTP.getBeatLength();
         } else {
@@ -107,18 +125,16 @@ public class HitSlider extends HitObject {
         }
 
         // osu!pixels per beat = BaseSliderVelocity (which is baseSliderMultiplier * 100 osu!pixels/beat) * svMultiplierFromTimingPoint
-        double effectivePixelsPerBeat = baseSliderMultiplier * 100.0 * svMultiplierFromTimingPoint;
+        this.sliderVelocity = baseSliderMultiplier * 100.0 * svMultiplierFromTimingPoint;
 
-        if (pixelLength == 0) return 0; // No length, no duration
-        if (effectivePixelsPerBeat == 0) {
+        if (pixelLength == 0) this.duration = 0; // No length, no duration
+        else if (sliderVelocity == 0) {
             // System.err.println("Warning: Effective pixels per beat is zero for slider at " + getHitTime() + ". Duration will be infinite.");
-            return Double.POSITIVE_INFINITY; // Avoid division by zero
+            this.duration = Double.POSITIVE_INFINITY; // Avoid division by zero
+        }else {
+            this.duration = (pixelLength / sliderVelocity) * msPerBeat;
         }
-
-        // Single Pass Duration = (Total Pixels / (Pixels / Beat)) * (Milliseconds / Beat)
-        return (pixelLength / effectivePixelsPerBeat) * msPerBeat;
     }
-
 
     private void parseSliderParams(String paramsStr, int startX, int startY) {
         String[] mainParts = paramsStr.split(",");
@@ -198,7 +214,7 @@ public class HitSlider extends HitObject {
 
     public HitSlider(int osuX, int osuY, long hitTime, int type, int hitSound,
                      String objectParams, String hitSample, double approachRate,
-                     double circleSize, double sliderMultiplier,
+                     double circleSize, double sliderMultiplier, double sliderTickRate,
                      int comboNumber, int comboSetIndex, String colorString,
                      boolean comboEnd,
                      ArrayList<String> sfxFilenames) {
@@ -210,12 +226,13 @@ public class HitSlider extends HitObject {
         parseSliderParams(objectParams, getOsuX(), getOsuY());
         edfeSfxFilenames = HitObjectFactory.generateSliderEdgeSfxFilenames(edgeSoundsStr, edgeSetsStr);
 
-        this.duration = calculateSliderDuration(sliderMultiplier, OsuParser.getTimingPointsList());
+        calculateSliderDuration(sliderMultiplier, OsuParser.getTimingPointsList());
         if (Double.isInfinite(this.duration) || Double.isNaN(this.duration) || this.duration <= 0) {
             System.err.println("Warning: Invalid slider duration calculated (" + this.duration + ") for slider at " + getHitTime() + ". Setting to a fallback value.");
             this.duration = 500; // Fallback duration if calculation fails
         }
 
+        this.tickCount = calculateTickCount(sliderTickRate);
         this.endTime = getHitTime() + (long) (this.duration * this.repeats);
 
         // get colors
@@ -242,9 +259,9 @@ public class HitSlider extends HitObject {
             comboLabel.setLayoutY(-newBounds.getHeight() / 2);
         });
 
-        tempGroup = new Group(headCircle, comboLabel);
+        headGroup = new Group(headCircle, comboLabel);
 
-        group.getChildren().add(tempGroup);
+        group.getChildren().add(headGroup);
 
         approachCircle = new Circle(0, 0, getCircleRadius());
         approachCircle.setFill(Color.TRANSPARENT);
@@ -523,24 +540,9 @@ public class HitSlider extends HitObject {
         }
 
         if (headHit) {
-//            if (!sfxPlayed) {
-//                for (String sfx : getSfxFilenames()) {
-//                    MediaPlayer player = SfxManager.createSfxPlayer(sfx);
-//                    if (player != null) {
-//                        activePlayers.add(player);
-//                        player.setOnEndOfMedia(() -> {
-//                            player.dispose();
-//                            activePlayers.remove(player);
-//                        });
-//                        player.play();
-//                    }
-//                }
-//                sfxPlayed = true;
-//            }
-
             if (getCurrTime() <= endTime) { // Ball is moving
-                tempGroup.setVisible(false);
-                sliderBall.setVisible(true); // Ensure visible if head was hit
+//                tempGroup.setVisible(false);
+//                sliderBall.setVisible(true); // Ensure visible if head was hit
 
                 double ballFraction = getBallFraction(timeSinceHitStart);
                 Point2D ballPos = getVisualPointAtFraction(ballFraction);
@@ -560,6 +562,8 @@ public class HitSlider extends HitObject {
                 }
             } else { // Slider finished
                 setVisible(false);
+                // notify finished to calculate score judgement
+
                 playMissEffect();
 
                 for (MediaPlayer player : activePlayers) {
@@ -598,7 +602,7 @@ public class HitSlider extends HitObject {
         headHit = true;
         if (parallelAnimation != null) parallelAnimation.stop();
         approachCircle.setVisible(false);
-        headCircle.setVisible(false);
+        headGroup.setVisible(false);
         sliderBall.setVisible(true);
 
         // Set sliderBall to initial position
@@ -607,7 +611,7 @@ public class HitSlider extends HitObject {
         sliderBall.setCenterY(initialBallPos.getY());
 
         // (Optional) Add fade effect for headCircle if you want
-        FadeTransition fade = new FadeTransition(Duration.millis(150), headCircle);
+        FadeTransition fade = new FadeTransition(Duration.millis(150), headGroup);
         fade.setToValue(0);
         fade.play();
     }

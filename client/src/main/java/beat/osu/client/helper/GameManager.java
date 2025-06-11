@@ -357,6 +357,11 @@ public class GameManager implements Subject {
             return;
         }
 
+        if (hitObject instanceof HitSlider) {
+            System.out.println("hitting slider, hit time: " + hitObject.getHitTime() + ", duration: " + ((HitSlider)hitObject).getDuration() +
+                    ", tick count: " + ((HitSlider)hitObject).getTickCount());
+        }
+
         if (hitObject instanceof HitCircle) hitObject.setVisible(false);
         if (hitObject.isNewCombo()) {
             perfectCombo = true;

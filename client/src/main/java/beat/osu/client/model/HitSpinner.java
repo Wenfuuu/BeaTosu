@@ -209,7 +209,7 @@ public class HitSpinner extends HitObject{
             } else if(completedSpins >= TARGET_SPINS * 0.25) {
                 gm.notifyHit(this, HitResult.GOOD);
             } else {
-                gm.notifyHit(this, HitResult.MISS);
+                gm.notifyMiss(this);
             }
         }
     }
