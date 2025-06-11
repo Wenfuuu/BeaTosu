@@ -1,7 +1,7 @@
 package beat.osu.client.helper;
 
 import beat.osu.client.model.Beatmap;
-import beat.osu.client.view.UploadPage;
+import beat.osu.client.view.upload.UploadPage;
 import beat.osu.client.view.game.GameView;
 import beat.osu.client.view.home.HomeView;
 import beat.osu.client.view.landing.LandingView;

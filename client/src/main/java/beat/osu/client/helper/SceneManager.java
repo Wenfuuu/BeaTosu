@@ -1,8 +1,7 @@
 package beat.osu.client.helper;
 
 import beat.osu.client.Main;
-import beat.osu.client.view.Page;
-import javafx.application.Platform;
+import beat.osu.client.view.shared.general.Page;
 import javafx.scene.ImageCursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;

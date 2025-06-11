@@ -7,7 +7,7 @@ import beat.osu.client.helper.*;
 import beat.osu.client.interfaces.Observer;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.HitObject;
-import beat.osu.client.view.Page;
+import beat.osu.client.view.shared.general.Page;
 import beat.osu.client.view.game.component.GameUI;
 import beat.osu.client.view.game.component.PauseOverlay;
 import beat.osu.client.view.game.component.ResultOverlay;
