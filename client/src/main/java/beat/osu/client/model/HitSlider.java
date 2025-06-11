@@ -5,6 +5,7 @@ import beat.osu.client.enums.HitResult;
 import beat.osu.client.factory.HitObjectFactory;
 import beat.osu.client.helper.GameManager;
 import beat.osu.client.helper.SfxManager;
+import beat.osu.client.interfaces.HitObjectListener;
 import beat.osu.client.utils.OsuParser;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class HitSlider extends HitObject {
+    private HitObjectListener listener;
 
     private final Group headGroup;
     private final Circle headCircle;
@@ -248,8 +250,8 @@ public class HitSlider extends HitObject {
             String objectParams, String hitSample, double approachRate,
             double circleSize, double sliderMultiplier, double sliderTickRate,
             int comboNumber, int comboSetIndex, String colorString,
-            boolean comboEnd,
-            ArrayList<String> sfxFilenames) {
+            boolean comboEnd, ArrayList<String> sfxFilenames,
+            HitObjectListener listener) {
         super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate,
                 circleSize, comboNumber, comboSetIndex, comboEnd, sfxFilenames);
         PATH_STROKE_WIDTH = getCircleRadius() * 2;
@@ -257,8 +259,8 @@ public class HitSlider extends HitObject {
         TICK_RADIUS = getCircleRadius() * 0.15;
 
         parseSliderParams(objectParams, getOsuX(), getOsuY());
-        edfeSfxFilenames = HitObjectFactory.generateSliderEdgeSfxFilenames(edgeSoundsStr, edgeSetsStr);
-
+        this.edfeSfxFilenames = HitObjectFactory.generateSliderEdgeSfxFilenames(edgeSoundsStr, edgeSetsStr);
+        this.listener = listener;
         this.sliderTickRate = sliderTickRate; // Store tick rate for later use
 
         calculateSliderDuration(sliderMultiplier, OsuParser.getTimingPointsList());
@@ -396,7 +398,7 @@ public class HitSlider extends HitObject {
                 tickHitStatus.set(i, true);
                 ticksHit++;
                 // add 10 score
-
+                listener.onSliderTick(this);
                 System.out.println("Tick " + i + " hit! Total ticks hit: " + ticksHit);
             }
         }
@@ -565,8 +567,6 @@ public class HitSlider extends HitObject {
     }
 
     private double getBallFraction(double timeSinceHitStart) {
-        // `this.duration` is for a single pass.
-        // `this.repeats` is the number of times it repeats *after* the first pass.
         int totalTraversals = this.repeats + 1;
         if (totalTraversals <= 0)
             totalTraversals = 1; // Should not happen with repeats >= 0
@@ -691,32 +691,32 @@ public class HitSlider extends HitObject {
                 sliderBall.setCenterY(ballPos.getY());
                 int traversalIndex = (int) Math.floor((double) timeSinceHitStart / this.duration);
                 if (traversalIndex != currentTraversalIndex) {
-//                    if (traversalIndex >= 0) {
-                        ArrayList<String> sfxFilenames = edfeSfxFilenames.get(traversalIndex);
-                        for (String sfx : sfxFilenames) {
-                            SfxManager.playSfx(sfx);
-                        }
+                    ArrayList<String> sfxFilenames = edfeSfxFilenames.get(traversalIndex);
+                    for (String sfx : sfxFilenames) {
+                        SfxManager.playSfx(sfx);
+                    }
 
-                        // Track repeat/tail hits when traversal changes
-                        if (currentTraversalIndex >= 0 && currentTraversalIndex < repeats) {
-                            trackRepeatHit(currentTraversalIndex);
-                        }
-//                    }
+                    // Track repeat/tail hits when traversal changes
+                    if (currentTraversalIndex >= 0 && currentTraversalIndex < repeats) {
+                        trackRepeatHit(currentTraversalIndex);
+                    }
 
                     currentTraversalIndex = traversalIndex;
                     updateArrowVisibility(currentTraversalIndex);
                     // add 30 score
-
+                    listener.onSliderRepeat(this);
                 }
 
                 updateTickVisuals(timeSinceHitStart);
             } else { // Slider finished
                 if (repeats > 0 && repeatsHit < repeats) {
                     trackRepeatHit(repeats - 1); // Track the final tail
+                    if(repeatHitStatus.get(repeats - 1)) {// if last is hit
+                        listener.onSliderEnd(this);
+                    }
                 }
 
                 setVisible(false);
-
                 // play at slider tail
 //                ArrayList<String> sfxFilenames = edfeSfxFilenames.get(currentTraversalIndex);
 //                for (String sfx : sfxFilenames) {
@@ -727,19 +727,21 @@ public class HitSlider extends HitObject {
         }
     }
 
-    public void updateSlider(GameManager gm) {
-        if (getCurrTime() > endTime) {
-            HitResult judgement = getSliderJudgement();
-            double completion = calculateSliderCompletion();
+    public void updateSlider(double mouseX, double mouseY) {
+        if(isHit()) {
+            if (getCurrTime() > endTime) {
+                HitResult judgement = getSliderJudgement();
+                double completion = calculateSliderCompletion();
 
-            System.out.println("Slider completed! Completion: " + (completion * 100) + "%, Judgement: " + judgement);
-            System.out.println("Head early hit: " + earlyHit + ", Ticks hit: " + ticksHit + "/"
-                    + sliderTicks.size() + ", Repeats hit: " + repeatsHit + "/" + repeats);
+                System.out.println("Slider completed! Completion: " + (completion * 100) + "%, Judgement: " + judgement);
+                System.out.println("Head early hit: " + earlyHit + ", Ticks hit: " + ticksHit + "/"
+                        + sliderTicks.size() + ", Repeats hit: " + repeatsHit + "/" + repeats);
 
-            if (judgement != HitResult.MISS) {
-                gm.notifyHit(this, judgement);
-            } else {
-                gm.notifyMiss(this);
+                if (judgement != HitResult.MISS) {
+                    listener.onHit(this, judgement);
+                } else {
+                    listener.onMiss(this);
+                }
             }
         }
     }

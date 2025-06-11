@@ -11,7 +11,8 @@ public enum HitResult {
     SPIN(100),
     COMPLETE_SPIN(1000),
     SLIDER_TICK(10),
-    SLIDER_REPEAT(30);
+    SLIDER_REPEAT(30),
+    SLIDER_END(30);
 
     private final int score;
 

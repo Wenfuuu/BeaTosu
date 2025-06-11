@@ -245,7 +245,7 @@ public class GameManager implements Subject, HitObjectListener {
             if (hitObject instanceof HitSpinner) {
                 ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
             }else if(hitObject instanceof HitSlider) {
-                ((HitSlider) hitObject).updateSlider(this);
+                ((HitSlider) hitObject).updateSlider(currentMouseX, currentMouseY);
             }
 
             if (hitObject.getHitTime() > elapsedMillis + 5000) {
@@ -330,7 +330,7 @@ public class GameManager implements Subject, HitObjectListener {
     }
 
     private void updateHitCount(HitObject hitObject, HitResult hitResult) {
-        if (hitResult != HitResult.SPIN && hitResult != HitResult.COMPLETE_SPIN) {
+        if (hitResult != HitResult.SPIN && hitResult != HitResult.COMPLETE_SPIN && hitResult != HitResult.SLIDER_END) {
             masterComboNumber++;
             updateHighestCombo(masterComboNumber);
         }
@@ -416,16 +416,25 @@ public class GameManager implements Subject, HitObjectListener {
         }
     }
 
-    public void notifyHit(HitObject hitObject, HitResult hitResult) {
+    private double calculateScoreFactor(HitResult hitResult) {
+        if(hitResult != HitResult.PERFECT && hitResult != HitResult.GREAT && hitResult != HitResult.GOOD) {
+            return 1.0;
+        }
+
+        double comboMultiplier = Math.max(masterComboNumber - 1, 0);
+        int difficultyMultiplier = beatmap.getDifficultyMultiplier(hitObjects, OsuParser.getBreakPeriodsList());
+        double modMultiplier = getModMultiplier();
+        return 1.0 + (comboMultiplier * difficultyMultiplier * modMultiplier / 25.0);
+    }
+
+    private void notifyHit(HitObject hitObject, HitResult hitResult) {
         // masterComboNumber++;
         // updateHighestCombo(masterComboNumber);
         updateHitCount(hitObject, hitResult);
 
         int hitValue = hitResult.getScore();
-        double comboMultiplier = Math.max(masterComboNumber - 1, 0);
-        int difficultyMultiplier = beatmap.getDifficultyMultiplier(hitObjects, OsuParser.getBreakPeriodsList());
-        double modMultiplier = getModMultiplier();
-        double scoreFactor = 1 + (comboMultiplier * difficultyMultiplier * modMultiplier / 25.0);
+
+        double scoreFactor = calculateScoreFactor(hitResult);
         int hitScore = (int) Math.round(hitValue * scoreFactor);
         score += hitScore;
         // System.out.println(score);
@@ -455,7 +464,7 @@ public class GameManager implements Subject, HitObjectListener {
         notifyMiss(hitObject);
     }
 
-    public void notifyMiss(HitObject hitObject) {
+    private void notifyMiss(HitObject hitObject) {
         perfectCombo = false;
         imperfectOrMissed = true;
         hitObject.playMissEffect();
@@ -577,6 +586,7 @@ public class GameManager implements Subject, HitObjectListener {
 
     @Override
     public void onHit(HitObject hitObject, HitResult result) {
+        System.out.println("on hit");
         notifyHit(hitObject, result);
     }
 
@@ -589,5 +599,23 @@ public class GameManager implements Subject, HitObjectListener {
     public void onAdditionalSpin(HitObject hitObject, int additionalSpin) {
         notifyObservers(new GameEvent(GameEventType.ADDITIONAL_SPIN,
                 new AdditionalSpinEventData(hitObject, additionalSpin)));
+    }
+
+    @Override
+    public void onSliderTick(HitObject hitObject) {
+        System.out.println("on slider tick");
+        notifyHit(hitObject, HitResult.SLIDER_TICK);
+    }
+
+    @Override
+    public void onSliderRepeat(HitObject hitObject) {
+        System.out.println("on slider repeat");
+        notifyHit(hitObject, HitResult.SLIDER_REPEAT);
+    }
+
+    @Override
+    public void onSliderEnd(HitObject hitObject) {
+        System.out.println("on slider end");
+        notifyHit(hitObject, HitResult.SLIDER_END);
     }
 }

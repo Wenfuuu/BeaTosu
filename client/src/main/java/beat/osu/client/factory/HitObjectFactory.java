@@ -216,7 +216,7 @@ public class HitObjectFactory {
             return new HitSlider(x, y, time, type, hitSound, objectParams, hitSample,
                     approachRate, circleSize, sliderMultiplier, sliderTickRate,
                     comboNumber, comboSetIndex, colorString, comboEnd,
-                    generateCircleSfxFilenames(hitSound, hitSample));
+                    generateCircleSfxFilenames(hitSound, hitSample), listener);
         }else{
             return new HitSpinner(x, y, time, type, hitSound, hitSample,
                     spinnerEndTime, approachRate, circleSize, overallDifficulty,
