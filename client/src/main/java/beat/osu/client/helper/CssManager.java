@@ -80,4 +80,19 @@ public class CssManager {
         return cssUrl;
     }
 
+    public static URL getLobbyCssURL(String filename) {
+        if (filename == null || filename.isEmpty()) {
+            System.err.println("Filename cannot be null or empty.");
+            return null;
+        }
+
+        String path = "/assets/css/lobby/" + filename;
+        URL cssUrl = Main.class.getResource(path);
+
+        if (cssUrl == null) {
+            System.err.println("CSS file not found at path: " + path);
+        }
+
+        return cssUrl;
+    }
 }

@@ -1,6 +1,7 @@
 package beat.osu.client.helper;
 
 import beat.osu.client.model.Beatmap;
+import beat.osu.client.view.lobby.LobbyView;
 import beat.osu.client.view.upload.UploadPage;
 import beat.osu.client.view.game.GameView;
 import beat.osu.client.view.home.HomeView;
@@ -34,5 +35,10 @@ public class ViewManager {
     public static void showUploadPage() {
         UploadPage uploadPage = new UploadPage(primaryStage);
         sceneManager.transitionToPage(uploadPage);
+    }
+
+    public static void showLobbyView() {
+        LobbyView lobbyView = new LobbyView(primaryStage);
+        sceneManager.transitionToPage(lobbyView);
     }
 }
