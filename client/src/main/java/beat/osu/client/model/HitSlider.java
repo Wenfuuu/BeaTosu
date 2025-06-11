@@ -1,7 +1,9 @@
 package beat.osu.client.model;
 
 import beat.osu.client.Main;
+import beat.osu.client.enums.HitResult;
 import beat.osu.client.factory.HitObjectFactory;
+import beat.osu.client.helper.GameManager;
 import beat.osu.client.helper.SfxManager;
 import beat.osu.client.utils.OsuParser;
 import javafx.animation.Animation;
@@ -20,6 +22,7 @@ import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,12 +52,22 @@ public class HitSlider extends HitObject {
     // Timing & Animation
     private long clickTime;
     private final long endTime;
+
     @Getter
     private double duration; // Duration of a SINGLE traversal of the slider in milliseconds
     private double sliderVelocity;
     private double msPerBeat;
-    @Getter
+    private double sliderTickRate;
     private int tickCount = 0;
+    private int currentTickIndex = -1;
+
+    // Slider scoring tracking
+    @Setter
+    private boolean earlyHit = false;
+    private int ticksHit = 0;
+    private int repeatsHit = 0;
+    private final List<Boolean> tickHitStatus = new ArrayList<>();
+    private final List<Boolean> repeatHitStatus = new ArrayList<>();
     private boolean headHit = false;
     private List<MediaPlayer> activePlayers = new ArrayList<>();
     // private boolean sfxPlayed = false;
@@ -72,11 +85,15 @@ public class HitSlider extends HitObject {
             return 0;
         }
 
-        double tickSpacing = msPerBeat / tickRate;
-        double sliderBeat = (this.duration - 1e-3) / tickSpacing;
-        int ticksPerSpan = Math.max(0, (int) Math.floor(sliderBeat));
+        // Calculate tick interval in milliseconds
+        double tickInterval = msPerBeat / tickRate;
 
-        return ticksPerSpan * this.repeats;
+        // Calculate how many ticks appear in one traversal (excluding head and tail)
+        int ticksPerTraversal = (int) Math.floor(this.duration / tickInterval);
+
+        // Total ticks = ticks per traversal * total number of traversals
+        int totalTraversals = this.repeats + 1;
+        return ticksPerTraversal * totalTraversals;
     }
 
     private void calculateSliderDuration(double baseSliderMultiplier, ArrayList<TimingPoint> timingPoints) {
@@ -244,6 +261,8 @@ public class HitSlider extends HitObject {
         parseSliderParams(objectParams, getOsuX(), getOsuY());
         edfeSfxFilenames = HitObjectFactory.generateSliderEdgeSfxFilenames(edgeSoundsStr, edgeSetsStr);
 
+        this.sliderTickRate = sliderTickRate; // Store tick rate for later use
+
         calculateSliderDuration(sliderMultiplier, OsuParser.getTimingPointsList());
         if (Double.isInfinite(this.duration) || Double.isNaN(this.duration) || this.duration <= 0) {
             System.err.println("Warning: Invalid slider duration calculated (" + this.duration + ") for slider at "
@@ -253,6 +272,14 @@ public class HitSlider extends HitObject {
 
         this.tickCount = calculateTickCount(sliderTickRate);
         this.endTime = getHitTime() + (long) (this.duration * this.repeats);
+
+        // Initialize slider scoring tracking
+        for (int i = 0; i < this.tickCount; i++) {
+            tickHitStatus.add(false);
+        }
+        for (int i = 0; i < this.repeats; i++) {
+            repeatHitStatus.add(false);
+        }
 
         // get colors
         Color circleColor = parseColorString(colorString);
@@ -306,8 +333,7 @@ public class HitSlider extends HitObject {
             group.getChildren().remove(tick);
         }
         sliderTicks.clear();
-
-        if (tickCount <= 0 || this.duration <= 0) {
+        if (tickRate <= 0 || this.duration <= 0) {
             return; // No ticks to create
         }
 
@@ -364,16 +390,35 @@ public class HitSlider extends HitObject {
         if (!headHit || sliderTicks.isEmpty())
             return;
 
-        double tickSpacing = msPerBeat;
-        int currentTickIndex = (int) Math.floor(timeSinceHitStart / tickSpacing);
+        double tickSpacing = msPerBeat / calculateTickRate();
+        int newTickIndex = (int) Math.floor(timeSinceHitStart / tickSpacing);
 
-        // Hide ticks that have been passed
+        // Check if we've passed new ticks and count them as hit
+        for (int i = currentTickIndex + 1; i <= newTickIndex && i < sliderTicks.size(); i++) {
+            if (i >= 0 && i < tickHitStatus.size() && !tickHitStatus.get(i)) {
+                tickHitStatus.set(i, true);
+                ticksHit++;
+                System.out.println("Tick " + i + " hit! Total ticks hit: " + ticksHit);
+            }
+        }
+
+        currentTickIndex = newTickIndex;
+        System.out.println("Current tick index: " + currentTickIndex + ", total ticks: " + sliderTicks.size()); // Hide
+                                                                                                                // ticks
+                                                                                                                // that
+                                                                                                                // have
+                                                                                                                // been
+                                                                                                                // passed
         for (int i = 0; i < sliderTicks.size() && i < currentTickIndex; i++) {
             if (sliderTicks.get(i).isVisible()) {
                 sliderTicks.get(i).setVisible(false);
                 // Optional: Add a small scale/fade animation here for visual feedback
             }
         }
+    }
+
+    private double calculateTickRate() {
+        return this.sliderTickRate;
     }
 
     private void updateArrowVisibility(int currentTraversalIndex) {
@@ -650,13 +695,17 @@ public class HitSlider extends HitObject {
                 Point2D ballPos = getVisualPointAtFraction(ballFraction);
                 sliderBall.setCenterX(ballPos.getX());
                 sliderBall.setCenterY(ballPos.getY());
-
                 int traversalIndex = (int) Math.floor((double) timeSinceHitStart / this.duration);
                 if (traversalIndex != currentTraversalIndex) {
                     if (traversalIndex >= 0) {
                         ArrayList<String> sfxFilenames = edfeSfxFilenames.get(traversalIndex);
                         for (String sfx : sfxFilenames) {
                             SfxManager.playSfx(sfx);
+                        }
+
+                        // Track repeat/tail hits when traversal changes
+                        if (currentTraversalIndex >= 0 && currentTraversalIndex < repeats) {
+                            trackRepeatHit(currentTraversalIndex);
                         }
                     }
                     currentTraversalIndex = traversalIndex;
@@ -665,8 +714,11 @@ public class HitSlider extends HitObject {
 
                 updateTickVisuals(timeSinceHitStart);
             } else { // Slider finished
+                if (repeats > 0 && repeatsHit < repeats) {
+                    trackRepeatHit(repeats - 1); // Track the final tail
+                }
+
                 setVisible(false);
-                // notify finished to calculate score judgement
 
                 playMissEffect();
 
@@ -676,6 +728,70 @@ public class HitSlider extends HitObject {
                 }
                 activePlayers.clear();
             }
+        }
+    }
+
+    public void updateSlider(GameManager gm) {
+        if (getCurrTime() > endTime) {
+            HitResult judgement = getSliderJudgement();
+            double completion = calculateSliderCompletion();
+
+            System.out.println("Slider completed! Completion: " + (completion * 100) + "%, Judgement: " + judgement);
+            System.out.println("Head early hit: " + earlyHit + ", Ticks hit: " + ticksHit + "/"
+                    + sliderTicks.size() + ", Repeats hit: " + repeatsHit + "/" + repeats);
+
+            if (judgement != HitResult.MISS) {
+                gm.notifyHit(this, judgement);
+            } else {
+                gm.notifyMiss(this);
+            }
+        }
+    }
+
+    private void trackRepeatHit(int repeatIndex) {
+        if (repeatIndex >= 0 && repeatIndex < repeatHitStatus.size() && !repeatHitStatus.get(repeatIndex)) {
+            repeatHitStatus.set(repeatIndex, true);
+            repeatsHit++;
+            System.out.println("Repeat " + repeatIndex + " hit! Total repeats hit: " + repeatsHit);
+        }
+    }
+
+    private double calculateSliderCompletion() {
+        // Calculate total slider parts
+        int totalParts = 1; // Slider head early hit
+        totalParts += sliderTicks.size(); // All slider ticks
+        totalParts += repeats; // Slider tail + repeats
+
+        if (totalParts == 0) return 0.0;
+
+        // Calculate hit parts
+        int hitParts = 0;
+
+        // check if early hit
+        if (!earlyHit) {
+            hitParts++;
+        }
+
+        // Count ticks hit
+        hitParts += ticksHit;
+
+        // Count repeats/tail hit
+        hitParts += repeatsHit;
+
+        return (double) hitParts / (double) totalParts;
+    }
+
+    private HitResult getSliderJudgement() {
+        double completion = calculateSliderCompletion();
+
+        if (completion >= 1.0) {
+            return HitResult.PERFECT; // 100% completion = GREAT
+        } else if (completion >= 0.5) {
+            return HitResult.GREAT; // 50%+ completion = OK
+        } else if (completion > 0.0) {
+            return HitResult.GOOD; // Any slider part hit = MEH
+        } else {
+            return HitResult.MISS; // 0% completion = MISS
         }
     }
 
@@ -697,7 +813,6 @@ public class HitSlider extends HitObject {
         FadeTransition fadeInAnimation = new FadeTransition(Duration.millis(getFadeIn()), group);
         fadeInAnimation.setFromValue(0);
         fadeInAnimation.setToValue(1);
-
         parallelAnimation = new ParallelTransition(approachAnimation, fadeInAnimation);
         parallelAnimation.play();
     }
@@ -720,6 +835,8 @@ public class HitSlider extends HitObject {
         FadeTransition fade = new FadeTransition(Duration.millis(150), headGroup);
         fade.setToValue(0);
         fade.play();
+
+        System.out.println("Slider head hit successfully!");
     }
 
     @Override

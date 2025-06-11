@@ -243,7 +243,10 @@ public class GameManager implements Subject {
             hitObject.update(elapsedMillis);
             if (hitObject instanceof HitSpinner) {
                 ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY, this);
+            }else if(hitObject instanceof HitSlider) {
+                ((HitSlider) hitObject).updateSlider(this);
             }
+
             if (hitObject.getHitTime() > elapsedMillis + 5000) {
                 // If the hit object is still far, skip processing
                 break;
@@ -352,6 +355,13 @@ public class GameManager implements Subject {
     private void handleHit(HitObject hitObject, long timingError) {
         hitObject.setHit(true);
         hitObject.playHitEffect();
+        HitResult hitResult = HitResult.fromTimingError(timingError, beatmap.getOverallDifficulty());
+
+        if (hitObject instanceof HitCircle) hitObject.setVisible(false);
+        if (hitObject.isNewCombo()) {
+            perfectCombo = true;
+            imperfectOrMissed = false;
+        }
 
         if (hitObject instanceof HitSpinner) {
             System.out.println("hitting spinner, returning");
@@ -359,14 +369,12 @@ public class GameManager implements Subject {
         }
 
         if (hitObject instanceof HitSlider) {
-            System.out.println("hitting slider, hit time: " + hitObject.getHitTime() + ", duration: " + ((HitSlider)hitObject).getDuration() +
-                    ", tick count: " + ((HitSlider)hitObject).getTickCount());
-        }
-
-        if (hitObject instanceof HitCircle) hitObject.setVisible(false);
-        if (hitObject.isNewCombo()) {
-            perfectCombo = true;
-            imperfectOrMissed = false;
+//            System.out.println("hitting slider, hit time: " + hitObject.getHitTime() + ", duration: " + ((HitSlider)hitObject).getDuration() +
+//                    ", tick count: " + ((HitSlider)hitObject).getTickCount());
+            if(hitResult == HitResult.MISS) {
+                ((HitSlider) hitObject).setEarlyHit(true);
+            }
+            return;
         }
 
         // play sfx
@@ -377,8 +385,8 @@ public class GameManager implements Subject {
         }
 
         // Determine hit result based on timing
-        HitResult hitResult = HitResult.fromTimingError(timingError, beatmap.getOverallDifficulty());
-        notifyHit(hitObject, hitResult);
+        if(hitResult == HitResult.MISS) notifyMiss(hitObject);
+        else notifyHit(hitObject, hitResult);
     }
 
     private HealthRecover getHealthRecover(HitObject hitObject, HitResult hitResult) {
@@ -537,11 +545,7 @@ public class GameManager implements Subject {
             // Apply combo skip from the *previous* new combo object, or this one if it's
             // the first.
             // The comboSetIndex is incremented by 1 + the number of colors to skip.
-            currentComboSetIndex = (currentComboSetIndex + 1 + comboSkipCounter) % OsuParser.getColours().size(); // Modulo
-                                                                                                                  // beatmap's
-                                                                                                                  // combo
-                                                                                                                  // color
-                                                                                                                  // count
+            currentComboSetIndex = (currentComboSetIndex + 1 + comboSkipCounter) % OsuParser.getColours().size();
             comboSkipCounter = comboSkipFromThisObject; // Store skip for NEXT new combo
         } else {
             currentComboNumberInSet++;
