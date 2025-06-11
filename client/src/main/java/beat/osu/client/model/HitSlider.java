@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class HitSlider extends HitObject {
-    private HitObjectListener listener;
+    private final HitObjectListener listener;
 
     private final Group headGroup;
     private final Circle headCircle;
@@ -682,30 +682,32 @@ public class HitSlider extends HitObject {
         }
 
         if (headHit) {
-            if (getCurrTime() <= endTime) { // Ball is moving
-                double ballFraction = getBallFraction(timeSinceHitStart);
-                Point2D ballPos = getVisualPointAtFraction(ballFraction);
-                sliderBall.setCenterX(ballPos.getX());
-                sliderBall.setCenterY(ballPos.getY());
-                int traversalIndex = (int) Math.floor((double) timeSinceHitStart / this.duration);
-                if (traversalIndex != currentTraversalIndex) {
-                    ArrayList<String> sfxFilenames = edfeSfxFilenames.get(traversalIndex);
-                    for (String sfx : sfxFilenames) {
-                        SfxManager.playSfx(sfx);
+            if (getCurrTime() <= endTime) { // only move if past hit time
+                if(getCurrTime() > getHitTime()) {
+                    double ballFraction = getBallFraction(timeSinceHitStart);
+                    Point2D ballPos = getVisualPointAtFraction(ballFraction);
+                    sliderBall.setCenterX(ballPos.getX());
+                    sliderBall.setCenterY(ballPos.getY());
+                    int traversalIndex = (int) Math.floor((double) timeSinceHitStart / this.duration);
+                    if (traversalIndex != currentTraversalIndex) {
+                        ArrayList<String> sfxFilenames = edfeSfxFilenames.get(traversalIndex);
+                        for (String sfx : sfxFilenames) {
+                            SfxManager.playSfx(sfx);
+                        }
+
+                        // Track repeat/tail hits when traversal changes
+                        if (currentTraversalIndex >= 0 && currentTraversalIndex < repeats) {
+                            trackRepeatHit(currentTraversalIndex);
+                        }
+
+                        currentTraversalIndex = traversalIndex;
+                        updateArrowVisibility(currentTraversalIndex);
+                        // add 30 score
+                        listener.onSliderRepeat(this);
                     }
 
-                    // Track repeat/tail hits when traversal changes
-                    if (currentTraversalIndex >= 0 && currentTraversalIndex < repeats) {
-                        trackRepeatHit(currentTraversalIndex);
-                    }
-
-                    currentTraversalIndex = traversalIndex;
-                    updateArrowVisibility(currentTraversalIndex);
-                    // add 30 score
-                    listener.onSliderRepeat(this);
+                    updateTickVisuals(timeSinceHitStart);
                 }
-
-                updateTickVisuals(timeSinceHitStart);
             } else { // Slider finished
                 if (repeats > 0 && repeatsHit < repeats) {
                     trackRepeatHit(repeats - 1); // Track the final tail
@@ -740,6 +742,8 @@ public class HitSlider extends HitObject {
                 } else {
                     listener.onMiss(this);
                 }
+            }else {
+
             }
         }
     }
@@ -755,8 +759,8 @@ public class HitSlider extends HitObject {
     private double calculateSliderCompletion() {
         // Calculate total slider parts
         int totalParts = 1; // Slider head early hit
-        totalParts += sliderTicks.size(); // All slider ticks
-        totalParts += repeats; // Slider tail + repeats
+        totalParts += sliderTicks.size();
+        totalParts += repeats;
 
         if (totalParts == 0) return 0.0;
 

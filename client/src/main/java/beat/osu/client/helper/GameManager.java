@@ -331,6 +331,7 @@ public class GameManager implements Subject, HitObjectListener {
 
     private void updateHitCount(HitObject hitObject, HitResult hitResult) {
         if (hitResult != HitResult.SPIN && hitResult != HitResult.COMPLETE_SPIN && hitResult != HitResult.SLIDER_END) {
+//            System.out.println("combo naik");
             masterComboNumber++;
             updateHighestCombo(masterComboNumber);
         }
@@ -375,15 +376,13 @@ public class GameManager implements Subject, HitObjectListener {
         hitObject.setHit(true);
         hitObject.playHitEffect();
 
+        if(!(hitObject instanceof HitCircle)) return;
         // play sfx
-        if (hitObject instanceof HitCircle) {
-            for (String sfx : hitObject.getSfxFilenames()) {
-                SfxManager.playSfx(sfx);
-            }
+        for (String sfx : hitObject.getSfxFilenames()) {
+            SfxManager.playSfx(sfx);
         }
-
         // Determine hit result based on timing
-        if(hitResult == HitResult.MISS) notifyMiss(hitObject);
+        if (hitResult == HitResult.MISS) notifyMiss(hitObject);
         else notifyHit(hitObject, hitResult);
     }
 
