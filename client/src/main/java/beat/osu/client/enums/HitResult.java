@@ -9,7 +9,9 @@ public enum HitResult {
     GOOD(50),
     MISS(0),
     SPIN(100),
-    COMPLETE_SPIN(1000);
+    COMPLETE_SPIN(1000),
+    SLIDER_TICK(10),
+    SLIDER_REPEAT(30);
 
     private final int score;
 

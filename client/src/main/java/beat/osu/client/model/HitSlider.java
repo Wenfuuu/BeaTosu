@@ -50,7 +50,6 @@ public class HitSlider extends HitObject {
     private final List<Circle> sliderTicks = new ArrayList<>();
 
     // Timing & Animation
-    private long clickTime;
     private final long endTime;
 
     @Getter
@@ -70,7 +69,6 @@ public class HitSlider extends HitObject {
     private final List<Boolean> repeatHitStatus = new ArrayList<>();
     private boolean headHit = false;
     private List<MediaPlayer> activePlayers = new ArrayList<>();
-    // private boolean sfxPlayed = false;
     private ParallelTransition parallelAnimation;
     private final List<ImageView> reverseArrows = new ArrayList<>();
     private int currentTraversalIndex = -1;
@@ -387,8 +385,7 @@ public class HitSlider extends HitObject {
     }
 
     private void updateTickVisuals(double timeSinceHitStart) {
-        if (!headHit || sliderTicks.isEmpty())
-            return;
+        if (!headHit || sliderTicks.isEmpty()) return;
 
         double tickSpacing = msPerBeat / calculateTickRate();
         int newTickIndex = (int) Math.floor(timeSinceHitStart / tickSpacing);
@@ -398,17 +395,14 @@ public class HitSlider extends HitObject {
             if (i >= 0 && i < tickHitStatus.size() && !tickHitStatus.get(i)) {
                 tickHitStatus.set(i, true);
                 ticksHit++;
+                // add 10 score
+
                 System.out.println("Tick " + i + " hit! Total ticks hit: " + ticksHit);
             }
         }
 
         currentTickIndex = newTickIndex;
-        System.out.println("Current tick index: " + currentTickIndex + ", total ticks: " + sliderTicks.size()); // Hide
-                                                                                                                // ticks
-                                                                                                                // that
-                                                                                                                // have
-                                                                                                                // been
-                                                                                                                // passed
+        System.out.println("Current tick index: " + currentTickIndex + ", total ticks: " + sliderTicks.size());
         for (int i = 0; i < sliderTicks.size() && i < currentTickIndex; i++) {
             if (sliderTicks.get(i).isVisible()) {
                 sliderTicks.get(i).setVisible(false);
@@ -697,7 +691,7 @@ public class HitSlider extends HitObject {
                 sliderBall.setCenterY(ballPos.getY());
                 int traversalIndex = (int) Math.floor((double) timeSinceHitStart / this.duration);
                 if (traversalIndex != currentTraversalIndex) {
-                    if (traversalIndex >= 0) {
+//                    if (traversalIndex >= 0) {
                         ArrayList<String> sfxFilenames = edfeSfxFilenames.get(traversalIndex);
                         for (String sfx : sfxFilenames) {
                             SfxManager.playSfx(sfx);
@@ -707,9 +701,12 @@ public class HitSlider extends HitObject {
                         if (currentTraversalIndex >= 0 && currentTraversalIndex < repeats) {
                             trackRepeatHit(currentTraversalIndex);
                         }
-                    }
+//                    }
+
                     currentTraversalIndex = traversalIndex;
                     updateArrowVisibility(currentTraversalIndex);
+                    // add 30 score
+
                 }
 
                 updateTickVisuals(timeSinceHitStart);
