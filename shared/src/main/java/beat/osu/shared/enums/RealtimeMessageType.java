@@ -14,5 +14,10 @@ public enum RealtimeMessageType implements Serializable {
     LEFT_PRIVATE_CHAT,
     PRIVATE_CHAT_MESSAGE,
 
+    MATCH_CREATED,
+    USER_JOINED_MATCH,
+    USER_LEFT_MATCH,
+    PLAYER_KICKED_FROM_MATCH,
+
     SYSTEM_NOTIFICATION,
 }
