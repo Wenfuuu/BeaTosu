@@ -38,7 +38,8 @@ public class HitSlider extends HitObject {
     // Parsed Slider Data
     private char sliderType = '?';
     private final List<Point2D> controlPoints = new ArrayList<>();
-    private int repeats = 1; // This is the number of "repeats" AFTER the initial slide. Total traversals = repeats + 1.
+    private int repeats = 1; // This is the number of "repeats" AFTER the initial slide. Total traversals =
+                             // repeats + 1.
     private double pixelLength = 0.0;
     private String edgeSoundsStr = "";
     private String edgeSetsStr = "";
@@ -56,7 +57,7 @@ public class HitSlider extends HitObject {
     private int tickCount = 0;
     private boolean headHit = false;
     private List<MediaPlayer> activePlayers = new ArrayList<>();
-//    private boolean sfxPlayed = false;
+    // private boolean sfxPlayed = false;
     private ParallelTransition parallelAnimation;
     private final List<ImageView> reverseArrows = new ArrayList<>();
     private int currentTraversalIndex = -1;
@@ -92,8 +93,10 @@ public class HitSlider extends HitObject {
                 activeUninheritedTP = tp;
                 lastRelevantTPForSV = tp; // An uninherited point resets SV multiplier from previous green lines
             } else { // tp is inherited
-                // An inherited point is only relevant if it's after the current activeUninheritedTP
-                // or if no uninheritedTP has been found yet (shouldn't happen in valid maps for sliders after time 0)
+                // An inherited point is only relevant if it's after the current
+                // activeUninheritedTP
+                // or if no uninheritedTP has been found yet (shouldn't happen in valid maps for
+                // sliders after time 0)
                 if (activeUninheritedTP == null || tp.getTime() >= activeUninheritedTP.getTime()) {
                     lastRelevantTPForSV = tp;
                 }
@@ -109,7 +112,8 @@ public class HitSlider extends HitObject {
             // Use a default beat duration (e.g., 120 BPM = 500ms/beat).
             System.out.println("falling back to 500ms per beat for slider at " + getHitTime());
             msBeat = 500.0;
-            // System.err.println("Warning: No uninherited timing point found for slider at " + getHitTime() + ". Using default beatLength.");
+            // System.err.println("Warning: No uninherited timing point found for slider at
+            // " + getHitTime() + ". Using default beatLength.");
         }
 
         this.msPerBeat = msBeat;
@@ -117,25 +121,32 @@ public class HitSlider extends HitObject {
         if (lastRelevantTPForSV != null && lastRelevantTPForSV.isInherited()) {
             // The beatLength of an inherited point is a negative percentage.
             // e.g., -50 means 0.5x speed. Slider velocity is multiplied by (-100 / value).
-            // If value = -50 (0.5x speed), SV effect = -100 / -50 = 2.0 (slider moves 2x faster relative to beats).
-            // If value = -200 (2x speed), SV effect = -100 / -200 = 0.5 (slider moves 0.5x slower relative to beats).
+            // If value = -50 (0.5x speed), SV effect = -100 / -50 = 2.0 (slider moves 2x
+            // faster relative to beats).
+            // If value = -200 (2x speed), SV effect = -100 / -200 = 0.5 (slider moves 0.5x
+            // slower relative to beats).
             if (lastRelevantTPForSV.getBeatLength() != 0) {
                 svMultiplierFromTimingPoint = -100.0 / lastRelevantTPForSV.getBeatLength();
             } else {
-                // svMultiplierFromTimingPoint = Double.POSITIVE_INFINITY; // Avoid division by zero, effectively making duration near zero
+                // svMultiplierFromTimingPoint = Double.POSITIVE_INFINITY; // Avoid division by
+                // zero, effectively making duration near zero
                 // Or treat as 1.0? Osu seems to treat 0 as 1x.
-                System.err.println("Warning: Inherited timing point with 0 beatLength at " + lastRelevantTPForSV.getTime());
+                System.err.println(
+                        "Warning: Inherited timing point with 0 beatLength at " + lastRelevantTPForSV.getTime());
             }
         }
 
-        // osu!pixels per beat = BaseSliderVelocity (which is baseSliderMultiplier * 100 osu!pixels/beat) * svMultiplierFromTimingPoint
+        // osu!pixels per beat = BaseSliderVelocity (which is baseSliderMultiplier * 100
+        // osu!pixels/beat) * svMultiplierFromTimingPoint
         this.sliderVelocity = baseSliderMultiplier * 100.0 * svMultiplierFromTimingPoint;
 
-        if (pixelLength == 0) this.duration = 0; // No length, no duration
+        if (pixelLength == 0)
+            this.duration = 0; // No length, no duration
         else if (sliderVelocity == 0) {
-            // System.err.println("Warning: Effective pixels per beat is zero for slider at " + getHitTime() + ". Duration will be infinite.");
+            // System.err.println("Warning: Effective pixels per beat is zero for slider at
+            // " + getHitTime() + ". Duration will be infinite.");
             this.duration = Double.POSITIVE_INFINITY; // Avoid division by zero
-        }else {
+        } else {
             this.duration = (pixelLength / sliderVelocity) * msPerBeat;
         }
     }
@@ -163,21 +174,23 @@ public class HitSlider extends HitObject {
                         int py = Integer.parseInt(coords[1]);
                         this.controlPoints.add(new Point2D(px, py));
                     } catch (NumberFormatException e) {
-                        System.err.println("Error parsing slider control point coordinates: " + curveParts[i] + " in " + paramsStr);
+                        System.err.println("Error parsing slider control point coordinates: " + curveParts[i] + " in "
+                                + paramsStr);
                     }
                 } else {
-                    System.err.println("Warning: Invalid control point format (expected x:y): " + curveParts[i] + " in " + paramsStr);
+                    System.err.println("Warning: Invalid control point format (expected x:y): " + curveParts[i] + " in "
+                            + paramsStr);
                 }
             }
         }
         // Ensure there's at least one segment if it's a slider
         if (controlPoints.size() < 2 && this.sliderType != '?') {
-            System.err.println("Warning: Slider has less than 2 control points. Adding a dummy endpoint. Params: " + paramsStr);
+            System.err.println(
+                    "Warning: Slider has less than 2 control points. Adding a dummy endpoint. Params: " + paramsStr);
             this.controlPoints.add(new Point2D(startX + 100, startY)); // Default offset if only start point given
         }
 
-
-        if(!mainParts[1].isEmpty()) {
+        if (!mainParts[1].isEmpty()) {
             try {
                 this.repeats = Integer.parseInt(mainParts[1]);
             } catch (NumberFormatException e) {
@@ -188,7 +201,7 @@ public class HitSlider extends HitObject {
             this.repeats = 1; // Default if empty
         }
 
-        if(mainParts.length > 2 && !mainParts[2].isEmpty()){
+        if (mainParts.length > 2 && !mainParts[2].isEmpty()) {
             try {
                 this.pixelLength = Double.parseDouble(mainParts[2]);
             } catch (NumberFormatException e) {
@@ -210,18 +223,18 @@ public class HitSlider extends HitObject {
             this.edgeSoundsStr = "0|".repeat(this.repeats);
             this.edgeSoundsStr = this.edgeSoundsStr.substring(0, this.edgeSoundsStr.length() - 1);
         }
-        if(this.edgeSetsStr.isEmpty()) {
+        if (this.edgeSetsStr.isEmpty()) {
             this.edgeSetsStr = "0:0|".repeat(this.repeats);
             this.edgeSetsStr = this.edgeSetsStr.substring(0, this.edgeSetsStr.length() - 1);
         }
     }
 
     public HitSlider(int osuX, int osuY, long hitTime, int type, int hitSound,
-                     String objectParams, String hitSample, double approachRate,
-                     double circleSize, double sliderMultiplier, double sliderTickRate,
-                     int comboNumber, int comboSetIndex, String colorString,
-                     boolean comboEnd,
-                     ArrayList<String> sfxFilenames) {
+            String objectParams, String hitSample, double approachRate,
+            double circleSize, double sliderMultiplier, double sliderTickRate,
+            int comboNumber, int comboSetIndex, String colorString,
+            boolean comboEnd,
+            ArrayList<String> sfxFilenames) {
         super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate,
                 circleSize, comboNumber, comboSetIndex, comboEnd, sfxFilenames);
         PATH_STROKE_WIDTH = getCircleRadius() * 2;
@@ -233,7 +246,8 @@ public class HitSlider extends HitObject {
 
         calculateSliderDuration(sliderMultiplier, OsuParser.getTimingPointsList());
         if (Double.isInfinite(this.duration) || Double.isNaN(this.duration) || this.duration <= 0) {
-            System.err.println("Warning: Invalid slider duration calculated (" + this.duration + ") for slider at " + getHitTime() + ". Setting to a fallback value.");
+            System.err.println("Warning: Invalid slider duration calculated (" + this.duration + ") for slider at "
+                    + getHitTime() + ". Setting to a fallback value.");
             this.duration = 500; // Fallback duration if calculation fails
         }
 
@@ -297,6 +311,8 @@ public class HitSlider extends HitObject {
             return; // No ticks to create
         }
 
+        double minPixelDistanceFromEnds = getCircleRadius();
+
         double tickSpacing = msPerBeat / tickRate;
         for (int repeat = 0; repeat < this.repeats; repeat++) {
             // Calculate how many ticks in this span
@@ -317,7 +333,20 @@ public class HitSlider extends HitObject {
                     fractionAlongSlider = 1.0 - fractionAlongSlider;
                 }
 
+                // Pixel-based validation: check distance from head and tail
+                Point2D headPos = getVisualPointAtFraction(0.0); // Slider head position
+                Point2D tailPos = getVisualPointAtFraction(1.0); // Slider tail position
                 Point2D tickPos = getVisualPointAtFraction(fractionAlongSlider);
+
+                // Calculate pixel distances
+                double distanceFromHead = headPos.distance(tickPos);
+                double distanceFromTail = tailPos.distance(tickPos);
+
+                // Skip this tick if it's too close to either end
+                if (distanceFromHead < minPixelDistanceFromEnds ||
+                        distanceFromTail < minPixelDistanceFromEnds) {
+                    continue;
+                }
 
                 // Create the tick circle
                 Circle tick = new Circle(tickPos.getX(), tickPos.getY(), TICK_RADIUS);
@@ -331,8 +360,25 @@ public class HitSlider extends HitObject {
         }
     }
 
+    private void updateTickVisuals(double timeSinceHitStart) {
+        if (!headHit || sliderTicks.isEmpty())
+            return;
+
+        double tickSpacing = msPerBeat;
+        int currentTickIndex = (int) Math.floor(timeSinceHitStart / tickSpacing);
+
+        // Hide ticks that have been passed
+        for (int i = 0; i < sliderTicks.size() && i < currentTickIndex; i++) {
+            if (sliderTicks.get(i).isVisible()) {
+                sliderTicks.get(i).setVisible(false);
+                // Optional: Add a small scale/fade animation here for visual feedback
+            }
+        }
+    }
+
     private void updateArrowVisibility(int currentTraversalIndex) {
-        if (reverseArrows.isEmpty()) return;
+        if (reverseArrows.isEmpty())
+            return;
 
         // Determine which arrow should be visible
         // Traversal 0: going to end (show end arrow)
@@ -354,7 +400,7 @@ public class HitSlider extends HitObject {
                     reverseArrows.get(0).setVisible(false); // Hide end arrow
                 }
             }
-        }else { // hide arrow for final traversal
+        } else { // hide arrow for final traversal
             for (ImageView arrow : reverseArrows) {
                 arrow.setVisible(false);
             }
@@ -362,7 +408,8 @@ public class HitSlider extends HitObject {
     }
 
     private void createReverseArrows() {
-        if (repeats < 2 || controlPoints.size() < 2) return;
+        if (repeats < 2 || controlPoints.size() < 2)
+            return;
 
         // Clear any existing arrows
         for (ImageView arrow : reverseArrows) {
@@ -394,15 +441,15 @@ public class HitSlider extends HitObject {
 
             double angle = Math.toDegrees(Math.atan2(
                     last.getY() - secondLast.getY(),
-                    last.getX() - secondLast.getX()
-            ));
+                    last.getX() - secondLast.getX()));
             endArrow.setRotate(angle + 180); // +180 to point back towards the slider
         }
 
         reverseArrows.add(endArrow);
         group.getChildren().add(endArrow);
 
-        // If there are multiple repeats (odd number means it ends at start, even at end)
+        // If there are multiple repeats (odd number means it ends at start, even at
+        // end)
         // Add arrow at start point for even number of total traversals
         if (repeats > 2) {
             ImageView startArrow = new ImageView(arrowImage);
@@ -421,8 +468,7 @@ public class HitSlider extends HitObject {
 
                 double angle = Math.toDegrees(Math.atan2(
                         second.getY() - first.getY(),
-                        second.getX() - first.getX()
-                ));
+                        second.getX() - first.getX()));
                 startArrow.setRotate(angle + 180); // Point back along the slider
             }
 
@@ -434,13 +480,15 @@ public class HitSlider extends HitObject {
 
     private Path createSliderPath() {
         if (controlPoints.isEmpty()) {
-            System.err.println("Error: Cannot create slider path, control points list is empty for slider at " + getHitTime());
+            System.err.println(
+                    "Error: Cannot create slider path, control points list is empty for slider at " + getHitTime());
             return null;
         }
-        if (controlPoints.size() < 2 && sliderType != '?') { // Allow '?' (unknown/parsed error) to potentially skip path gen
+        if (controlPoints.size() < 2 && sliderType != '?') { // Allow '?' (unknown/parsed error) to potentially skip
+                                                             // path gen
             System.err.println("Error: Slider path needs at least 2 control points. Slider at " + getHitTime());
             // Create a minimal path to avoid NPE, though it won't be correct
-            Path dummyPath = new Path(new MoveTo(0,0), new LineTo(1,0)); // Minimal path
+            Path dummyPath = new Path(new MoveTo(0, 0), new LineTo(1, 0)); // Minimal path
             dummyPath.setStroke(Color.RED); // Indicate error
             dummyPath.setStrokeWidth(PATH_STROKE_WIDTH);
             return dummyPath;
@@ -465,14 +513,14 @@ public class HitSlider extends HitObject {
 
     @Override
     public void pauseAnimations() {
-        if(parallelAnimation != null && parallelAnimation.getStatus() == Animation.Status.RUNNING) {
+        if (parallelAnimation != null && parallelAnimation.getStatus() == Animation.Status.RUNNING) {
             parallelAnimation.pause();
         }
     }
 
     @Override
     public void resumeAnimations() {
-        if(parallelAnimation != null && parallelAnimation.getStatus() == Animation.Status.PAUSED) {
+        if (parallelAnimation != null && parallelAnimation.getStatus() == Animation.Status.PAUSED) {
             parallelAnimation.play();
         }
     }
@@ -481,16 +529,19 @@ public class HitSlider extends HitObject {
         // `this.duration` is for a single pass.
         // `this.repeats` is the number of times it repeats *after* the first pass.
         int totalTraversals = this.repeats + 1;
-        if (totalTraversals <= 0) totalTraversals = 1; // Should not happen with repeats >= 0
+        if (totalTraversals <= 0)
+            totalTraversals = 1; // Should not happen with repeats >= 0
 
         double timeForOneTraversal = this.duration;
-        if (timeForOneTraversal <= 0) timeForOneTraversal = 1; // Avoid division by zero if duration is 0
+        if (timeForOneTraversal <= 0)
+            timeForOneTraversal = 1; // Avoid division by zero if duration is 0
 
         // Which traversal are we in (0 for first, 1 for first repeat, etc.)
         int currentTraversalIndex = (int) Math.floor(timeSinceHitStart / timeForOneTraversal);
 
         if (currentTraversalIndex >= totalTraversals) {
-            // We are past the end of all traversals, ball should be at the end of the last traversal
+            // We are past the end of all traversals, ball should be at the end of the last
+            // traversal
             return (totalTraversals % 2 == 1) ? 1.0 : 0.0; // If odd traversals, end at 1.0; if even, end at 0.0
         }
 
@@ -498,7 +549,8 @@ public class HitSlider extends HitObject {
         double timeIntoCurrentTraversal = timeSinceHitStart - (currentTraversalIndex * timeForOneTraversal);
         double fractionInCurrentTraversal = timeIntoCurrentTraversal / timeForOneTraversal;
 
-        boolean isReverse = (currentTraversalIndex % 2) != 0; // 0th pass (initial) is forward, 1st pass (first repeat) is reverse
+        boolean isReverse = (currentTraversalIndex % 2) != 0; // 0th pass (initial) is forward, 1st pass (first repeat)
+                                                              // is reverse
 
         double ballFraction = isReverse ? (1.0 - fractionInCurrentTraversal) : fractionInCurrentTraversal;
         return Math.max(0.0, Math.min(1.0, ballFraction)); // Clamp to [0, 1]
@@ -513,13 +565,15 @@ public class HitSlider extends HitObject {
 
     private Point2D getVisualPointAtFraction(double fraction) {
         if (controlPoints.size() < 2) {
-            // System.err.println("Warning: Not enough control points to determine visual point. Slider at " + getHitTime());
+            // System.err.println("Warning: Not enough control points to determine visual
+            // point. Slider at " + getHitTime());
             return new Point2D(0, 0); // No path or malformed
         }
 
         Point2D sliderStartAbs = controlPoints.get(0); // Absolute start coordinate of the slider
 
-        // TODO: This needs to handle different slider types (Bezier, Perfect Circle, Linear)
+        // TODO: This needs to handle different slider types (Bezier, Perfect Circle,
+        // Linear)
         // Current implementation is for multi-segment linear paths.
 
         // Calculate total length of the path segments defined by controlPoints
@@ -537,7 +591,7 @@ public class HitSlider extends HitObject {
             return controlPoints.get(0).subtract(sliderStartAbs); // which is (0,0)
         }
         if (totalVisualLength == 0) { // still zero after check, likely single point
-            return new Point2D(0,0);
+            return new Point2D(0, 0);
         }
 
         // Find which segment the fraction falls on
@@ -552,7 +606,8 @@ public class HitSlider extends HitObject {
             }
             distanceAccumulated += segmentLengths[i];
             // If it's the last segment and we haven't broken, this must be it
-            if (i == segmentLengths.length -1) segmentIndex = i;
+            if (i == segmentLengths.length - 1)
+                segmentIndex = i;
         }
 
         double fractionWithinSegment;
@@ -563,14 +618,14 @@ public class HitSlider extends HitObject {
         }
         fractionWithinSegment = Math.max(0.0, Math.min(1.0, fractionWithinSegment)); // Clamp
 
-
         // Interpolate within the segment
         Point2D p0 = controlPoints.get(segmentIndex);
         Point2D p1 = controlPoints.get(segmentIndex + 1);
 
         Point2D interpolatedAbsolutePoint = getPointOnLinear(p0, p1, fractionWithinSegment);
 
-        // Return the point relative to the slider's group origin (which is sliderStartAbs)
+        // Return the point relative to the slider's group origin (which is
+        // sliderStartAbs)
         return interpolatedAbsolutePoint.subtract(sliderStartAbs);
     }
 
@@ -591,25 +646,24 @@ public class HitSlider extends HitObject {
 
         if (headHit) {
             if (getCurrTime() <= endTime) { // Ball is moving
-//                tempGroup.setVisible(false);
-//                sliderBall.setVisible(true); // Ensure visible if head was hit
-
                 double ballFraction = getBallFraction(timeSinceHitStart);
                 Point2D ballPos = getVisualPointAtFraction(ballFraction);
                 sliderBall.setCenterX(ballPos.getX());
                 sliderBall.setCenterY(ballPos.getY());
 
-                int traversalIndex = (int) Math.floor((double)timeSinceHitStart / this.duration);
-                if(traversalIndex != currentTraversalIndex) {
-                    if(traversalIndex >= 0) {
+                int traversalIndex = (int) Math.floor((double) timeSinceHitStart / this.duration);
+                if (traversalIndex != currentTraversalIndex) {
+                    if (traversalIndex >= 0) {
                         ArrayList<String> sfxFilenames = edfeSfxFilenames.get(traversalIndex);
-                        for(String sfx : sfxFilenames) {
+                        for (String sfx : sfxFilenames) {
                             SfxManager.playSfx(sfx);
                         }
                     }
                     currentTraversalIndex = traversalIndex;
                     updateArrowVisibility(currentTraversalIndex);
                 }
+
+                updateTickVisuals(timeSinceHitStart);
             } else { // Slider finished
                 setVisible(false);
                 // notify finished to calculate score judgement
@@ -627,7 +681,8 @@ public class HitSlider extends HitObject {
 
     @Override
     public void playAppearAnimation() {
-        if (approachCircle == null || headHit) return;
+        if (approachCircle == null || headHit)
+            return;
 
         approachCircle.setVisible(true);
         approachCircle.setScaleX(APPROACH_START_SCALE);
@@ -650,7 +705,8 @@ public class HitSlider extends HitObject {
     @Override
     public void playHitEffect() {
         headHit = true;
-        if (parallelAnimation != null) parallelAnimation.stop();
+        if (parallelAnimation != null)
+            parallelAnimation.stop();
         approachCircle.setVisible(false);
         headGroup.setVisible(false);
         sliderBall.setVisible(true);
@@ -678,7 +734,7 @@ public class HitSlider extends HitObject {
 
     @Override
     public void applyVisualsToNode(double centerX, double centerY, double scaledRadius) {
-        if(group != null) {
+        if (group != null) {
             group.setLayoutX(centerX);
             group.setLayoutY(centerY);
 
