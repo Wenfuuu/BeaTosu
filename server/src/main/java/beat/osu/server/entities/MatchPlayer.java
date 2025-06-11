@@ -11,5 +11,7 @@ public class MatchPlayer {
     private int id;
     private int matchId;
     private int userId;
-    private String role;
+    private String role;        // "host", "player"
+    private String status;      // "no_map", "ready", "not_ready", "playing"
+    private int slotIndex;      // 0-15
 }

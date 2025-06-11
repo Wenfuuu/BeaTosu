@@ -1,5 +1,9 @@
 package beat.osu.server.service;
 
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import beat.osu.server.entities.Beatmap;
 import beat.osu.server.entities.BeatmapSet;
 import beat.osu.server.repositories.BeatmapRepository;
@@ -14,10 +18,6 @@ import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
 import beat.osu.shared.dto.beatmap.responses.InsertBeatmapResponse;
 import beat.osu.shared.dto.beatmap.responses.InsertBeatmapSetResponse;
 import lombok.AllArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public class BeatmapService {
@@ -134,5 +134,9 @@ public class BeatmapService {
         } catch (RuntimeException e) {
             return Result.failure(Error.internal("Database error: " + e.getMessage()));
         }
+    }
+
+    public BeatmapSet getBeatmapSetById(int beatmapId) {
+        return beatmapSetRepository.getBeatmapSetById(beatmapId);
     }
 }
