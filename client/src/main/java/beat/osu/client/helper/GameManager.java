@@ -263,6 +263,7 @@ public class GameManager implements Subject {
                     handleMiss(hitObject);
                     iterator.remove(); // Remove hit object after handling miss
                     System.out.println("Removing missed HitObject: " + hitObject);
+                    continue;
                 }
             }
             if (hitObject.isHit() && !hitObject.isVisible()) {

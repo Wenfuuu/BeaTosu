@@ -43,6 +43,7 @@ public class HitSlider extends HitObject {
     private String edgeSoundsStr = "";
     private String edgeSetsStr = "";
     private ArrayList<ArrayList<String>> edfeSfxFilenames;
+    private final List<Circle> sliderTicks = new ArrayList<>();
 
     // Timing & Animation
     private long clickTime;
@@ -63,6 +64,7 @@ public class HitSlider extends HitObject {
     // Visual Constants
     private final double PATH_STROKE_WIDTH;
     private final double BALL_RADIUS;
+    private final double TICK_RADIUS;
 
     private int calculateTickCount(double tickRate) {
         if (tickRate <= 0 || this.msPerBeat <= 0 || this.duration <= 0) {
@@ -98,17 +100,19 @@ public class HitSlider extends HitObject {
             }
         }
 
+        double msBeat;
         if (activeUninheritedTP != null) {
-            msPerBeat = activeUninheritedTP.getBeatLength();
+            msBeat = activeUninheritedTP.getBeatLength();
         } else {
             // Fallback: No uninherited timing point found before the slider.
             // This is unusual for a slider not at the very beginning of the map.
             // Use a default beat duration (e.g., 120 BPM = 500ms/beat).
             System.out.println("falling back to 500ms per beat for slider at " + getHitTime());
-            msPerBeat = 500.0;
+            msBeat = 500.0;
             // System.err.println("Warning: No uninherited timing point found for slider at " + getHitTime() + ". Using default beatLength.");
         }
 
+        this.msPerBeat = msBeat;
         double svMultiplierFromTimingPoint = 1.0; // Default: no SV modification from green lines
         if (lastRelevantTPForSV != null && lastRelevantTPForSV.isInherited()) {
             // The beatLength of an inherited point is a negative percentage.
@@ -222,6 +226,7 @@ public class HitSlider extends HitObject {
                 circleSize, comboNumber, comboSetIndex, comboEnd, sfxFilenames);
         PATH_STROKE_WIDTH = getCircleRadius() * 2;
         BALL_RADIUS = getCircleRadius() * 0.8;
+        TICK_RADIUS = getCircleRadius() * 0.15;
 
         parseSliderParams(objectParams, getOsuX(), getOsuY());
         edfeSfxFilenames = HitObjectFactory.generateSliderEdgeSfxFilenames(edgeSoundsStr, edgeSetsStr);
@@ -277,8 +282,53 @@ public class HitSlider extends HitObject {
         group.getChildren().add(sliderBall);
 
         createReverseArrows();
+        createSliderTicks(sliderTickRate);
 
         group.setUserData(this);
+    }
+
+    private void createSliderTicks(double tickRate) {
+        for (Circle tick : sliderTicks) {
+            group.getChildren().remove(tick);
+        }
+        sliderTicks.clear();
+
+        if (tickCount <= 0 || this.duration <= 0) {
+            return; // No ticks to create
+        }
+
+        double tickSpacing = msPerBeat / tickRate;
+        for (int repeat = 0; repeat < this.repeats; repeat++) {
+            // Calculate how many ticks in this span
+            int ticksInSpan = (int) Math.floor((this.duration - 1e-3) / tickSpacing);
+
+            for (int tickIndex = 0; tickIndex < ticksInSpan; tickIndex++) {
+                double tickTimeInSpan = (tickIndex + 1) * tickSpacing; // +1 because first tick is after the start
+
+                if (tickTimeInSpan >= this.duration - 1e-3) {
+                    break; // Don't place tick too close to the end
+                }
+
+                // Calculate position along the slider
+                double fractionAlongSlider = tickTimeInSpan / this.duration;
+
+                // For reverse spans (odd repeat indices), reverse the fraction
+                if (repeat % 2 == 1) {
+                    fractionAlongSlider = 1.0 - fractionAlongSlider;
+                }
+
+                Point2D tickPos = getVisualPointAtFraction(fractionAlongSlider);
+
+                // Create the tick circle
+                Circle tick = new Circle(tickPos.getX(), tickPos.getY(), TICK_RADIUS);
+                tick.setFill(Color.WHITE.deriveColor(1, 1, 1, 0.8));
+                tick.setStroke(Color.GRAY);
+                tick.setStrokeWidth(1);
+
+                sliderTicks.add(tick);
+                group.getChildren().add(tick);
+            }
+        }
     }
 
     private void updateArrowVisibility(int currentTraversalIndex) {
@@ -638,6 +688,11 @@ public class HitSlider extends HitObject {
             sliderPath.setStrokeWidth(scaledRadius * 2);
             borderPath.setStrokeWidth(scaledRadius * 2.1);
             sliderBall.setRadius(scaledRadius * 0.8);
+
+            double tickRadius = scaledRadius * 0.15;
+            for (Circle tick : sliderTicks) {
+                tick.setRadius(tickRadius);
+            }
         }
     }
 }
