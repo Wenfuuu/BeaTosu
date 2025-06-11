@@ -68,7 +68,7 @@ public class HitSlider extends HitObject {
     private final List<Boolean> tickHitStatus = new ArrayList<>();
     private final List<Boolean> repeatHitStatus = new ArrayList<>();
     private boolean headHit = false;
-    private List<MediaPlayer> activePlayers = new ArrayList<>();
+//    private List<MediaPlayer> activePlayers = new ArrayList<>();
     private ParallelTransition parallelAnimation;
     private final List<ImageView> reverseArrows = new ArrayList<>();
     private int currentTraversalIndex = -1;
@@ -717,13 +717,12 @@ public class HitSlider extends HitObject {
 
                 setVisible(false);
 
+                // play at slider tail
+//                ArrayList<String> sfxFilenames = edfeSfxFilenames.get(currentTraversalIndex);
+//                for (String sfx : sfxFilenames) {
+//                    SfxManager.playSfx(sfx);
+//                }
                 playMissEffect();
-
-                for (MediaPlayer player : activePlayers) {
-                    player.stop();
-                    player.dispose();
-                }
-                activePlayers.clear();
             }
         }
     }

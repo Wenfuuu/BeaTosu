@@ -6,6 +6,7 @@ import beat.osu.client.enums.HealthRecover;
 import beat.osu.client.enums.HitResult;
 import beat.osu.client.factory.HitObjectFactory;
 import beat.osu.client.game.*;
+import beat.osu.client.interfaces.HitObjectListener;
 import beat.osu.client.interfaces.Observer;
 import beat.osu.client.interfaces.Subject;
 import beat.osu.client.model.*;
@@ -18,7 +19,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class GameManager implements Subject {
+public class GameManager implements Subject, HitObjectListener {
     private final List<Observer> observerList = new CopyOnWriteArrayList<>();
 
     private final Beatmap beatmap;
@@ -578,5 +579,20 @@ public class GameManager implements Subject {
         for (Observer observer : observerList) {
             observer.update(event);
         }
+    }
+
+    @Override
+    public void onHit(HitObject hitObject, HitResult result) {
+        notifyHit(hitObject, result);
+    }
+
+    @Override
+    public void onMiss(HitObject hitObject) {
+        notifyMiss(hitObject);
+    }
+
+    @Override
+    public void onAdditionalSpin(HitObject hitObject, int extraSpins) {
+        
     }
 }
