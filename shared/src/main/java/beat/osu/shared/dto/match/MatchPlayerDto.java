@@ -2,6 +2,7 @@ package beat.osu.shared.dto.match;
 
 import java.io.Serializable;
 
+import beat.osu.shared.dto.user.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,11 +15,10 @@ public class MatchPlayerDto implements Serializable {
     private int matchId;
     private int userId;
 
-    private String username;
-    private byte[] profilePicture;
+    private UserDto user;
+
     private String role;
     private String status;
-    private int rank;
 
     private int matchSlotIndex;
 }

@@ -25,4 +25,11 @@ public enum MessageAction implements Serializable {
 
     // Private chat actions
     SEND_PRIVATE_CHAT_MESSAGE,
+
+    // Match actions
+    GET_ALL_MATCHES,
+    CREATE_MATCH,
+    JOIN_MATCH,
+    LEAVE_MATCH,
+    KICK_PLAYER,
 }
