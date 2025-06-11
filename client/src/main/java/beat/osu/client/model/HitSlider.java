@@ -22,7 +22,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
-import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -54,7 +53,6 @@ public class HitSlider extends HitObject {
     // Timing & Animation
     private final long endTime;
 
-    @Getter
     private double duration; // Duration of a SINGLE traversal of the slider in milliseconds
     private double sliderVelocity;
     private double msPerBeat;

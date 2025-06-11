@@ -354,8 +354,6 @@ public class GameManager implements Subject, HitObjectListener {
     }
 
     private void handleHit(HitObject hitObject, long timingError) {
-        hitObject.setHit(true);
-        hitObject.playHitEffect();
         HitResult hitResult = HitResult.fromTimingError(timingError, beatmap.getOverallDifficulty());
 
         if (hitObject instanceof HitCircle) hitObject.setVisible(false);
@@ -369,14 +367,13 @@ public class GameManager implements Subject, HitObjectListener {
             return;
         }
 
-        if (hitObject instanceof HitSlider) {
-//            System.out.println("hitting slider, hit time: " + hitObject.getHitTime() + ", duration: " + ((HitSlider)hitObject).getDuration() +
-//                    ", tick count: " + ((HitSlider)hitObject).getTickCount());
-            if(hitResult == HitResult.MISS) {
-                ((HitSlider) hitObject).setEarlyHit(true);
-            }
+        if (hitObject instanceof HitSlider && hitResult == HitResult.MISS) {
+            ((HitSlider) hitObject).setEarlyHit(true);
             return;
         }
+
+        hitObject.setHit(true);
+        hitObject.playHitEffect();
 
         // play sfx
         if (hitObject instanceof HitCircle) {
