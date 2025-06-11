@@ -365,6 +365,8 @@ public class GameManager implements Subject, HitObjectListener {
 
         if (hitObject instanceof HitSpinner) {
             System.out.println("hitting spinner, returning");
+            hitObject.setHit(true);
+            hitObject.playHitEffect();
             return;
         }
 
