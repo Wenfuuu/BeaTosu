@@ -434,13 +434,5 @@ public class LandingView extends Page {
         banchoButtons.getChatToggleButton().setOnMouseClicked(e -> {
             banchoButtons.toggleChat(chatPanel, bottomBarComponent, onlineUsersPanel, topBarComponent);
         });
-
-        banchoButtons.getAutoHideButton().setOnMouseClicked(e -> {
-            banchoButtons.toggleAutoHide();
-        });
-
-        banchoButtons.getShowTickerButton().setOnMouseClicked(e -> {
-            banchoButtons.toggleTicker();
-        });
     }
 }
