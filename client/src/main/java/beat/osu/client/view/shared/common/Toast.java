@@ -1,4 +1,4 @@
-package beat.osu.client.view.shared.general;
+package beat.osu.client.view.shared.common;
 
 import beat.osu.client.enums.ToastType;
 import beat.osu.client.helper.ScreenManager;

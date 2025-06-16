@@ -5,7 +5,7 @@ import beat.osu.client.helper.*;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.utils.OsuParser;
-import beat.osu.client.view.shared.general.Page;
+import beat.osu.client.view.shared.common.Page;
 import beat.osu.client.view.home.component.BeatmapPane;
 import beat.osu.client.view.home.component.BottomBar;
 import beat.osu.client.view.home.component.TopBar;

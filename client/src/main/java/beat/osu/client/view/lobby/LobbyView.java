@@ -1,7 +1,7 @@
 package beat.osu.client.view.lobby;
 
 import beat.osu.client.helper.CssManager;
-import beat.osu.client.view.shared.general.Page;
+import beat.osu.client.view.shared.common.Page;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;

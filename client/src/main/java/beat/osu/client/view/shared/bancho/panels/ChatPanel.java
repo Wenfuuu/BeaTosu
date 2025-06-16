@@ -14,7 +14,7 @@ import beat.osu.client.controller.PrivateChatController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
-import beat.osu.client.view.shared.general.Toast;
+import beat.osu.client.view.shared.common.Toast;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.shared.bancho.buttons.ChatTabButton;
 import beat.osu.client.view.shared.bancho.modals.SelectChannelModal;

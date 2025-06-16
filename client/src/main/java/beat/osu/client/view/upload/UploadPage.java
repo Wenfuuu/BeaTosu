@@ -4,7 +4,7 @@ import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ResourceManager;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.utils.OszExtractor;
-import beat.osu.client.view.shared.general.Page;
+import beat.osu.client.view.shared.common.Page;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

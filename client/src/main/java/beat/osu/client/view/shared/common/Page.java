@@ -1,4 +1,4 @@
-package beat.osu.client.view.shared.general;
+package beat.osu.client.view.shared.common;
 
 import beat.osu.client.helper.InputManager;
 import beat.osu.client.helper.SceneManager;
