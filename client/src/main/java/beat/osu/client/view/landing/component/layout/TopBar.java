@@ -1,14 +1,20 @@
 package beat.osu.client.view.landing.component.layout;
 
 import java.net.URL;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.utils.BeatmapUtils;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
 import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
 import beat.osu.shared.dto.user.UserDto;
 import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
@@ -32,19 +38,33 @@ public class TopBar extends HBox {
 
     private EventHandler<MouseEvent> userCardClickHandler;
 
+    private Label beatmapCountLabel;
+    private Label runtimeLabel;
+    private Label currentTimeLabel;
+
+    private Timeline runtimeTimer;
+    private Timeline clockTimer;
+    private long startTime;
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
     public TopBar() {
         super(20);
         this.getStyleClass().add("top-bar");
+        this.startTime = System.currentTimeMillis();
 
         initializeComponents();
         setupLayout();
         loadStyles();
+        startTimers();
     }
 
     private void initializeComponents() {
         createUserInfoSection();
         createControlsBar();
         createNowPlayingSection();
+        createBeatmapCountLabel();
+        createRuntimeComponent();
+        createCurrentTimeComponent();
     }
 
     private void createUserInfoSection() {
@@ -110,12 +130,33 @@ public class TopBar extends HBox {
         songBox = new VBox(songPlayingBox, controlsBar);
     }
 
+    private void createBeatmapCountLabel() {
+        int count = BeatmapUtils.getBeatmapCount();
+        beatmapCountLabel = new Label("You have " + count + " beatmaps available!");
+        beatmapCountLabel.getStyleClass().add("beatmap-count");
+    }
+
+    private void createRuntimeComponent() {
+        runtimeLabel = new Label("osu! has been running for 0 seconds.");
+        runtimeLabel.getStyleClass().add("runtime-label");
+    }
+
+    private void createCurrentTimeComponent() {
+        currentTimeLabel = new Label(LocalTime.now().format(TIME_FORMATTER));
+        currentTimeLabel.getStyleClass().add("current-time");
+    }
+
     private void setupLayout() {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         this.setMaxHeight(90);
 
-        this.getChildren().addAll(userCard, spacer, songBox);
+        VBox timeInfoBox = new VBox(2);
+        timeInfoBox.setAlignment(Pos.TOP_LEFT);
+        timeInfoBox.getChildren().addAll(beatmapCountLabel, runtimeLabel, currentTimeLabel);
+        timeInfoBox.setPadding(new Insets(0, 0, 0, 4));
+
+        this.getChildren().addAll(userCard, timeInfoBox, spacer, songBox);
     }
 
     private void loadStyles() {
@@ -125,6 +166,40 @@ public class TopBar extends HBox {
         } else {
             System.err.println("CSS file not found!");
         }
+    }
+
+    private void startTimers() {
+        runtimeTimer = new Timeline(new KeyFrame(Duration.seconds(1), e -> updateRuntime()));
+        runtimeTimer.setCycleCount(Timeline.INDEFINITE);
+        runtimeTimer.play();
+
+        clockTimer = new Timeline(new KeyFrame(Duration.seconds(1), e -> updateCurrentTime()));
+        clockTimer.setCycleCount(Timeline.INDEFINITE);
+        clockTimer.play();
+    }
+
+    private void updateRuntime() {
+        long currentTime = System.currentTimeMillis();
+        long runtimeSeconds = (currentTime - startTime) / 1000;
+
+        if (runtimeSeconds >= 60) {
+            long hours = runtimeSeconds / 3600;
+            long minutes = (runtimeSeconds % 3600) / 60;
+            long seconds = runtimeSeconds % 60;
+
+            if (hours > 0) {
+                runtimeLabel.setText(String.format("osu! has been running for %02d:%02d:%02d.", hours, minutes, seconds));
+            } else {
+                runtimeLabel.setText(String.format("osu! has been running for %02d:%02d.", minutes, seconds));
+            }
+
+        } else {
+            runtimeLabel.setText("osu! has been running for " + runtimeSeconds + " seconds.");
+        }
+    }
+
+    private void updateCurrentTime() {
+        currentTimeLabel.setText("It is currently " + LocalTime.now().format(TIME_FORMATTER) + ".");
     }
 
     public void addControlsToBar(HBox controls) {
@@ -169,7 +244,6 @@ public class TopBar extends HBox {
         
         getChildren().add(0, userCard);
         
-        // Re-attach the click handler if it was previously set
         if (userCardClickHandler != null) {
             userCard.setOnMouseClicked(userCardClickHandler);
         }
@@ -201,6 +275,28 @@ public class TopBar extends HBox {
         this.userCardClickHandler = handler;
         if (userCard != null) {
             userCard.setOnMouseClicked(handler);
+        }
+    }
+
+    // Getter methods for the new components
+    public Label getRuntimeLabel() {
+        return runtimeLabel;
+    }
+
+    public Label getCurrentTimeLabel() {
+        return currentTimeLabel;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void stopTimers() {
+        if (runtimeTimer != null) {
+            runtimeTimer.stop();
+        }
+        if (clockTimer != null) {
+            clockTimer.stop();
         }
     }
 }

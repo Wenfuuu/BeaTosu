@@ -1,30 +1,25 @@
 .top-bar {
     -fx-background-color: rgba(0, 0, 0, 0.5);
-    -fx-spacing: 15px;
+    -fx-spacing: 4px;
+    -fx-padding: 2 2 2 2;
     -fx-alignment: center-left;
-}
-
-.user-info-box {
-    -fx-spacing: 10px;
-    -fx-padding: 5px;
-    -fx-background-color: rgba(0, 0, 0, 0.7);
-    -fx-min-width: 500px;
-}
-
-.user-info-box:hover {
-    -fx-background-color: rgba(0, 0, 0, 0.3);
-    -fx-cursor: hand;
-}
-
-.profile-pic {
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
-    -fx-background-radius: 5px;
 }
 
 .username {
     -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-text-fill: white;
+}
+
+.beatmap-count, .runtime-label, .current-time {
+    -fx-font-family: 'Aller';
+    -fx-font-size: 20px;
+    -fx-text-fill: white;
+    -fx-text-alignment: left;
+    -fx-effect: dropshadow(one-pass-box, black, 1, 0, 1, 1),
+                dropshadow(one-pass-box, black, 1, 0, -1, 1),
+                dropshadow(one-pass-box, black, 1, 0, 1, -1),
+                dropshadow(one-pass-box, black, 1, 0, -1, -1);
 }
 
 .stats-text {
