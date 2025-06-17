@@ -8,7 +8,7 @@
     -fx-alignment: center-left;
 }
 
-.user-card:hover {
+.user-card-hoverable:hover {
     -fx-border-color: white;
     -fx-border-width: 2;
     -fx-cursor: hand;
@@ -62,7 +62,7 @@
     -fx-border-color: #c69d00;
 }
 
-.user-card-supporter:hover {
+.user-card-supporter.user-card-hoverable:hover {
     -fx-background-color: 
         linear-gradient(rgba(255,255,255,0.15), rgba(255,255,255,0.15)),
         rgba(0, 0, 0, 0.4),

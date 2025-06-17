@@ -12,6 +12,7 @@ import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.LocaleManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
+import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
 import beat.osu.client.view.shared.bancho.tabs.SortUserTabs;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.dto.user.events.UserConnectedEvent;
@@ -191,7 +192,8 @@ public class OnlineUsersPanel extends VBox {
             user.getPlayCount(),
             user.getLevel(),
             user.getRank(),
-            user.isSupporter()
+            user.isSupporter(),
+            UserCardBehavior.HOVER_TIME_COUNTRY
         );
         
         userCard.setOnMouseClicked(event -> {

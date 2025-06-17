@@ -2,15 +2,11 @@ package beat.osu.client.view.shared.bancho.cards;
 
 import java.io.ByteArrayInputStream;
 import java.net.URL;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
-import beat.osu.client.helper.LocaleManager;
 import beat.osu.client.helper.ScreenManager;
-import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -20,7 +16,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.util.Duration;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -49,15 +44,23 @@ public class UserCard extends HBox {
     private Label playCountLabel;
     private Label backgroundRankLabel;
 
+    @Getter
     private Label timeLabel;
+    @Getter
     private VBox userStats;
+    @Getter
     private VBox timeStats;
     private StackPane contentContainer;
     private boolean isHovering = false;
+
+    @Setter
+    @Getter
     private ParallelTransition currentTransition;
+    private UserCardBehavior behavior;
 
     public UserCard(Integer userId, String username, String countryCode, byte[] profilePicture,
-                    int performance, double accuracy, int playCount, int level, int rank, boolean isSupporter) {
+                    int performance, double accuracy, int playCount, int level, int rank, boolean isSupporter,
+                    UserCardBehavior behavior) {
         super(10);
         this.userId = userId;
         this.username = username;
@@ -74,6 +77,8 @@ public class UserCard extends HBox {
         setupLayout();
         setupStyling();
         updateUserInfo();
+        
+        setBehavior(behavior);
     }
 
     private void initializeComponents() {
@@ -158,77 +163,6 @@ public class UserCard extends HBox {
         this.setPrefWidth(ScreenManager.SCREEN_WIDTH / 4 - 20);
         this.setMaxWidth(ScreenManager.SCREEN_WIDTH / 4 - 20);
         this.getChildren().add(cardContainer);
-
-        setupHoverEffect();
-    }
-
-    private void setupHoverEffect() {
-        this.setOnMouseEntered(e -> {
-            if (currentTransition != null) {
-                currentTransition.stop();
-            }
-            isHovering = true;
-            showTimeAndCountryWithTransition();
-        });
-
-        this.setOnMouseExited(e -> {
-            if (currentTransition != null) {
-                currentTransition.stop();
-            }
-            isHovering = false;
-            showNormalStatsWithTransition();
-        });
-    }
-
-    private void showTimeAndCountryWithTransition() {
-        if (userStats == null || timeStats == null) return;
-
-        String timeAndCountry = getTimeAndCountryString();
-        timeLabel.setText(timeAndCountry);
-
-        FadeTransition fadeOutStats = new FadeTransition(Duration.millis(200), userStats);
-        fadeOutStats.setFromValue(1.0);
-        fadeOutStats.setToValue(0.0);
-
-        FadeTransition fadeInTime = new FadeTransition(Duration.millis(200), timeStats);
-        fadeInTime.setFromValue(0.0);
-        fadeInTime.setToValue(1.0);
-
-        currentTransition = new ParallelTransition(fadeOutStats, fadeInTime);
-        currentTransition.play();
-    }
-
-    private void showNormalStatsWithTransition() {
-        if (userStats == null || timeStats == null) return;
-
-        FadeTransition fadeOutTime = new FadeTransition(Duration.millis(200), timeStats);
-        fadeOutTime.setFromValue(1.0);
-        fadeOutTime.setToValue(0.0);
-
-        FadeTransition fadeInStats = new FadeTransition(Duration.millis(200), userStats);
-        fadeInStats.setFromValue(0.0);
-        fadeInStats.setToValue(1.0);
-
-        currentTransition = new ParallelTransition(fadeOutTime, fadeInStats);
-        currentTransition.play();
-    }
-
-    private String getTimeAndCountryString() {
-        if (countryCode == null || countryCode.trim().isEmpty()) {
-            return "Time unavailable";
-        }
-
-        LocalDateTime currentTime = LocaleManager.getCurrentTime(countryCode);
-        String countryName = LocaleManager.getCountryName(countryCode);
-
-        if (currentTime == null) {
-            return "Time unavailable @ " + countryName;
-        }
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-        String formattedTime = currentTime.format(formatter);
-
-        return formattedTime + " @ " + countryName;
     }
 
     private void setupStyling() {
@@ -362,5 +296,37 @@ public class UserCard extends HBox {
         if (backgroundRankLabel != null) {
             backgroundRankLabel.setText("#" + rank);
         }
+    }
+
+    public void setBehavior(UserCardBehavior behavior) {
+        if (this.behavior != null) {
+            this.behavior.removeBehavior(this);
+        }
+        
+        this.behavior = behavior;
+        
+        if (this.behavior != null) {
+            this.behavior.setupBehavior(this);
+        }
+        
+        updateHoverStyling();
+    }
+
+    private void updateHoverStyling() {
+        this.getStyleClass().removeAll("user-card-hoverable", "user-card-static");
+        
+        if (behavior == UserCardBehavior.HOVER_TIME_COUNTRY) {
+            this.getStyleClass().add("user-card-hoverable");
+        } else if (behavior == UserCardBehavior.STATIC) {
+            this.getStyleClass().add("user-card-static");
+        }
+    }
+
+    public boolean isHovering() {
+        return isHovering;
+    }
+
+    public void setHovering(boolean hovering) {
+        this.isHovering = hovering;
     }
 }

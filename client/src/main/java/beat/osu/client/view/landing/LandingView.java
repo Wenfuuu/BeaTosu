@@ -12,6 +12,7 @@ import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.ViewManager;
+import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
 import beat.osu.client.view.shared.common.Page;
 import beat.osu.client.view.shared.common.Toast;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
@@ -266,7 +267,8 @@ public class LandingView extends Page {
                 userCard.getPlayCount(),
                 userCard.getLevel(),
                 userCard.getRank(),
-                userCard.isSupporter()
+                userCard.isSupporter(),
+                UserCardBehavior.STATIC
             );
             viewUserModal.updateUserCard(modalUserCard);
             viewUserModal.show();
