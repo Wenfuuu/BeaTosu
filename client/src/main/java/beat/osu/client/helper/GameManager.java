@@ -39,6 +39,11 @@ public class GameManager implements Subject, HitObjectListener {
     private double currentMouseX;
     private double currentMouseY;
 
+    // Replay event storage
+    @Getter
+    private final ArrayList<ReplayEventData> replayEvents = new ArrayList<>();
+    private long lastReplayEventTime = -1;
+
     private int masterComboNumber = 0;
     private int currentComboNumberInSet = 0;
     private int currentComboSetIndex = 0;
@@ -107,6 +112,11 @@ public class GameManager implements Subject, HitObjectListener {
         bgmStarted = false;
         startTimeNanos = -1;
         totalPausedNanos = 0;
+
+        // Reset replay data
+        replayEvents.clear();
+        lastReplayEventTime = -1;
+
         notifyObservers(new GameEvent(GameEventType.GAME_STARTED, null));
 
         if (gameLoop != null) {
@@ -146,6 +156,13 @@ public class GameManager implements Subject, HitObjectListener {
 
     public void pauseGame() {
         System.out.println("pausing game");
+
+        for (ReplayEventData event : replayEvents) {
+            System.out.println("ReplayEventOsu(time_delta=" + event.getTimeDelta() +
+                    ", x=" + event.getX() + ", y=" + event.getY() +
+                    ", keys=" + event.getKeyMask() + ")");
+        }
+
         pauseStartNanos = System.nanoTime();
         gameState = GameState.PAUSED;
         BgmManager.pauseBgm();
@@ -194,6 +211,11 @@ public class GameManager implements Subject, HitObjectListener {
 
     private void updateGame(long elapsedMillis) {
         Set<KeyCode> currentKeys = inputManager.getPressedKeys();
+
+        // store game information for replay
+        System.out.println("Current game time: " + elapsedMillis + " ms");
+        // Store replay event data
+        storeReplayEvent(elapsedMillis, currentKeys);
 
         boolean pressedEsc = currentKeys.contains(KeyCode.ESCAPE) &&
                 !previousKeys.contains(KeyCode.ESCAPE);
@@ -267,20 +289,22 @@ public class GameManager implements Subject, HitObjectListener {
                     }
                 }
 
-                if (hitObject instanceof HitSpinner) break; // Don't handle misses for spinners
+                if (hitObject instanceof HitSpinner)
+                    break; // Don't handle misses for spinners
 
                 // Check for miss (object passed its time window)
                 if (elapsedMillis > hitObject.getHitTime() + getHitWindow()) {
                     handleMiss(hitObject);
                     iterator.remove(); // Remove hit object after handling miss
-                    System.out.println("Removing missed HitObject: " + hitObject);
+                    // System.out.println("Removing missed HitObject: " + hitObject);
                     continue;
                 }
             }
             if (hitObject.isHit() && !hitObject.isVisible()) {
                 // If the hit object is already hit and not visible, remove it
                 iterator.remove();
-                System.out.println("Removing HitObject after it was hit and is no longer visible: " + hitObject);
+                // System.out.println("Removing HitObject after it was hit and is no longer
+                // visible: " + hitObject);
             }
         }
 
@@ -297,6 +321,33 @@ public class GameManager implements Subject, HitObjectListener {
         if (hitObjects.isEmpty()) {
             stopGame();
         }
+    }
+
+    private void storeReplayEvent(long elapsedMillis, Set<KeyCode> currentKeys) {
+        // Calculate time delta
+        long timeDelta;
+        if (lastReplayEventTime == -1) {
+            // First replay event, store current timestamp instead of delta
+            timeDelta = elapsedMillis;
+        } else {
+            timeDelta = elapsedMillis - lastReplayEventTime;
+        }
+
+        // Calculate key mask based on keybinds
+        int keyMask = 0;
+        if (currentKeys.contains(InputManager.getKeybind1())) {
+            keyMask |= 1; // Set bit 0 for keybind1
+        }
+        if (currentKeys.contains(InputManager.getKeybind2())) {
+            keyMask |= 2; // Set bit 1 for keybind2
+        }
+
+        // Create and store replay event
+        ReplayEventData replayEvent = new ReplayEventData(timeDelta, currentMouseX, currentMouseY, keyMask);
+        replayEvents.add(replayEvent);
+
+        // Update last event time for next delta calculation
+        lastReplayEventTime = elapsedMillis;
     }
 
     private boolean checkHitObjectClick(HitObject hitObject, long elapsedMillis) {
@@ -379,7 +430,7 @@ public class GameManager implements Subject, HitObjectListener {
         }
 
         if (hitObject instanceof HitSpinner) {
-            System.out.println("hitting spinner, returning");
+            // System.out.println("hitting spinner, returning");
             hitObject.setHit(true);
             hitObject.playHitEffect();
             return;
@@ -512,7 +563,7 @@ public class GameManager implements Subject, HitObjectListener {
         // Check for game over (health reaches 0)
         if (health <= 0) {
             System.out.println("hp reached 0, stopping game");
-             failGame();
+            failGame();
         }
     }
 

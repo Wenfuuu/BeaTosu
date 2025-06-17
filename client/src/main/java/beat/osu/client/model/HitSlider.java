@@ -745,8 +745,6 @@ public class HitSlider extends HitObject {
                 } else {
                     listener.onMiss(this);
                 }
-            } else {
-
             }
         }
     }
