@@ -172,7 +172,7 @@ public class GameManager implements Subject, HitObjectListener {
         notifyObservers(new GameEvent(GameEventType.GAME_RESUMED, null));
     }
 
-    public void stopGame() {
+    private void stopGame() {
         System.out.println("all hit objects processed, stopping game");
         gameState = GameState.COMPLETED;
         gameLoop.stop();
@@ -182,6 +182,14 @@ public class GameManager implements Subject, HitObjectListener {
         notifyObservers(new GameEvent(GameEventType.GAME_ENDED, new GameEndData(
                 score, perfectHits, gekiHits, greatHits, greatKatuHits, goodHits,
                 misses, highestCombo, accuracy, grade)));
+    }
+
+    private void failGame() {
+        System.out.println("Game failed, stopping game");
+        gameState = GameState.FAILED;
+        gameLoop.stop();
+        BgmManager.stopBgm();
+        notifyObservers(new GameEvent(GameEventType.GAME_FAILED, null));
     }
 
     private void updateGame(long elapsedMillis) {
@@ -505,7 +513,7 @@ public class GameManager implements Subject, HitObjectListener {
         // Check for game over (health reaches 0)
         if (health <= 0) {
             System.out.println("hp reached 0, stopping game");
-            // stopGame();
+             failGame();
         }
     }
 

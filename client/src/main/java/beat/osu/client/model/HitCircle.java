@@ -85,7 +85,6 @@ public class HitCircle extends HitObject{
         if (parallelAnimation != null) parallelAnimation.stop();
         hitEffectAnimation = new FadeTransition(Duration.millis(150), group);
         hitEffectAnimation.setToValue(0);
-        // Remove from parent pane after fade out to clean up
         hitEffectAnimation.setOnFinished(e -> {
             hide();
         });
@@ -97,7 +96,6 @@ public class HitCircle extends HitObject{
         if (parallelAnimation != null) parallelAnimation.stop();
         hitEffectAnimation = new FadeTransition(Duration.millis(150), group);
         hitEffectAnimation.setToValue(0);
-        // Remove from parent pane after fade out to clean up
         hitEffectAnimation.setOnFinished(e -> {
             hide();
         });

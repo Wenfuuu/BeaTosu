@@ -5,6 +5,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -18,9 +19,11 @@ public class InputManager {
     private final StringBuffer typedChars;
 
     @Getter
-    private static final KeyCode keybind1 = KeyCode.Z;
+    @Setter
+    private static KeyCode keybind1 = KeyCode.Z;
     @Getter
-    private static final KeyCode keybind2 = KeyCode.X;
+    @Setter
+    private static KeyCode keybind2 = KeyCode.X;
 
     public InputManager(Scene scene) {
         pressedKeys = new HashSet<>();

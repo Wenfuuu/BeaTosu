@@ -7,6 +7,7 @@ import beat.osu.client.helper.*;
 import beat.osu.client.interfaces.Observer;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.HitObject;
+import beat.osu.client.view.game.component.FailOverlay;
 import beat.osu.client.view.shared.common.Page;
 import beat.osu.client.view.game.component.GameUI;
 import beat.osu.client.view.game.component.PauseOverlay;
@@ -47,6 +48,7 @@ public class GameView extends Page implements Observer {
     private GameUI uiPane;
     private PauseOverlay pauseOverlay;
     private ResultOverlay resultOverlay;
+    private FailOverlay failOverlay;
 
     private final Beatmap beatmap;
     private final GameManager gm;
@@ -84,9 +86,10 @@ public class GameView extends Page implements Observer {
         uiPane = new GameUI();
         pauseOverlay = new PauseOverlay();
         resultOverlay = new ResultOverlay();
+        failOverlay = new FailOverlay();
         createGamePane();
 
-        root.getChildren().addAll(gamePane, uiPane, pauseOverlay, resultOverlay);
+        root.getChildren().addAll(gamePane, uiPane, pauseOverlay, resultOverlay, failOverlay);
     }
 
     private void createGamePane() {
@@ -123,6 +126,16 @@ public class GameView extends Page implements Observer {
         });
 
         resultOverlay.getBackButton().setOnMouseClicked(e -> {
+            ViewManager.showHomeView();
+        });
+
+        failOverlay.getRetryButton().setOnMouseClicked(e -> {
+            SfxManager.playSfx("pause-click.wav");
+            ViewManager.showGameView(beatmap);
+        });
+
+        failOverlay.getLeaveButton().setOnMouseClicked(e -> {
+            SfxManager.playSfx("pause-click.wav");
             ViewManager.showHomeView();
         });
     }
@@ -571,6 +584,10 @@ public class GameView extends Page implements Observer {
                     resultOverlay.setVisible(true);
                     resultOverlay.getShowTransition().play();
                 });
+                break;
+            case GAME_FAILED:
+                System.out.println("game failed, show fail overlay here");
+                failOverlay.showFailOverlay();
                 break;
         }
     }
