@@ -32,6 +32,13 @@ public class ResourceManager {
         return dir;
     }
 
+    public static File getReplayDirectory() {
+        File dir = new File(applicationDirectory, "replays");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        return dir;
+    }
 
     // For reading bundled resources (CSS, default assets)
     public static InputStream getResourceAsStream(String path) {
