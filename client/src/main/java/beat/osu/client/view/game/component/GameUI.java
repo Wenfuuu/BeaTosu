@@ -2,6 +2,7 @@ package beat.osu.client.view.game.component;
 
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.InputManager;
 import beat.osu.client.helper.ScreenManager;
 import javafx.animation.*;
 import javafx.beans.property.DoubleProperty;
@@ -12,7 +13,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 import lombok.Getter;
 
@@ -22,7 +27,7 @@ import java.util.Objects;
 
 @Getter
 public class GameUI extends Pane {
-//    private final Label comboLabel;
+    // private final Label comboLabel;
     private final ProgressBar healthBar;
     private Timeline healthAnimation;
     private final DoubleProperty animatedHealth = new SimpleDoubleProperty();
@@ -40,12 +45,17 @@ public class GameUI extends Pane {
     // combo
     private final ArrayList<ImageView> comboDigits;
     private final ImageView comboXSymbol;
-    private final HBox comboContainer;
+    private final HBox comboContainer; // input overlay
+    private final ImageView[] inputOverlayImages;
+    private final Text[] inputOverlayTexts;
+    private final VBox inputOverlayContainer;
 
     private final Image[] digitImages;
     private final Image percentImage;
     private final Image xImage;
     private final Image commaImage;
+    private final Image inputOverlayImage;
+    private final Image inputOverlayBackgroundImage;
     private final SequentialTransition hideTransition;
 
     private boolean stillPerfect = true;
@@ -61,7 +71,11 @@ public class GameUI extends Pane {
         xImage = new Image(Objects.requireNonNull(Main.class
                 .getResource("/assets/images/score-x.png")).toExternalForm());
         commaImage = new Image(Objects.requireNonNull(Main.class
-                 .getResource("/assets/images/score-comma.png")).toExternalForm());
+                .getResource("/assets/images/score-comma.png")).toExternalForm());
+        inputOverlayImage = new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/images/inputoverlay-key.png")).toExternalForm());
+        inputOverlayBackgroundImage = new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/images/inputoverlay-background.png")).toExternalForm());
 
         // Score display
         scoreDigits = new ImageView[8];
@@ -72,6 +86,34 @@ public class GameUI extends Pane {
             scoreDigits[i].setFitHeight(50);
             scoreDigits[i].setPreserveRatio(true);
             scoreContainer.getChildren().add(scoreDigits[i]);
+        } // Input overlay
+        inputOverlayImages = new ImageView[2];
+        inputOverlayTexts = new Text[2];
+        inputOverlayContainer = new VBox(0);
+
+        // Get keybind letters from InputManager
+        String[] keybindLetters = {
+                InputManager.getKeybind1().getChar(),
+                InputManager.getKeybind2().getChar()
+        };
+
+        for (int i = 0; i < 2; i++) {
+            // Create key overlay
+            inputOverlayImages[i] = new ImageView(inputOverlayImage);
+            inputOverlayImages[i].setFitWidth(100);
+            inputOverlayImages[i].setFitHeight(100);
+            inputOverlayImages[i].setPreserveRatio(true);
+
+            // Create keybind letter
+            inputOverlayTexts[i] = new Text(keybindLetters[i]);
+            inputOverlayTexts[i].setFont(Font.font("Arial", 24));
+            inputOverlayTexts[i].setFill(Color.WHITE);
+
+            // Create a simple container for each key (key image + letter)
+            StackPane keyContainer = new StackPane();
+            keyContainer.getChildren().addAll(inputOverlayImages[i], inputOverlayTexts[i]);
+
+            inputOverlayContainer.getChildren().add(keyContainer);
         }
 
         // Combo display
@@ -86,7 +128,6 @@ public class GameUI extends Pane {
         comboXSymbol.setFitWidth(45);
         comboXSymbol.setFitHeight(55);
         comboXSymbol.setPreserveRatio(true);
-
         comboContainer.getChildren().addAll(initialDigit, comboXSymbol);
 
         // Accuracy display
@@ -98,8 +139,10 @@ public class GameUI extends Pane {
         scoreComma.setFitHeight(30);
 
         for (int i = 0; i < 4; i++) {
-            if(i == 0) accuracyDigits[i] = new ImageView(digitImages[1]);
-            else accuracyDigits[i] = new ImageView(digitImages[0]);
+            if (i == 0)
+                accuracyDigits[i] = new ImageView(digitImages[1]);
+            else
+                accuracyDigits[i] = new ImageView(digitImages[0]);
 
             accuracyDigits[i].setFitWidth(20);
             accuracyDigits[i].setFitHeight(30);
@@ -140,9 +183,13 @@ public class GameUI extends Pane {
         VBox bottomLeftPanel = new VBox(5);
         bottomLeftPanel.getChildren().add(comboContainer);
 
-        this.getChildren().addAll(topLeftPanel, topRightPanel, bottomLeftPanel);
+        StackPane inputOverlayPanel = new StackPane();
+        inputOverlayPanel.getChildren().addAll(inputOverlayContainer);
+
+        this.getChildren().addAll(topLeftPanel, topRightPanel, bottomLeftPanel, inputOverlayPanel);
         this.getProperties().put("topRightPanel", topRightPanel);
         this.getProperties().put("bottomLeftPanel", bottomLeftPanel);
+        this.getProperties().put("inputOverlayPanel", inputOverlayPanel);
 
         FadeTransition fadeOutTransition = new FadeTransition(Duration.millis(500), this);
         fadeOutTransition.setFromValue(1);
@@ -150,8 +197,7 @@ public class GameUI extends Pane {
 
         hideTransition = new SequentialTransition(
                 fadeOutTransition,
-                new PauseTransition(Duration.millis(500))
-        );
+                new PauseTransition(Duration.millis(500)));
 
         loadStyles();
     }
@@ -177,9 +223,7 @@ public class GameUI extends Pane {
 
             healthAnimation = new Timeline(
                     new KeyFrame(duration,
-                            new KeyValue(animatedHealth, health, Interpolator.EASE_BOTH)
-                    )
-            );
+                            new KeyValue(animatedHealth, health, Interpolator.EASE_BOTH)));
             healthAnimation.play();
         }
     }
@@ -194,12 +238,13 @@ public class GameUI extends Pane {
     }
 
     public void updateAccuracy(double accuracy) {
-        if(accuracy == 100.0) return;
+        if (accuracy == 100.0)
+            return;
         int accuracyInt = (int) Math.round(accuracy * 100); // Convert to integer (9945 for 99.45%)
 
         String accuracyStr = String.format("%04d", Math.min(accuracyInt, 10000)); // Max 100.00%, pad to 4 digits
 
-        if(stillPerfect) {
+        if (stillPerfect) {
             accuracyContainer.getChildren().clear();
             for (int i = 0; i < 4; i++) {
                 accuracyContainer.getChildren().add(accuracyDigits[i]);
@@ -233,10 +278,11 @@ public class GameUI extends Pane {
             comboDigits.add(0, newDigit);
         }
 
-        // Remove excess digits if combo got smaller (though this rarely happens in osu!)
-//        while (comboDigits.size() > requiredDigits) {
-//            comboDigits.remove(0);
-//        }
+        // Remove excess digits if combo got smaller (though this rarely happens in
+        // osu!)
+        // while (comboDigits.size() > requiredDigits) {
+        // comboDigits.remove(0);
+        // }
 
         // Update digit images
         for (int i = 0; i < requiredDigits; i++) {
@@ -247,5 +293,11 @@ public class GameUI extends Pane {
         // Add all digits to container, then add x symbol
         comboContainer.getChildren().addAll(comboDigits);
         comboContainer.getChildren().add(comboXSymbol);
+    }
+
+    public void updateInputOverlay(boolean key1Pressed, boolean key2Pressed) {
+        // Update the opacity or visual state of the key overlays based on key presses
+        inputOverlayImages[0].setOpacity(key1Pressed ? 0.5 : 1.0);
+        inputOverlayImages[1].setOpacity(key2Pressed ? 0.5 : 1.0);
     }
 }

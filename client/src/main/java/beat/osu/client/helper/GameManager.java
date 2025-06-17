@@ -189,7 +189,7 @@ public class GameManager implements Subject, HitObjectListener {
 
         boolean pressedEsc = currentKeys.contains(KeyCode.ESCAPE) &&
                 !previousKeys.contains(KeyCode.ESCAPE);
-                
+
         // validate break period here
         boolean inBreakPeriod = false;
         for (BreakPeriod breakPeriod : OsuParser.getBreakPeriodsList()) {
@@ -244,7 +244,7 @@ public class GameManager implements Subject, HitObjectListener {
             hitObject.update(elapsedMillis);
             if (hitObject instanceof HitSpinner) {
                 ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
-            }else if(hitObject instanceof HitSlider) {
+            } else if (hitObject instanceof HitSlider) {
                 ((HitSlider) hitObject).updateSlider(currentMouseX, currentMouseY);
             }
 
@@ -276,6 +276,12 @@ public class GameManager implements Subject, HitObjectListener {
                 System.out.println("Removing HitObject after it was hit and is no longer visible: " + hitObject);
             }
         }
+
+        // Update input overlay
+        boolean key1IsPressed = currentKeys.contains(InputManager.getKeybind1());
+        boolean key2IsPressed = currentKeys.contains(InputManager.getKeybind2());
+        notifyObservers(new GameEvent(GameEventType.INPUT_OVERLAY_CHANGED,
+                new InputOverlayData(key1IsPressed, key2IsPressed)));
 
         previousKeys.clear();
         previousKeys.addAll(currentKeys);
@@ -331,7 +337,7 @@ public class GameManager implements Subject, HitObjectListener {
 
     private void updateHitCount(HitObject hitObject, HitResult hitResult) {
         if (hitResult != HitResult.SPIN && hitResult != HitResult.COMPLETE_SPIN && hitResult != HitResult.SLIDER_END) {
-//            System.out.println("combo naik");
+            // System.out.println("combo naik");
             masterComboNumber++;
             updateHighestCombo(masterComboNumber);
         }
@@ -345,7 +351,8 @@ public class GameManager implements Subject, HitObjectListener {
         } else if (hitResult == HitResult.GREAT) {
             if (!imperfectOrMissed && hitObject.isComboEnd()) {
                 greatKatuHits++;
-            } else greatHits++;
+            } else
+                greatHits++;
             perfectCombo = false;
         } else if (hitResult == HitResult.GOOD) {
             goodHits++;
@@ -357,7 +364,8 @@ public class GameManager implements Subject, HitObjectListener {
     private void handleHit(HitObject hitObject, long timingError) {
         HitResult hitResult = HitResult.fromTimingError(timingError, beatmap.getOverallDifficulty());
 
-        if (hitObject instanceof HitCircle) hitObject.setVisible(false);
+        if (hitObject instanceof HitCircle)
+            hitObject.setVisible(false);
         if (hitObject.isNewCombo()) {
             perfectCombo = true;
             imperfectOrMissed = false;
@@ -378,22 +386,27 @@ public class GameManager implements Subject, HitObjectListener {
         hitObject.setHit(true);
         hitObject.playHitEffect();
 
-        if(!(hitObject instanceof HitCircle)) return;
+        if (!(hitObject instanceof HitCircle))
+            return;
         // play sfx
         for (String sfx : hitObject.getSfxFilenames()) {
             SfxManager.playSfx(sfx);
         }
         // Determine hit result based on timing
-        if (hitResult == HitResult.MISS) notifyMiss(hitObject);
-        else notifyHit(hitObject, hitResult);
+        if (hitResult == HitResult.MISS)
+            notifyMiss(hitObject);
+        else
+            notifyHit(hitObject, hitResult);
     }
 
     private HealthRecover getHealthRecover(HitObject hitObject, HitResult hitResult) {
         switch (hitResult) {
             case PERFECT:
                 if (hitObject.isComboEnd()) {
-                    if(perfectCombo) return HealthRecover.GEKI;
-                    else return HealthRecover.PERFECT_KATU;
+                    if (perfectCombo)
+                        return HealthRecover.GEKI;
+                    else
+                        return HealthRecover.PERFECT_KATU;
                 } else {
                     return HealthRecover.PERFECT;
                 }
@@ -415,7 +428,7 @@ public class GameManager implements Subject, HitObjectListener {
     }
 
     private double calculateScoreFactor(HitResult hitResult) {
-        if(hitResult != HitResult.PERFECT && hitResult != HitResult.GREAT && hitResult != HitResult.GOOD) {
+        if (hitResult != HitResult.PERFECT && hitResult != HitResult.GREAT && hitResult != HitResult.GOOD) {
             return 1.0;
         }
 
@@ -458,7 +471,8 @@ public class GameManager implements Subject, HitObjectListener {
     }
 
     private void handleMiss(HitObject hitObject) {
-        if (hitObject instanceof HitSpinner) return;
+        if (hitObject instanceof HitSpinner)
+            return;
         notifyMiss(hitObject);
     }
 
@@ -476,7 +490,7 @@ public class GameManager implements Subject, HitObjectListener {
 
         // Update health (missing decreases health)
         double hpLoss = (0.12 + 0.04 * beatmap.getHpDrainRate()) * 100;
-//        System.out.println("hp loss: " + hpLoss);
+        // System.out.println("hp loss: " + hpLoss);
         health = Math.max(0, health - hpLoss);
 
         // Notify observers
@@ -491,7 +505,7 @@ public class GameManager implements Subject, HitObjectListener {
         // Check for game over (health reaches 0)
         if (health <= 0) {
             System.out.println("hp reached 0, stopping game");
-//            stopGame();
+            // stopGame();
         }
     }
 

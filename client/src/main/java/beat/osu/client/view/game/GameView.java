@@ -31,14 +31,16 @@ public class GameView extends Page implements Observer {
     private final double OSU_HEIGHT = 480.0;
     private final double OSU_ASPECT_RATIO = OSU_WIDTH / OSU_HEIGHT;
 
-    // Offset of the 512x384 playfield's top-left (0,0) within the 640x480 reference system
+    // Offset of the 512x384 playfield's top-left (0,0) within the 640x480 reference
+    // system
     // X: (640 - 512) / 2 = 64
-    // Y: (480 - 384) / 2 + 8 = 48 + 8 = 56 (to account for the 8px downward shift from true center)
+    // Y: (480 - 384) / 2 + 8 = 48 + 8 = 56 (to account for the 8px downward shift
+    // from true center)
     private final double PLAYFIELD_OFFSET_X_IN_REF = 64.0;
     private final double PLAYFIELD_OFFSET_Y_IN_REF = 56.0;
 
     private final double circleSize; // Default Circle Size (CS) if parsing fails
-    private double osuPixelDiameter;   // Diameter in original osu! coordinates
+    private double osuPixelDiameter; // Diameter in original osu! coordinates
 
     private StackPane root;
     private Pane gamePane;
@@ -55,7 +57,7 @@ public class GameView extends Page implements Observer {
     public GameView(Stage stage, Beatmap selectedBeatmap) {
         super(stage);
         this.beatmap = selectedBeatmap;
-        this.circleSize = beatmap.getCircleSize();
+        this.circleSize = selectedBeatmap.getCircleSize();
         this.gm = new GameManager(selectedBeatmap, inputManager);
         this.gm.addObserver(this);
 
@@ -91,7 +93,7 @@ public class GameView extends Page implements Observer {
         gamePane = new Pane();
         gamePane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.1);");
         for (HitObject hitObject : gm.getHitObjects()) {
-//            gamePane.getChildren().add(hitObject.getNode());
+            // gamePane.getChildren().add(hitObject.getNode());
             gamePane.getChildren().add(0, hitObject.getNode());
         }
     }
@@ -126,37 +128,38 @@ public class GameView extends Page implements Observer {
     }
 
     private void showHitImage(HitObject hitObject, HitResult hitResult,
-                              boolean perfectCombo, boolean imperfectOrMissed) {
+            boolean perfectCombo, boolean imperfectOrMissed) {
         String imagePath = "";
         switch (hitResult) {
             case PERFECT:
-                if(hitObject.isComboEnd()){
-                    if(perfectCombo) {
+                if (hitObject.isComboEnd()) {
+                    if (perfectCombo) {
                         imagePath = "/assets/images/hit300g.png";
-                    }else if(imperfectOrMissed) {
+                    } else if (imperfectOrMissed) {
                         imagePath = "/assets/images/hit300.png";
-                    }else {
+                    } else {
                         imagePath = "/assets/images/hit300k.png";
                     }
-                }
-                else imagePath = "/assets/images/hit300.png";
+                } else
+                    imagePath = "/assets/images/hit300.png";
                 break;
             case GREAT:
-                if(hitObject.isComboEnd()) {
-                    if(imperfectOrMissed) {
+                if (hitObject.isComboEnd()) {
+                    if (imperfectOrMissed) {
                         imagePath = "/assets/images/hit100.png";
                     } else {
                         imagePath = "/assets/images/hit100k.png";
                     }
-                }
-                else imagePath = "/assets/images/hit100.png";
+                } else
+                    imagePath = "/assets/images/hit100.png";
                 break;
             case GOOD:
                 imagePath = "/assets/images/hit50.png";
                 break;
         }
 
-        if(imagePath.isEmpty()) return;
+        if (imagePath.isEmpty())
+            return;
         Image hitImage = new Image(Objects.requireNonNull(Main.class
                 .getResource(imagePath)).toExternalForm());
         ImageView hitImageView = new ImageView(hitImage);
@@ -249,8 +252,7 @@ public class GameView extends Page implements Observer {
         SequentialTransition fullAnimation = new SequentialTransition(
                 initialAnimation,
                 bounce,
-                new PauseTransition(Duration.millis(200))
-        );
+                new PauseTransition(Duration.millis(200)));
 
         // Create final fade-out with upward movement
         ParallelTransition finalAnimation = new ParallelTransition(moveUp, fadeOut);
@@ -296,8 +298,7 @@ public class GameView extends Page implements Observer {
                 initialAnimation,
                 new PauseTransition(Duration.millis(400)),
                 bounce,
-                fadeOut
-        );
+                fadeOut);
 
         // Remove the image when animation completes
         fullAnimation.setOnFinished(e -> gamePane.getChildren().remove(hitImageView));
@@ -360,8 +361,7 @@ public class GameView extends Page implements Observer {
                 new PauseTransition(Duration.millis(100)),
                 shakeEffect,
                 new PauseTransition(Duration.millis(200)),
-                fadeOut
-        );
+                fadeOut);
 
         // Remove the image when animation completes
         fullAnimation.setOnFinished(e -> gamePane.getChildren().remove(hitImageView));
@@ -388,17 +388,19 @@ public class GameView extends Page implements Observer {
         }
 
         // 1. Calculate the masterScaleFactor.
-        // This factor determines how 1 game pixel (from the 640x480 reference) scales to your actual screen.
+        // This factor determines how 1 game pixel (from the 640x480 reference) scales
+        // to your actual screen.
         double masterScaleFactor;
         double paneAspectRatio = paneWidth / paneHeight;
 
         if (paneAspectRatio > OSU_ASPECT_RATIO) { // Pane is wider than 4:3 reference (e.g., 16:9 pane)
             masterScaleFactor = paneHeight / OSU_HEIGHT; // Scale based on height (e.g., 864 / 480 = 1.8)
         } else { // Pane is narrower or equal to 4:3 reference
-            masterScaleFactor = paneWidth / OSU_WIDTH;   // Scale based on width
+            masterScaleFactor = paneWidth / OSU_WIDTH; // Scale based on width
         }
 
-        // 2. Calculate the on-screen dimensions and top-left position of the scaled 640x480 reference viewport.
+        // 2. Calculate the on-screen dimensions and top-left position of the scaled
+        // 640x480 reference viewport.
         // This viewport will be centered on your pane.
         double scaledRefScreenWidth = OSU_WIDTH * masterScaleFactor;
         double scaledRefScreenHeight = OSU_HEIGHT * masterScaleFactor;
@@ -406,8 +408,10 @@ public class GameView extends Page implements Observer {
         double viewportTopLeftX = (paneWidth - scaledRefScreenWidth) / 2.0;
         double viewportTopLeftY = (paneHeight - scaledRefScreenHeight) / 2.0;
 
-        // osuPixelDiameter is the diameter in unscaled osu!pixels (relative to 512x384 CS definitions)
-        // This calculation remains the same: (54.4 - (4.48 * CS)) is radius * 2 for diameter.
+        // osuPixelDiameter is the diameter in unscaled osu!pixels (relative to 512x384
+        // CS definitions)
+        // This calculation remains the same: (54.4 - (4.48 * CS)) is radius * 2 for
+        // diameter.
         osuPixelDiameter = (54.4 - (4.48 * this.circleSize)) * 2.0;
         double unscaledOsuPixelRadius = osuPixelDiameter / 2.0;
 
@@ -417,34 +421,38 @@ public class GameView extends Page implements Observer {
             double osuY = hitObject.getOsuY();
 
             // a. Convert osuX, osuY (from 512x384 playfield) to their position
-            //    within the 640x480 reference coordinate system.
+            // within the 640x480 reference coordinate system.
             double hitObjectX_in_RefScreen = PLAYFIELD_OFFSET_X_IN_REF + osuX;
             double hitObjectY_in_RefScreen = PLAYFIELD_OFFSET_Y_IN_REF + osuY;
 
-            // b. Scale these reference coordinates by masterScaleFactor and add viewport offset
-            //    to find the final on-screen center position for the hit object.
+            // b. Scale these reference coordinates by masterScaleFactor and add viewport
+            // offset
+            // to find the final on-screen center position for the hit object.
             double finalObjectCenterX_onPane = viewportTopLeftX + (hitObjectX_in_RefScreen * masterScaleFactor);
             double finalObjectCenterY_onPane = viewportTopLeftY + (hitObjectY_in_RefScreen * masterScaleFactor);
 
             // c. Calculate the on-screen scaled radius of the hit object.
-            //    The visual size is determined by masterScaleFactor.
+            // The visual size is determined by masterScaleFactor.
             double screenScaledRadius = unscaledOsuPixelRadius * masterScaleFactor;
 
             hitObject.updateVisuals(finalObjectCenterX_onPane, finalObjectCenterY_onPane, screenScaledRadius);
-        }
-
-        // Update UI element positions
+        } // Update UI element positions
         VBox topRightPanel = (VBox) uiPane.getProperties().get("topRightPanel");
         VBox bottomLeftPanel = (VBox) uiPane.getProperties().get("bottomLeftPanel");
+        StackPane inputOverlayPanel = (StackPane) uiPane.getProperties().get("inputOverlayPanel");
 
         if (topRightPanel != null) {
             topRightPanel.setLayoutX(paneWidth * 0.85);
             topRightPanel.setLayoutY(10);
         }
-
         if (bottomLeftPanel != null) {
             bottomLeftPanel.setLayoutX(10);
             bottomLeftPanel.setLayoutY(paneHeight * 0.925);
+        }
+        if (inputOverlayPanel != null) {
+            inputOverlayPanel.autosize();
+            inputOverlayPanel.setLayoutX(paneWidth - 100);
+            inputOverlayPanel.setLayoutY(paneHeight * 0.5 - inputOverlayPanel.getHeight() / 2);
         }
     }
 
@@ -466,9 +474,10 @@ public class GameView extends Page implements Observer {
 
     @Override
     public void setLayout() {
-//        ChangeListener<Number> resizeListener = (obs, oldVal, newVal) -> updateLayout();
-//        root.widthProperty().addListener(resizeListener);
-//        root.heightProperty().addListener(resizeListener);
+        // ChangeListener<Number> resizeListener = (obs, oldVal, newVal) ->
+        // updateLayout();
+        // root.widthProperty().addListener(resizeListener);
+        // root.heightProperty().addListener(resizeListener);
     }
 
     @Override
@@ -525,12 +534,18 @@ public class GameView extends Page implements Observer {
                 break;
             case ADDITIONAL_SPIN:
                 AdditionalSpinEventData additionalSpinData = event.getData(AdditionalSpinEventData.class);
-                if(additionalSpinData != null) {
+                if (additionalSpinData != null) {
                     HitObject hitObject = additionalSpinData.getHitObject();
                     int additionalSpins = additionalSpinData.getAdditionalSpin();
-                    if(hitObject != null && additionalSpins > 0) {
+                    if (hitObject != null && additionalSpins > 0) {
                         showAdditionalSpinImage(hitObject, additionalSpins);
                     }
+                }
+                break;
+            case INPUT_OVERLAY_CHANGED:
+                InputOverlayData inputData = event.getData(InputOverlayData.class);
+                if (inputData != null) {
+                    uiPane.updateInputOverlay(inputData.isKey1Pressed(), inputData.isKey2Pressed());
                 }
                 break;
             case GAME_STARTED:
@@ -547,10 +562,10 @@ public class GameView extends Page implements Observer {
             case GAME_ENDED:
                 System.out.println("game ended, show result overlay here");
                 GameEndData gameEndData = event.getData(GameEndData.class);
-                if(gameEndData != null) {
+                if (gameEndData != null) {
                     resultOverlay.updateResult(gameEndData, beatmap);
                 }
-//                uiPane.setVisible(false);
+                // uiPane.setVisible(false);
                 uiPane.getHideTransition().play();
                 uiPane.getHideTransition().setOnFinished(e -> {
                     resultOverlay.setVisible(true);
