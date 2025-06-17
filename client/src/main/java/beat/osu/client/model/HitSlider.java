@@ -3,7 +3,6 @@ package beat.osu.client.model;
 import beat.osu.client.Main;
 import beat.osu.client.enums.HitResult;
 import beat.osu.client.factory.HitObjectFactory;
-import beat.osu.client.helper.GameManager;
 import beat.osu.client.helper.SfxManager;
 import beat.osu.client.interfaces.HitObjectListener;
 import beat.osu.client.utils.OsuParser;
@@ -17,7 +16,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
@@ -34,16 +32,15 @@ public class HitSlider extends HitObject {
     private final Group headGroup;
     private final Circle headCircle;
     private final Path sliderPath;
-    private final Path borderPath;
-    private final Circle sliderBall;
+    private final Path borderPath;    private final Circle sliderBall;
+    private final Circle sliderBallOuter;
     private final Circle approachCircle;
     private final Label comboLabel;
 
     // Parsed Slider Data
     private char sliderType = '?';
     private final List<Point2D> controlPoints = new ArrayList<>();
-    private int repeats = 1; // This is the number of "repeats" AFTER the initial slide. Total traversals =
-                             // repeats + 1.
+    private int repeats = 1;
     private double pixelLength = 0.0;
     private String edgeSoundsStr = "";
     private String edgeSetsStr = "";
@@ -68,14 +65,14 @@ public class HitSlider extends HitObject {
     private final List<Boolean> tickHitStatus = new ArrayList<>();
     private final List<Boolean> repeatHitStatus = new ArrayList<>();
     private boolean headHit = false;
-//    private List<MediaPlayer> activePlayers = new ArrayList<>();
+    private boolean mouseInBallRadius = false;
+    // private List<MediaPlayer> activePlayers = new ArrayList<>();
     private ParallelTransition parallelAnimation;
     private final List<ImageView> reverseArrows = new ArrayList<>();
-    private int currentTraversalIndex = -1;
-
-    // Visual Constants
+    private int currentTraversalIndex = -1;    // Visual Constants
     private final double PATH_STROKE_WIDTH;
     private final double BALL_RADIUS;
+    private final double BALL_OUTER_RADIUS;
     private final double TICK_RADIUS;
 
     private int calculateTickCount(double tickRate) {
@@ -162,7 +159,7 @@ public class HitSlider extends HitObject {
             // " + getHitTime() + ". Duration will be infinite.");
             this.duration = Double.POSITIVE_INFINITY; // Avoid division by zero
         } else {
-            this.duration = (pixelLength / sliderVelocity) * msPerBeat;
+            this.duration = (pixelLength / sliderVelocity) * msBeat;
         }
     }
 
@@ -251,9 +248,9 @@ public class HitSlider extends HitObject {
             boolean comboEnd, ArrayList<String> sfxFilenames,
             HitObjectListener listener) {
         super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate,
-                circleSize, comboNumber, comboSetIndex, comboEnd, sfxFilenames);
-        PATH_STROKE_WIDTH = getCircleRadius() * 2;
+                circleSize, comboNumber, comboSetIndex, comboEnd, sfxFilenames);        PATH_STROKE_WIDTH = getCircleRadius() * 2;
         BALL_RADIUS = getCircleRadius() * 0.8;
+        BALL_OUTER_RADIUS = getCircleRadius() * 1.5; // Larger radius for mouse detection
         TICK_RADIUS = getCircleRadius() * 0.15;
 
         parseSliderParams(objectParams, getOsuX(), getOsuY());
@@ -314,11 +311,16 @@ public class HitSlider extends HitObject {
         approachCircle.setScaleX(APPROACH_START_SCALE);
         approachCircle.setScaleY(APPROACH_START_SCALE);
         group.getChildren().add(approachCircle);
-
         sliderBall = new Circle(0, 0, BALL_RADIUS);
         sliderBall.setFill(Color.WHITE.deriveColor(1, 1, 1, 0.7));
         sliderBall.setVisible(false);
         group.getChildren().add(sliderBall);
+
+        sliderBallOuter = new Circle(0, 0, BALL_OUTER_RADIUS);
+        sliderBallOuter.setFill(Color.WHITE.deriveColor(1, 1, 1, 0.35));
+        sliderBallOuter.setStroke(Color.WHITE);
+        sliderBallOuter.setVisible(false);
+        group.getChildren().add(sliderBallOuter);
 
         createReverseArrows();
         createSliderTicks(sliderTickRate);
@@ -385,7 +387,12 @@ public class HitSlider extends HitObject {
     }
 
     private void updateTickVisuals(double timeSinceHitStart) {
-        if (!headHit || sliderTicks.isEmpty()) return;
+        if (!headHit || sliderTicks.isEmpty())
+            return;
+
+        // Return early if mouse is not in slider ball radius
+        if (!mouseInBallRadius)
+            return;
 
         double tickSpacing = msPerBeat / calculateTickRate();
         int newTickIndex = (int) Math.floor(timeSinceHitStart / tickSpacing);
@@ -683,11 +690,13 @@ public class HitSlider extends HitObject {
 
         if (headHit) {
             if (getCurrTime() <= endTime) { // only move if past hit time
-                if(getCurrTime() > getHitTime()) {
-                    double ballFraction = getBallFraction(timeSinceHitStart);
+                if (getCurrTime() > getHitTime()) {                    double ballFraction = getBallFraction(timeSinceHitStart);
                     Point2D ballPos = getVisualPointAtFraction(ballFraction);
                     sliderBall.setCenterX(ballPos.getX());
                     sliderBall.setCenterY(ballPos.getY());
+                    // Update outer circle position to match slider ball
+                    sliderBallOuter.setCenterX(ballPos.getX());
+                    sliderBallOuter.setCenterY(ballPos.getY());
                     int traversalIndex = (int) Math.floor((double) timeSinceHitStart / this.duration);
                     if (traversalIndex != currentTraversalIndex) {
                         ArrayList<String> sfxFilenames = edfeSfxFilenames.get(traversalIndex);
@@ -711,29 +720,23 @@ public class HitSlider extends HitObject {
             } else { // Slider finished
                 if (repeats > 0 && repeatsHit < repeats) {
                     trackRepeatHit(repeats - 1); // Track the final tail
-                    if(repeatHitStatus.get(repeats - 1)) {// if last is hit
+                    if (repeatHitStatus.get(repeats - 1)) {// if last is hit
                         listener.onSliderEnd(this);
                     }
                 }
 
                 setVisible(false);
-                // play at slider tail
-//                ArrayList<String> sfxFilenames = edfeSfxFilenames.get(currentTraversalIndex);
-//                for (String sfx : sfxFilenames) {
-//                    SfxManager.playSfx(sfx);
-//                }
                 playMissEffect();
             }
         }
     }
 
     public void updateSlider(double mouseX, double mouseY) {
-        if(isHit()) {
-            if (getCurrTime() > endTime) {
+        if (isHit()) {
+            if (getCurrTime() <= endTime) {
+                mouseInBallRadius = isMouseInBallRadius(mouseX, mouseY);
+            } else if (getCurrTime() > endTime) {
                 HitResult judgement = getSliderJudgement();
-                double completion = calculateSliderCompletion();
-
-                System.out.println("Slider completed! Completion: " + (completion * 100) + "%, Judgement: " + judgement);
                 System.out.println("Head early hit: " + earlyHit + ", Ticks hit: " + ticksHit + "/"
                         + sliderTicks.size() + ", Repeats hit: " + repeatsHit + "/" + repeats);
 
@@ -742,13 +745,17 @@ public class HitSlider extends HitObject {
                 } else {
                     listener.onMiss(this);
                 }
-            }else {
+            } else {
 
             }
         }
     }
 
     private void trackRepeatHit(int repeatIndex) {
+        // Return early if mouse is not in slider ball radius
+        if (!mouseInBallRadius)
+            return;
+
         if (repeatIndex >= 0 && repeatIndex < repeatHitStatus.size() && !repeatHitStatus.get(repeatIndex)) {
             repeatHitStatus.set(repeatIndex, true);
             repeatsHit++;
@@ -762,7 +769,8 @@ public class HitSlider extends HitObject {
         totalParts += sliderTicks.size();
         totalParts += repeats;
 
-        if (totalParts == 0) return 0.0;
+        if (totalParts == 0)
+            return 0.0;
 
         // Calculate hit parts
         int hitParts = 0;
@@ -822,14 +830,17 @@ public class HitSlider extends HitObject {
         headHit = true;
         if (parallelAnimation != null)
             parallelAnimation.stop();
+
         approachCircle.setVisible(false);
         headGroup.setVisible(false);
         sliderBall.setVisible(true);
-
-        // Set sliderBall to initial position
+        sliderBallOuter.setVisible(true);
         Point2D initialBallPos = getVisualPointAtFraction(0.0);
         sliderBall.setCenterX(initialBallPos.getX());
         sliderBall.setCenterY(initialBallPos.getY());
+        // Set outer circle to initial position as well
+        sliderBallOuter.setCenterX(initialBallPos.getX());
+        sliderBallOuter.setCenterY(initialBallPos.getY());
 
         // (Optional) Add fade effect for headCircle if you want
         FadeTransition fade = new FadeTransition(Duration.millis(150), headGroup);
@@ -853,19 +864,34 @@ public class HitSlider extends HitObject {
     public void applyVisualsToNode(double centerX, double centerY, double scaledRadius) {
         if (group != null) {
             group.setLayoutX(centerX);
-            group.setLayoutY(centerY);
-
-            // Update the radius of the circles based on the scaleFactor
+            group.setLayoutY(centerY);            // Update the radius of the circles based on the scaleFactor
             headCircle.setRadius(scaledRadius);
             approachCircle.setRadius(scaledRadius);
             sliderPath.setStrokeWidth(scaledRadius * 2);
             borderPath.setStrokeWidth(scaledRadius * 2.1);
             sliderBall.setRadius(scaledRadius * 0.8);
+            sliderBallOuter.setRadius(scaledRadius * 1.5); // Outer circle with larger radius
 
             double tickRadius = scaledRadius * 0.15;
             for (Circle tick : sliderTicks) {
                 tick.setRadius(tickRadius);
             }
         }
+    }
+
+    private boolean isMouseInBallRadius(double mouseX, double mouseY) {
+        if (!headHit || sliderBall == null) {
+            return false;
+        }
+        // Get the current ball position in screen coordinates
+        // The ball position is relative to the group, which is positioned at
+        // getScreenCenterX/Y
+        double ballScreenX = getScreenCenterX() + sliderBall.getCenterX();
+        double ballScreenY = getScreenCenterY() + sliderBall.getCenterY();
+
+        double dx = mouseX - ballScreenX;
+        double dy = mouseY - ballScreenY;
+        double distance = Math.sqrt(dx * dx + dy * dy);
+        return distance <= (getScreenRadius() * 1.5); // Using the same multiplier as BALL_OUTER_RADIUS
     }
 }

@@ -256,8 +256,7 @@ public class GameManager implements Subject, HitObjectListener {
                 ((HitSlider) hitObject).updateSlider(currentMouseX, currentMouseY);
             }
 
-            if (hitObject.getHitTime() > elapsedMillis + 5000) {
-                // If the hit object is still far, skip processing
+            if (hitObject.getHitTime() > elapsedMillis + 5000) {// skip processing if far
                 break;
             }
 
@@ -268,8 +267,8 @@ public class GameManager implements Subject, HitObjectListener {
                     }
                 }
 
-                if (hitObject instanceof HitSpinner)
-                    break; // Don't handle misses for spinners
+                if (hitObject instanceof HitSpinner) break; // Don't handle misses for spinners
+
                 // Check for miss (object passed its time window)
                 if (elapsedMillis > hitObject.getHitTime() + getHitWindow()) {
                     handleMiss(hitObject);
