@@ -1,17 +1,17 @@
 package beat.osu.client.view.landing.component.layout;
 
-import java.io.ByteArrayInputStream;
 import java.net.URL;
-import java.util.Objects;
 
-import beat.osu.client.Main;
+import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.view.shared.bancho.cards.UserCard;
+import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
 import beat.osu.shared.dto.user.UserDto;
 import javafx.animation.FadeTransition;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -22,18 +22,15 @@ import lombok.Getter;
 public class TopBar extends HBox {
 
     @Getter
-    private HBox userInfoBox;
-
-    private ImageView profilePic;
-    private VBox userStats;
-    private Label usernameLbl;
-    private Label signinLbl;
+    private UserCard userCard;
 
     private HBox controlsBar;
     private Label songTitle;
 
     private HBox nowPlayingSection;
     private VBox songBox;
+
+    private EventHandler<MouseEvent> userCardClickHandler;
 
     public TopBar() {
         super(20);
@@ -51,36 +48,41 @@ public class TopBar extends HBox {
     }
 
     private void createUserInfoSection() {
-        userInfoBox = new HBox(15);
-        userInfoBox.setAlignment(Pos.CENTER_LEFT);
-        userInfoBox.getStyleClass().add("user-info-box");
+        UserDto user = AuthManager.getUser();
+        createUserCard(user);
+    }
 
-        profilePic = new ImageView();
-        profilePic.setFitHeight(80);
-        profilePic.setFitWidth(80);
-        profilePic.getStyleClass().add("profile-pic");
-
-        try {
-            profilePic.setImage(new Image(Objects.requireNonNull(Main.class
-                    .getResource("/assets/images/avatar-guest.png")).toExternalForm()));
-        } catch (Exception e) {
-            Region placeholder = new Region();
-            placeholder.setPrefSize(60, 60);
-            placeholder.setStyle("-fx-background-color: #888888; -fx-background-radius: 5;");
-            userInfoBox.getChildren().add(placeholder);
+    private void createUserCard(UserDto user) {
+        if (user != null) {
+            userCard = new UserCard(
+                    user.getId(),
+                    user.getUsername(),
+                    user.getCountryCode(),
+                    user.getProfilePicture(),
+                    user.getPerformance(),
+                    user.getAccuracy(),
+                    user.getPlayCount(),
+                    user.getLevel(),
+                    user.getRank(),
+                    user.isSupporter(),
+                    UserCardBehavior.STATIC
+            );
+            userCard.updateUserInfo();
+        } else {
+            userCard = new UserCard(
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    UserCardBehavior.EMPTY
+            );
         }
-
-        userStats = new VBox(2);
-        userStats.getStyleClass().add("user-stats");
-
-        usernameLbl = new Label("Guest");
-        usernameLbl.getStyleClass().add("username");
-
-        signinLbl = new Label("Click to sign in!");
-        signinLbl.getStyleClass().add("stats-text");
-
-        userStats.getChildren().addAll(usernameLbl, signinLbl);
-        userInfoBox.getChildren().addAll(profilePic, userStats);
     }
 
     private void createControlsBar() {
@@ -105,7 +107,6 @@ public class TopBar extends HBox {
         VBox songPlayingBox = new VBox(10, new HBox(new VBox(nowPlaying, playing), songTitle));
         songPlayingBox.setAlignment(Pos.CENTER);
 
-        // Create the song box that will contain the playing info and controls
         songBox = new VBox(songPlayingBox, controlsBar);
     }
 
@@ -114,7 +115,7 @@ public class TopBar extends HBox {
         HBox.setHgrow(spacer, Priority.ALWAYS);
         this.setMaxHeight(90);
 
-        this.getChildren().addAll(userInfoBox, spacer, songBox);
+        this.getChildren().addAll(userCard, spacer, songBox);
     }
 
     private void loadStyles() {
@@ -131,38 +132,46 @@ public class TopBar extends HBox {
     }
 
     public void updateUserInfo(UserDto user) {
+        if (userCard != null) {
+            getChildren().remove(userCard);
+        }
+        
         if (user != null) {
-            usernameLbl.setText(user.getUsername());
-            signinLbl.setVisible(false);
-            updateProfilePicture(user.getProfilePicture());
+            userCard = new UserCard(
+                    user.getId(),
+                    user.getUsername(),
+                    user.getCountryCode(),
+                    user.getProfilePicture(),
+                    user.getPerformance(),
+                    user.getAccuracy(),
+                    user.getPlayCount(),
+                    user.getLevel(),
+                    user.getRank(),
+                    user.isSupporter(),
+                    UserCardBehavior.STATIC
+            );
+            userCard.updateUserInfo();
         } else {
-            usernameLbl.setText("Guest");
-            signinLbl.setVisible(true);
-            updateProfilePicture(null);
+            userCard = new UserCard(
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    UserCardBehavior.EMPTY
+            );
         }
-    }
-
-    public void updateProfilePicture(byte[] profilePictureBytes) {
-        if (profilePictureBytes != null && profilePictureBytes.length > 0) {
-            try {
-                ByteArrayInputStream bis = new ByteArrayInputStream(profilePictureBytes);
-                Image profileImage = new Image(bis);
-                profilePic.setImage(profileImage);
-            } catch (Exception e) {
-                System.err.println("Error loading profile picture: " + e.getMessage());
-                setDefaultProfilePicture();
-            }
-        } else {
-            setDefaultProfilePicture();
-        }
-    }
-
-    private void setDefaultProfilePicture() {
-        try {
-            profilePic.setImage(new Image(Objects.requireNonNull(Main.class
-                    .getResource("/assets/images/avatar-guest.png")).toExternalForm()));
-        } catch (Exception e) {
-            System.err.println("Error loading default profile picture: " + e.getMessage());
+        
+        getChildren().add(0, userCard);
+        
+        // Re-attach the click handler if it was previously set
+        if (userCardClickHandler != null) {
+            userCard.setOnMouseClicked(userCardClickHandler);
         }
     }
 
@@ -186,5 +195,12 @@ public class TopBar extends HBox {
 
     public String getSongTitle() {
         return songTitle.getText();
+    }
+
+    public void setUserCardClickHandler(EventHandler<MouseEvent> handler) {
+        this.userCardClickHandler = handler;
+        if (userCard != null) {
+            userCard.setOnMouseClicked(handler);
+        }
     }
 }

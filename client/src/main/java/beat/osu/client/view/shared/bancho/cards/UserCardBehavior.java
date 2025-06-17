@@ -104,4 +104,31 @@ public interface UserCardBehavior {
             card.setOnMouseExited(null);
         }
     };
+
+    UserCardBehavior EMPTY = new UserCardBehavior() {
+        @Override
+        public void setupBehavior(UserCard card) {
+            card.getUsernameLabel().setText("Guest");
+            card.getPerformanceLabel().setText("Click to sign in!");
+
+            card.getGamemodeImageView().setVisible(false);
+            card.getProfileImageView().setVisible(false);
+
+            card.getTimeLabel().setText("");
+            card.getAccuracyLabel().setText("");
+            card.getPlayCountLabel().setText("");
+            card.getBackgroundRankLabel().setText("");
+        }
+
+        @Override
+        public void removeBehavior(UserCard card) {
+            card.setOnMouseEntered(null);
+            card.setOnMouseExited(null);
+
+            card.getGamemodeImageView().setVisible(true);
+            card.getProfileImageView().setVisible(true);
+
+            card.updateUserInfo();
+        }
+    };
 }

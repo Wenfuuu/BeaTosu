@@ -200,7 +200,6 @@ public class LoginModal extends StackPane {
                                 System.out.println(response.getMessage());
 
                                 AuthManager.setUser(result.getValue().getUser());
-                                // Update the TopBar with the logged-in user information
                                 topBar.updateUserInfo(result.getValue().getUser());
 
                                 if (onLoginSuccessListener != null) {

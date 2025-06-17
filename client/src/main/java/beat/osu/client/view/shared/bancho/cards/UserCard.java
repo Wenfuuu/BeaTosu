@@ -29,15 +29,18 @@ public class UserCard extends HBox {
     private String username;
     private String countryCode;
     private byte[] profilePicture;
-    private int performance;
-    private double accuracy;
-    private int playCount;
-    private int level;
-    private int rank;
-    private boolean isSupporter;
+    private Integer performance;
+    private Double accuracy;
+    private Integer playCount;
+    private Integer level;
+    private Integer rank;
+    private Boolean isSupporter;
 
-    private ImageView profileImageView;
+    @Getter
     private ImageView gamemodeImageView;
+    @Getter
+    private ImageView profileImageView;
+
     private Label usernameLabel;
     private Label performanceLabel;
     private Label accuracyLabel;
@@ -59,7 +62,7 @@ public class UserCard extends HBox {
     private UserCardBehavior behavior;
 
     public UserCard(Integer userId, String username, String countryCode, byte[] profilePicture,
-                    int performance, double accuracy, int playCount, int level, int rank, boolean isSupporter,
+                    Integer performance, Double accuracy, Integer playCount, Integer level, Integer rank, Boolean isSupporter,
                     UserCardBehavior behavior) {
         super(10);
         this.userId = userId;
@@ -168,7 +171,7 @@ public class UserCard extends HBox {
     private void setupStyling() {
         this.getStyleClass().add("user-card");
 
-        if (isSupporter) {
+        if (isSupporter != null && isSupporter) {
             this.getStyleClass().add("user-card-supporter");
         }
 
@@ -216,9 +219,23 @@ public class UserCard extends HBox {
             usernameLabel.setText(username);
         }
 
-        performanceLabel.setText("Performance: " + String.format("%,d", performance) + "pp");
-        accuracyLabel.setText("Accuracy: " + String.format("%.2f", accuracy) + "%");
-        playCountLabel.setText("Play Count: " + String.format("%,d", playCount) + " (Lv" + level + ")");
+        if (performance != null) {
+            performanceLabel.setText("Performance: " + String.format("%,d", performance) + "pp");
+        } else {
+            performanceLabel.setText("Performance: 0pp");
+        }
+        
+        if (accuracy != null) {
+            accuracyLabel.setText("Accuracy: " + String.format("%.2f", accuracy) + "%");
+        } else {
+            accuracyLabel.setText("Accuracy: 0.00%");
+        }
+        
+        if (playCount != null && level != null) {
+            playCountLabel.setText("Play Count: " + String.format("%,d", playCount) + " (Lv" + level + ")");
+        } else {
+            playCountLabel.setText("Play Count: 0 (Lv0)");
+        }
 
         updateProfilePicture();
     }
@@ -245,31 +262,47 @@ public class UserCard extends HBox {
         }
     }
 
-    public void setPerformance(int performance) {
+    public void setPerformance(Integer performance) {
         this.performance = performance;
         if (performanceLabel != null) {
-            performanceLabel.setText("Performance: " + String.format("%,d", performance) + "pp");
+            if (performance != null) {
+                performanceLabel.setText("Performance: " + String.format("%,d", performance) + "pp");
+            } else {
+                performanceLabel.setText("Performance: 0pp");
+            }
         }
     }
 
-    public void setAccuracy(double accuracy) {
+    public void setAccuracy(Double accuracy) {
         this.accuracy = accuracy;
         if (accuracyLabel != null) {
-            accuracyLabel.setText("Accuracy: " + String.format("%.2f", accuracy) + "%");
+            if (accuracy != null) {
+                accuracyLabel.setText("Accuracy: " + String.format("%.2f", accuracy) + "%");
+            } else {
+                accuracyLabel.setText("Accuracy: 0.00%");
+            }
         }
     }
 
-    public void setPlayCount(int playCount) {
+    public void setPlayCount(Integer playCount) {
         this.playCount = playCount;
         if (playCountLabel != null) {
-            playCountLabel.setText("Play Count: " + String.format("%,d", playCount) + " (Lv" + level + ")");
+            if (playCount != null && level != null) {
+                playCountLabel.setText("Play Count: " + String.format("%,d", playCount) + " (Lv" + level + ")");
+            } else {
+                playCountLabel.setText("Play Count: 0 (Lv0)");
+            }
         }
     }
 
-    public void setLevel(int level) {
+    public void setLevel(Integer level) {
         this.level = level;
         if (playCountLabel != null) {
-            playCountLabel.setText("Play Count: " + String.format("%,d", playCount) + " (Lv" + level + ")");
+            if (playCount != null && level != null) {
+                playCountLabel.setText("Play Count: " + String.format("%,d", playCount) + " (Lv" + level + ")");
+            } else {
+                playCountLabel.setText("Play Count: 0 (Lv0)");
+            }
         }
     }
 
@@ -278,7 +311,7 @@ public class UserCard extends HBox {
         updateProfilePicture();
     }
 
-    public void setIsSupporter(boolean isSupporter) {
+    public void setIsSupporter(Boolean isSupporter) {
         this.isSupporter = isSupporter;
         updateSupporterStyling();
     }

@@ -12,15 +12,6 @@ import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.ViewManager;
-import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
-import beat.osu.client.view.shared.common.Page;
-import beat.osu.client.view.shared.common.Toast;
-import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
-import beat.osu.client.view.shared.bancho.cards.UserCard;
-import beat.osu.client.view.shared.bancho.modals.SelectChannelModal;
-import beat.osu.client.view.shared.bancho.modals.ViewUserModal;
-import beat.osu.client.view.shared.bancho.panels.ChatPanel;
-import beat.osu.client.view.shared.bancho.panels.OnlineUsersPanel;
 import beat.osu.client.view.landing.component.controls.MediaControls;
 import beat.osu.client.view.landing.component.controls.MenuButtons;
 import beat.osu.client.view.landing.component.controls.SubMenuButtons;
@@ -29,6 +20,15 @@ import beat.osu.client.view.landing.component.layout.TopBar;
 import beat.osu.client.view.landing.component.modals.LoginModal;
 import beat.osu.client.view.landing.component.modals.RegisterModal;
 import beat.osu.client.view.landing.component.ui.Visualizer;
+import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
+import beat.osu.client.view.shared.bancho.cards.UserCard;
+import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
+import beat.osu.client.view.shared.bancho.modals.SelectChannelModal;
+import beat.osu.client.view.shared.bancho.modals.ViewUserModal;
+import beat.osu.client.view.shared.bancho.panels.ChatPanel;
+import beat.osu.client.view.shared.bancho.panels.OnlineUsersPanel;
+import beat.osu.client.view.shared.common.Page;
+import beat.osu.client.view.shared.common.Toast;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.ParallelTransition;
@@ -267,7 +267,7 @@ public class LandingView extends Page {
                 userCard.getPlayCount(),
                 userCard.getLevel(),
                 userCard.getRank(),
-                userCard.isSupporter(),
+                userCard.getIsSupporter(),
                 UserCardBehavior.STATIC
             );
             viewUserModal.updateUserCard(modalUserCard);
@@ -368,7 +368,7 @@ public class LandingView extends Page {
             toggleMenuPanel();
         });
 
-        topBarComponent.getUserInfoBox().setOnMouseClicked(e -> {
+        topBarComponent.setUserCardClickHandler(e -> {
             if (!loginModalComponent.isShowing() && !registerModalComponent.isVisible()) {
                 loginModalComponent.clearFields();
                 loginModalComponent.show();
