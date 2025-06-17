@@ -125,10 +125,10 @@ public class HitSlider extends HitObject {
             // Fallback: No uninherited timing point found before the slider.
             // This is unusual for a slider not at the very beginning of the map.
             // Use a default beat duration (e.g., 120 BPM = 500ms/beat).
-            System.out.println("falling back to 500ms per beat for slider at " + getHitTime());
-            msBeat = 500.0;
-            // System.err.println("Warning: No uninherited timing point found for slider at
-            // " + getHitTime() + ". Using default beatLength.");
+            int bgm = OsuParser.getBGM();
+            msBeat = 60000.0 / bgm;
+            System.out.println("falling back to default beat length of " + msBeat
+                    + "ms for slider at " + getHitTime() + ". No uninherited timing point found.");
         }
 
         this.msPerBeat = msBeat;
