@@ -4,5 +4,7 @@
 }
 
 .top-bar .label {
+    -fx-font-family: "Aller";
     -fx-text-fill: white;
+    -fx-font-size: 20px;
 }

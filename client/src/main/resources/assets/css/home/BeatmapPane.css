@@ -68,13 +68,13 @@
     -fx-background-radius: 3;
 }
 
-.beatmap-content .title {
+.beatmap-content .label {
+    -fx-font-family: "Aller";
     -fx-text-fill: white;
-    -fx-font-weight: bold;
     -fx-font-size: 12;
 }
 
-.beatmap-content .stars {
-    -fx-text-fill: yellow;
-    -fx-font-size: 12;
+.beatmap-content .title {
+    -fx-font-weight: bold;
+    -fx-font-size: 14;
 }

@@ -66,6 +66,13 @@ public class HomeView extends Page {
         }
 
         scene.setRoot(root);
+        URL globalCssUrl = CssManager.getGlobalCssURL();
+        if (globalCssUrl != null) {
+            scene.getStylesheets().add(globalCssUrl.toExternalForm());
+        } else {
+            System.err.println("Css file not found!");
+        }
+
         URL cssUrl = CssManager.getHomeCssURL("HomeView.css");
         if (cssUrl != null) {
             scene.getStylesheets().add(cssUrl.toExternalForm());

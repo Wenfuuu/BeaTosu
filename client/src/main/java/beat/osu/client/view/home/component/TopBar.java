@@ -48,7 +48,10 @@ public class TopBar extends HBox {
     }
 
     public void updateSongInfo(Beatmap beatmap) {
-        titleLbl.setText(beatmap.getBeatmapSet().getTitle());
+        titleLbl.setText(String.format("%s - %s [%s]",
+                beatmap.getBeatmapSet().getArtist(),
+                beatmap.getBeatmapSet().getTitle(),
+                beatmap.getVersion()));
         mapperLbl.setText("Mapped by " + beatmap.getBeatmapSet().getCreator());
 
         String detail = String.format("Length: %s BPM: %s",

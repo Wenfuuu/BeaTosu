@@ -106,8 +106,6 @@ public class BeatmapPane extends ScrollPane {
             textInfo.setPrefWidth(350);
 
             Label titleLabel = new Label(beatmap.getBeatmapSet().getTitle());
-            titleLabel.setTextFill(Color.WHITE);
-            titleLabel.setFont(Font.font("Arial", FontWeight.BOLD, 12));
 
             String artist = String.format("%s // %s", beatmap.getBeatmapSet().getArtist(),
                     beatmap.getBeatmapSet().getCreator());
@@ -118,13 +116,11 @@ public class BeatmapPane extends ScrollPane {
             HBox starsBox = new HBox(2);
             for (int i = 0; i < beatmap.getStarRating(); i++) {
                 Label star = new Label("★");
-                star.setTextFill(Color.YELLOW);
                 starsBox.getChildren().add(star);
             }
 
             contentLayer.getStyleClass().add("beatmap-content");
             titleLabel.getStyleClass().add("title");
-            starsBox.getStyleClass().add("stars");
             textInfo.getChildren().addAll(titleLabel, artistLabel, versionLabel, starsBox);
             contentLayer.getChildren().add(textInfo);
 
