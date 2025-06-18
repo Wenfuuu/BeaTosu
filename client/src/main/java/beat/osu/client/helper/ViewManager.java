@@ -18,6 +18,12 @@ public class ViewManager {
         sceneManager = SceneManager.getInstance(stage);
     }
 
+    public static void initializeHomeView() {
+        if (homeView == null) {
+            homeView = new HomeView(primaryStage);
+        }
+    }
+
     public static void showLandingView() {
         LandingView landingView = new LandingView(primaryStage);
         sceneManager.transitionToPage(landingView);

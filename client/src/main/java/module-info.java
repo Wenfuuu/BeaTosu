@@ -11,6 +11,7 @@ module beat.osu.client {
     requires javafx.media;
     requires beat.osu.shared;
     requires org.jetbrains.annotations;
+    requires java.desktop;
 
     exports beat.osu.client;
 }
