@@ -78,8 +78,7 @@ public class CurrentSongBox extends StackPane {
         
         Stop[] stops = new Stop[] {
             new Stop(0, Color.TRANSPARENT),
-            new Stop(0.4, Color.TRANSPARENT),
-            new Stop(0.8, Color.rgb(145, 145, 145)),
+            new Stop(0.8, Color.rgb(145, 145, 145, 0.5)),
             new Stop(1, Color.rgb(145, 145, 145))
         };
         LinearGradient gradient = new LinearGradient(0, 0, 1, 0, true, javafx.scene.paint.CycleMethod.NO_CYCLE, stops);

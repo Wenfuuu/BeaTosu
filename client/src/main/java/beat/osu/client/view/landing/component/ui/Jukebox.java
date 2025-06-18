@@ -2,10 +2,11 @@ package beat.osu.client.view.landing.component.ui;
 
 import java.net.URL;
 
+import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.view.landing.component.controls.MediaControls;
 import beat.osu.client.view.landing.component.modals.PlaylistModal;
-import javafx.geometry.Pos;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
@@ -54,16 +55,16 @@ public class Jukebox extends StackPane {
         VBox contentBox = new VBox(16);
         contentBox.getStyleClass().add("jukebox-content");
         contentBox.getChildren().addAll(currentSongBox, mediaControls);
-        contentBox.setAlignment(Pos.TOP_RIGHT);
-
         this.getChildren().addAll(contentBox, playlistModal);
-        
-        StackPane.setAlignment(contentBox, Pos.TOP_RIGHT);
     }
 
     private void setupEventHandlers() {
         mediaControls.getPlaylistButton().setOnAction(event -> {
             playlistModal.setVisible(!playlistModal.isVisible());
         });
+
+        mediaControls.getPlayButton().setOnAction(e -> BgmManager.resumeBgm());
+        mediaControls.getPauseButton().setOnAction(e -> BgmManager.pauseBgm());
+        mediaControls.getStopButton().setOnAction(e -> BgmManager.stopBgm());
     }
 }

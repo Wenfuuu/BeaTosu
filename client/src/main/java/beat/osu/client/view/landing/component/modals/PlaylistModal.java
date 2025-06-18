@@ -18,7 +18,6 @@ import javafx.scene.layout.VBox;
 
 public class PlaylistModal extends StackPane {
 
-    private CurrentSongBox currentSongBox;
     private VBox contentContainer;
     private PlaylistContent playlistContent;
 
@@ -50,7 +49,6 @@ public class PlaylistModal extends StackPane {
     }
 
     private void initializeComponents() {
-        currentSongBox = new CurrentSongBox("Ayakura Mei - Romantic Fall");
         contentContainer = new VBox();
         playlistContent = new PlaylistContent();
     }
@@ -60,8 +58,6 @@ public class PlaylistModal extends StackPane {
         header.setAlignment(Pos.CENTER_LEFT);
         header.setPadding(new Insets(20, 20, 10, 20));
 
-        header.getChildren().addAll(currentSongBox);
-        
         HBox searchArea = new HBox();
         Label searchLabel = new Label("Type to search!");
         searchLabel.getStyleClass().add("search-label");
@@ -161,7 +157,5 @@ public class PlaylistModal extends StackPane {
         }
         
         playlistContent.setContent(playlistItemsContainer);
-
-        System.out.println("Populated playlist with " + songs.length + " items");
     }
 }

@@ -16,6 +16,7 @@
 
 .media-controls {
     -fx-alignment: center-right;
+    -fx-padding: 0 20 0 0;
 }
 
 .stack-pane {
