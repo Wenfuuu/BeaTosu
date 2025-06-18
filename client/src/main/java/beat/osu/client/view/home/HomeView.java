@@ -39,7 +39,7 @@ public class HomeView extends Page {
         super(stage);
         handleEvent();
 
-        BgmManager.playPreviewBgm();
+        BgmManager.playPreviewBgm(false);
         BackgroundManager.setGameBackground(scene);
     }
 
@@ -84,6 +84,19 @@ public class HomeView extends Page {
         mainLayout.setBottom(bottomBar);
 
         root.getChildren().addAll(mainLayout);
+    }
+
+    @Override
+    public void onShow() {
+        try {
+            OsuParser.parseBeatmap(beatmapPane.getSelectedBeatmap());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        scene.setRoot(root);
+
+        BgmManager.playPreviewBgm(true);
+        BackgroundManager.setGameBackground(scene);
     }
 
     private ArrayList<Beatmap> fetchBeatmaps() {
@@ -158,7 +171,7 @@ public class HomeView extends Page {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            BgmManager.playPreviewBgm();
+            BgmManager.playPreviewBgm(false);
             BackgroundManager.setGameBackground(scene);
 
             // sfx testing purpose

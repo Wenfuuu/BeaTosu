@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 public class ViewManager {
     private static SceneManager sceneManager;
     private static Stage primaryStage;
+    private static HomeView homeView;
 
     public static void initialize(Stage stage) {
         primaryStage = stage;
@@ -23,13 +24,17 @@ public class ViewManager {
     }
 
     public static void showHomeView() {
-        HomeView homeView = new HomeView(primaryStage);
+        if (homeView == null) {
+            homeView = new HomeView(primaryStage);
+        }else{
+            homeView.onShow();
+        }
         sceneManager.transitionToPage(homeView);
     }
 
     public static void showGameView(Beatmap beatmap) {
-         GameView gameView = new GameView(primaryStage, beatmap);
-         sceneManager.transitionToPage(gameView);
+        GameView gameView = new GameView(primaryStage, beatmap);
+        sceneManager.transitionToPage(gameView);
     }
 
     public static void showUploadPage() {

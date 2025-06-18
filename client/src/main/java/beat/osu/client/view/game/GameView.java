@@ -23,6 +23,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import lombok.Setter;
 
 import java.util.Objects;
 
@@ -50,7 +51,8 @@ public class GameView extends Page implements Observer {
     private ResultOverlay resultOverlay;
     private FailOverlay failOverlay;
 
-    private final Beatmap beatmap;
+    @Setter
+    private Beatmap beatmap;
     private final GameManager gm;
 
     // additional spins
@@ -491,6 +493,11 @@ public class GameView extends Page implements Observer {
         // updateLayout();
         // root.widthProperty().addListener(resizeListener);
         // root.heightProperty().addListener(resizeListener);
+    }
+
+    @Override
+    public void onShow() {
+
     }
 
     @Override

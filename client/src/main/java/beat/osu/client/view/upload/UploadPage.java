@@ -84,6 +84,11 @@ public class UploadPage extends Page {
         mainBox.getChildren().addAll(dropBox, chooseFileBtn, uploadedFile);
     }
 
+    @Override
+    public void onShow() {
+
+    }
+
     public void handleEvent() {
         // drag and drop
         dropBox.setOnDragOver(event -> {

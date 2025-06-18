@@ -563,7 +563,7 @@ public class GameManager implements Subject, HitObjectListener {
         // Check for game over (health reaches 0)
         if (health <= 0) {
             System.out.println("hp reached 0, stopping game");
-            failGame();
+//            failGame();
         }
     }
 

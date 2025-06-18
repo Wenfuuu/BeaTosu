@@ -40,4 +40,9 @@ public class LobbyView extends Page {
     public void setLayout() {
 
     }
+
+    @Override
+    public void onShow() {
+        scene.setRoot(root);
+    }
 }

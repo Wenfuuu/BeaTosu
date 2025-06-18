@@ -353,6 +353,11 @@ public class LandingView extends Page {
         StackPane.setAlignment(viewUserModal, Pos.CENTER);
     }
 
+    @Override
+    public void onShow() {
+        scene.setRoot(root);
+    }
+
     public void handleEvent() {
         if (BgmManager.getCurrentPlayer() != null) {
             mediaControlsComponent.getPlayButton().setOnAction(e -> BgmManager.resumeBgm());

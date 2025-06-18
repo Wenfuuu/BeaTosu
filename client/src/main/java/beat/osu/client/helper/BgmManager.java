@@ -41,7 +41,7 @@ public class BgmManager {
         }
     }
 
-    public static void playPreviewBgm() {
+    public static void playPreviewBgm(boolean backFromGame) {
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
         File tempDir = ResourceManager.getTempDirectory();
         File beatmapDir = new File(tempDir, String.valueOf(beatmap.getBeatmapSetId()));
@@ -52,14 +52,17 @@ public class BgmManager {
             return;
         }
 
-        String newHash = computeFileHash(audioFile);
-        System.out.println(newHash);
-        if (newHash != null && newHash.equals(currentBgmHash)) {
-            System.out.println("Same BGM content. Skipping playback.");
-            return;
+        if(!backFromGame) {
+            String newHash = computeFileHash(audioFile);
+            System.out.println(newHash);
+            if (newHash != null && newHash.equals(currentBgmHash)) {
+                System.out.println("Same BGM content. Skipping playback.");
+                return;
+            }
+            currentBgmHash = newHash;
         }
 
-        stopBgm();
+        if(!backFromGame) stopBgm();
         Media media = new Media(audioFile.toURI().toString());
         currentPlayer = new MediaPlayer(media);
 
@@ -76,8 +79,6 @@ public class BgmManager {
 
         currentPlayer.setAutoPlay(true);
         currentPlayer.setVolume(0.2);
-
-        currentBgmHash = newHash;
     }
 
     public static void prepareGameBgm() {
