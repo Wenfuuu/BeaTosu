@@ -7,16 +7,9 @@
     -fx-background-color: transparent;
 }
 
-.playlist-title {
-    -fx-font-family: "Aller Bold";
-    -fx-font-size: 24px;
-    -fx-text-fill: white;
-    -fx-padding: 20;
-}
-
 .search-label {
-    -fx-font-family: "Aller";
-    -fx-font-size: 16px;
-    -fx-text-fill: #888888;
+    -fx-font-family: "Aller Light";
+    -fx-font-size: 30px;
+    -fx-text-fill: white;
     -fx-padding: 10;
 }

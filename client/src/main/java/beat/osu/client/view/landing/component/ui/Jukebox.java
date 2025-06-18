@@ -1,28 +1,37 @@
 package beat.osu.client.view.landing.component.ui;
 
+import java.net.URL;
+
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.view.landing.component.controls.MediaControls;
 import beat.osu.client.view.landing.component.modals.PlaylistModal;
+import javafx.geometry.Pos;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import lombok.Getter;
-
-import java.net.URL;
 
 @Getter
 public class Jukebox extends StackPane {
 
-    private PlaylistModal playlistModal;
+    private final PlaylistModal playlistModal;
+
+    private CurrentSongBox currentSongBox;
     private MediaControls mediaControls;
 
-    public Jukebox() {
+    public Jukebox(PlaylistModal playlistModal) {
+        this.playlistModal = playlistModal;
+        this.getStyleClass().add("jukebox");
+
         initializeComponents();
         loadStyles();
-        setupStyles();
+        setupLayout();
+        setupEventHandlers();
     }
 
     private void initializeComponents() {
-        this.playlistModal = new PlaylistModal();
+        this.currentSongBox = new CurrentSongBox("Ayakura Mei - Romantic Fall");
         this.mediaControls = new MediaControls();
+        this.mediaControls.getStyleClass().add("media-controls");
     }
 
     private void loadStyles() {
@@ -41,7 +50,20 @@ public class Jukebox extends StackPane {
         }
     }
 
-    private void setupStyles() {
+    private void setupLayout() {
+        VBox contentBox = new VBox(16);
+        contentBox.getStyleClass().add("jukebox-content");
+        contentBox.getChildren().addAll(currentSongBox, mediaControls);
+        contentBox.setAlignment(Pos.TOP_RIGHT);
 
+        this.getChildren().addAll(contentBox, playlistModal);
+        
+        StackPane.setAlignment(contentBox, Pos.TOP_RIGHT);
+    }
+
+    private void setupEventHandlers() {
+        mediaControls.getPlaylistButton().setOnAction(event -> {
+            playlistModal.setVisible(!playlistModal.isVisible());
+        });
     }
 }

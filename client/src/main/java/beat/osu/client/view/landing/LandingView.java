@@ -21,6 +21,7 @@ import beat.osu.client.view.landing.component.layout.TopBar;
 import beat.osu.client.view.landing.component.modals.LoginModal;
 import beat.osu.client.view.landing.component.modals.PlaylistModal;
 import beat.osu.client.view.landing.component.modals.RegisterModal;
+import beat.osu.client.view.landing.component.ui.Jukebox;
 import beat.osu.client.view.landing.component.ui.Visualizer;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
@@ -55,6 +56,8 @@ public class LandingView extends Page {
     private LoginModal loginModalComponent;
     private RegisterModal registerModalComponent;
     private PlaylistModal playlistModalComponent;
+
+    private Jukebox jukeboxComponent;
 
     private OnlineUsersPanel onlineUsersPanel;
     private ChatPanel chatPanel;
@@ -227,7 +230,6 @@ public class LandingView extends Page {
         this.channelController = new ChannelController();
         this.privateChatController = new PrivateChatController();
 
-        topBarComponent = new TopBar();
         menuButtonsComponent = new MenuButtons();
         subMenuButtonsComponent = new SubMenuButtons();
         visualizerComponent = new Visualizer(this.visualizerSize);
@@ -235,6 +237,9 @@ public class LandingView extends Page {
         loginModalComponent = new LoginModal(topBarComponent);
         registerModalComponent = new RegisterModal();
         playlistModalComponent = new PlaylistModal();
+
+        jukeboxComponent = new Jukebox(playlistModalComponent);
+        topBarComponent = new TopBar(jukeboxComponent);
 
         banchoButtons = new BanchoButtons();
         banchoButtons.setVisible(false);
@@ -441,7 +446,6 @@ public class LandingView extends Page {
     }
 
     private void showPlaylistModal() {
-        // Force modal to take full screen size
         playlistModalComponent.prefWidthProperty().bind(root.widthProperty());
         playlistModalComponent.prefHeightProperty().bind(root.heightProperty());
         playlistModalComponent.minWidthProperty().bind(root.widthProperty());
@@ -449,16 +453,5 @@ public class LandingView extends Page {
         
         playlistModalComponent.setVisible(true);
         playlistModalComponent.toFront();
-        
-        // Add click handler to close modal when clicking outside
-        playlistModalComponent.setOnMouseClicked(e -> {
-            if (e.getTarget() == playlistModalComponent) {
-                hidePlaylistModal();
-            }
-        });
-    }
-    
-    private void hidePlaylistModal() {
-        playlistModalComponent.setVisible(false);
     }
 }

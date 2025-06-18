@@ -1,0 +1,12 @@
+.current-song-box {
+    -fx-alignment: center-right;
+    -fx-padding: 2;
+}
+
+.current-song-label {
+    -fx-text-fill: white;
+    -fx-font-size: 24px;
+    -fx-font-family: 'Aller Light';
+    -fx-padding: 0 24 4 120;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 2, 0, 1, 1);
+}

@@ -1,7 +1,7 @@
 .top-bar {
     -fx-background-color: rgba(0, 0, 0, 0.5);
     -fx-spacing: 4px;
-    -fx-padding: 2 2 2 2;
+    -fx-padding: 0;
     -fx-alignment: center-left;
 }
 

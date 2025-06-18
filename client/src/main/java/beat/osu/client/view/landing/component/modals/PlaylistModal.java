@@ -2,21 +2,26 @@ package beat.osu.client.view.landing.component.modals;
 
 import java.net.URL;
 
+import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.view.landing.component.ui.CurrentSongBox;
 import beat.osu.client.view.landing.component.ui.PlaylistContent;
 import beat.osu.client.view.landing.component.ui.PlaylistItem;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 public class PlaylistModal extends StackPane {
-    
+
+    private CurrentSongBox currentSongBox;
     private VBox contentContainer;
     private PlaylistContent playlistContent;
-    
+
     public PlaylistModal() {
         super();
         initializeComponents();
@@ -45,22 +50,38 @@ public class PlaylistModal extends StackPane {
     }
 
     private void initializeComponents() {
+        currentSongBox = new CurrentSongBox("Ayakura Mei - Romantic Fall");
         contentContainer = new VBox();
         playlistContent = new PlaylistContent();
     }
     
     private void setupLayout() {
         HBox header = new HBox();
-        Label playlistTitle = new Label("Touhou");
-        playlistTitle.getStyleClass().add("playlist-title");
-        header.getChildren().add(playlistTitle);
         header.setAlignment(Pos.CENTER_LEFT);
         header.setPadding(new Insets(20, 20, 10, 20));
+
+        header.getChildren().addAll(currentSongBox);
         
         HBox searchArea = new HBox();
         Label searchLabel = new Label("Type to search!");
         searchLabel.getStyleClass().add("search-label");
-        searchArea.getChildren().add(searchLabel);
+        
+        ImageView searchIcon = null;
+        String searchIconPath = "/assets/images/search-icon.png";
+        URL searchIconUrl = Main.class.getResource(searchIconPath);
+        
+        if (searchIconUrl != null) {
+            Image searchImage = new Image(searchIconUrl.toExternalForm());
+            searchIcon = new ImageView(searchImage);
+            searchIcon.setFitHeight(32);
+            searchIcon.setFitWidth(32);
+            searchIcon.setPreserveRatio(true);
+            searchIcon.setStyle("-fx-padding: 0 0 0 8;");
+            searchArea.getChildren().addAll(searchLabel, searchIcon);
+        } else {
+            searchArea.getChildren().add(searchLabel);
+        }
+        
         searchArea.setAlignment(Pos.CENTER_RIGHT);
         searchArea.setPadding(new Insets(0, 20, 10, 20));
         

@@ -1,0 +1,23 @@
+.jukebox {
+    -fx-alignment: top-right;
+}
+
+.jukebox-content {
+    -fx-alignment: top-right;
+}
+
+.jukebox-content .current-song-box {
+    -fx-alignment: center-right;
+}
+
+.jukebox-content .media-controls {
+    -fx-alignment: center-right;
+}
+
+.media-controls {
+    -fx-alignment: center-right;
+}
+
+.stack-pane {
+    -fx-alignment: top-right;
+}

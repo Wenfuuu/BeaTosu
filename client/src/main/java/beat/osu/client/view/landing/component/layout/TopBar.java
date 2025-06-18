@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.utils.BeatmapUtils;
+import beat.osu.client.view.landing.component.ui.Jukebox;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
 import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
 import beat.osu.shared.dto.user.UserDto;
@@ -30,12 +31,6 @@ public class TopBar extends HBox {
     @Getter
     private UserCard userCard;
 
-    private HBox controlsBar;
-    private Label songTitle;
-
-    private HBox nowPlayingSection;
-    private VBox songBox;
-
     private EventHandler<MouseEvent> userCardClickHandler;
 
     private Label beatmapCountLabel;
@@ -50,8 +45,12 @@ public class TopBar extends HBox {
     private long startTime;
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
-    public TopBar() {
+    private Jukebox jukebox;
+
+    public TopBar(Jukebox jukebox) {
         super(20);
+
+        this.jukebox = jukebox;
         this.getStyleClass().add("top-bar");
         this.startTime = System.currentTimeMillis();
 
@@ -63,8 +62,6 @@ public class TopBar extends HBox {
 
     private void initializeComponents() {
         createUserInfoSection();
-        createControlsBar();
-        createNowPlayingSection();
         createBeatmapCountLabel();
         createRuntimeComponent();
         createCurrentTimeComponent();
@@ -108,31 +105,6 @@ public class TopBar extends HBox {
         }
     }
 
-    private void createControlsBar() {
-        controlsBar = new HBox(15);
-        controlsBar.getStyleClass().add("controls-bar");
-        controlsBar.setAlignment(Pos.CENTER_RIGHT);
-    }
-
-    private void createNowPlayingSection() {
-        nowPlayingSection = new HBox();
-        nowPlayingSection.setAlignment(Pos.CENTER_RIGHT);
-
-        Label nowPlaying = new Label("Now");
-        nowPlaying.getStyleClass().add("playing-label");
-
-        Label playing = new Label("Playing");
-        playing.getStyleClass().add("playing-label");
-
-        songTitle = new Label("Minato Aqua - #Aquairo Palette");
-        songTitle.getStyleClass().add("song-name");
-
-        VBox songPlayingBox = new VBox(10, new HBox(new VBox(nowPlaying, playing), songTitle));
-        songPlayingBox.setAlignment(Pos.CENTER);
-
-        songBox = new VBox(songPlayingBox, controlsBar);
-    }
-
     private void createBeatmapCountLabel() {
         int count = BeatmapUtils.getBeatmapCount();
         beatmapCountLabel = new Label("You have " + count + " beatmaps available!");
@@ -153,13 +125,14 @@ public class TopBar extends HBox {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         this.setMaxHeight(90);
+        this.setPrefHeight(90);
 
         VBox timeInfoBox = new VBox(2);
         timeInfoBox.setAlignment(Pos.TOP_LEFT);
         timeInfoBox.getChildren().addAll(beatmapCountLabel, runtimeLabel, currentTimeLabel);
         timeInfoBox.setPadding(new Insets(0, 0, 0, 4));
 
-        this.getChildren().addAll(userCard, timeInfoBox, spacer, songBox);
+        this.getChildren().addAll(userCard, timeInfoBox, spacer, jukebox);
     }
 
     private void loadStyles() {
@@ -203,10 +176,6 @@ public class TopBar extends HBox {
 
     private void updateCurrentTime() {
         currentTimeLabel.setText("It is currently " + LocalTime.now().format(TIME_FORMATTER) + ".");
-    }
-
-    public void addControlsToBar(HBox controls) {
-        controlsBar.getChildren().setAll(controls.getChildren());
     }
 
     public void updateUserInfo(UserDto user) {
@@ -264,14 +233,6 @@ public class TopBar extends HBox {
         fadeToLow.setFromValue(this.getOpacity());
         fadeToLow.setToValue(0.2);
         fadeToLow.play();
-    }
-
-    public void setSongTitle(String title) {
-        songTitle.setText(title);
-    }
-
-    public String getSongTitle() {
-        return songTitle.getText();
     }
 
     public void setUserCardClickHandler(EventHandler<MouseEvent> handler) {

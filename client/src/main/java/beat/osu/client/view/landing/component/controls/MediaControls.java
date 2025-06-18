@@ -1,19 +1,14 @@
 package beat.osu.client.view.landing.component.controls;
 
-import beat.osu.client.helper.CssManager;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import lombok.Getter;
-
 import java.net.URL;
 
-@Getter
-public class MediaControls extends VBox {
+import beat.osu.client.helper.CssManager;
+import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
+import lombok.Getter;
 
-    private Label currentSongTitle;
-    private HBox mediaButtons;
+@Getter
+public class MediaControls extends HBox {
 
     private Button prevButton;
     private Button playButton;
