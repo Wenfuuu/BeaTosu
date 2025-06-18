@@ -1,0 +1,38 @@
+.playlist-content {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+    -fx-fit-to-width: true;
+    -fx-fit-to-height: false;
+    -fx-hbar-policy: never;
+    -fx-vbar-policy: as-needed;
+    -fx-border-color: white;
+    -fx-border-width: 2 0 2 0;
+}
+
+.playlist-content .viewport {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.playlist-content .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-pref-width: 20;
+    -fx-min-width: 20;
+    -fx-max-width: 20;
+}
+
+.playlist-content .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+
+.playlist-content .scroll-bar:vertical .thumb {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 0;
+}
+
+.playlist-content .scroll-bar:vertical .increment-button,
+.playlist-content .scroll-bar:vertical .decrement-button {
+    -fx-pref-height: 0;
+    -fx-opacity: 0;
+}

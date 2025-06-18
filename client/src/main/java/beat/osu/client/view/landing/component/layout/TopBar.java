@@ -39,11 +39,14 @@ public class TopBar extends HBox {
     private EventHandler<MouseEvent> userCardClickHandler;
 
     private Label beatmapCountLabel;
+    @Getter
     private Label runtimeLabel;
+    @Getter
     private Label currentTimeLabel;
 
     private Timeline runtimeTimer;
     private Timeline clockTimer;
+    @Getter
     private long startTime;
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -142,7 +145,7 @@ public class TopBar extends HBox {
     }
 
     private void createCurrentTimeComponent() {
-        currentTimeLabel = new Label(LocalTime.now().format(TIME_FORMATTER));
+        currentTimeLabel = new Label("It is currently " + LocalTime.now().format(TIME_FORMATTER) + ".");
         currentTimeLabel.getStyleClass().add("current-time");
     }
 
@@ -275,28 +278,6 @@ public class TopBar extends HBox {
         this.userCardClickHandler = handler;
         if (userCard != null) {
             userCard.setOnMouseClicked(handler);
-        }
-    }
-
-    // Getter methods for the new components
-    public Label getRuntimeLabel() {
-        return runtimeLabel;
-    }
-
-    public Label getCurrentTimeLabel() {
-        return currentTimeLabel;
-    }
-
-    public long getStartTime() {
-        return startTime;
-    }
-
-    public void stopTimers() {
-        if (runtimeTimer != null) {
-            runtimeTimer.stop();
-        }
-        if (clockTimer != null) {
-            clockTimer.stop();
         }
     }
 }

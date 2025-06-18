@@ -14,12 +14,12 @@ import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.ViewManager;
-import beat.osu.client.view.landing.component.controls.MediaControls;
 import beat.osu.client.view.landing.component.controls.MenuButtons;
 import beat.osu.client.view.landing.component.controls.SubMenuButtons;
 import beat.osu.client.view.landing.component.layout.BottomBar;
 import beat.osu.client.view.landing.component.layout.TopBar;
 import beat.osu.client.view.landing.component.modals.LoginModal;
+import beat.osu.client.view.landing.component.modals.PlaylistModal;
 import beat.osu.client.view.landing.component.modals.RegisterModal;
 import beat.osu.client.view.landing.component.ui.Visualizer;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
@@ -50,11 +50,11 @@ public class LandingView extends Page {
     private TopBar topBarComponent;
     private Visualizer visualizerComponent;
     private BottomBar bottomBarComponent;
-    private MediaControls mediaControlsComponent;
     private MenuButtons menuButtonsComponent;
     private SubMenuButtons subMenuButtonsComponent;
     private LoginModal loginModalComponent;
     private RegisterModal registerModalComponent;
+    private PlaylistModal playlistModalComponent;
 
     private OnlineUsersPanel onlineUsersPanel;
     private ChatPanel chatPanel;
@@ -227,7 +227,6 @@ public class LandingView extends Page {
         this.channelController = new ChannelController();
         this.privateChatController = new PrivateChatController();
 
-        mediaControlsComponent = new MediaControls();
         topBarComponent = new TopBar();
         menuButtonsComponent = new MenuButtons();
         subMenuButtonsComponent = new SubMenuButtons();
@@ -235,6 +234,7 @@ public class LandingView extends Page {
         bottomBarComponent = new BottomBar();
         loginModalComponent = new LoginModal(topBarComponent);
         registerModalComponent = new RegisterModal();
+        playlistModalComponent = new PlaylistModal();
 
         banchoButtons = new BanchoButtons();
         banchoButtons.setVisible(false);
@@ -283,15 +283,14 @@ public class LandingView extends Page {
         menuButtonsComponent.getStyleClass().add("menu-buttons");
         subMenuButtonsComponent.getStyleClass().add("menu-buttons");
 
-        topBarComponent.addControlsToBar(mediaControlsComponent);
-        topBarComponent.setSongTitle("nekodex - circles!");
-
         visualizerComponent.setMenuBox(menuButtonsComponent);
         visualizerComponent.setSubMenuBox(subMenuButtonsComponent);
 
         subMenuButtonsComponent.setVisible(false);
         subMenuButtonsComponent.setManaged(false);
         subMenuButtonsComponent.setOpacity(0.0);
+
+        playlistModalComponent.setVisible(false);
 
         String bgmPath = "/assets/audio/nekodex-circles.mp3";
         URL bgmUrl = Main.class.getResource(bgmPath);
@@ -340,7 +339,7 @@ public class LandingView extends Page {
         root.getChildren().add(bottomBarComponent);
         StackPane.setAlignment(bottomBarComponent, Pos.BOTTOM_CENTER);
 
-        root.getChildren().addAll(loginModalComponent, registerModalComponent, selectChannelModal);
+        root.getChildren().addAll(loginModalComponent, registerModalComponent, playlistModalComponent, selectChannelModal);
         StackPane.setAlignment(loginModalComponent, Pos.CENTER_LEFT);
         StackPane.setAlignment(registerModalComponent, Pos.CENTER);
         StackPane.setAlignment(selectChannelModal, Pos.CENTER);
@@ -367,16 +366,6 @@ public class LandingView extends Page {
     }
 
     public void handleEvent() {
-        if (BgmManager.getCurrentPlayer() != null) {
-            mediaControlsComponent.getPlayButton().setOnAction(e -> BgmManager.resumeBgm());
-            mediaControlsComponent.getPauseButton().setOnAction(e -> BgmManager.pauseBgm());
-            mediaControlsComponent.getStopButton().setOnAction(e -> BgmManager.stopBgm());
-        } else {
-            mediaControlsComponent.getPlayButton().setDisable(true);
-            mediaControlsComponent.getPauseButton().setDisable(true);
-            mediaControlsComponent.getStopButton().setDisable(true);
-        }
-
         visualizerComponent.getLogoRayGroup().setOnMouseClicked(e -> {
             toggleMenuPanel();
         });
@@ -422,7 +411,7 @@ public class LandingView extends Page {
             showSubMenu();
         });
         menuButtonsComponent.getOptionButton().setOnMouseClicked(e -> {
-            toggleMenuPanel();
+            showPlaylistModal();
         });
         menuButtonsComponent.getExitButton().setOnMouseClicked(e -> {
             stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
@@ -449,5 +438,27 @@ public class LandingView extends Page {
         banchoButtons.getChatToggleButton().setOnMouseClicked(e -> {
             banchoButtons.toggleChat(chatPanel, bottomBarComponent, onlineUsersPanel, topBarComponent);
         });
+    }
+
+    private void showPlaylistModal() {
+        // Force modal to take full screen size
+        playlistModalComponent.prefWidthProperty().bind(root.widthProperty());
+        playlistModalComponent.prefHeightProperty().bind(root.heightProperty());
+        playlistModalComponent.minWidthProperty().bind(root.widthProperty());
+        playlistModalComponent.minHeightProperty().bind(root.heightProperty());
+        
+        playlistModalComponent.setVisible(true);
+        playlistModalComponent.toFront();
+        
+        // Add click handler to close modal when clicking outside
+        playlistModalComponent.setOnMouseClicked(e -> {
+            if (e.getTarget() == playlistModalComponent) {
+                hidePlaylistModal();
+            }
+        });
+    }
+    
+    private void hidePlaylistModal() {
+        playlistModalComponent.setVisible(false);
     }
 }

@@ -1,0 +1,33 @@
+package beat.osu.client.view.landing.component.ui;
+
+import java.net.URL;
+
+import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ScreenManager;
+import javafx.scene.Node;
+import javafx.scene.control.ScrollPane;
+
+public class PlaylistContent extends ScrollPane {
+    
+    public PlaylistContent() {
+        super();
+        loadStyles();
+
+        this.getStyleClass().add("playlist-content");
+        this.setFitToWidth(true);
+        this.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        this.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        
+        this.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.68);
+        this.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.68);
+    }
+
+    private void loadStyles() {
+        URL cssUrl = CssManager.getLandingCssURL("PlaylistContent.css");
+        if (cssUrl != null) {
+            this.getStylesheets().add(cssUrl.toExternalForm());
+        } else {
+            System.err.println("CSS file not found!");
+        }
+    }
+}
