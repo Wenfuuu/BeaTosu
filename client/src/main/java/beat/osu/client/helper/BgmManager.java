@@ -6,6 +6,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,6 +18,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class BgmManager {
     private static String currentBgmHash = null;
+    private static String defaultBgmHash;
 
     @Getter
     private static MediaPlayer currentPlayer;
@@ -41,7 +43,15 @@ public class BgmManager {
         }
     }
 
-    public static void playPreviewBgm(boolean backFromGame) {
+    public static boolean isSameBgm(String newHash) {
+        if (currentBgmHash == null) {
+            currentBgmHash = newHash;
+            return false;
+        }
+        return currentBgmHash.equals(newHash);
+    }
+
+    public static void playPreviewBgm(boolean fromAnotherPage) {
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
         File tempDir = ResourceManager.getTempDirectory();
         File beatmapDir = new File(tempDir, String.valueOf(beatmap.getBeatmapSetId()));
@@ -52,17 +62,23 @@ public class BgmManager {
             return;
         }
 
-        if(!backFromGame) {
-            String newHash = computeFileHash(audioFile);
-            System.out.println(newHash);
-            if (newHash != null && newHash.equals(currentBgmHash)) {
+        String newHash = computeFileHash(audioFile);
+        if(!fromAnotherPage) {
+            if (isSameBgm(newHash)) {
                 System.out.println("Same BGM content. Skipping playback.");
                 return;
             }
-            currentBgmHash = newHash;
+            stopBgm();
+        }else {
+            if(newHash != null && currentBgmHash.equals(defaultBgmHash)) stopBgm();
+            if (isSameBgm(newHash)) {
+                System.out.println("From another page, Same BGM content. Resuming BGM.");
+                currentPlayer.play();
+                return;
+            }
         }
+        currentBgmHash = newHash;
 
-        if(!backFromGame) stopBgm();
         Media media = new Media(audioFile.toURI().toString());
         currentPlayer = new MediaPlayer(media);
 
@@ -117,16 +133,18 @@ public class BgmManager {
         }
     }
 
-    public static void playBgm(URL bgmUrl) {
+    public static void playBgm(File bgmFile) {
         stopBgm(); // Stop if already playing
+        defaultBgmHash = computeFileHash(bgmFile);
+        currentBgmHash = defaultBgmHash;
 
         try {
-            Media media = new Media(bgmUrl.toString());
+            Media media = new Media(bgmFile.toURI().toString());
             currentPlayer = new MediaPlayer(media);
             currentPlayer.setAutoPlay(true);
             currentPlayer.setVolume(0.2);
         } catch (Exception e) {
-            System.err.println("Failed to load BGM: " + bgmUrl);
+            System.err.println("Failed to load BGM: " + bgmFile.getPath());
             e.printStackTrace();
         }
     }

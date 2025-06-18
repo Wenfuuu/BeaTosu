@@ -38,9 +38,6 @@ public class HomeView extends Page {
     public HomeView(Stage stage) {
         super(stage);
         handleEvent();
-
-        BgmManager.playPreviewBgm(false);
-        BackgroundManager.setGameBackground(scene);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package beat.osu.client.view.landing;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import beat.osu.client.Main;
@@ -294,7 +296,13 @@ public class LandingView extends Page {
         String bgmPath = "/assets/audio/nekodex-circles.mp3";
         URL bgmUrl = Main.class.getResource(bgmPath);
         if (bgmUrl != null && BgmManager.getCurrentPlayer() == null) {
-            BgmManager.playBgm(bgmUrl);
+            try {
+                File bgmFile = new File(bgmUrl.toURI());
+                BgmManager.playBgm(bgmFile);
+            } catch (Exception e) {
+                System.err.println("Failed to convert BGM URL to File: " + e.getMessage());
+                e.printStackTrace();
+            }
         }
 
         if(BgmManager.getCurrentPlayer() != null) {
