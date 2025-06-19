@@ -6,7 +6,7 @@ import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.view.landing.component.controls.MediaControls;
 import beat.osu.client.view.landing.component.modals.PlaylistModal;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
@@ -22,6 +22,9 @@ public class Jukebox extends StackPane {
     public Jukebox(PlaylistModal playlistModal) {
         this.playlistModal = playlistModal;
         this.getStyleClass().add("jukebox");
+
+        this.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+        this.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
         initializeComponents();
         loadStyles();

@@ -19,9 +19,9 @@ public class PlaylistItem extends VBox {
         this.songText = new Label(songText);
         this.songText.getStyleClass().add("song-text");
 
-        this.setMinHeight(53.5);
-        this.setPrefHeight(53.5);
-        this.setMaxHeight(53.5);
+//        this.setMinHeight(53.5);
+//        this.setPrefHeight(53.5);
+//        this.setMaxHeight(53.5);
 
         this.getChildren().add(this.songText);
     }

@@ -1,6 +1,6 @@
 .playlist-item {
     -fx-background-color: transparent;
-    -fx-padding: 0 6 0 6;
+    -fx-padding: 12 6 12 6;
     -fx-alignment: center-left;
 }
 
@@ -14,6 +14,6 @@
 
 .song-text {
     -fx-font-family: "Aller Light";
-    -fx-font-size: 30px;
+    -fx-font-size: 35px;
     -fx-text-fill: white;
 }

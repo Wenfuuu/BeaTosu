@@ -7,7 +7,6 @@ import java.time.format.DateTimeFormatter;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.utils.BeatmapUtils;
-import beat.osu.client.view.landing.component.ui.Jukebox;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
 import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
 import beat.osu.shared.dto.user.UserDto;
@@ -45,12 +44,9 @@ public class TopBar extends HBox {
     private long startTime;
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
-    private Jukebox jukebox;
-
-    public TopBar(Jukebox jukebox) {
+    public TopBar() {
         super(20);
 
-        this.jukebox = jukebox;
         this.getStyleClass().add("top-bar");
         this.startTime = System.currentTimeMillis();
 
@@ -125,14 +121,13 @@ public class TopBar extends HBox {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         this.setMaxHeight(90);
-        this.setPrefHeight(90);
 
         VBox timeInfoBox = new VBox(2);
         timeInfoBox.setAlignment(Pos.TOP_LEFT);
         timeInfoBox.getChildren().addAll(beatmapCountLabel, runtimeLabel, currentTimeLabel);
         timeInfoBox.setPadding(new Insets(0, 0, 0, 4));
 
-        this.getChildren().addAll(userCard, timeInfoBox, spacer, jukebox);
+        this.getChildren().addAll(userCard, timeInfoBox, spacer);
     }
 
     private void loadStyles() {

@@ -18,8 +18,8 @@ public class PlaylistContent extends ScrollPane {
         this.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         this.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         
-        this.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.68);
-        this.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.68);
+        this.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.77);
+        this.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.77);
     }
 
     private void loadStyles() {

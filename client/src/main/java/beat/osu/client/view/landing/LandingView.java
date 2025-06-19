@@ -233,13 +233,13 @@ public class LandingView extends Page {
         menuButtonsComponent = new MenuButtons();
         subMenuButtonsComponent = new SubMenuButtons();
         visualizerComponent = new Visualizer(this.visualizerSize);
+        topBarComponent = new TopBar();
         bottomBarComponent = new BottomBar();
         loginModalComponent = new LoginModal(topBarComponent);
         registerModalComponent = new RegisterModal();
         playlistModalComponent = new PlaylistModal();
 
         jukeboxComponent = new Jukebox(playlistModalComponent);
-        topBarComponent = new TopBar(jukeboxComponent);
 
         banchoButtons = new BanchoButtons();
         banchoButtons.setVisible(false);
@@ -347,7 +347,11 @@ public class LandingView extends Page {
         root.getChildren().addAll(loginModalComponent, registerModalComponent, playlistModalComponent, selectChannelModal);
         StackPane.setAlignment(loginModalComponent, Pos.CENTER_LEFT);
         StackPane.setAlignment(registerModalComponent, Pos.CENTER);
+        StackPane.setAlignment(playlistModalComponent, Pos.CENTER);
         StackPane.setAlignment(selectChannelModal, Pos.CENTER);
+
+        root.getChildren().add(jukeboxComponent);
+        StackPane.setAlignment(jukeboxComponent, Pos.TOP_RIGHT);
 
         root.getChildren().add(onlineUsersPanel);
         StackPane.setAlignment(onlineUsersPanel, Pos.TOP_CENTER);

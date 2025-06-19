@@ -1,6 +1,6 @@
 .playlist-modal {
     -fx-background-color: rgba(0, 0, 0, 0.90);
-    -fx-padding: 36 0 0 16;
+    -fx-padding: 66 0 0 16;
 }
 
 .playlist-modal-content {
@@ -9,7 +9,7 @@
 
 .search-label {
     -fx-font-family: "Aller Light";
-    -fx-font-size: 30px;
+    -fx-font-size: 36px;
     -fx-text-fill: white;
     -fx-padding: 10;
 }
