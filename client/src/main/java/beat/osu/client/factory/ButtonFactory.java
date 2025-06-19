@@ -42,10 +42,16 @@ public class ButtonFactory {
         return pauseButton;
     }
 
+    public static Button createResultReplayButton() {
+        Button replayButton = createPauseButton();
+        BackgroundManager.setResultButtonBackground(replayButton, "pause-replay.png");
+        return replayButton;
+    }
+
     public static Button createRetryButton() {
-        Button continueButton = createPauseButton();
-        BackgroundManager.setPauseButtonBackground(continueButton, "pause-retry.png");
-        return continueButton;
+        Button retryButton = createPauseButton();
+        BackgroundManager.setPauseButtonBackground(retryButton, "pause-retry.png");
+        return retryButton;
     }
 
     public static Button createLeaveButton() {

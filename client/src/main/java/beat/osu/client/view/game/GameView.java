@@ -127,6 +127,10 @@ public class GameView extends Page implements Observer {
             ViewManager.showGameView(beatmap);
         });
 
+        resultOverlay.getReplayButton().setOnMouseClicked(e -> {
+
+        });
+
         resultOverlay.getBackButton().setOnMouseClicked(e -> {
             ViewManager.showHomeView();
         });

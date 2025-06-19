@@ -63,6 +63,7 @@ public class ResultOverlay extends BorderPane {
     private Label playedLabel;
     private VBox hitCountsBox;
     private Button retryButton;
+    private Button replayButton;
     private Button backButton;
     private ImageView rankingView;
 
@@ -366,6 +367,7 @@ public class ResultOverlay extends BorderPane {
 
         // Buttons
         retryButton = ButtonFactory.createResultRetryButton();
+        replayButton = ButtonFactory.createResultReplayButton();
         backButton = ButtonFactory.createBackButton();
 
         // Ranking image
@@ -400,7 +402,7 @@ public class ResultOverlay extends BorderPane {
         VBox rightStats = new VBox(20);
         rightStats.setAlignment(Pos.CENTER);
 
-        rightStats.getChildren().addAll(gradeSymbol, retryButton);
+        rightStats.getChildren().addAll(gradeSymbol, retryButton, replayButton);
 
         Pane contentPane = new Pane();
         contentPane.getChildren().addAll(rankingView, scoreContainer,
