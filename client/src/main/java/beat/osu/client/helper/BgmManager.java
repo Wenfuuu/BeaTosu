@@ -51,6 +51,16 @@ public class BgmManager {
         return currentBgmHash.equals(newHash);
     }
 
+    private static void loopFromPreviewTime() {
+        if (currentPlayer != null) {
+            Duration previewTime = new Duration(OsuParser.getPreviewTime());
+            currentPlayer.setOnEndOfMedia(() -> {
+                currentPlayer.seek(previewTime);
+                currentPlayer.play();
+            });
+        }
+    }
+
     public static void playPreviewBgm(boolean fromAnotherPage) {
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
         File tempDir = ResourceManager.getTempDirectory();
@@ -71,9 +81,10 @@ public class BgmManager {
             stopBgm();
         }else {
             if(newHash != null && currentBgmHash.equals(defaultBgmHash)) stopBgm();
-            if (isSameBgm(newHash)) {
+            if (isSameBgm(newHash) && currentPlayer != null) {
                 System.out.println("From another page, Same BGM content. Resuming BGM.");
                 currentPlayer.play();
+                loopFromPreviewTime();
                 return;
             }
         }
