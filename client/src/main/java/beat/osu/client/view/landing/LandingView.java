@@ -240,6 +240,7 @@ public class LandingView extends Page {
         playlistModalComponent = new PlaylistModal();
 
         jukeboxComponent = new Jukebox(playlistModalComponent);
+        playlistModalComponent.addListener(jukeboxComponent);
 
         banchoButtons = new BanchoButtons();
         banchoButtons.setVisible(false);

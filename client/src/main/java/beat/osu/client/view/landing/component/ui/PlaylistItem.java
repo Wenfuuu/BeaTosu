@@ -2,10 +2,12 @@ package beat.osu.client.view.landing.component.ui;
 
 import java.io.File;
 import java.net.URL;
+import java.util.function.Consumer;
 
 import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.model.Song;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -13,17 +15,16 @@ import lombok.Getter;
 
 public class PlaylistItem extends VBox {
 
+    @Getter
+    private Song song;
     private Label songText;
-    @Getter
-    private String songPath;
     private boolean isSelected;
-    @Getter
-    private static PlaylistItem currentlySelected = null;
+    private Consumer<PlaylistItem> onSelectionCallback;
 
-    public PlaylistItem(String songText, String songPath) {
+    public PlaylistItem(Song song) {
         super();
-        this.songText = new Label(songText);
-        this.songPath = songPath;
+        this.song = song;
+        this.songText = new Label(song.getArtist() + " - " + song.getTitle());
         this.isSelected = false;
 
         setupUI();
@@ -48,26 +49,24 @@ public class PlaylistItem extends VBox {
 
     private void setupEventHandlers() {
         this.setOnMouseClicked(e -> {
-            setSelected(true);
-            BgmManager.playBgm(new File(songPath));
+            if (onSelectionCallback != null) {
+                onSelectionCallback.accept(this);
+            }
+            BgmManager.playBgm(new File(song.getAudioPath()));
         });
     }
 
+    public void setSelectionCallback(Consumer<PlaylistItem> callback) {
+        this.onSelectionCallback = callback;
+    }
+
     public void setSelected(boolean selected) {
-        if (selected && currentlySelected != null && currentlySelected != this) {
-            currentlySelected.setSelected(false);
-        }
-        
         this.isSelected = selected;
         
         if (selected) {
             this.getStyleClass().add("selected");
-            currentlySelected = this;
         } else {
             this.getStyleClass().remove("selected");
-            if (currentlySelected == this) {
-                currentlySelected = null;
-            }
         }
     }
 }

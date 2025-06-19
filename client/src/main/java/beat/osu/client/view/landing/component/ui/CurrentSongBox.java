@@ -16,21 +16,19 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
+import lombok.Getter;
 
 public class CurrentSongBox extends StackPane {
 
+    @Getter
     private Label currentSongLabel;
     private HBox contentBox;
     private Rectangle underline;
 
     public CurrentSongBox(String text) {
         super();
-        this.currentSongLabel = new Label(text);
-        this.contentBox = new HBox();
-        this.underline = new Rectangle();
-
         loadStyles();
-        initializeComponents();
+        initializeComponents(text);
     }
 
     private void loadStyles() {
@@ -49,7 +47,11 @@ public class CurrentSongBox extends StackPane {
         }
     }
 
-    private void initializeComponents() {
+    private void initializeComponents(String text) {
+        this.currentSongLabel = new Label(text);
+        this.contentBox = new HBox();
+        this.underline = new Rectangle();
+
         contentBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
         
         try {
@@ -87,7 +89,6 @@ public class CurrentSongBox extends StackPane {
         underline.widthProperty().bind(this.widthProperty());
         
         StackPane.setAlignment(underline, javafx.geometry.Pos.BOTTOM_CENTER);
-        
         this.getChildren().addAll(contentBox, underline);
     }
 }

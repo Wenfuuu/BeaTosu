@@ -1,10 +1,15 @@
 package beat.osu.client.view.landing.component.modals;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import beat.osu.client.Main;
+import beat.osu.client.events.song.SongChangeEvent;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.interfaces.song.SongEventListener;
+import beat.osu.client.interfaces.song.SongEventPublisher;
 import beat.osu.client.model.Song;
 import beat.osu.client.utils.BeatmapUtils;
 import beat.osu.client.view.landing.component.ui.PlaylistContent;
@@ -20,11 +25,16 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
+import lombok.Getter;
 
-public class PlaylistModal extends StackPane {
+public class PlaylistModal extends StackPane implements SongEventPublisher {
 
     private VBox contentContainer;
     private PlaylistContent playlistContent;
+    @Getter
+    private PlaylistItem selectedItem;
+
+    private List<SongEventListener> listeners;
 
     public PlaylistModal() {
         super();
@@ -33,8 +43,6 @@ public class PlaylistModal extends StackPane {
         setupStyling();
         populatePlaylist();
         loadStyles();
-        
-        System.out.println("PlaylistModal created and initialized");
     }
     
     private void loadStyles() {
@@ -54,6 +62,7 @@ public class PlaylistModal extends StackPane {
     }
 
     private void initializeComponents() {
+        this.listeners = new ArrayList<>();
         contentContainer = new VBox();
         playlistContent = new PlaylistContent();
     }
@@ -102,35 +111,27 @@ public class PlaylistModal extends StackPane {
         playlistItemsContainer.getStyleClass().add("playlist-items-container");
 
         for (Song song : BeatmapUtils.getBeatmapSongs()) {
-            PlaylistItem playlistItem = new PlaylistItem(
-                song.getArtist() + " - " + song.getTitle(),
-                song.getAudioPath()
-            );
+            PlaylistItem playlistItem = new PlaylistItem(song);
+            
+            playlistItem.setSelectionCallback(this::onItemSelected);
+            
             playlistItemsContainer.getChildren().add(playlistItem);
         }
         
         playlistContent.setContent(playlistItemsContainer);
     }
-    
-    public PlaylistItem getSelectedItem() {
-        return PlaylistItem.getCurrentlySelected();
-    }
-    
-    public void clearSelection() {
-        PlaylistItem currentSelected = PlaylistItem.getCurrentlySelected();
-        if (currentSelected != null) {
-            currentSelected.setSelected(false);
+
+    private void onItemSelected(PlaylistItem newSelection) {
+        if (selectedItem != null && selectedItem != newSelection) {
+            selectedItem.setSelected(false);
         }
+        
+        selectedItem = newSelection;
+        selectedItem.setSelected(true);
+
+        notifyListeners(new SongChangeEvent(newSelection.getSong()));
     }
-    
-    public void selectFirstItem() {
-        VBox container = (VBox) playlistContent.getContent();
-        if (container != null && !container.getChildren().isEmpty()) {
-            PlaylistItem firstItem = (PlaylistItem) container.getChildren().get(0);
-            firstItem.setSelected(true);
-        }
-    }
-    
+
     public void refreshPlaylist() {
         populatePlaylist();
     }
@@ -153,5 +154,22 @@ public class PlaylistModal extends StackPane {
         fadeIn.setFromValue(0.0);
         fadeIn.setToValue(1.0);
         fadeIn.play();
+    }
+
+    @Override
+    public void addListener(SongEventListener songEventListener) {
+        listeners.add(songEventListener);
+    }
+
+    @Override
+    public void removeListener(SongEventListener songEventListener) {
+        listeners.remove(songEventListener);
+    }
+
+    @Override
+    public void notifyListeners(SongChangeEvent event) {
+        for (SongEventListener listener : listeners) {
+            listener.update(event);
+        }
     }
 }
