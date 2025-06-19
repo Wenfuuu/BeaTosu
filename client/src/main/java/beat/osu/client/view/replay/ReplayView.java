@@ -56,7 +56,7 @@ public class ReplayView extends Page implements GameEventListener {
         this.circleSize = selectedBeatmap.getCircleSize();
         this.replayEvents = replayEvents;
         this.rm = new ReplayManager(selectedBeatmap, replayEvents, inputManager);
-        this.rm.addObserver(this);
+        this.rm.addListener(this);
         this.gameEndData = gameEndData;
 
         ChangeListener<Number> resizeListener = (obs, oldVal, newVal) -> updateLayout();

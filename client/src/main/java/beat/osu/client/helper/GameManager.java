@@ -115,7 +115,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         replayEvents.clear();
         lastReplayEventTime = -1;
 
-        notifyObservers(new GameEvent(GameEventType.GAME_STARTED, null));
+        notifyListeners(new GameEvent(GameEventType.GAME_STARTED, null));
 
         if (gameLoop != null) {
             gameLoop.stop();
@@ -138,7 +138,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                     lastHpDrainMillis = elapsedMillis;
                     health = Math.max(0, health - beatmap.getHpDrainRate());
                     System.out.println("draining health, health: " + health);
-                    notifyObservers(new GameEvent(GameEventType.HEALTH_CHANGED, health));
+                    notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
                 }
 
                 if (!bgmStarted && elapsedMillis >= gameStartOffset) {
@@ -165,7 +165,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         gameState = GameState.PAUSED;
         BgmManager.pauseBgm();
         pauseAllAnimations();
-        notifyObservers(new GameEvent(GameEventType.GAME_PAUSED, null));
+        notifyListeners(new GameEvent(GameEventType.GAME_PAUSED, null));
     }
 
     public void resumeGame() {
@@ -181,7 +181,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         if (bgmStarted) BgmManager.resumeBgm();
         // add countdown later
         resumeAllAnimations();
-        notifyObservers(new GameEvent(GameEventType.GAME_RESUMED, null));
+        notifyListeners(new GameEvent(GameEventType.GAME_RESUMED, null));
     }
 
     private void stopGame() {
@@ -191,7 +191,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         String grade = calculateGrade();
         System.out.println("Game ended with grade: " + grade);
 
-        notifyObservers(new GameEvent(GameEventType.GAME_ENDED, new GameEndData(
+        notifyListeners(new GameEvent(GameEventType.GAME_ENDED, new GameEndData(
                 score, perfectHits, gekiHits, greatHits, greatKatuHits, goodHits,
                 misses, highestCombo, accuracy, grade)));
     }
@@ -201,7 +201,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         gameState = GameState.FAILED;
         gameLoop.stop();
         BgmManager.stopBgm();
-        notifyObservers(new GameEvent(GameEventType.GAME_FAILED, null));
+        notifyListeners(new GameEvent(GameEventType.GAME_FAILED, null));
     }
 
     private void updateGame(long elapsedMillis) {
@@ -304,7 +304,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         // Update input overlay
         boolean key1IsPressed = currentKeys.contains(InputManager.getKeybind1());
         boolean key2IsPressed = currentKeys.contains(InputManager.getKeybind2());
-        notifyObservers(new GameEvent(GameEventType.INPUT_OVERLAY_CHANGED,
+        notifyListeners(new GameEvent(GameEventType.INPUT_OVERLAY_CHANGED,
                 new InputOverlayData(key1IsPressed, key2IsPressed)));
 
         previousKeys.clear();
@@ -505,15 +505,15 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         health = Math.min(100, health + hpRecover);
 
         // Notify observers
-        notifyObservers(new GameEvent(GameEventType.SCORE_CHANGED,
+        notifyListeners(new GameEvent(GameEventType.SCORE_CHANGED,
                 new ScoreChangeData(score, hitScore)));
-        notifyObservers(new GameEvent(GameEventType.COMBO_CHANGED,
+        notifyListeners(new GameEvent(GameEventType.COMBO_CHANGED,
                 new ComboChangeData(masterComboNumber, false)));
-        notifyObservers(new GameEvent(GameEventType.HIT_OBJECT_HIT,
+        notifyListeners(new GameEvent(GameEventType.HIT_OBJECT_HIT,
                 new HitObjectEventData(hitObject, hitResult,
                         perfectCombo, imperfectOrMissed)));
-        notifyObservers(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
-        notifyObservers(new GameEvent(GameEventType.HEALTH_CHANGED, health));
+        notifyListeners(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
+        notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
     }
 
     private void handleMiss(HitObject hitObject) {
@@ -539,13 +539,13 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         health = Math.max(0, health - hpLoss);
 
         // Notify observers
-        notifyObservers(new GameEvent(GameEventType.COMBO_CHANGED,
+        notifyListeners(new GameEvent(GameEventType.COMBO_CHANGED,
                 new ComboChangeData(masterComboNumber, oldCombo > 0)));
-        notifyObservers(new GameEvent(GameEventType.HIT_OBJECT_MISSED,
+        notifyListeners(new GameEvent(GameEventType.HIT_OBJECT_MISSED,
                 new HitObjectEventData(hitObject, HitResult.MISS,
                         false, true)));
-        notifyObservers(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
-        notifyObservers(new GameEvent(GameEventType.HEALTH_CHANGED, health));
+        notifyListeners(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
+        notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
 
         // Check for game over (health reaches 0)
         if (health <= 0) {
@@ -625,17 +625,17 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     @Override
-    public void addObserver(GameEventListener gameEventListener) {
+    public void addListener(GameEventListener gameEventListener) {
         gameEventListenerList.add(gameEventListener);
     }
 
     @Override
-    public void removeObserver(GameEventListener gameEventListener) {
+    public void removeListener(GameEventListener gameEventListener) {
         gameEventListenerList.remove(gameEventListener);
     }
 
     @Override
-    public void notifyObservers(GameEvent event) {
+    public void notifyListeners(GameEvent event) {
         for (GameEventListener gameEventListener : gameEventListenerList) {
             gameEventListener.update(event);
         }
@@ -654,7 +654,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
     @Override
     public void onAdditionalSpin(HitObject hitObject, int additionalSpin) {
-        notifyObservers(new GameEvent(GameEventType.ADDITIONAL_SPIN,
+        notifyListeners(new GameEvent(GameEventType.ADDITIONAL_SPIN,
                 new AdditionalSpinEventData(hitObject, additionalSpin)));
     }
 

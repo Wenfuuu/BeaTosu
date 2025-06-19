@@ -98,7 +98,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
         wasKey1Pressed = false;
         wasKey2Pressed = false;
 
-        notifyObservers(new GameEvent(GameEventType.REPLAY_STARTED, null));
+        notifyListeners(new GameEvent(GameEventType.REPLAY_STARTED, null));
 
         replayLoop = new AnimationTimer() {
             @Override
@@ -117,7 +117,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
                     lastHpDrainMillis = elapsedMillis;
                     health = Math.max(0, health - beatmap.getHpDrainRate());
                     System.out.println("draining health, health: " + health);
-                    notifyObservers(new GameEvent(GameEventType.HEALTH_CHANGED, health));
+                    notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
                 }
 
                 if (!bgmStarted && elapsedMillis >= replayStartOffset) {
@@ -136,7 +136,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
         replayState = ReplayState.PAUSED;
         BgmManager.pauseBgm();
         pauseAllAnimations();
-        notifyObservers(new GameEvent(GameEventType.REPLAY_PAUSED, null));
+        notifyListeners(new GameEvent(GameEventType.REPLAY_PAUSED, null));
     }
 
     public void resumeReplay() {
@@ -153,13 +153,13 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
             BgmManager.resumeBgm();
         // add countdown later
         resumeAllAnimations();
-        notifyObservers(new GameEvent(GameEventType.REPLAY_RESUMED, null));
+        notifyListeners(new GameEvent(GameEventType.REPLAY_RESUMED, null));
     }
 
     public void stopReplay() {
         replayState = ReplayState.COMPLETED;
         replayLoop.stop();
-        notifyObservers(new GameEvent(GameEventType.REPLAY_ENDED, null));
+        notifyListeners(new GameEvent(GameEventType.REPLAY_ENDED, null));
     }
 
     private void updateReplay(long elapsedMillis) {
@@ -422,15 +422,15 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
         health = Math.min(100, health + hpRecover);
 
         // Notify observers
-        notifyObservers(new GameEvent(GameEventType.SCORE_CHANGED,
+        notifyListeners(new GameEvent(GameEventType.SCORE_CHANGED,
                 new ScoreChangeData(score, hitScore)));
-        notifyObservers(new GameEvent(GameEventType.COMBO_CHANGED,
+        notifyListeners(new GameEvent(GameEventType.COMBO_CHANGED,
                 new ComboChangeData(masterComboNumber, false)));
-        notifyObservers(new GameEvent(GameEventType.HIT_OBJECT_HIT,
+        notifyListeners(new GameEvent(GameEventType.HIT_OBJECT_HIT,
                 new HitObjectEventData(hitObject, hitResult,
                         perfectCombo, imperfectOrMissed)));
-        notifyObservers(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
-        notifyObservers(new GameEvent(GameEventType.HEALTH_CHANGED, health));
+        notifyListeners(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
+        notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
     }
 
     private void handleMiss(HitObject hitObject) {
@@ -457,13 +457,13 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
         health = Math.max(0, health - hpLoss);
 
         // Notify observers
-        notifyObservers(new GameEvent(GameEventType.COMBO_CHANGED,
+        notifyListeners(new GameEvent(GameEventType.COMBO_CHANGED,
                 new ComboChangeData(masterComboNumber, oldCombo > 0)));
-        notifyObservers(new GameEvent(GameEventType.HIT_OBJECT_MISSED,
+        notifyListeners(new GameEvent(GameEventType.HIT_OBJECT_MISSED,
                 new HitObjectEventData(hitObject, HitResult.MISS,
                         false, true)));
-        notifyObservers(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
-        notifyObservers(new GameEvent(GameEventType.HEALTH_CHANGED, health));
+        notifyListeners(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
+        notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
 
         // Check for game over (health reaches 0)
         if (health <= 0) {
@@ -542,17 +542,17 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     }
 
     @Override
-    public void addObserver(GameEventListener gameEventListener) {
+    public void addListener(GameEventListener gameEventListener) {
         gameEventListenerList.add(gameEventListener);
     }
 
     @Override
-    public void removeObserver(GameEventListener gameEventListener) {
+    public void removeListener(GameEventListener gameEventListener) {
         gameEventListenerList.remove(gameEventListener);
     }
 
     @Override
-    public void notifyObservers(GameEvent event) {
+    public void notifyListeners(GameEvent event) {
         for (GameEventListener gameEventListener : gameEventListenerList) {
             gameEventListener.update(event);
         }
@@ -571,7 +571,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
 
     @Override
     public void onAdditionalSpin(HitObject hitObject, int additionalSpin) {
-        notifyObservers(new GameEvent(GameEventType.ADDITIONAL_SPIN,
+        notifyListeners(new GameEvent(GameEventType.ADDITIONAL_SPIN,
                 new AdditionalSpinEventData(hitObject, additionalSpin)));
     }
 
