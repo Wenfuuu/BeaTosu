@@ -5,7 +5,7 @@
 }
 
 .playlist-item:hover {
-    -fx-background-color: rgba(121, 171, 255, 0.6);
+    -fx-background-color: rgba(255, 255, 255, 0.5);
 }
 
 .playlist-item.selected {

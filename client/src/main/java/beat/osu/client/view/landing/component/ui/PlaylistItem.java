@@ -9,16 +9,22 @@ import beat.osu.client.helper.ScreenManager;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import lombok.Getter;
 
 public class PlaylistItem extends VBox {
 
     private Label songText;
+    @Getter
     private String songPath;
+    private boolean isSelected;
+    @Getter
+    private static PlaylistItem currentlySelected = null;
 
     public PlaylistItem(String songText, String songPath) {
         super();
         this.songText = new Label(songText);
         this.songPath = songPath;
+        this.isSelected = false;
 
         setupUI();
         loadStyles();
@@ -42,7 +48,26 @@ public class PlaylistItem extends VBox {
 
     private void setupEventHandlers() {
         this.setOnMouseClicked(e -> {
+            setSelected(true);
             BgmManager.playBgm(new File(songPath));
         });
+    }
+
+    public void setSelected(boolean selected) {
+        if (selected && currentlySelected != null && currentlySelected != this) {
+            currentlySelected.setSelected(false);
+        }
+        
+        this.isSelected = selected;
+        
+        if (selected) {
+            this.getStyleClass().add("selected");
+            currentlySelected = this;
+        } else {
+            this.getStyleClass().remove("selected");
+            if (currentlySelected == this) {
+                currentlySelected = null;
+            }
+        }
     }
 }

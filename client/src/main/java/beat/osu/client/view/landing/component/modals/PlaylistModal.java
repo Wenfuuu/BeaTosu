@@ -7,7 +7,6 @@ import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.model.Song;
 import beat.osu.client.utils.BeatmapUtils;
-import beat.osu.client.view.landing.component.ui.CurrentSongBox;
 import beat.osu.client.view.landing.component.ui.PlaylistContent;
 import beat.osu.client.view.landing.component.ui.PlaylistItem;
 import javafx.animation.FadeTransition;
@@ -92,7 +91,7 @@ public class PlaylistModal extends StackPane {
         this.getChildren().add(contentContainer);
         this.setAlignment(Pos.CENTER);
     }
-
+    
     private void setupStyling() {
         this.getStyleClass().add("playlist-modal");
         contentContainer.getStyleClass().add("playlist-modal-content");
@@ -111,6 +110,29 @@ public class PlaylistModal extends StackPane {
         }
         
         playlistContent.setContent(playlistItemsContainer);
+    }
+    
+    public PlaylistItem getSelectedItem() {
+        return PlaylistItem.getCurrentlySelected();
+    }
+    
+    public void clearSelection() {
+        PlaylistItem currentSelected = PlaylistItem.getCurrentlySelected();
+        if (currentSelected != null) {
+            currentSelected.setSelected(false);
+        }
+    }
+    
+    public void selectFirstItem() {
+        VBox container = (VBox) playlistContent.getContent();
+        if (container != null && !container.getChildren().isEmpty()) {
+            PlaylistItem firstItem = (PlaylistItem) container.getChildren().get(0);
+            firstItem.setSelected(true);
+        }
+    }
+    
+    public void refreshPlaylist() {
+        populatePlaylist();
     }
 
     public void hide() {
