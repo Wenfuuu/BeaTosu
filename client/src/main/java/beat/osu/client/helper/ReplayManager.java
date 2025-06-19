@@ -1,8 +1,8 @@
 package beat.osu.client.helper;
 
 import beat.osu.client.enums.*;
+import beat.osu.client.events.game.*;
 import beat.osu.client.factory.HitObjectFactory;
-import beat.osu.client.game.*;
 import beat.osu.client.interfaces.game.HitObjectListener;
 import beat.osu.client.interfaces.game.GameEventListener;
 import beat.osu.client.interfaces.game.GameEventPublisher;

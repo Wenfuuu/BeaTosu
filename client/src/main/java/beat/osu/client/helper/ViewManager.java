@@ -1,7 +1,7 @@
 package beat.osu.client.helper;
 
-import beat.osu.client.game.GameEndData;
-import beat.osu.client.game.ReplayEventData;
+import beat.osu.client.events.game.GameEndData;
+import beat.osu.client.events.game.ReplayEventData;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.view.lobby.LobbyView;
 import beat.osu.client.view.replay.ReplayView;

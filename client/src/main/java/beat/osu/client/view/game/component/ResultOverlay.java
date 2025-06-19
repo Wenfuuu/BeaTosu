@@ -2,7 +2,7 @@ package beat.osu.client.view.game.component;
 
 import beat.osu.client.Main;
 import beat.osu.client.factory.ButtonFactory;
-import beat.osu.client.game.GameEndData;
+import beat.osu.client.events.game.GameEndData;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.model.Beatmap;
@@ -10,7 +10,6 @@ import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;

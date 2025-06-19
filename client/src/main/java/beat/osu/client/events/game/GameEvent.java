@@ -1,4 +1,4 @@
-package beat.osu.client.game;
+package beat.osu.client.events.game;
 
 import beat.osu.client.enums.GameEventType;
 import lombok.Getter;

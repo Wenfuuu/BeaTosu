@@ -2,7 +2,7 @@ package beat.osu.client.view.replay;
 
 import beat.osu.client.Main;
 import beat.osu.client.enums.HitResult;
-import beat.osu.client.game.*;
+import beat.osu.client.events.game.*;
 import beat.osu.client.helper.*;
 import beat.osu.client.interfaces.game.GameEventListener;
 import beat.osu.client.model.Beatmap;
