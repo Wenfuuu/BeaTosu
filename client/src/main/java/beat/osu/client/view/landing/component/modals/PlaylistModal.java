@@ -122,7 +122,7 @@ public class PlaylistModal extends StackPane implements SongEventPublisher {
     }
 
     private void onItemSelected(PlaylistItem newSelection) {
-        if (selectedItem != null && selectedItem != newSelection) {
+        if (selectedItem != null) {
             selectedItem.setSelected(false);
         }
         
