@@ -3,9 +3,9 @@ package beat.osu.client.helper;
 import beat.osu.client.enums.*;
 import beat.osu.client.factory.HitObjectFactory;
 import beat.osu.client.game.*;
-import beat.osu.client.interfaces.HitObjectListener;
-import beat.osu.client.interfaces.Observer;
-import beat.osu.client.interfaces.Subject;
+import beat.osu.client.interfaces.game.HitObjectListener;
+import beat.osu.client.interfaces.game.GameEventListener;
+import beat.osu.client.interfaces.game.GameEventPublisher;
 import beat.osu.client.model.*;
 import beat.osu.client.utils.OsuParser;
 import javafx.animation.AnimationTimer;
@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class ReplayManager implements Subject, HitObjectListener {
-    private final List<Observer> observerList = new CopyOnWriteArrayList<>();
+public class ReplayManager implements GameEventPublisher, HitObjectListener {
+    private final List<GameEventListener> gameEventListenerList = new CopyOnWriteArrayList<>();
 
     private final Beatmap beatmap;
     @Getter
@@ -542,19 +542,19 @@ public class ReplayManager implements Subject, HitObjectListener {
     }
 
     @Override
-    public void addObserver(Observer observer) {
-        observerList.add(observer);
+    public void addObserver(GameEventListener gameEventListener) {
+        gameEventListenerList.add(gameEventListener);
     }
 
     @Override
-    public void removeObserver(Observer observer) {
-        observerList.remove(observer);
+    public void removeObserver(GameEventListener gameEventListener) {
+        gameEventListenerList.remove(gameEventListener);
     }
 
     @Override
     public void notifyObservers(GameEvent event) {
-        for (Observer observer : observerList) {
-            observer.update(event);
+        for (GameEventListener gameEventListener : gameEventListenerList) {
+            gameEventListener.update(event);
         }
     }
 

@@ -2,8 +2,7 @@ package beat.osu.client.model;
 
 import beat.osu.client.Main;
 import beat.osu.client.enums.HitResult;
-import beat.osu.client.helper.GameManager;
-import beat.osu.client.interfaces.HitObjectListener;
+import beat.osu.client.interfaces.game.HitObjectListener;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;

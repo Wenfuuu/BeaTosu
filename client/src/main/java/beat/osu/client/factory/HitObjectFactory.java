@@ -1,6 +1,6 @@
 package beat.osu.client.factory;
 
-import beat.osu.client.interfaces.HitObjectListener;
+import beat.osu.client.interfaces.game.HitObjectListener;
 import beat.osu.client.model.*;
 import beat.osu.client.utils.OsuParser;
 

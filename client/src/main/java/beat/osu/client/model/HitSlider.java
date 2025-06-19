@@ -4,7 +4,7 @@ import beat.osu.client.Main;
 import beat.osu.client.enums.HitResult;
 import beat.osu.client.factory.HitObjectFactory;
 import beat.osu.client.helper.SfxManager;
-import beat.osu.client.interfaces.HitObjectListener;
+import beat.osu.client.interfaces.game.HitObjectListener;
 import beat.osu.client.utils.OsuParser;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;

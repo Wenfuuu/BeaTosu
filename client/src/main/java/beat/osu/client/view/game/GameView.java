@@ -4,7 +4,7 @@ import beat.osu.client.Main;
 import beat.osu.client.enums.HitResult;
 import beat.osu.client.game.*;
 import beat.osu.client.helper.*;
-import beat.osu.client.interfaces.Observer;
+import beat.osu.client.interfaces.game.GameEventListener;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.HitObject;
 import beat.osu.client.view.game.component.FailOverlay;
@@ -26,7 +26,7 @@ import javafx.util.Duration;
 
 import java.util.Objects;
 
-public class GameView extends Page implements Observer {
+public class GameView extends Page implements GameEventListener {
     // Osu! playfield resolution (4:3)
     private final double OSU_WIDTH = 640.0;
     private final double OSU_HEIGHT = 480.0;

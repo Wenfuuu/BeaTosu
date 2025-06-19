@@ -1,4 +1,4 @@
-package beat.osu.client.interfaces;
+package beat.osu.client.interfaces.game;
 
 import beat.osu.client.enums.HitResult;
 import beat.osu.client.model.HitObject;
