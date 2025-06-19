@@ -4,6 +4,8 @@ import java.net.URL;
 
 import beat.osu.client.helper.CssManager;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import lombok.Getter;
 
@@ -18,7 +20,7 @@ public class MediaControls extends HBox {
     private Button playlistButton;
 
     public MediaControls() {
-        super(8);
+        super(20);
 
         URL globalCssUrl = CssManager.getGlobalCssURL();
         if (globalCssUrl != null) {
@@ -39,21 +41,41 @@ public class MediaControls extends HBox {
     }
 
     private void initializeComponents() {
-        prevButton = createButton("⏮");
-        playButton = createButton("▶");
-        pauseButton = createButton("⏸");
-        stopButton = createButton("⏹");
-        nextButton = createButton("⏭");
-        playlistButton = createButton("≡");
+        prevButton = createImageButton("jukebox-prev.png");
+        playButton = createImageButton("jukebox-play.png");
+        pauseButton = createImageButton("jukebox-pause.png");
+        stopButton = createImageButton("jukebox-stop.png");
+        nextButton = createImageButton("jukebox-next.png");
+        playlistButton = createImageButton("jukebox-more.png");
     }
 
     private void setupLayout() {
         this.getChildren().addAll(prevButton, playButton, pauseButton, stopButton, nextButton, playlistButton);
     }
 
-    private Button createButton(String symbol) {
-        Button button = new Button(symbol);
+    private Button createImageButton(String imageName) {
+        Button button = new Button();
         button.getStyleClass().add("media-button");
+        
+        try {
+            String imagePath = "/assets/buttons/jukebox/" + imageName;
+            URL imageUrl = getClass().getResource(imagePath);
+            if (imageUrl != null) {
+                Image image = new Image(imageUrl.toExternalForm());
+                ImageView imageView = new ImageView(image);
+                imageView.setFitWidth(27);
+                imageView.setFitHeight(27);
+                imageView.setPreserveRatio(true);
+                button.setGraphic(imageView);
+            } else {
+                System.err.println("Image not found: " + imagePath);
+                button.setText("?");
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading image: " + imageName + " - " + e.getMessage());
+            button.setText("?");
+        }
+        
         return button;
     }
 }

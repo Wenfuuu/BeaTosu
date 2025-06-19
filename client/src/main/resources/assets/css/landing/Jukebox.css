@@ -21,13 +21,8 @@
 
 .media-button {
     -fx-background-color: transparent;
-    -fx-text-fill: white;
-    -fx-font-size: 18px;
-    -fx-padding: 5px 10px;
-}
-
-.media-button:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-border-color: transparent;
+    -fx-padding: 0;
 }
 
 .stack-pane {

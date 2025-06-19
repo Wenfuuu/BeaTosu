@@ -55,7 +55,7 @@ public class Jukebox extends StackPane {
     }
 
     private void setupLayout() {
-        VBox contentBox = new VBox(16);
+        VBox contentBox = new VBox(12);
         contentBox.getStyleClass().add("jukebox-content");
         contentBox.getChildren().addAll(currentSongBox, mediaControls);
         this.getChildren().addAll(contentBox, playlistModal);
