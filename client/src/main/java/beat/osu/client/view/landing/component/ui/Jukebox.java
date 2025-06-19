@@ -63,7 +63,11 @@ public class Jukebox extends StackPane {
 
     private void setupEventHandlers() {
         mediaControls.getPlaylistButton().setOnAction(event -> {
-            playlistModal.setVisible(!playlistModal.isVisible());
+            if (playlistModal.isVisible()) {
+                playlistModal.hide();
+            } else {
+                playlistModal.show();
+            }
         });
 
         mediaControls.getPlayButton().setOnAction(e -> BgmManager.resumeBgm());

@@ -420,7 +420,7 @@ public class LandingView extends Page {
             showSubMenu();
         });
         menuButtonsComponent.getOptionButton().setOnMouseClicked(e -> {
-            showPlaylistModal();
+
         });
         menuButtonsComponent.getExitButton().setOnMouseClicked(e -> {
             stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
@@ -447,15 +447,5 @@ public class LandingView extends Page {
         banchoButtons.getChatToggleButton().setOnMouseClicked(e -> {
             banchoButtons.toggleChat(chatPanel, bottomBarComponent, onlineUsersPanel, topBarComponent);
         });
-    }
-
-    private void showPlaylistModal() {
-        playlistModalComponent.prefWidthProperty().bind(root.widthProperty());
-        playlistModalComponent.prefHeightProperty().bind(root.heightProperty());
-        playlistModalComponent.minWidthProperty().bind(root.widthProperty());
-        playlistModalComponent.minHeightProperty().bind(root.heightProperty());
-        
-        playlistModalComponent.setVisible(true);
-        playlistModalComponent.toFront();
     }
 }

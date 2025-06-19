@@ -11,9 +11,3 @@
 .playlist-item.selected {
     -fx-background-color: rgba(121, 171, 255, 0.6);
 }
-
-.song-text {
-    -fx-font-family: "Aller Light";
-    -fx-font-size: 35px;
-    -fx-text-fill: white;
-}

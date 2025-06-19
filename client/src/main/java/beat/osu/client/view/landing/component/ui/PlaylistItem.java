@@ -3,8 +3,10 @@ package beat.osu.client.view.landing.component.ui;
 import java.net.URL;
 
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ScreenManager;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 
 public class PlaylistItem extends VBox {
 
@@ -17,11 +19,7 @@ public class PlaylistItem extends VBox {
         this.getStyleClass().add("playlist-item");
 
         this.songText = new Label(songText);
-        this.songText.getStyleClass().add("song-text");
-
-//        this.setMinHeight(53.5);
-//        this.setPrefHeight(53.5);
-//        this.setMaxHeight(53.5);
+        this.songText.setFont(new Font("Aller Light", ScreenManager.SCREEN_HEIGHT / 30));
 
         this.getChildren().add(this.songText);
     }

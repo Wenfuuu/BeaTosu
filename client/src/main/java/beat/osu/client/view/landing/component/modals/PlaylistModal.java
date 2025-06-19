@@ -4,9 +4,11 @@ import java.net.URL;
 
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.view.landing.component.ui.CurrentSongBox;
 import beat.osu.client.view.landing.component.ui.PlaylistContent;
 import beat.osu.client.view.landing.component.ui.PlaylistItem;
+import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -15,6 +17,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.util.Duration;
 
 public class PlaylistModal extends StackPane {
 
@@ -54,9 +58,8 @@ public class PlaylistModal extends StackPane {
     }
     
     private void setupLayout() {
-        HBox header = new HBox();
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.setPadding(new Insets(20, 20, 10, 20));
+        Label titleLabel = new Label("Jump To...");
+        titleLabel.setFont(new Font("Aller Light", ScreenManager.SCREEN_HEIGHT / 20));
 
         HBox searchArea = new HBox();
         Label searchLabel = new Label("Type to search!");
@@ -81,8 +84,8 @@ public class PlaylistModal extends StackPane {
         searchArea.setAlignment(Pos.CENTER_RIGHT);
         searchArea.setPadding(new Insets(0, 20, 10, 20));
         
-        contentContainer.getChildren().addAll(header, searchArea, playlistContent);
-        contentContainer.setAlignment(Pos.TOP_CENTER);
+        contentContainer.getChildren().addAll(titleLabel, searchArea, playlistContent);
+        contentContainer.setAlignment(Pos.TOP_LEFT);
         
         this.getChildren().add(contentContainer);
         this.setAlignment(Pos.CENTER);
@@ -157,5 +160,25 @@ public class PlaylistModal extends StackPane {
         }
         
         playlistContent.setContent(playlistItemsContainer);
+    }
+
+    public void hide() {
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), this);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        fadeOut.setOnFinished(e -> {
+            this.setVisible(false);
+        });
+
+        fadeOut.play();
+    }
+
+    public void show() {
+        this.setVisible(true);
+
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), this);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+        fadeIn.play();
     }
 }

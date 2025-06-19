@@ -1,6 +1,6 @@
 .playlist-modal {
     -fx-background-color: rgba(0, 0, 0, 0.90);
-    -fx-padding: 66 0 0 16;
+    -fx-padding: 24 0 0 16;
 }
 
 .playlist-modal-content {
