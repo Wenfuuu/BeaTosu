@@ -30,8 +30,6 @@ public class BeatmapUtils {
                     if (beatmapFile.getName().endsWith(".osu")) {
                         Song song = parseBeatmapFromFilename(beatmapFile.getName(), audioPath);
                         if (song != null) {
-                            System.out.println(beatmapFile.getAbsolutePath());
-                            System.out.println(song.getArtist() + "->" + song.getTitle());
                             songs.add(song);
                         }
                         break;

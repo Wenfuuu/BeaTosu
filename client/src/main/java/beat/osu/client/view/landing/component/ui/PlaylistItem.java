@@ -1,7 +1,9 @@
 package beat.osu.client.view.landing.component.ui;
 
+import java.io.File;
 import java.net.URL;
 
+import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import javafx.scene.control.Label;
@@ -15,14 +17,12 @@ public class PlaylistItem extends VBox {
 
     public PlaylistItem(String songText, String songPath) {
         super();
-        loadStyles();
-
-        this.getStyleClass().add("playlist-item");
-
         this.songText = new Label(songText);
-        this.songText.setFont(new Font("Aller Light", ScreenManager.SCREEN_HEIGHT / 30));
+        this.songPath = songPath;
 
-        this.getChildren().add(this.songText);
+        setupUI();
+        loadStyles();
+        setupEventHandlers();
     }
 
     private void loadStyles() {
@@ -32,5 +32,17 @@ public class PlaylistItem extends VBox {
         } else {
             System.err.println("CSS file not found!");
         }
+    }
+
+    private void setupUI() {
+        this.getStyleClass().add("playlist-item");
+        this.songText.setFont(new Font("Aller Light", ScreenManager.SCREEN_HEIGHT / 30));
+        this.getChildren().add(this.songText);
+    }
+
+    private void setupEventHandlers() {
+        this.setOnMouseClicked(e -> {
+            BgmManager.playBgm(new File(songPath));
+        });
     }
 }
