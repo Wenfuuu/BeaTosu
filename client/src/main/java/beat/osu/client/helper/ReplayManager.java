@@ -41,7 +41,7 @@ public class ReplayManager implements Subject, HitObjectListener {
 
     // Replay event processing fields
     private int currentReplayEventIndex = 0;
-    private long accumulatedReplayTime = 0;
+    private long accumulatedReplayTime = -2000;
     private boolean wasKey1Pressed = false;
     private boolean wasKey2Pressed = false;
 
@@ -85,8 +85,7 @@ public class ReplayManager implements Subject, HitObjectListener {
     }
 
     public void startReplay() {
-        if (replayState == ReplayState.PLAYING)
-            return;
+        if (replayState == ReplayState.PLAYING) return;
 
         replayState = ReplayState.PLAYING;
         bgmStarted = false;
@@ -95,11 +94,11 @@ public class ReplayManager implements Subject, HitObjectListener {
 
         // Reset replay event processing
         currentReplayEventIndex = 0;
-        accumulatedReplayTime = 0;
+        accumulatedReplayTime = -2000;
         wasKey1Pressed = false;
         wasKey2Pressed = false;
 
-         notifyObservers(new GameEvent(GameEventType.REPLAY_STARTED, null));
+        notifyObservers(new GameEvent(GameEventType.REPLAY_STARTED, null));
 
         replayLoop = new AnimationTimer() {
             @Override
@@ -132,7 +131,7 @@ public class ReplayManager implements Subject, HitObjectListener {
         replayLoop.start();
     }
 
-    public void pauseReplay() {
+    private void pauseReplay() {
         pauseStartNanos = System.nanoTime();
         replayState = ReplayState.PAUSED;
         BgmManager.pauseBgm();
@@ -164,6 +163,7 @@ public class ReplayManager implements Subject, HitObjectListener {
     }
 
     private void updateReplay(long elapsedMillis) {
+        System.out.println("Updating replay, elapsed millis: " + elapsedMillis);
         Set<KeyCode> currentKeys = inputManager.getPressedKeys();
         boolean pressedEsc = currentKeys.contains(KeyCode.ESCAPE);
 
@@ -175,10 +175,13 @@ public class ReplayManager implements Subject, HitObjectListener {
             }
         }
 
-        if (replayState != ReplayState.PLAYING)
+        if (replayState != ReplayState.PLAYING) {
+            System.out.println("Replay state is not PLAYING, returning");
             return;
+        }
 
         boolean keyPressed = processReplayEvents(elapsedMillis);
+        System.out.println("key pressed: " + keyPressed);
 
         Iterator<HitObject> iterator = hitObjects.iterator();
         while (iterator.hasNext()) {
@@ -223,22 +226,20 @@ public class ReplayManager implements Subject, HitObjectListener {
 
         // Process all replay events that should have occurred by now
         while (currentReplayEventIndex < replayEvents.size()) {
+            System.out.println("current replay event index: " + currentReplayEventIndex);
+            System.out.println("accumulated replay time: " + accumulatedReplayTime);
             ReplayEventData event = replayEvents.get(currentReplayEventIndex);
 
-            // Calculate when this event should occur
-            long eventTime;
+            if (accumulatedReplayTime > elapsedMillis) {
+                break;
+            }
+
             if (currentReplayEventIndex == 0) {
                 // First event uses absolute time
-                eventTime = event.getTimeDelta();
+                accumulatedReplayTime = event.getTimeDelta();
             } else {
                 // Subsequent events use accumulated time
                 accumulatedReplayTime += event.getTimeDelta();
-                eventTime = accumulatedReplayTime;
-            }
-
-            // If this event hasn't occurred yet, stop processing
-            if (eventTime > elapsedMillis) {
-                break;
             }
 
             // Update mouse position from replay data

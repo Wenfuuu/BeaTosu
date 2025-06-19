@@ -142,10 +142,12 @@ public class OsuParser {
         String title = beatmap.getBeatmapSet().getTitle().replace("<", "");
         String fixedTitle = title.replace(">", "");
         String removeDoubleQuotes = fixedTitle.replace("\"", "");
+        String removeBackslash = removeDoubleQuotes.replace("\\", "");
+        String removeSlash = removeBackslash.replace("/", "");
         String version = beatmap.getVersion().replace("?", "");
         String osuPath = String.format("%s - %s (%s) [%s].osu",
                 beatmap.getBeatmapSet().getArtist(),
-                removeDoubleQuotes,
+                removeSlash,
                 beatmap.getBeatmapSet().getCreator(),
                 version);
         File beatmapDir = new File(ResourceManager.getTempDirectory(), String.valueOf(beatmap.getBeatmapSetId()));

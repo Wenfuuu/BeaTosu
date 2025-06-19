@@ -152,7 +152,7 @@ public class GameManager implements Subject, HitObjectListener {
         gameLoop.start();
     }
 
-    public void pauseGame() {
+    private void pauseGame() {
         System.out.println("pausing game");
 
         for (ReplayEventData event : replayEvents) {

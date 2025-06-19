@@ -52,6 +52,7 @@ public class GameView extends Page implements Observer {
 
     private final Beatmap beatmap;
     private final GameManager gm;
+    private GameEndData gameEndData;
 
     // additional spins
     private Image[] digitImages;
@@ -126,7 +127,7 @@ public class GameView extends Page implements Observer {
         });
 
         resultOverlay.getReplayButton().setOnMouseClicked(e -> {
-
+            ViewManager.showReplayView(beatmap, gm.getReplayEvents(), gameEndData);
         });
 
         resultOverlay.getBackButton().setOnMouseClicked(e -> {
@@ -585,7 +586,7 @@ public class GameView extends Page implements Observer {
                 break;
             case GAME_ENDED:
                 System.out.println("game ended, show result overlay here");
-                GameEndData gameEndData = event.getData(GameEndData.class);
+                this.gameEndData = event.getData(GameEndData.class);
                 if (gameEndData != null) {
                     resultOverlay.updateResult(gameEndData, beatmap);
                 }

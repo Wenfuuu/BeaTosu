@@ -1,12 +1,17 @@
 package beat.osu.client.helper;
 
+import beat.osu.client.game.GameEndData;
+import beat.osu.client.game.ReplayEventData;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.view.lobby.LobbyView;
+import beat.osu.client.view.replay.ReplayView;
 import beat.osu.client.view.upload.UploadPage;
 import beat.osu.client.view.game.GameView;
 import beat.osu.client.view.home.HomeView;
 import beat.osu.client.view.landing.LandingView;
 import javafx.stage.Stage;
+
+import java.util.ArrayList;
 
 public class ViewManager {
     private static SceneManager sceneManager;
@@ -41,6 +46,14 @@ public class ViewManager {
     public static void showGameView(Beatmap beatmap) {
         GameView gameView = new GameView(primaryStage, beatmap);
         sceneManager.transitionToPage(gameView);
+    }
+
+    public static void showReplayView(Beatmap beatmap,
+                                      ArrayList<ReplayEventData> replayEvents,
+                                      GameEndData gameEndData) {
+        ReplayView replayView = new ReplayView(primaryStage, beatmap,
+                replayEvents, gameEndData);
+        sceneManager.transitionToPage(replayView);
     }
 
     public static void showUploadPage() {
