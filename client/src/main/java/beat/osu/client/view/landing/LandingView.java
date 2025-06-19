@@ -225,7 +225,7 @@ public class LandingView extends Page {
         root = new StackPane();
         root.getStyleClass().add("main-layout");
 
-        this.visualizerSize = ScreenManager.SCREEN_HEIGHT * 0.6;
+        this.visualizerSize = ScreenManager.SCREEN_HEIGHT * 0.67;
         this.connectedUsersController = new ConnectedUsersController();
         this.channelController = new ChannelController();
         this.privateChatController = new PrivateChatController();

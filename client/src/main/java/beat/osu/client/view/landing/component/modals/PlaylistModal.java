@@ -5,6 +5,8 @@ import java.net.URL;
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.model.Song;
+import beat.osu.client.utils.BeatmapUtils;
 import beat.osu.client.view.landing.component.ui.CurrentSongBox;
 import beat.osu.client.view.landing.component.ui.PlaylistContent;
 import beat.osu.client.view.landing.component.ui.PlaylistItem;
@@ -99,63 +101,12 @@ public class PlaylistModal extends StackPane {
     private void populatePlaylist() {
         VBox playlistItemsContainer = new VBox();
         playlistItemsContainer.getStyleClass().add("playlist-items-container");
-        
-        String[] songs = {
-            "Nico Nico Douga - Nichijou of Knight",
-            "Demetori - Crimson Belvedere ~ Eastern Dream",
-            "Dark PHOENiX - Green-Eyed Jealousy",
-            "UNDEAD CORPORATION - Yoru Naku Usagi wa Yume wo Miru",
-            "Ayakura Mei - Romantic Fall",
-            "Demetori - Emotional Skyscraper ~ World's End",
-            "3L - Three Magic",
-            "Demetori - Kagayaku Hari no Kobito-zoku ~ Counter-Attack of the Weak",
-            "Hanataba - Night of Knights",
-            "Halozy - PLAZMA",
-            "UNDEAD CORPORATION - Everything will freeze",
-            "EastNewSound - Lucid Dream",
-            "Nico Nico Douga - Nichijou of Knight",
-            "Demetori - Crimson Belvedere ~ Eastern Dream",
-            "Dark PHOENiX - Green-Eyed Jealousy",
-            "UNDEAD CORPORATION - Yoru Naku Usagi wa Yume wo Miru",
-            "Ayakura Mei - Romantic Fall",
-            "Demetori - Emotional Skyscraper ~ World's End",
-            "3L - Three Magic",
-            "Demetori - Kagayaku Hari no Kobito-zoku ~ Counter-Attack of the Weak",
-            "Hanataba - Night of Knights",
-            "Halozy - PLAZMA",
-            "UNDEAD CORPORATION - Everything will freeze",
-            "EastNewSound - Lucid Dream",
-            "Nico Nico Douga - Nichijou of Knight",
-            "Demetori - Crimson Belvedere ~ Eastern Dream",
-            "Dark PHOENiX - Green-Eyed Jealousy",
-            "UNDEAD CORPORATION - Yoru Naku Usagi wa Yume wo Miru",
-            "Ayakura Mei - Romantic Fall",
-            "Demetori - Emotional Skyscraper ~ World's End",
-            "3L - Three Magic",
-            "Demetori - Kagayaku Hari no Kobito-zoku ~ Counter-Attack of the Weak",
-            "Hanataba - Night of Knights",
-            "Halozy - PLAZMA",
-            "UNDEAD CORPORATION - Everything will freeze",
-            "EastNewSound - Lucid Dream",
-            "Halozy - PLAZMA",
-            "UNDEAD CORPORATION - Everything will freeze",
-            "EastNewSound - Lucid Dream",
-            "Nico Nico Douga - Nichijou of Knight",
-            "Demetori - Crimson Belvedere ~ Eastern Dream",
-            "Dark PHOENiX - Green-Eyed Jealousy",
-            "UNDEAD CORPORATION - Yoru Naku Usagi wa Yume wo Miru",
-            "Ayakura Mei - Romantic Fall",
-            "Demetori - Emotional Skyscraper ~ World's End",
-            "3L - Three Magic",
-            "Demetori - Kagayaku Hari no Kobito-zoku ~ Counter-Attack of the Weak",
-            "Hanataba - Night of Knights",
-            "Halozy - PLAZMA",
-            "UNDEAD CORPORATION - Everything will freeze",
-            "EastNewSound - Lucid Dream",
-        };
-        
-        for (String song : songs) {
-            PlaylistItem playlistItem = new PlaylistItem(song);
+
+        for (Song song : BeatmapUtils.getBeatmapSongs()) {
+            PlaylistItem playlistItem = new PlaylistItem(
+                song.getArtist() + " - " + song.getTitle(),
+                song.getAudioPath()
+            );
             playlistItemsContainer.getChildren().add(playlistItem);
         }
         

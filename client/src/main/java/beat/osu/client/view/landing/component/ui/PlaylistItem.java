@@ -11,8 +11,9 @@ import javafx.scene.text.Font;
 public class PlaylistItem extends VBox {
 
     private Label songText;
+    private String songPath;
 
-    public PlaylistItem(String songText) {
+    public PlaylistItem(String songText, String songPath) {
         super();
         loadStyles();
 
