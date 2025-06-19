@@ -23,7 +23,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import lombok.Setter;
 
 import java.util.Objects;
 
@@ -51,8 +50,7 @@ public class GameView extends Page implements Observer {
     private ResultOverlay resultOverlay;
     private FailOverlay failOverlay;
 
-    @Setter
-    private Beatmap beatmap;
+    private final Beatmap beatmap;
     private final GameManager gm;
 
     // additional spins
@@ -455,7 +453,8 @@ public class GameView extends Page implements Observer {
             double screenScaledRadius = unscaledOsuPixelRadius * masterScaleFactor;
 
             hitObject.updateVisuals(finalObjectCenterX_onPane, finalObjectCenterY_onPane, screenScaledRadius);
-        } // Update UI element positions
+        }
+        // Update UI element positions
         VBox topRightPanel = (VBox) uiPane.getProperties().get("topRightPanel");
         VBox bottomLeftPanel = (VBox) uiPane.getProperties().get("bottomLeftPanel");
         StackPane inputOverlayPanel = (StackPane) uiPane.getProperties().get("inputOverlayPanel");
@@ -506,7 +505,8 @@ public class GameView extends Page implements Observer {
 
     @Override
     public void update(GameEvent event) {
-        Platform.runLater(() -> handleGameEvent(event));
+//        Platform.runLater(() -> handleGameEvent(event));
+        handleGameEvent(event);
     }
 
     private void handleGameEvent(GameEvent event) {

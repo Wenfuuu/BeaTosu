@@ -1,9 +1,6 @@
 package beat.osu.client.helper;
 
-import beat.osu.client.enums.GameEventType;
-import beat.osu.client.enums.GameState;
-import beat.osu.client.enums.HealthRecover;
-import beat.osu.client.enums.HitResult;
+import beat.osu.client.enums.*;
 import beat.osu.client.factory.HitObjectFactory;
 import beat.osu.client.game.*;
 import beat.osu.client.interfaces.HitObjectListener;
@@ -16,33 +13,37 @@ import javafx.scene.input.KeyCode;
 import lombok.Getter;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class GameManager implements Subject, HitObjectListener {
+public class ReplayManager implements Subject, HitObjectListener {
     private final List<Observer> observerList = new CopyOnWriteArrayList<>();
 
     private final Beatmap beatmap;
     @Getter
     private final ArrayList<HitObject> hitObjects;
-    private AnimationTimer gameLoop;
+    private AnimationTimer replayLoop;
     private long startTimeNanos = -1;
     private long pauseStartNanos = -1;
     private long totalPausedNanos = 0;
-    private final long gameStartOffset = 2000;
+    private final long replayStartOffset = 2000;
     private long lastHpDrainMillis = 0;
-    private GameState gameState = GameState.NOT_STARTED;
+    private ReplayState replayState = ReplayState.NOT_STARTED;
     private boolean bgmStarted = false;
+    private final ArrayList<ReplayEventData> replayEvents;
     private final InputManager inputManager;
 
-    private final Set<KeyCode> previousKeys = new HashSet<>();
     private double currentMouseX;
     private double currentMouseY;
 
-    // Replay event storage
-    @Getter
-    private final ArrayList<ReplayEventData> replayEvents = new ArrayList<>();
-    private long lastReplayEventTime = -1;
+    // Replay event processing fields
+    private int currentReplayEventIndex = 0;
+    private long accumulatedReplayTime = 0;
+    private boolean wasKey1Pressed = false;
+    private boolean wasKey2Pressed = false;
 
     private int masterComboNumber = 0;
     private int currentComboNumberInSet = 0;
@@ -83,48 +84,27 @@ public class GameManager implements Subject, HitObjectListener {
         }
     }
 
-    private String calculateGrade() {
-        int hitObjectsCount = OsuParser.getHitObjects().size();
-        boolean noMiss = (misses == 0);
-        double perfectPercentage = (double) (perfectHits + gekiHits) / hitObjectsCount * 100;
-        double goodPercentage = (double) goodHits / hitObjectsCount * 100;
-        if (accuracy == 100) {
-            return "SS";
-        } else if (noMiss && perfectPercentage > 90 && goodPercentage <= 1) {
-            return "S";
-        } else if ((noMiss && perfectPercentage > 80) || perfectPercentage > 90) {
-            return "A";
-        } else if ((noMiss && perfectPercentage > 70) || perfectPercentage > 80) {
-            return "B";
-        } else if (perfectPercentage > 60) {
-            return "C";
-        } else {
-            return "D";
-        }
-    }
+    public void startReplay() {
+        if (replayState == ReplayState.PLAYING)
+            return;
 
-    public void startGame() {
-        if (gameState == GameState.PLAYING) return;
-
-        gameState = GameState.PLAYING;
+        replayState = ReplayState.PLAYING;
         bgmStarted = false;
         startTimeNanos = -1;
         totalPausedNanos = 0;
 
-        // Reset replay data
-        replayEvents.clear();
-        lastReplayEventTime = -1;
+        // Reset replay event processing
+        currentReplayEventIndex = 0;
+        accumulatedReplayTime = 0;
+        wasKey1Pressed = false;
+        wasKey2Pressed = false;
 
-        notifyObservers(new GameEvent(GameEventType.GAME_STARTED, null));
+         notifyObservers(new GameEvent(GameEventType.REPLAY_STARTED, null));
 
-        if (gameLoop != null) {
-            gameLoop.stop();
-        }
-
-        gameLoop = new AnimationTimer() {
+        replayLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                if (gameState == GameState.PAUSED) {
+                if (replayState == ReplayState.PAUSED) {
                     return;
                 }
                 if (startTimeNanos == -1) {
@@ -134,133 +114,71 @@ public class GameManager implements Subject, HitObjectListener {
                 long elapsedNanos = now - startTimeNanos - totalPausedNanos;
                 long elapsedMillis = elapsedNanos / 1_000_000;
 
-                if (elapsedMillis > lastHpDrainMillis + 1000 && gameState == GameState.PLAYING) {
+                if (elapsedMillis > lastHpDrainMillis + 1000 && replayState == ReplayState.PLAYING) {
                     lastHpDrainMillis = elapsedMillis;
                     health = Math.max(0, health - beatmap.getHpDrainRate());
                     System.out.println("draining health, health: " + health);
                     notifyObservers(new GameEvent(GameEventType.HEALTH_CHANGED, health));
                 }
 
-                if (!bgmStarted && elapsedMillis >= gameStartOffset) {
+                if (!bgmStarted && elapsedMillis >= replayStartOffset) {
                     BgmManager.playGameBgm();
                     bgmStarted = true;
                 }
 
-                updateGame(elapsedMillis - gameStartOffset);
+                updateReplay(elapsedMillis - replayStartOffset);
             }
         };
-        gameLoop.start();
+        replayLoop.start();
     }
 
-    public void pauseGame() {
-        System.out.println("pausing game");
-
-        for (ReplayEventData event : replayEvents) {
-            System.out.println("ReplayEventOsu(time_delta=" + event.getTimeDelta() +
-                    ", x=" + event.getX() + ", y=" + event.getY() +
-                    ", keys=" + event.getKeyMask() + ")");
-        }
-
+    public void pauseReplay() {
         pauseStartNanos = System.nanoTime();
-        gameState = GameState.PAUSED;
+        replayState = ReplayState.PAUSED;
         BgmManager.pauseBgm();
         pauseAllAnimations();
-        notifyObservers(new GameEvent(GameEventType.GAME_PAUSED, null));
+        notifyObservers(new GameEvent(GameEventType.REPLAY_PAUSED, null));
     }
 
-    public void resumeGame() {
-        if (gameState != GameState.PAUSED) return;
+    public void resumeReplay() {
+        if (replayState != ReplayState.PAUSED)
+            return;
 
-        // Calculate pause duration
         if (pauseStartNanos != -1) {
             totalPausedNanos += System.nanoTime() - pauseStartNanos;
             pauseStartNanos = -1;
         }
 
-        gameState = GameState.PLAYING;
-        if (bgmStarted) BgmManager.resumeBgm();
+        replayState = ReplayState.PLAYING;
+        if (bgmStarted)
+            BgmManager.resumeBgm();
         // add countdown later
         resumeAllAnimations();
-        notifyObservers(new GameEvent(GameEventType.GAME_RESUMED, null));
+        notifyObservers(new GameEvent(GameEventType.REPLAY_RESUMED, null));
     }
 
-    private void stopGame() {
-        System.out.println("all hit objects processed, stopping game");
-        gameState = GameState.COMPLETED;
-        gameLoop.stop();
-        String grade = calculateGrade();
-        System.out.println("Game ended with grade: " + grade);
-
-        notifyObservers(new GameEvent(GameEventType.GAME_ENDED, new GameEndData(
-                score, perfectHits, gekiHits, greatHits, greatKatuHits, goodHits,
-                misses, highestCombo, accuracy, grade)));
+    public void stopReplay() {
+        replayState = ReplayState.COMPLETED;
+        replayLoop.stop();
+        notifyObservers(new GameEvent(GameEventType.REPLAY_ENDED, null));
     }
 
-    private void failGame() {
-        System.out.println("Game failed, stopping game");
-        gameState = GameState.FAILED;
-        gameLoop.stop();
-        BgmManager.stopBgm();
-        notifyObservers(new GameEvent(GameEventType.GAME_FAILED, null));
-    }
-
-    private void updateGame(long elapsedMillis) {
+    private void updateReplay(long elapsedMillis) {
         Set<KeyCode> currentKeys = inputManager.getPressedKeys();
-
-        // store game information for replay
-        System.out.println("Current game time: " + elapsedMillis + " ms");
-        // Store replay event data
-        storeReplayEvent(elapsedMillis, currentKeys);
-
-        boolean pressedEsc = currentKeys.contains(KeyCode.ESCAPE) &&
-                !previousKeys.contains(KeyCode.ESCAPE);
-
-        // validate break period here
-        boolean inBreakPeriod = false;
-        for (BreakPeriod breakPeriod : OsuParser.getBreakPeriodsList()) {
-            int startTime = breakPeriod.getStartTime();
-            int endTime = breakPeriod.getEndTime();
-            if (elapsedMillis >= startTime && elapsedMillis <= endTime) {
-                inBreakPeriod = true;
-                if (gameState != GameState.BREAK_PERIOD) {
-                    System.out.println("Entering break period");
-                    gameState = GameState.BREAK_PERIOD;
-                }
-                break;
-            }
-        }
-
-        // Return to playing state if not in break period time
-        if (!inBreakPeriod && gameState == GameState.BREAK_PERIOD) {
-            System.out.println("Exiting break period, returning to playing state");
-            gameState = GameState.PLAYING;
-        }
+        boolean pressedEsc = currentKeys.contains(KeyCode.ESCAPE);
 
         if (pressedEsc) {
-            if (gameState == GameState.PLAYING || gameState == GameState.BREAK_PERIOD) {
-                pauseGame();
-            } else if (gameState == GameState.PAUSED) {
-                resumeGame(); // Use a separate resume method
+            if (replayState == ReplayState.PLAYING) {
+                pauseReplay();
+            } else if (replayState == ReplayState.PAUSED) {
+                resumeReplay();
             }
-            previousKeys.clear();
-            previousKeys.addAll(currentKeys);
         }
 
-        // Only process game logic when playing & break period
-        if (gameState != GameState.PLAYING && gameState != GameState.BREAK_PERIOD) {
-            previousKeys.clear();
-            previousKeys.addAll(currentKeys);
+        if (replayState != ReplayState.PLAYING)
             return;
-        }
 
-        boolean keyPressed = false;
-        boolean pressedKeybind1 = currentKeys.contains(InputManager.getKeybind1()) &&
-                !previousKeys.contains(InputManager.getKeybind1());
-        boolean pressedKeybind2 = currentKeys.contains(InputManager.getKeybind2()) &&
-                !previousKeys.contains(InputManager.getKeybind2());
-        if (pressedKeybind1 || pressedKeybind2) {
-            keyPressed = true;
-        }
+        boolean keyPressed = processReplayEvents(elapsedMillis);
 
         Iterator<HitObject> iterator = hitObjects.iterator();
         while (iterator.hasNext()) {
@@ -283,64 +201,71 @@ public class GameManager implements Subject, HitObjectListener {
                     }
                 }
 
-                if (hitObject instanceof HitSpinner) break; // Don't handle misses for spinners
-
-                // Check for miss (object passed its time window)
+                if (hitObject instanceof HitSpinner) break;
                 if (elapsedMillis > hitObject.getHitTime() + getHitWindow()) {
                     handleMiss(hitObject);
-                    iterator.remove(); // Remove hit object after handling miss
-                    // System.out.println("Removing missed HitObject: " + hitObject);
+                    iterator.remove();
                     continue;
                 }
             }
             if (hitObject.isHit() && !hitObject.isVisible()) {
-                // If the hit object is already hit and not visible, remove it
                 iterator.remove();
-                // System.out.println("Removing HitObject after it was hit and is no longer
-                // visible: " + hitObject);
             }
         }
 
-        // Update input overlay
-        boolean key1IsPressed = currentKeys.contains(InputManager.getKeybind1());
-        boolean key2IsPressed = currentKeys.contains(InputManager.getKeybind2());
-        notifyObservers(new GameEvent(GameEventType.INPUT_OVERLAY_CHANGED,
-                new InputOverlayData(key1IsPressed, key2IsPressed)));
-
-        previousKeys.clear();
-        previousKeys.addAll(currentKeys);
-
-        // System.out.println("hit objects remaining: " + hitObjects.size());
         if (hitObjects.isEmpty()) {
-            stopGame();
+            stopReplay();
         }
     }
 
-    private void storeReplayEvent(long elapsedMillis, Set<KeyCode> currentKeys) {
-        // Calculate time delta
-        long timeDelta;
-        if (lastReplayEventTime == -1) {
-            // First replay event, store current timestamp instead of delta
-            timeDelta = elapsedMillis;
-        } else {
-            timeDelta = elapsedMillis - lastReplayEventTime;
+    private boolean processReplayEvents(long elapsedMillis) {
+        boolean keyPressed = false;
+
+        // Process all replay events that should have occurred by now
+        while (currentReplayEventIndex < replayEvents.size()) {
+            ReplayEventData event = replayEvents.get(currentReplayEventIndex);
+
+            // Calculate when this event should occur
+            long eventTime;
+            if (currentReplayEventIndex == 0) {
+                // First event uses absolute time
+                eventTime = event.getTimeDelta();
+            } else {
+                // Subsequent events use accumulated time
+                accumulatedReplayTime += event.getTimeDelta();
+                eventTime = accumulatedReplayTime;
+            }
+
+            // If this event hasn't occurred yet, stop processing
+            if (eventTime > elapsedMillis) {
+                break;
+            }
+
+            // Update mouse position from replay data
+            updateMousePosition(event.getX(), event.getY());
+
+            // Check for key state changes
+            boolean key1Pressed = (event.getKeyMask() & 1) != 0; // Bit 0 for key 1
+            boolean key2Pressed = (event.getKeyMask() & 2) != 0; // Bit 1 for key 2
+
+            // Detect key press events (transition from not pressed to pressed)
+            if (key1Pressed && !wasKey1Pressed) {
+                keyPressed = true;
+                System.out.println("Key 1 pressed at time: " + elapsedMillis);
+            }
+            if (key2Pressed && !wasKey2Pressed) {
+                keyPressed = true;
+                System.out.println("Key 2 pressed at time: " + elapsedMillis);
+            }
+
+            // Update previous key states
+            wasKey1Pressed = key1Pressed;
+            wasKey2Pressed = key2Pressed;
+
+            currentReplayEventIndex++;
         }
 
-        // Calculate key mask based on keybinds
-        int keyMask = 0;
-        if (currentKeys.contains(InputManager.getKeybind1())) {
-            keyMask |= 1; // Set bit 0 for keybind1
-        }
-        if (currentKeys.contains(InputManager.getKeybind2())) {
-            keyMask |= 2; // Set bit 1 for keybind2
-        }
-
-        // Create and store replay event
-        ReplayEventData replayEvent = new ReplayEventData(timeDelta, currentMouseX, currentMouseY, keyMask);
-        replayEvents.add(replayEvent);
-
-        // Update last event time for next delta calculation
-        lastReplayEventTime = elapsedMillis;
+        return keyPressed;
     }
 
     private boolean checkHitObjectClick(HitObject hitObject, long elapsedMillis) {
@@ -370,20 +295,7 @@ public class GameManager implements Subject, HitObjectListener {
     }
 
     private double getModMultiplier() {
-        double multiplier = 1.0;
-        // if (OsuParser.isDoubleTime()) {
-        // multiplier *= 1.5; // Double Time
-        // }
-        // if (OsuParser.isHalfTime()) {
-        // multiplier *= 0.75; // Half Time
-        // }
-        // if (OsuParser.isHardRock()) {
-        // multiplier *= 1.06; // Hard Rock
-        // }
-        // if (OsuParser.isEasy()) {
-        // multiplier *= 0.5; // Easy
-        // }
-        return multiplier;
+        return 1.0;
     }
 
     private void updateHitCount(HitObject hitObject, HitResult hitResult) {
@@ -414,7 +326,8 @@ public class GameManager implements Subject, HitObjectListener {
     private void handleHit(HitObject hitObject, long timingError) {
         HitResult hitResult = HitResult.fromTimingError(timingError, beatmap.getOverallDifficulty());
 
-        if (hitObject instanceof HitCircle) hitObject.setVisible(false);
+        if (hitObject instanceof HitCircle)
+            hitObject.setVisible(false);
         if (hitObject.isNewCombo()) {
             perfectCombo = true;
             imperfectOrMissed = false;
@@ -435,14 +348,17 @@ public class GameManager implements Subject, HitObjectListener {
         hitObject.setHit(true);
         hitObject.playHitEffect();
 
-        if (!(hitObject instanceof HitCircle)) return;
+        if (!(hitObject instanceof HitCircle))
+            return;
         // play sfx
         for (String sfx : hitObject.getSfxFilenames()) {
             SfxManager.playSfx(sfx);
         }
         // Determine hit result based on timing
-        if (hitResult == HitResult.MISS) notifyMiss(hitObject);
-        else notifyHit(hitObject, hitResult);
+        if (hitResult == HitResult.MISS)
+            notifyMiss(hitObject);
+        else
+            notifyHit(hitObject, hitResult);
     }
 
     private HealthRecover getHealthRecover(HitObject hitObject, HitResult hitResult) {
@@ -517,7 +433,8 @@ public class GameManager implements Subject, HitObjectListener {
     }
 
     private void handleMiss(HitObject hitObject) {
-        if (hitObject instanceof HitSpinner) return;
+        if (hitObject instanceof HitSpinner)
+            return;
         notifyMiss(hitObject);
     }
 
@@ -550,7 +467,7 @@ public class GameManager implements Subject, HitObjectListener {
         // Check for game over (health reaches 0)
         if (health <= 0) {
             System.out.println("hp reached 0, stopping game");
-//            failGame();
+            // failGame();
         }
     }
 
@@ -602,12 +519,9 @@ public class GameManager implements Subject, HitObjectListener {
         int comboSkipFromThisObject = HitObjectFactory.getComboSkipCount(data);
 
         if (isThisObjectANewCombo) {
-            currentComboNumberInSet = 1; // Reset number for this new combo set
-            // Apply combo skip from the *previous* new combo object, or this one if it's
-            // the first.
-            // The comboSetIndex is incremented by 1 + the number of colors to skip.
+            currentComboNumberInSet = 1;
             currentComboSetIndex = (currentComboSetIndex + 1 + comboSkipCounter) % OsuParser.getColours().size();
-            comboSkipCounter = comboSkipFromThisObject; // Store skip for NEXT new combo
+            comboSkipCounter = comboSkipFromThisObject;
         } else {
             currentComboNumberInSet++;
         }
@@ -617,10 +531,12 @@ public class GameManager implements Subject, HitObjectListener {
         hitObjects.add(newHitObject);
     }
 
-    public GameManager(Beatmap beatmap, InputManager inputManager) {
+    public ReplayManager(Beatmap beatmap, ArrayList<ReplayEventData> replayEvents,
+            InputManager inputManager) {
         this.beatmap = beatmap;
-        this.inputManager = inputManager;
         this.hitObjects = new ArrayList<>();
+        this.replayEvents = replayEvents;
+        this.inputManager = inputManager;
         processBeatmap();
     }
 
