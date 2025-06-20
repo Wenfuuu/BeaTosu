@@ -67,7 +67,7 @@ public class ReplayView extends Page implements GameEventListener {
         loadBackground();
         handleEvent();
         updateLayout();
-        BgmManager.prepareGameBgm();
+        BgmManager.getInstance().prepareGameBgm();
 
         rm.startReplay();
     }

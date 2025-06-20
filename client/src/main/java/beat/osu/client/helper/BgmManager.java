@@ -2,7 +2,6 @@ package beat.osu.client.helper;
 
 import beat.osu.client.events.song.SongChangeEvent;
 import beat.osu.client.interfaces.song.SongEventListener;
-import beat.osu.client.interfaces.song.SongEventPublisher;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.Song;
 import beat.osu.client.utils.OsuParser;
@@ -10,27 +9,40 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
+@Getter
 public class BgmManager {
-    private static String currentBgmHash = null;
-    private static String defaultBgmHash;
+    private static volatile BgmManager instance;
 
-    @Getter
-    private static MediaPlayer currentPlayer;
+    private String currentBgmHash = null;
+    private String defaultBgmHash;
+    private MediaPlayer currentPlayer;
+    private final ArrayList<SongEventListener> listeners;
 
-    private static final ArrayList<SongEventListener> listeners = new ArrayList<>();
+    private BgmManager() {
+        listeners = new ArrayList<>();
+    }
 
-    private static String computeFileHash(File file) {
+    public static BgmManager getInstance() {
+        if (instance == null) {
+            synchronized (BgmManager.class) {
+                if (instance == null) {
+                    instance = new BgmManager();
+                }
+            }
+        }
+        return instance;
+    }
+
+    private String computeFileHash(File file) {
         try (InputStream fis = new FileInputStream(file)) {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] buffer = new byte[8192];
@@ -50,7 +62,7 @@ public class BgmManager {
         }
     }
 
-    public static boolean isSameBgm(String newHash) {
+    public boolean isSameBgm(String newHash) {
         if (currentBgmHash == null) {
             currentBgmHash = newHash;
             return false;
@@ -58,7 +70,7 @@ public class BgmManager {
         return currentBgmHash.equals(newHash);
     }
 
-    private static void loopFromPreviewTime() {
+    private void loopFromPreviewTime() {
         if (currentPlayer != null) {
             Duration previewTime = new Duration(OsuParser.getPreviewTime());
             currentPlayer.setOnEndOfMedia(() -> {
@@ -68,7 +80,7 @@ public class BgmManager {
         }
     }
 
-    public static void playPreviewBgm(boolean fromAnotherPage) {
+    public void playPreviewBgm(boolean fromAnotherPage) {
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
         File tempDir = ResourceManager.getTempDirectory();
         File beatmapDir = new File(tempDir, String.valueOf(beatmap.getBeatmapSetId()));
@@ -115,7 +127,7 @@ public class BgmManager {
         currentPlayer.setVolume(0.2);
     }
 
-    public static void prepareGameBgm() {
+    public void prepareGameBgm() {
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
         File tempDir = ResourceManager.getTempDirectory();
         File beatmapDir = new File(tempDir, String.valueOf(beatmap.getBeatmapSetId()));
@@ -144,14 +156,14 @@ public class BgmManager {
         });
     }
 
-    public static void playGameBgm() {
+    public void playGameBgm() {
         if(currentPlayer != null) {
             System.out.println("Playing game BGM");
             currentPlayer.play();
         }
     }
 
-    public static void playBgm(File bgmFile) {
+    public void playBgm(File bgmFile) {
         stopBgm();
         defaultBgmHash = computeFileHash(bgmFile);
         currentBgmHash = defaultBgmHash;
@@ -167,26 +179,26 @@ public class BgmManager {
         }
     }
 
-    public static void playSong(Song song) {
+    public void playSong(Song song) {
         File songFile = new File(song.getAudioPath());
         playBgm(songFile);
 
         notifyListeners(new SongChangeEvent(song));
     }
 
-    public static void pauseBgm() {
+    public void pauseBgm() {
         if (currentPlayer != null) {
             currentPlayer.pause();
         }
     }
 
-    public static void resumeBgm() {
+    public void resumeBgm() {
         if (currentPlayer != null) {
             currentPlayer.play();
         }
     }
 
-    public static void stopBgm() {
+    public void stopBgm() {
         if (currentPlayer != null) {
             currentPlayer.stop();
             currentPlayer.dispose();
@@ -194,25 +206,25 @@ public class BgmManager {
         }
     }
 
-    public static void setVolume(double volume) {
+    public void setVolume(double volume) {
         if (currentPlayer != null) {
             currentPlayer.setVolume(volume);
         }
     }
 
-    public static boolean isPlaying() {
+    public boolean isPlaying() {
         return currentPlayer != null && currentPlayer.getStatus() == MediaPlayer.Status.PLAYING;
     }
 
-    public static void addListener(SongEventListener songEventListener) {
+    public void addListener(SongEventListener songEventListener) {
         listeners.add(songEventListener);
     }
 
-    public static void removeListener(SongEventListener songEventListener) {
+    public void removeListener(SongEventListener songEventListener) {
         listeners.remove(songEventListener);
     }
 
-    private static void notifyListeners(SongChangeEvent event) {
+    private void notifyListeners(SongChangeEvent event) {
         for (SongEventListener listener : listeners) {
             listener.update(event);
         }

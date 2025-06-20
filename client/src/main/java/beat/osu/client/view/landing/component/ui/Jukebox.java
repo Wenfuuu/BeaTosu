@@ -80,9 +80,9 @@ public class Jukebox extends StackPane implements SongEventListener {
             }
         });
 
-        mediaControls.getPlayButton().setOnAction(e -> BgmManager.resumeBgm());
-        mediaControls.getPauseButton().setOnAction(e -> BgmManager.pauseBgm());
-        mediaControls.getStopButton().setOnAction(e -> BgmManager.stopBgm());
+        mediaControls.getPlayButton().setOnAction(e -> BgmManager.getInstance().resumeBgm());
+        mediaControls.getPauseButton().setOnAction(e -> BgmManager.getInstance().pauseBgm());
+        mediaControls.getStopButton().setOnAction(e -> BgmManager.getInstance().stopBgm());
     }
 
     private void animateCurrentSongBoxIn(CurrentSongBox songBox) {

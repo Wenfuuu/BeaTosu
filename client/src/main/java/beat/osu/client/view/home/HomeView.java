@@ -99,7 +99,7 @@ public class HomeView extends Page {
         }
         scene.setRoot(root);
 
-        BgmManager.playPreviewBgm(true);
+        BgmManager.getInstance().playPreviewBgm(true);
         BackgroundManager.setGameBackground(scene);
     }
 
@@ -175,7 +175,7 @@ public class HomeView extends Page {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            BgmManager.playPreviewBgm(false);
+            BgmManager.getInstance().playPreviewBgm(false);
             BackgroundManager.setGameBackground(scene);
 
             // sfx testing purpose
@@ -189,7 +189,7 @@ public class HomeView extends Page {
             System.out.println("clicking play button");
             Beatmap selectedBeatmap = beatmapPane.getSelectedBeatmap();
             if (selectedBeatmap != null) {
-                BgmManager.stopBgm();
+                BgmManager.getInstance().stopBgm();
 //                new GameView(stage, selectedBeatmap);
                 ViewManager.showGameView(selectedBeatmap);
             }

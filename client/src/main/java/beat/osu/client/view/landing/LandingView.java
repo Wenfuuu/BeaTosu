@@ -241,7 +241,7 @@ public class LandingView extends Page {
         playlistModalComponent = new PlaylistModal();
 
         jukeboxComponent = new Jukebox(playlistModalComponent);
-        BgmManager.addListener(jukeboxComponent);
+        BgmManager.getInstance().addListener(jukeboxComponent);
 
         banchoButtons = new BanchoButtons();
         banchoButtons.setVisible(false);
@@ -301,18 +301,18 @@ public class LandingView extends Page {
 
         String bgmPath = "/assets/audio/nekodex-circles.mp3";
         URL bgmUrl = Main.class.getResource(bgmPath);
-        if (bgmUrl != null && BgmManager.getCurrentPlayer() == null) {
+        if (bgmUrl != null && BgmManager.getInstance().getCurrentPlayer() == null) {
             try {
                 File bgmFile = new File(bgmUrl.toURI());
-                BgmManager.playBgm(bgmFile);
+                BgmManager.getInstance().playBgm(bgmFile);
             } catch (Exception e) {
                 System.err.println("Failed to convert BGM URL to File: " + e.getMessage());
                 e.printStackTrace();
             }
         }
 
-        if(BgmManager.getCurrentPlayer() != null) {
-            visualizerComponent.setupAudioVisualization(BgmManager.getCurrentPlayer());
+        if(BgmManager.getInstance().getCurrentPlayer() != null) {
+            visualizerComponent.setupAudioVisualization(BgmManager.getInstance().getCurrentPlayer());
         } else {
             System.err.println("Failed to load BGM: " + bgmPath);
         }

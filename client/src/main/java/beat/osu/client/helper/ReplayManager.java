@@ -121,7 +121,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
                 }
 
                 if (!bgmStarted && elapsedMillis >= replayStartOffset) {
-                    BgmManager.playGameBgm();
+                    BgmManager.getInstance().playGameBgm();
                     bgmStarted = true;
                 }
 
@@ -134,7 +134,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     private void pauseReplay() {
         pauseStartNanos = System.nanoTime();
         replayState = ReplayState.PAUSED;
-        BgmManager.pauseBgm();
+        BgmManager.getInstance().pauseBgm();
         pauseAllAnimations();
         notifyListeners(new GameEvent(GameEventType.REPLAY_PAUSED, null));
     }
@@ -150,7 +150,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
 
         replayState = ReplayState.PLAYING;
         if (bgmStarted)
-            BgmManager.resumeBgm();
+            BgmManager.getInstance().resumeBgm();
         // add countdown later
         resumeAllAnimations();
         notifyListeners(new GameEvent(GameEventType.REPLAY_RESUMED, null));

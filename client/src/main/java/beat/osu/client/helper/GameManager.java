@@ -142,7 +142,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 }
 
                 if (!bgmStarted && elapsedMillis >= gameStartOffset) {
-                    BgmManager.playGameBgm();
+                    BgmManager.getInstance().playGameBgm();
                     bgmStarted = true;
                 }
 
@@ -163,7 +163,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         pauseStartNanos = System.nanoTime();
         gameState = GameState.PAUSED;
-        BgmManager.pauseBgm();
+        BgmManager.getInstance().pauseBgm();
         pauseAllAnimations();
         notifyListeners(new GameEvent(GameEventType.GAME_PAUSED, null));
     }
@@ -178,7 +178,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         }
 
         gameState = GameState.PLAYING;
-        if (bgmStarted) BgmManager.resumeBgm();
+        if (bgmStarted) BgmManager.getInstance().resumeBgm();
         // add countdown later
         resumeAllAnimations();
         notifyListeners(new GameEvent(GameEventType.GAME_RESUMED, null));
@@ -200,7 +200,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         System.out.println("Game failed, stopping game");
         gameState = GameState.FAILED;
         gameLoop.stop();
-        BgmManager.stopBgm();
+        BgmManager.getInstance().stopBgm();
         notifyListeners(new GameEvent(GameEventType.GAME_FAILED, null));
     }
 

@@ -52,7 +52,7 @@ public class PlaylistItem extends VBox {
             if (onSelectionCallback != null) {
                 onSelectionCallback.accept(this);
             }
-            BgmManager.playSong(song);
+            BgmManager.getInstance().playSong(song);
         });
     }
 
