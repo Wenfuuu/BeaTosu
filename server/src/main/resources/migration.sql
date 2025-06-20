@@ -73,11 +73,11 @@ INSERT INTO `beatmaps` (`id`, `beatmap_set_id`, `version`, `hp_drain_rate`, `cir
 -- --------------------------------------------------------
 
 --
--- Table structure for table `beatmap_scores`
+-- Table structure for table `scores`
 --
 
-CREATE TABLE `beatmap_scores` (
-  `id` int(11) NOT NULL,
+CREATE TABLE `scores` (
+  `id` varchar(50) NOT NULL,
   `beatmap_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `score` int(11) NOT NULL,
@@ -159,13 +159,13 @@ ALTER TABLE `beatmaps`
 ALTER TABLE `beatmaps`
   ADD KEY `beatmap_set_id` (`beatmap_set_id`);
 
-ALTER TABLE `beatmap_scores`
+ALTER TABLE `scores`
   ADD PRIMARY KEY (`id`);
 
-ALTER TABLE `beatmap_scores`
+ALTER TABLE `scores`
   ADD KEY `beatmap_id` (`beatmap_id`);
 
-ALTER TABLE `beatmap_scores`
+ALTER TABLE `scores`
   ADD KEY `user_id` (`user_id`);
 
 ALTER TABLE `beatmap_sets`
@@ -202,13 +202,13 @@ ALTER TABLE `beatmaps`
   ADD CONSTRAINT `beatmaps_ibfk_1` FOREIGN KEY (`beatmap_set_id`) REFERENCES `beatmap_sets` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `beatmap_scores`
+-- Constraints for table `scores`
 --
-ALTER TABLE `beatmap_scores`
-  ADD CONSTRAINT `beatmap_scores_ibfk_1` FOREIGN KEY (`beatmap_id`) REFERENCES `beatmaps` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `scores`
+  ADD CONSTRAINT `scores_ibfk_1` FOREIGN KEY (`beatmap_id`) REFERENCES `beatmaps` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE `beatmap_scores`
-  ADD CONSTRAINT `beatmap_scores_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `scores`
+  ADD CONSTRAINT `scores_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
