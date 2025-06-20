@@ -94,6 +94,7 @@ public class BgmManager implements SongEventPublisher {
     }
 
     public void playPreviewBgm(boolean fromAnotherPage) {
+        System.out.println("calling playPreviewBgm, fromAnotherPage: " + fromAnotherPage);
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
         File tempDir = ResourceManager.getTempDirectory();
         File beatmapDir = new File(tempDir, String.valueOf(beatmap.getBeatmapSetId()));
@@ -112,10 +113,21 @@ public class BgmManager implements SongEventPublisher {
             }
             stopBgm();
         } else {
-            if(newHash != null && currentBgmHash.equals(defaultBgmHash)) stopBgm();
+            if(newHash != null && currentBgmHash.equals(defaultBgmHash)) {
+                System.out.println("From another page, Default BGM content. Stopping BGM.");
+                stopBgm();
+            }
             if (isSameBgm(newHash) && currentPlayer != null) {
                 System.out.println("From another page, Same BGM content. Resuming BGM.");
-                currentPlayer.play();
+                System.out.println("Current Player Status: " + currentPlayer.getStatus());
+//                currentPlayer.play();
+                if(currentPlayer.getCurrentTime().lessThan(currentPlayer.getTotalDuration())) currentPlayer.play();
+                else {
+                    currentBgmHash = null;
+                    playPreviewBgm(false);
+                    return;
+                }
+
                 loopFromPreviewTime();
                 return;
             }
@@ -162,11 +174,6 @@ public class BgmManager implements SongEventPublisher {
         currentPlayer.setVolume(0.2);
         currentPlayer.setAutoPlay(false);
 
-        BeatmapSet beatmapSet = beatmap.getBeatmapSet();
-        String audioPath = ResourceManager.getBeatmapSetAudioPath(beatmapSet.getBeatmapSetId());
-        Song song = new Song(beatmapSet.getBeatmapSetId(), beatmapSet.getTitle(), beatmapSet.getArtist(), audioPath);
-        playSong(song);
-
         currentPlayer.setOnError(() -> {
             System.err.println("MediaPlayer error: " + currentPlayer.getError());
         });
@@ -186,7 +193,7 @@ public class BgmManager implements SongEventPublisher {
         }
     }
 
-    public void playBgm(File bgmFile) {
+    public void playDefaultBgm(File bgmFile) {
         stopBgm();
         defaultBgmHash = computeFileHash(bgmFile);
         currentBgmHash = defaultBgmHash;
@@ -250,7 +257,17 @@ public class BgmManager implements SongEventPublisher {
 
     public void playSong(Song song) {
         File songFile = new File(song.getAudioPath());
-        playBgm(songFile);
+
+        stopBgm();
+        try {
+            Media media = new Media(songFile.toURI().toString());
+            currentPlayer = new MediaPlayer(media);
+            currentPlayer.setAutoPlay(true);
+            currentPlayer.setVolume(0.2);
+        } catch (Exception e) {
+            System.err.println("Failed to load BGM: " + songFile.getPath());
+            e.printStackTrace();
+        }
 
         currentSong = song;
         for (int i = 0; i < playlist.size(); i++) {

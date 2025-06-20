@@ -1,7 +1,6 @@
 package beat.osu.client.view.landing;
 
 import java.io.File;
-import java.net.URISyntaxException;
 import java.net.URL;
 
 import beat.osu.client.Main;
@@ -14,7 +13,6 @@ import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.ViewManager;
-import beat.osu.client.model.Song;
 import beat.osu.client.view.landing.component.controls.MenuButtons;
 import beat.osu.client.view.landing.component.controls.SubMenuButtons;
 import beat.osu.client.view.landing.component.layout.BottomBar;
@@ -307,7 +305,7 @@ public class LandingView extends Page {
         if (bgmUrl != null && BgmManager.getInstance().getCurrentPlayer() == null) {
             try {
                 File bgmFile = new File(bgmUrl.toURI());
-                BgmManager.getInstance().playBgm(bgmFile);
+                BgmManager.getInstance().playDefaultBgm(bgmFile);
             } catch (Exception e) {
                 System.err.println("Failed to convert BGM URL to File: " + e.getMessage());
                 e.printStackTrace();

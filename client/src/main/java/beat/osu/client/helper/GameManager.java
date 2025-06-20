@@ -1,5 +1,6 @@
 package beat.osu.client.helper;
 
+import beat.osu.client.controller.ScoreController;
 import beat.osu.client.enums.GameEventType;
 import beat.osu.client.enums.GameState;
 import beat.osu.client.enums.HealthRecover;
@@ -12,6 +13,8 @@ import beat.osu.client.interfaces.game.GameEventPublisher;
 import beat.osu.client.model.*;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.utils.ReplayUtils;
+import beat.osu.client.view.shared.common.Toast;
+import beat.osu.shared.dto.user.UserDto;
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
 import lombok.Getter;
@@ -37,6 +40,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private GameState gameState = GameState.NOT_STARTED;
     private boolean bgmStarted = false;
     private final InputManager inputManager;
+    private final ScoreController scoreController;
 
     private final Set<KeyCode> previousKeys = new HashSet<>();
     private double currentMouseX;
@@ -145,6 +149,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 }
 
                 if (!bgmStarted && elapsedMillis >= gameStartOffset) {
+                    System.out.println("Starting BGM playback");
                     BgmManager.getInstance().playGameBgm();
                     bgmStarted = true;
                 }
@@ -158,11 +163,11 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private void pauseGame() {
         System.out.println("pausing game");
 
-        for (ReplayEvent event : replayEvents) {
-            System.out.println("ReplayEventOsu(time_delta=" + event.getTimeDelta() +
-                    ", x=" + event.getX() + ", y=" + event.getY() +
-                    ", keys=" + event.getKeyMask() + ")");
-        }
+//        for (ReplayEvent event : replayEvents) {
+//            System.out.println("ReplayEventOsu(time_delta=" + event.getTimeDelta() +
+//                    ", x=" + event.getX() + ", y=" + event.getY() +
+//                    ", keys=" + event.getKeyMask() + ")");
+//        }
 
         pauseStartNanos = System.nanoTime();
         gameState = GameState.PAUSED;
@@ -198,18 +203,30 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 score, perfectHits, gekiHits, greatHits, greatKatuHits, goodHits,
                 misses, highestCombo, accuracy, grade)));
 
-        String userName = AuthManager.isAuthenticated() ? AuthManager.getUser().getUsername() : "Guest";
-        if(userName.equals("Guest")) return;
+        UserDto user = AuthManager.getUser();
+        if(user == null) return;
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String formatted = now.format(formatter);
         String osrFileName = String.format("%s-%s-%s.osr",
-                userName, beatmap.getBeatmapId(), formatted.replace("/", "-").replace(":", "-"));
+                user.getId(), beatmap.getBeatmapId(), formatted.replace("/", "-").replace(":", "-"));
         try {
             ReplayUtils.saveReplay(replayEvents, osrFileName);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        scoreController.insertScore(beatmap.getBeatmapId(), user.getId(), score,
+                highestCombo, accuracy, perfectHits, gekiHits, greatHits, greatKatuHits,
+                goodHits, misses, grade, now).thenApply(response -> {
+            if (response.isSuccess()) {
+                System.out.println("Score inserted successfully: " + response.getValue().getMessage());
+                Toast.success("Score inserted successfully: " + response.getValue().getMessage());
+            } else {
+                System.err.println("Failed to insert score: " + response.getError().getMessage());
+            }
+            return null;
+        });
     }
 
     private void failGame() {
@@ -637,6 +654,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         this.beatmap = beatmap;
         this.inputManager = inputManager;
         this.hitObjects = new ArrayList<>();
+        this.scoreController = new ScoreController();
         processBeatmap();
     }
 

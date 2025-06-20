@@ -3,10 +3,7 @@ package beat.osu.server.repositories;
 import beat.osu.server.database.Connect;
 import beat.osu.server.entities.Score;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -33,7 +30,7 @@ public class ScoreRepository {
             String grade,
             LocalDateTime date
     ) {
-        String query = "INSERT INTO beatmap_scores (id, beatmap_id, user_id, score, highest_combo, accuracy, " +
+        String query = "INSERT INTO scores (id, beatmap_id, user_id, score, highest_combo, accuracy, " +
                 "perfect_hit, geki_hit, great_hit, katu_hit, good_hit, miss, grade, date) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
         try {
@@ -51,7 +48,7 @@ public class ScoreRepository {
             statement.setInt(11, goodHit);
             statement.setInt(12, miss);
             statement.setString(13, grade);
-            statement.setDate(14, Date.valueOf(date.toLocalDate()));
+            statement.setTimestamp(14, Timestamp.valueOf(date));
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
