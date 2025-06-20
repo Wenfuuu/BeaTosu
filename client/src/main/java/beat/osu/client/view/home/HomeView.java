@@ -1,6 +1,7 @@
 package beat.osu.client.view.home;
 
 import beat.osu.client.controller.BeatmapController;
+import beat.osu.client.controller.ScoreController;
 import beat.osu.client.helper.*;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
@@ -27,6 +28,7 @@ import java.util.Set;
 public class HomeView extends Page {
 
     private BeatmapController beatmapController;
+    private ScoreController scoreController;
 
     private StackPane root;
     private BorderPane mainLayout;
@@ -43,6 +45,7 @@ public class HomeView extends Page {
     @Override
     public void init() {
         beatmapController = new BeatmapController();
+        scoreController = new ScoreController();
 
         root = new StackPane();
         root.getStyleClass().add("root");
