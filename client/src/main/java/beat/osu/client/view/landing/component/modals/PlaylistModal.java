@@ -148,46 +148,14 @@ public class PlaylistModal extends StackPane implements SongEventListener {
         Song eventSong = event.getSong();
         if (eventSong == null || playlistItemsContainer == null) return;
         
-        // Get the current song index from BgmManager for more efficient lookup
         int currentIndex = BgmManager.getInstance().getCurrentSongIndex();
-        int playlistSize = playlistItemsContainer.getChildren().size();
-        
-        System.out.println("DEBUG PlaylistModal.update:");
-        System.out.println("  Event song: " + eventSong.getArtist() + " - " + eventSong.getTitle() + " (ID: " + eventSong.getId() + ")");
-        System.out.println("  Current index from BgmManager: " + currentIndex);
-        System.out.println("  Playlist container size: " + playlistSize);
-        
-        // If we have a valid index, use it for direct access
-        if (currentIndex >= 0 && currentIndex < playlistSize) {
+
+        if (currentIndex >= 0 && currentIndex < playlistItemsContainer.getChildren().size()) {
             Object node = playlistItemsContainer.getChildren().get(currentIndex);
             if (node instanceof PlaylistItem) {
                 PlaylistItem playlistItem = (PlaylistItem) node;
-                Song itemSong = playlistItem.getSong();
-                System.out.println("  Song at index " + currentIndex + ": " + itemSong.getArtist() + " - " + itemSong.getTitle() + " (ID: " + itemSong.getId() + ")");
-                
-                if (itemSong.getId() == eventSong.getId()) {
-                    System.out.println("  ✓ Direct access MATCH! Selecting item at index " + currentIndex);
+                if (playlistItem.getSong().getId() == eventSong.getId()) {
                     onItemSelected(playlistItem);
-                    return;
-                } else {
-                    System.out.println("  ✗ Direct access MISMATCH! Expected ID " + eventSong.getId() + " but found " + itemSong.getId());
-                }
-            }
-        } else {
-            System.out.println("  ✗ Invalid index: " + currentIndex + " (size: " + playlistSize + ")");
-        }
-        
-        System.out.println("  Falling back to full search...");
-        // Fallback to searching through all items if direct access fails
-        for (Object node : playlistItemsContainer.getChildren()) {
-            if (node instanceof PlaylistItem) {
-                PlaylistItem playlistItem = (PlaylistItem) node;
-                Song itemSong = playlistItem.getSong();
-                
-                if (itemSong != null && eventSong.getId() == itemSong.getId()) {
-                    System.out.println("  ✓ Fallback search found match!");
-                    onItemSelected(playlistItem);
-                    break;
                 }
             }
         }

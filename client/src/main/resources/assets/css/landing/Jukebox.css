@@ -25,6 +25,11 @@
     -fx-padding: 0;
 }
 
+.media-button:hover {
+    -fx-scale-x: 1.2;
+    -fx-scale-y: 1.2;
+}
+
 .stack-pane {
     -fx-alignment: top-right;
 }
