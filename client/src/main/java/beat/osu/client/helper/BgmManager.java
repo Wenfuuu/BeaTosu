@@ -1,6 +1,10 @@
 package beat.osu.client.helper;
 
+import beat.osu.client.events.song.SongChangeEvent;
+import beat.osu.client.interfaces.song.SongEventListener;
+import beat.osu.client.interfaces.song.SongEventPublisher;
 import beat.osu.client.model.Beatmap;
+import beat.osu.client.model.Song;
 import beat.osu.client.utils.OsuParser;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -15,6 +19,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 public class BgmManager {
     private static String currentBgmHash = null;
@@ -22,6 +27,8 @@ public class BgmManager {
 
     @Getter
     private static MediaPlayer currentPlayer;
+
+    private static final ArrayList<SongEventListener> listeners = new ArrayList<>();
 
     private static String computeFileHash(File file) {
         try (InputStream fis = new FileInputStream(file)) {
@@ -145,7 +152,7 @@ public class BgmManager {
     }
 
     public static void playBgm(File bgmFile) {
-        stopBgm(); // Stop if already playing
+        stopBgm();
         defaultBgmHash = computeFileHash(bgmFile);
         currentBgmHash = defaultBgmHash;
 
@@ -158,6 +165,13 @@ public class BgmManager {
             System.err.println("Failed to load BGM: " + bgmFile.getPath());
             e.printStackTrace();
         }
+    }
+
+    public static void playSong(Song song) {
+        File songFile = new File(song.getAudioPath());
+        playBgm(songFile);
+
+        notifyListeners(new SongChangeEvent(song));
     }
 
     public static void pauseBgm() {
@@ -188,5 +202,19 @@ public class BgmManager {
 
     public static boolean isPlaying() {
         return currentPlayer != null && currentPlayer.getStatus() == MediaPlayer.Status.PLAYING;
+    }
+
+    public static void addListener(SongEventListener songEventListener) {
+        listeners.add(songEventListener);
+    }
+
+    public static void removeListener(SongEventListener songEventListener) {
+        listeners.remove(songEventListener);
+    }
+
+    private static void notifyListeners(SongChangeEvent event) {
+        for (SongEventListener listener : listeners) {
+            listener.update(event);
+        }
     }
 }

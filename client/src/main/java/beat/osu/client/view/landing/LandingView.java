@@ -14,6 +14,7 @@ import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.ViewManager;
+import beat.osu.client.model.Song;
 import beat.osu.client.view.landing.component.controls.MenuButtons;
 import beat.osu.client.view.landing.component.controls.SubMenuButtons;
 import beat.osu.client.view.landing.component.layout.BottomBar;
@@ -240,7 +241,7 @@ public class LandingView extends Page {
         playlistModalComponent = new PlaylistModal();
 
         jukeboxComponent = new Jukebox(playlistModalComponent);
-        playlistModalComponent.addListener(jukeboxComponent);
+        BgmManager.addListener(jukeboxComponent);
 
         banchoButtons = new BanchoButtons();
         banchoButtons.setVisible(false);

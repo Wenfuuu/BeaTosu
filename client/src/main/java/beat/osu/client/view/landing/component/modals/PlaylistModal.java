@@ -27,14 +27,12 @@ import javafx.scene.text.Font;
 import javafx.util.Duration;
 import lombok.Getter;
 
-public class PlaylistModal extends StackPane implements SongEventPublisher {
+public class PlaylistModal extends StackPane {
 
     private VBox contentContainer;
     private PlaylistContent playlistContent;
     @Getter
     private PlaylistItem selectedItem;
-
-    private List<SongEventListener> listeners;
 
     public PlaylistModal() {
         super();
@@ -62,7 +60,6 @@ public class PlaylistModal extends StackPane implements SongEventPublisher {
     }
 
     private void initializeComponents() {
-        this.listeners = new ArrayList<>();
         contentContainer = new VBox();
         playlistContent = new PlaylistContent();
     }
@@ -128,8 +125,6 @@ public class PlaylistModal extends StackPane implements SongEventPublisher {
         
         selectedItem = newSelection;
         selectedItem.setSelected(true);
-
-        notifyListeners(new SongChangeEvent(newSelection.getSong()));
     }
 
     public void refreshPlaylist() {
@@ -154,22 +149,5 @@ public class PlaylistModal extends StackPane implements SongEventPublisher {
         fadeIn.setFromValue(0.0);
         fadeIn.setToValue(1.0);
         fadeIn.play();
-    }
-
-    @Override
-    public void addListener(SongEventListener songEventListener) {
-        listeners.add(songEventListener);
-    }
-
-    @Override
-    public void removeListener(SongEventListener songEventListener) {
-        listeners.remove(songEventListener);
-    }
-
-    @Override
-    public void notifyListeners(SongChangeEvent event) {
-        for (SongEventListener listener : listeners) {
-            listener.update(event);
-        }
     }
 }
