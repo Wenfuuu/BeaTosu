@@ -21,7 +21,6 @@ public class ScoreController {
     }
 
     public CompletableFuture<Result<InsertScoreResponse>> insertScore(
-            int id,
             int beatmapId,
             int userId,
             int score,
@@ -36,7 +35,7 @@ public class ScoreController {
             String grade,
             LocalDateTime date
     ) {
-        InsertScoreRequest requestData = new InsertScoreRequest(id, beatmapId, userId, score, highestCombo, accuracy,
+        InsertScoreRequest requestData = new InsertScoreRequest(beatmapId, userId, score, highestCombo, accuracy,
                 perfectHit, gekiHit, greatHit, katuHit, goodHit, miss, grade, date);
 
         RequestMessage request = new RequestMessage(MessageType.SCORE, MessageAction.INSERT_SCORE, requestData);

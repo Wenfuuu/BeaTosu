@@ -19,7 +19,6 @@ public class ScoreService {
 
         try {
             scoreRepository.insertScore(
-                    1,
                     request.getBeatmapId(),
                     request.getUserId(),
                     request.getScore(),

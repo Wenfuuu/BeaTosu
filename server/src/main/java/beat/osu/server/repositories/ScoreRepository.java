@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class ScoreRepository {
     private final Connection conn;
@@ -18,7 +19,6 @@ public class ScoreRepository {
     }
 
     public void insertScore(
-            int id,
             int beatmapId,
             int userId,
             int score,
@@ -38,7 +38,7 @@ public class ScoreRepository {
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
         try {
             PreparedStatement statement = conn.prepareStatement(query);
-            statement.setInt(1, id);
+            statement.setString(1, UUID.randomUUID().toString());
             statement.setInt(2, beatmapId);
             statement.setInt(3, userId);
             statement.setInt(4, score);
@@ -67,7 +67,7 @@ public class ScoreRepository {
             var rs = statement.executeQuery();
             while (rs.next()) {
                 Score score = new Score(
-                        rs.getInt("id"),
+                        rs.getString("id"),
                         rs.getInt("beatmap_id"),
                         rs.getInt("user_id"),
                         rs.getInt("score"),

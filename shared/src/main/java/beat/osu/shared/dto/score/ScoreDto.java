@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ScoreDto {
-    private int id;
+    private String id;
     private int beatmapId;
     private int userId;
     private int score;

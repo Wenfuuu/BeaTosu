@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InsertScoreRequest implements Serializable {
-    private int id;
     private int beatmapId;
     private int userId;
     private int score;
