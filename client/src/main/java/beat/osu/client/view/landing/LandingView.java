@@ -241,6 +241,8 @@ public class LandingView extends Page {
         playlistModalComponent = new PlaylistModal();
 
         jukeboxComponent = new Jukebox(playlistModalComponent);
+
+        BgmManager.getInstance().addListener(visualizerComponent);
         BgmManager.getInstance().addListener(jukeboxComponent);
 
         banchoButtons = new BanchoButtons();

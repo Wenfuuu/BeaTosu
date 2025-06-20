@@ -1,7 +1,10 @@
 package beat.osu.client.view.landing.component.ui;
 
 import beat.osu.client.Main;
+import beat.osu.client.events.song.SongChangeEvent;
+import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.interfaces.song.SongEventListener;
 import javafx.scene.CacheHint;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
@@ -16,7 +19,7 @@ import lombok.Getter;
 import java.net.URL;
 import java.util.Objects;
 
-public class Visualizer extends StackPane {
+public class Visualizer extends StackPane implements SongEventListener {
 
     @Getter
     private StackPane logoContainer;
@@ -156,5 +159,10 @@ public class Visualizer extends StackPane {
                     lightRays.pulseWithAudio(currentScaleFactor - 1.0);
             }
         });
+    }
+
+    @Override
+    public void update(SongChangeEvent event) {
+        setupAudioVisualization(BgmManager.getInstance().getCurrentPlayer());
     }
 }
