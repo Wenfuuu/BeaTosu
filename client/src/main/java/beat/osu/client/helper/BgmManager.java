@@ -1,17 +1,5 @@
 package beat.osu.client.helper;
 
-import beat.osu.client.events.song.SongChangeEvent;
-import beat.osu.client.interfaces.song.SongEventListener;
-import beat.osu.client.interfaces.song.SongEventPublisher;
-import beat.osu.client.model.Beatmap;
-import beat.osu.client.model.BeatmapSet;
-import beat.osu.client.model.Song;
-import beat.osu.client.utils.OsuParser;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javafx.util.Duration;
-import lombok.Getter;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -19,6 +7,20 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.List;
+
+import beat.osu.client.events.song.SongChangeEvent;
+import beat.osu.client.interfaces.song.SongEventListener;
+import beat.osu.client.interfaces.song.SongEventPublisher;
+import beat.osu.client.model.Beatmap;
+import beat.osu.client.model.BeatmapSet;
+import beat.osu.client.model.Song;
+import beat.osu.client.utils.BeatmapUtils;
+import beat.osu.client.utils.OsuParser;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.util.Duration;
+import lombok.Getter;
 
 @Getter
 public class BgmManager implements SongEventPublisher {
@@ -29,8 +31,17 @@ public class BgmManager implements SongEventPublisher {
     private MediaPlayer currentPlayer;
     private final ArrayList<SongEventListener> listeners;
 
+    @Getter
+    private List<Song> playlist;
+    @Getter
+    private int currentSongIndex = -1;
+    @Getter
+    private Song currentSong;
+
     private BgmManager() {
         listeners = new ArrayList<>();
+        playlist = new ArrayList<>();
+        initializePlaylist();
     }
 
     public static BgmManager getInstance() {
@@ -115,7 +126,9 @@ public class BgmManager implements SongEventPublisher {
         currentPlayer = new MediaPlayer(media);
 
         BeatmapSet beatmapSet = beatmap.getBeatmapSet();
-        sendSongChangeEventFromBeatmapSet(beatmapSet);
+        String audioPath = ResourceManager.getBeatmapSetAudioPath(beatmapSet.getBeatmapSetId());
+        Song song = new Song(beatmapSet.getBeatmapSetId(), beatmapSet.getTitle(), beatmapSet.getArtist(), audioPath);
+        playSong(song);
 
         currentPlayer.setOnReady(() -> {
             Duration previewTime = new Duration(OsuParser.getPreviewTime());
@@ -150,7 +163,9 @@ public class BgmManager implements SongEventPublisher {
         currentPlayer.setAutoPlay(false);
 
         BeatmapSet beatmapSet = beatmap.getBeatmapSet();
-        sendSongChangeEventFromBeatmapSet(beatmapSet);
+        String audioPath = ResourceManager.getBeatmapSetAudioPath(beatmapSet.getBeatmapSetId());
+        Song song = new Song(beatmapSet.getBeatmapSetId(), beatmapSet.getTitle(), beatmapSet.getArtist(), audioPath);
+        playSong(song);
 
         currentPlayer.setOnError(() -> {
             System.err.println("MediaPlayer error: " + currentPlayer.getError());
@@ -187,9 +202,63 @@ public class BgmManager implements SongEventPublisher {
         }
     }
 
+    private void initializePlaylist() {
+        try {
+            playlist.clear();
+            playlist.addAll(BeatmapUtils.getBeatmapSongs());
+            System.out.println("Initialized playlist with " + playlist.size() + " songs");
+        } catch (Exception e) {
+            System.err.println("Failed to initialize playlist: " + e.getMessage());
+        }
+    }
+
+    public void refreshPlaylist() {
+        initializePlaylist();
+        if (currentSongIndex >= playlist.size()) {
+            currentSongIndex = -1;
+            currentSong = null;
+        }
+    }
+
+    public void playNextSong() {
+        if (playlist.isEmpty()) {
+            refreshPlaylist();
+            if (playlist.isEmpty()) {
+                System.err.println("No songs available in playlist");
+                return;
+            }
+        }
+
+        currentSongIndex = (currentSongIndex + 1) % playlist.size();
+        currentSong = playlist.get(currentSongIndex);
+        playSong(currentSong);
+    }
+
+    public void playPreviousSong() {
+        if (playlist.isEmpty()) {
+            refreshPlaylist();
+            if (playlist.isEmpty()) {
+                System.err.println("No songs available in playlist");
+                return;
+            }
+        }
+
+        currentSongIndex = (currentSongIndex - 1 + playlist.size()) % playlist.size();
+        currentSong = playlist.get(currentSongIndex);
+        playSong(currentSong);
+    }
+
     public void playSong(Song song) {
         File songFile = new File(song.getAudioPath());
         playBgm(songFile);
+
+        currentSong = song;
+        for (int i = 0; i < playlist.size(); i++) {
+            if (playlist.get(i).getId() == song.getId()) {
+                currentSongIndex = i;
+                break;
+            }
+        }
 
         notifyListeners(new SongChangeEvent(song));
     }
@@ -222,13 +291,6 @@ public class BgmManager implements SongEventPublisher {
 
     public boolean isPlaying() {
         return currentPlayer != null && currentPlayer.getStatus() == MediaPlayer.Status.PLAYING;
-    }
-
-    private void sendSongChangeEventFromBeatmapSet(BeatmapSet beatmapSet) {
-        String audioPath = ResourceManager.getBeatmapSetAudioPath(beatmapSet.getBeatmapSetId());
-        Song song = new Song(beatmapSet.getBeatmapSetId(), beatmapSet.getTitle(), beatmapSet.getArtist(), audioPath);
-        SongChangeEvent songChangeEvent = new SongChangeEvent(song);
-        notifyListeners(songChangeEvent);
     }
 
     @Override

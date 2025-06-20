@@ -4,11 +4,11 @@ import java.net.URL;
 
 import beat.osu.client.Main;
 import beat.osu.client.events.song.SongChangeEvent;
+import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.interfaces.song.SongEventListener;
 import beat.osu.client.model.Song;
-import beat.osu.client.utils.BeatmapUtils;
 import beat.osu.client.view.landing.component.ui.PlaylistContent;
 import beat.osu.client.view.landing.component.ui.PlaylistItem;
 import javafx.animation.FadeTransition;
@@ -28,7 +28,7 @@ public class PlaylistModal extends StackPane implements SongEventListener {
 
     private VBox contentContainer;
     private PlaylistContent playlistContent;
-    private VBox playlistItemsContainer; // Store reference to the container
+    private VBox playlistItemsContainer;
     @Getter
     private PlaylistItem selectedItem;
 
@@ -105,7 +105,7 @@ public class PlaylistModal extends StackPane implements SongEventListener {
         playlistItemsContainer = new VBox();
         playlistItemsContainer.getStyleClass().add("playlist-items-container");
 
-        for (Song song : BeatmapUtils.getBeatmapSongs()) {
+        for (Song song : BgmManager.getInstance().getPlaylist()) {
             PlaylistItem playlistItem = new PlaylistItem(song);
             playlistItem.setSelectionCallback(this::onItemSelected);
             playlistItemsContainer.getChildren().add(playlistItem);
@@ -121,10 +121,6 @@ public class PlaylistModal extends StackPane implements SongEventListener {
         
         selectedItem = newSelection;
         selectedItem.setSelected(true);
-    }
-
-    public void refreshPlaylist() {
-        populatePlaylist();
     }
 
     public void hide() {
@@ -152,12 +148,44 @@ public class PlaylistModal extends StackPane implements SongEventListener {
         Song eventSong = event.getSong();
         if (eventSong == null || playlistItemsContainer == null) return;
         
+        // Get the current song index from BgmManager for more efficient lookup
+        int currentIndex = BgmManager.getInstance().getCurrentSongIndex();
+        int playlistSize = playlistItemsContainer.getChildren().size();
+        
+        System.out.println("DEBUG PlaylistModal.update:");
+        System.out.println("  Event song: " + eventSong.getArtist() + " - " + eventSong.getTitle() + " (ID: " + eventSong.getId() + ")");
+        System.out.println("  Current index from BgmManager: " + currentIndex);
+        System.out.println("  Playlist container size: " + playlistSize);
+        
+        // If we have a valid index, use it for direct access
+        if (currentIndex >= 0 && currentIndex < playlistSize) {
+            Object node = playlistItemsContainer.getChildren().get(currentIndex);
+            if (node instanceof PlaylistItem) {
+                PlaylistItem playlistItem = (PlaylistItem) node;
+                Song itemSong = playlistItem.getSong();
+                System.out.println("  Song at index " + currentIndex + ": " + itemSong.getArtist() + " - " + itemSong.getTitle() + " (ID: " + itemSong.getId() + ")");
+                
+                if (itemSong.getId() == eventSong.getId()) {
+                    System.out.println("  ✓ Direct access MATCH! Selecting item at index " + currentIndex);
+                    onItemSelected(playlistItem);
+                    return;
+                } else {
+                    System.out.println("  ✗ Direct access MISMATCH! Expected ID " + eventSong.getId() + " but found " + itemSong.getId());
+                }
+            }
+        } else {
+            System.out.println("  ✗ Invalid index: " + currentIndex + " (size: " + playlistSize + ")");
+        }
+        
+        System.out.println("  Falling back to full search...");
+        // Fallback to searching through all items if direct access fails
         for (Object node : playlistItemsContainer.getChildren()) {
             if (node instanceof PlaylistItem) {
                 PlaylistItem playlistItem = (PlaylistItem) node;
                 Song itemSong = playlistItem.getSong();
                 
                 if (itemSong != null && eventSong.getId() == itemSong.getId()) {
+                    System.out.println("  ✓ Fallback search found match!");
                     onItemSelected(playlistItem);
                     break;
                 }
