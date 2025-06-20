@@ -11,11 +11,14 @@ import beat.osu.client.interfaces.game.GameEventListener;
 import beat.osu.client.interfaces.game.GameEventPublisher;
 import beat.osu.client.model.*;
 import beat.osu.client.utils.OsuParser;
+import beat.osu.client.utils.ReplayUtils;
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
 import lombok.Getter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -194,6 +197,19 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         notifyListeners(new GameEvent(GameEventType.GAME_ENDED, new GameEndData(
                 score, perfectHits, gekiHits, greatHits, greatKatuHits, goodHits,
                 misses, highestCombo, accuracy, grade)));
+
+        String userName = AuthManager.isAuthenticated() ? AuthManager.getUser().getUsername() : "Guest";
+        if(userName.equals("Guest")) return;
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        String formatted = now.format(formatter);
+        String osrFileName = String.format("%s-%s-%s.osr",
+                userName, beatmap.getBeatmapId(), formatted.replace("/", "-").replace(":", "-"));
+        try {
+            ReplayUtils.saveReplay(replayEvents, osrFileName);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void failGame() {

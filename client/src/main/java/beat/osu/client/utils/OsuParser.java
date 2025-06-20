@@ -146,7 +146,7 @@ public class OsuParser {
         String removeSlash = removeBackslash.replace("/", "");
         String version = beatmap.getVersion().replace("?", "");
         String osuPath = String.format("%s - %s (%s) [%s].osu",
-                beatmap.getBeatmapSet().getArtist(),
+                beatmap.getBeatmapSet().getArtist().replace(":", ""),
                 removeSlash,
                 beatmap.getBeatmapSet().getCreator(),
                 version);
