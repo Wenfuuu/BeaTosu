@@ -1,11 +1,6 @@
 package beat.osu.server.router;
 
-import beat.osu.server.service.AuthService;
-import beat.osu.server.service.BeatmapService;
-import beat.osu.server.service.ChannelService;
-import beat.osu.server.service.MatchService;
-import beat.osu.server.service.PrivateChatService;
-import beat.osu.server.service.SystemService;
+import beat.osu.server.service.*;
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.auth.requests.LoginRequest;
@@ -29,6 +24,7 @@ public class MessageRouter {
     private final SystemService systemService;
     private final AuthService authService;
     private final BeatmapService beatmapService;
+    private final ScoreService scoreService;
     private final ChannelService channelService;
     private final PrivateChatService privateChatService;
     private final MatchService matchService;
