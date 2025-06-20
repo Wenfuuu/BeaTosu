@@ -13,6 +13,7 @@ import beat.osu.client.view.shared.common.Page;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.scene.Cursor;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -47,6 +48,7 @@ public class ReplayView extends Page implements GameEventListener {
     private final GameEndData gameEndData;
 
     private Image[] digitImages;
+    private ImageView cursorImage;
 
     public ReplayView(Stage stage, Beatmap selectedBeatmap,
                       ArrayList<ReplayEventData> replayEvents,
@@ -81,6 +83,10 @@ public class ReplayView extends Page implements GameEventListener {
 
         uiPane = new GameUI();
         pauseOverlay = new PauseOverlay();
+        cursorImage = new ImageView(new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/images/cursor.png")).toExternalForm(),
+                32, 32, true, true));
+
         createReplayPane();
 
         root.getChildren().addAll(replayPane, uiPane, pauseOverlay);
@@ -93,6 +99,7 @@ public class ReplayView extends Page implements GameEventListener {
             // gamePane.getChildren().add(hitObject.getNode());
             replayPane.getChildren().add(0, hitObject.getNode());
         }
+        replayPane.getChildren().add(cursorImage);
     }
 
     private void handleEvent() {
@@ -531,6 +538,16 @@ public class ReplayView extends Page implements GameEventListener {
                 break;
             case REPLAY_ENDED:
                 ViewManager.getInstance().showHomeView();
+                break;
+            case CURSOR_MOVED:
+                System.out.println("Cursor moved");
+                CursorPositionData cursorData = event.getData(CursorPositionData.class);
+                if (cursorData != null) {
+                    double cursorX = cursorData.getX();
+                    double cursorY = cursorData.getY();
+                    cursorImage.setLayoutX(cursorX - cursorImage.getFitWidth() / 2);
+                    cursorImage.setLayoutY(cursorY - cursorImage.getFitHeight() / 2);
+                }
                 break;
         }
     }

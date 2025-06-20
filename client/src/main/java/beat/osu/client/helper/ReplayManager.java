@@ -66,6 +66,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     public void updateMousePosition(double x, double y) {
         this.currentMouseX = x;
         this.currentMouseY = y;
+        notifyListeners(new GameEvent(GameEventType.CURSOR_MOVED, new CursorPositionData(currentMouseX, currentMouseY)));
     }
 
     private void pauseAllAnimations() {
