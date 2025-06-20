@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class InputOverlayData {
-    private boolean key1Pressed;
-    private boolean key2Pressed;
+public class ComboChangeEvent {
+    private int combo;
+    private boolean comboBreak;
 }

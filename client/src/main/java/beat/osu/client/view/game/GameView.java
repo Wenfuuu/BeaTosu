@@ -52,7 +52,7 @@ public class GameView extends Page implements GameEventListener {
 
     private final Beatmap beatmap;
     private final GameManager gm;
-    private GameEndData gameEndData;
+    private GameEndEvent gameEndEvent;
 
     // additional spins
     private Image[] digitImages;
@@ -127,7 +127,7 @@ public class GameView extends Page implements GameEventListener {
         });
 
         resultOverlay.getReplayButton().setOnMouseClicked(e -> {
-            ViewManager.getInstance().showReplayView(beatmap, gm.getReplayEvents(), gameEndData);
+            ViewManager.getInstance().showReplayView(beatmap, gm.getReplayEvents(), gameEndEvent);
         });
 
         resultOverlay.getBackButton().setOnMouseClicked(e -> {
@@ -519,19 +519,19 @@ public class GameView extends Page implements GameEventListener {
                 }
                 break;
             case COMBO_CHANGED:
-                ComboChangeData comboChangeData = event.getData(ComboChangeData.class);
-                if (comboChangeData != null) {
-                    uiPane.updateCombo(comboChangeData.getCombo());
+                ComboChangeEvent comboChangeEvent = event.getData(ComboChangeEvent.class);
+                if (comboChangeEvent != null) {
+                    uiPane.updateCombo(comboChangeEvent.getCombo());
                 }
                 break;
             case SCORE_CHANGED:
-                ScoreChangeData scoreChangeData = event.getData(ScoreChangeData.class);
-                if (scoreChangeData != null) {
-                    uiPane.updateScore(scoreChangeData.getScore());
+                ScoreChangeEvent scoreChangeEvent = event.getData(ScoreChangeEvent.class);
+                if (scoreChangeEvent != null) {
+                    uiPane.updateScore(scoreChangeEvent.getScore());
                 }
                 break;
             case HIT_OBJECT_MISSED:
-                HitObjectEventData hitObjectData = event.getData(HitObjectEventData.class);
+                HitObjectEvent hitObjectData = event.getData(HitObjectEvent.class);
                 if (hitObjectData != null) {
                     HitObject hitObject = hitObjectData.getHitObject();
                     if (hitObject != null) {
@@ -546,7 +546,7 @@ public class GameView extends Page implements GameEventListener {
                 }
                 break;
             case HIT_OBJECT_HIT:
-                HitObjectEventData hitData = event.getData(HitObjectEventData.class);
+                HitObjectEvent hitData = event.getData(HitObjectEvent.class);
                 if (hitData != null) {
                     HitObject hitObject = hitData.getHitObject();
                     HitResult hitResult = hitData.getHitResult();
@@ -558,7 +558,7 @@ public class GameView extends Page implements GameEventListener {
                 }
                 break;
             case ADDITIONAL_SPIN:
-                AdditionalSpinEventData additionalSpinData = event.getData(AdditionalSpinEventData.class);
+                AdditionalSpinEvent additionalSpinData = event.getData(AdditionalSpinEvent.class);
                 if (additionalSpinData != null) {
                     HitObject hitObject = additionalSpinData.getHitObject();
                     int additionalSpins = additionalSpinData.getAdditionalSpin();
@@ -568,7 +568,7 @@ public class GameView extends Page implements GameEventListener {
                 }
                 break;
             case INPUT_OVERLAY_CHANGED:
-                InputOverlayData inputData = event.getData(InputOverlayData.class);
+                InputOverlayEvent inputData = event.getData(InputOverlayEvent.class);
                 if (inputData != null) {
                     uiPane.updateInputOverlay(inputData.isKey1Pressed(), inputData.isKey2Pressed());
                 }
@@ -586,9 +586,9 @@ public class GameView extends Page implements GameEventListener {
                 break;
             case GAME_ENDED:
                 System.out.println("game ended, show result overlay here");
-                this.gameEndData = event.getData(GameEndData.class);
-                if (gameEndData != null) {
-                    resultOverlay.updateResult(gameEndData, beatmap);
+                this.gameEndEvent = event.getData(GameEndEvent.class);
+                if (gameEndEvent != null) {
+                    resultOverlay.updateResult(gameEndEvent, beatmap);
                 }
                 // uiPane.setVisible(false);
                 uiPane.getHideTransition().play();

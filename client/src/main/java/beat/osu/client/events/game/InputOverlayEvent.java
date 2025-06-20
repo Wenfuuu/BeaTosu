@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ScoreChangeData {
-    private int score;
-    private int scoreIncrease;
+public class InputOverlayEvent {
+    private boolean key1Pressed;
+    private boolean key2Pressed;
 }

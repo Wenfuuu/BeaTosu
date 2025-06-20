@@ -33,7 +33,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     private long lastHpDrainMillis = 0;
     private ReplayState replayState = ReplayState.NOT_STARTED;
     private boolean bgmStarted = false;
-    private final ArrayList<ReplayEventData> replayEvents;
+    private final ArrayList<ReplayEvent> replayEvents;
     private final InputManager inputManager;
 
     private double currentMouseX;
@@ -66,7 +66,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     public void updateMousePosition(double x, double y) {
         this.currentMouseX = x;
         this.currentMouseY = y;
-        notifyListeners(new GameEvent(GameEventType.CURSOR_MOVED, new CursorPositionData(currentMouseX, currentMouseY)));
+        notifyListeners(new GameEvent(GameEventType.CURSOR_MOVED, new CursorMoveEvent(currentMouseX, currentMouseY)));
     }
 
     private void pauseAllAnimations() {
@@ -229,7 +229,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
         while (currentReplayEventIndex < replayEvents.size()) {
             System.out.println("current replay event index: " + currentReplayEventIndex);
             System.out.println("accumulated replay time: " + accumulatedReplayTime);
-            ReplayEventData event = replayEvents.get(currentReplayEventIndex);
+            ReplayEvent event = replayEvents.get(currentReplayEventIndex);
 
             if (accumulatedReplayTime > elapsedMillis) {
                 break;
@@ -424,11 +424,11 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
 
         // Notify observers
         notifyListeners(new GameEvent(GameEventType.SCORE_CHANGED,
-                new ScoreChangeData(score, hitScore)));
+                new ScoreChangeEvent(score, hitScore)));
         notifyListeners(new GameEvent(GameEventType.COMBO_CHANGED,
-                new ComboChangeData(masterComboNumber, false)));
+                new ComboChangeEvent(masterComboNumber, false)));
         notifyListeners(new GameEvent(GameEventType.HIT_OBJECT_HIT,
-                new HitObjectEventData(hitObject, hitResult,
+                new HitObjectEvent(hitObject, hitResult,
                         perfectCombo, imperfectOrMissed)));
         notifyListeners(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
         notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
@@ -459,9 +459,9 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
 
         // Notify observers
         notifyListeners(new GameEvent(GameEventType.COMBO_CHANGED,
-                new ComboChangeData(masterComboNumber, oldCombo > 0)));
+                new ComboChangeEvent(masterComboNumber, oldCombo > 0)));
         notifyListeners(new GameEvent(GameEventType.HIT_OBJECT_MISSED,
-                new HitObjectEventData(hitObject, HitResult.MISS,
+                new HitObjectEvent(hitObject, HitResult.MISS,
                         false, true)));
         notifyListeners(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
         notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
@@ -533,7 +533,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
         hitObjects.add(newHitObject);
     }
 
-    public ReplayManager(Beatmap beatmap, ArrayList<ReplayEventData> replayEvents,
+    public ReplayManager(Beatmap beatmap, ArrayList<ReplayEvent> replayEvents,
             InputManager inputManager) {
         this.beatmap = beatmap;
         this.hitObjects = new ArrayList<>();
@@ -573,7 +573,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     @Override
     public void onAdditionalSpin(HitObject hitObject, int additionalSpin) {
         notifyListeners(new GameEvent(GameEventType.ADDITIONAL_SPIN,
-                new AdditionalSpinEventData(hitObject, additionalSpin)));
+                new AdditionalSpinEvent(hitObject, additionalSpin)));
     }
 
     @Override

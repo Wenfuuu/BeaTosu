@@ -1,7 +1,7 @@
 package beat.osu.client.helper;
 
-import beat.osu.client.events.game.GameEndData;
-import beat.osu.client.events.game.ReplayEventData;
+import beat.osu.client.events.game.GameEndEvent;
+import beat.osu.client.events.game.ReplayEvent;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.view.lobby.LobbyView;
 import beat.osu.client.view.replay.ReplayView;
@@ -64,10 +64,10 @@ public class ViewManager {
     }
 
     public void showReplayView(Beatmap beatmap,
-                                      ArrayList<ReplayEventData> replayEvents,
-                                      GameEndData gameEndData) {
+                                      ArrayList<ReplayEvent> replayEvents,
+                                      GameEndEvent gameEndEvent) {
         ReplayView replayView = new ReplayView(primaryStage, beatmap,
-                replayEvents, gameEndData);
+                replayEvents, gameEndEvent);
         sceneManager.transitionToPage(replayView);
     }
 

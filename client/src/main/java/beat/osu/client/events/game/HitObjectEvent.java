@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class HitObjectEventData {
+public class HitObjectEvent {
     private HitObject hitObject;
     private HitResult hitResult;
     private boolean perfectCombo;

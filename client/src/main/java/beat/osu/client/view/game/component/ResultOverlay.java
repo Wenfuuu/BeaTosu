@@ -2,7 +2,7 @@ package beat.osu.client.view.game.component;
 
 import beat.osu.client.Main;
 import beat.osu.client.factory.ButtonFactory;
-import beat.osu.client.events.game.GameEndData;
+import beat.osu.client.events.game.GameEndEvent;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.model.Beatmap;
@@ -198,7 +198,7 @@ public class ResultOverlay extends BorderPane {
         showTransition.setToValue(1);
     }
 
-    public void updateResult(GameEndData gameEndData, Beatmap beatmap) {
+    public void updateResult(GameEndEvent gameEndEvent, Beatmap beatmap) {
         String songTitle = String.format("%s - %s [%s]",
                 beatmap.getBeatmapSet().getArtist(), beatmap.getBeatmapSet().getTitle(), beatmap.getVersion());
         songTitleLabel.setText(songTitle);
@@ -210,14 +210,14 @@ public class ResultOverlay extends BorderPane {
         String userName = AuthManager.isAuthenticated() ? AuthManager.getUser().getUsername() : "Guest";
         playedLabel.setText("Played by " + userName + " on " + formatted + ".");
 
-        updateScore(gameEndData.getScore());
-        updateCombo(gameEndData.getHighestCombo());
-        updateAccuracy(gameEndData.getAccuracy());
-        updateGrade(gameEndData.getGrade());
+        updateScore(gameEndEvent.getScore());
+        updateCombo(gameEndEvent.getHighestCombo());
+        updateAccuracy(gameEndEvent.getAccuracy());
+        updateGrade(gameEndEvent.getGrade());
 
-        updateHitCounts(gameEndData.getPerfectHits(), gameEndData.getGekiHits(),
-                gameEndData.getGreatHits(), gameEndData.getKatuHits(),
-                gameEndData.getGoodHits(), gameEndData.getMisses());
+        updateHitCounts(gameEndEvent.getPerfectHits(), gameEndEvent.getGekiHits(),
+                gameEndEvent.getGreatHits(), gameEndEvent.getKatuHits(),
+                gameEndEvent.getGoodHits(), gameEndEvent.getMisses());
     }
 
     private void updateScore(long score) {

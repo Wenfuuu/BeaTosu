@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ReplayEventData {
+public class ReplayEvent {
     private long timeDelta;
     private double x;
     private double y;

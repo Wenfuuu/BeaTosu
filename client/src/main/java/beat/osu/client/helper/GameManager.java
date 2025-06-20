@@ -44,7 +44,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
     // Replay event storage
     @Getter
-    private final ArrayList<ReplayEventData> replayEvents = new ArrayList<>();
+    private final ArrayList<ReplayEvent> replayEvents = new ArrayList<>();
     private long lastReplayEventTime = -1;
 
     private int masterComboNumber = 0;
@@ -158,7 +158,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private void pauseGame() {
         System.out.println("pausing game");
 
-        for (ReplayEventData event : replayEvents) {
+        for (ReplayEvent event : replayEvents) {
             System.out.println("ReplayEventOsu(time_delta=" + event.getTimeDelta() +
                     ", x=" + event.getX() + ", y=" + event.getY() +
                     ", keys=" + event.getKeyMask() + ")");
@@ -194,7 +194,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         String grade = calculateGrade();
         System.out.println("Game ended with grade: " + grade);
 
-        notifyListeners(new GameEvent(GameEventType.GAME_ENDED, new GameEndData(
+        notifyListeners(new GameEvent(GameEventType.GAME_ENDED, new GameEndEvent(
                 score, perfectHits, gekiHits, greatHits, greatKatuHits, goodHits,
                 misses, highestCombo, accuracy, grade)));
 
@@ -321,7 +321,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         boolean key1IsPressed = currentKeys.contains(InputManager.getKeybind1());
         boolean key2IsPressed = currentKeys.contains(InputManager.getKeybind2());
         notifyListeners(new GameEvent(GameEventType.INPUT_OVERLAY_CHANGED,
-                new InputOverlayData(key1IsPressed, key2IsPressed)));
+                new InputOverlayEvent(key1IsPressed, key2IsPressed)));
 
         previousKeys.clear();
         previousKeys.addAll(currentKeys);
@@ -352,7 +352,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         }
 
         // Create and store replay event
-        ReplayEventData replayEvent = new ReplayEventData(timeDelta, currentMouseX, currentMouseY, keyMask);
+        ReplayEvent replayEvent = new ReplayEvent(timeDelta, currentMouseX, currentMouseY, keyMask);
         replayEvents.add(replayEvent);
 
         // Update last event time for next delta calculation
@@ -522,11 +522,11 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         // Notify observers
         notifyListeners(new GameEvent(GameEventType.SCORE_CHANGED,
-                new ScoreChangeData(score, hitScore)));
+                new ScoreChangeEvent(score, hitScore)));
         notifyListeners(new GameEvent(GameEventType.COMBO_CHANGED,
-                new ComboChangeData(masterComboNumber, false)));
+                new ComboChangeEvent(masterComboNumber, false)));
         notifyListeners(new GameEvent(GameEventType.HIT_OBJECT_HIT,
-                new HitObjectEventData(hitObject, hitResult,
+                new HitObjectEvent(hitObject, hitResult,
                         perfectCombo, imperfectOrMissed)));
         notifyListeners(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
         notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
@@ -556,9 +556,9 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         // Notify observers
         notifyListeners(new GameEvent(GameEventType.COMBO_CHANGED,
-                new ComboChangeData(masterComboNumber, oldCombo > 0)));
+                new ComboChangeEvent(masterComboNumber, oldCombo > 0)));
         notifyListeners(new GameEvent(GameEventType.HIT_OBJECT_MISSED,
-                new HitObjectEventData(hitObject, HitResult.MISS,
+                new HitObjectEvent(hitObject, HitResult.MISS,
                         false, true)));
         notifyListeners(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
         notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
@@ -671,7 +671,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     @Override
     public void onAdditionalSpin(HitObject hitObject, int additionalSpin) {
         notifyListeners(new GameEvent(GameEventType.ADDITIONAL_SPIN,
-                new AdditionalSpinEventData(hitObject, additionalSpin)));
+                new AdditionalSpinEvent(hitObject, additionalSpin)));
     }
 
     @Override

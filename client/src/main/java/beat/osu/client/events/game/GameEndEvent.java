@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class GameEndData {
+public class GameEndEvent {
     private int score;
     private int perfectHits;
     private int gekiHits;

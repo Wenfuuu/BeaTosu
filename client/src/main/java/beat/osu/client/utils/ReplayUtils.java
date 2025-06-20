@@ -1,6 +1,6 @@
 package beat.osu.client.utils;
 
-import beat.osu.client.events.game.ReplayEventData;
+import beat.osu.client.events.game.ReplayEvent;
 import beat.osu.client.helper.ResourceManager;
 
 import java.io.*;
@@ -8,12 +8,12 @@ import java.util.ArrayList;
 
 public class ReplayUtils {
 
-    public static void saveReplay(ArrayList<ReplayEventData> replayEvents,
+    public static void saveReplay(ArrayList<ReplayEvent> replayEvents,
                                   String osrFileName) throws IOException {
         File replayDir = ResourceManager.getReplayDirectory();
         File osrFile = new File(replayDir, osrFileName);
         FileWriter fw = new FileWriter(osrFile);
-        for (ReplayEventData event : replayEvents) {
+        for (ReplayEvent event : replayEvents) {
             // save in file with this format
             String line = "ReplayEventOsu(time_delta=" + event.getTimeDelta() +
                     ", x=" + event.getX() + ", y=" + event.getY() +
@@ -23,10 +23,10 @@ public class ReplayUtils {
         fw.close();
     }
 
-    public static ArrayList<ReplayEventData> loadReplay(String osrFileName) throws IOException {
+    public static ArrayList<ReplayEvent> loadReplay(String osrFileName) throws IOException {
         File replayDir = ResourceManager.getReplayDirectory();
         File osrFile = new File(replayDir, osrFileName);
-        ArrayList<ReplayEventData> replayEvents = new ArrayList<>();
+        ArrayList<ReplayEvent> replayEvents = new ArrayList<>();
 
         if (!osrFile.exists()) {
             throw new IOException("Replay file not found: " + osrFileName);
@@ -41,7 +41,7 @@ public class ReplayUtils {
             int y = Integer.parseInt(parts[2].split("=")[1]);
             int keyMask = Integer.parseInt(parts[3].split("=")[1].replace(")", ""));
 
-            ReplayEventData event = new ReplayEventData(timeDelta, x, y, keyMask);
+            ReplayEvent event = new ReplayEvent(timeDelta, x, y, keyMask);
             replayEvents.add(event);
         }
 

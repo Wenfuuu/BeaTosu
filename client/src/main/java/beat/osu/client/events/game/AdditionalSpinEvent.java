@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class AdditionalSpinEventData {
+public class AdditionalSpinEvent {
     private HitObject hitObject;
     private int additionalSpin;
 }

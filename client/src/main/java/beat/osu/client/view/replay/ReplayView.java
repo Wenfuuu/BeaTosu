@@ -42,23 +42,23 @@ public class ReplayView extends Page implements GameEventListener {
     private PauseOverlay pauseOverlay;
 
     private Beatmap beatmap;
-    private ArrayList<ReplayEventData> replayEvents;
+    private ArrayList<ReplayEvent> replayEvents;
     private final ReplayManager rm;
-    private final GameEndData gameEndData;
+    private final GameEndEvent gameEndEvent;
 
     private Image[] digitImages;
     private ImageView cursorImage;
 
     public ReplayView(Stage stage, Beatmap selectedBeatmap,
-                      ArrayList<ReplayEventData> replayEvents,
-                      GameEndData gameEndData) {
+                      ArrayList<ReplayEvent> replayEvents,
+                      GameEndEvent gameEndEvent) {
         super(stage);
         this.beatmap = selectedBeatmap;
         this.circleSize = selectedBeatmap.getCircleSize();
         this.replayEvents = replayEvents;
         this.rm = new ReplayManager(selectedBeatmap, replayEvents, inputManager);
         this.rm.addListener(this);
-        this.gameEndData = gameEndData;
+        this.gameEndEvent = gameEndEvent;
 
         ChangeListener<Number> resizeListener = (obs, oldVal, newVal) -> updateLayout();
         root.widthProperty().addListener(resizeListener);
@@ -109,7 +109,7 @@ public class ReplayView extends Page implements GameEventListener {
 
         pauseOverlay.getRetryButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
-            ViewManager.getInstance().showReplayView(beatmap, replayEvents, gameEndData);
+            ViewManager.getInstance().showReplayView(beatmap, replayEvents, gameEndEvent);
         });
 
         pauseOverlay.getLeaveButton().setOnMouseClicked(e -> {
@@ -470,19 +470,19 @@ public class ReplayView extends Page implements GameEventListener {
                 }
                 break;
             case COMBO_CHANGED:
-                ComboChangeData comboChangeData = event.getData(ComboChangeData.class);
-                if (comboChangeData != null) {
-                    uiPane.updateCombo(comboChangeData.getCombo());
+                ComboChangeEvent comboChangeEvent = event.getData(ComboChangeEvent.class);
+                if (comboChangeEvent != null) {
+                    uiPane.updateCombo(comboChangeEvent.getCombo());
                 }
                 break;
             case SCORE_CHANGED:
-                ScoreChangeData scoreChangeData = event.getData(ScoreChangeData.class);
-                if (scoreChangeData != null) {
-                    uiPane.updateScore(scoreChangeData.getScore());
+                ScoreChangeEvent scoreChangeEvent = event.getData(ScoreChangeEvent.class);
+                if (scoreChangeEvent != null) {
+                    uiPane.updateScore(scoreChangeEvent.getScore());
                 }
                 break;
             case HIT_OBJECT_MISSED:
-                HitObjectEventData hitObjectData = event.getData(HitObjectEventData.class);
+                HitObjectEvent hitObjectData = event.getData(HitObjectEvent.class);
                 if (hitObjectData != null) {
                     HitObject hitObject = hitObjectData.getHitObject();
                     if (hitObject != null) {
@@ -497,7 +497,7 @@ public class ReplayView extends Page implements GameEventListener {
                 }
                 break;
             case HIT_OBJECT_HIT:
-                HitObjectEventData hitData = event.getData(HitObjectEventData.class);
+                HitObjectEvent hitData = event.getData(HitObjectEvent.class);
                 if (hitData != null) {
                     HitObject hitObject = hitData.getHitObject();
                     HitResult hitResult = hitData.getHitResult();
@@ -509,7 +509,7 @@ public class ReplayView extends Page implements GameEventListener {
                 }
                 break;
             case ADDITIONAL_SPIN:
-                AdditionalSpinEventData additionalSpinData = event.getData(AdditionalSpinEventData.class);
+                AdditionalSpinEvent additionalSpinData = event.getData(AdditionalSpinEvent.class);
                 if (additionalSpinData != null) {
                     HitObject hitObject = additionalSpinData.getHitObject();
                     int additionalSpins = additionalSpinData.getAdditionalSpin();
@@ -519,7 +519,7 @@ public class ReplayView extends Page implements GameEventListener {
                 }
                 break;
             case INPUT_OVERLAY_CHANGED:
-                InputOverlayData inputData = event.getData(InputOverlayData.class);
+                InputOverlayEvent inputData = event.getData(InputOverlayEvent.class);
                 if (inputData != null) {
                     uiPane.updateInputOverlay(inputData.isKey1Pressed(), inputData.isKey2Pressed());
                 }
@@ -540,7 +540,7 @@ public class ReplayView extends Page implements GameEventListener {
                 break;
             case CURSOR_MOVED:
                 System.out.println("Cursor moved");
-                CursorPositionData cursorData = event.getData(CursorPositionData.class);
+                CursorMoveEvent cursorData = event.getData(CursorMoveEvent.class);
                 if (cursorData != null) {
                     double cursorX = cursorData.getX();
                     double cursorY = cursorData.getY();
