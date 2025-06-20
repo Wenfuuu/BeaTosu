@@ -2,7 +2,9 @@ package beat.osu.client.helper;
 
 import beat.osu.client.events.song.SongChangeEvent;
 import beat.osu.client.interfaces.song.SongEventListener;
+import beat.osu.client.interfaces.song.SongEventPublisher;
 import beat.osu.client.model.Beatmap;
+import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.model.Song;
 import beat.osu.client.utils.OsuParser;
 import javafx.scene.media.Media;
@@ -19,7 +21,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 @Getter
-public class BgmManager {
+public class BgmManager implements SongEventPublisher {
     private static volatile BgmManager instance;
 
     private String currentBgmHash = null;
@@ -92,13 +94,13 @@ public class BgmManager {
         }
 
         String newHash = computeFileHash(audioFile);
-        if(!fromAnotherPage) {
+        if (!fromAnotherPage) {
             if (isSameBgm(newHash)) {
                 System.out.println("Same BGM content. Skipping playback.");
                 return;
             }
             stopBgm();
-        }else {
+        } else {
             if(newHash != null && currentBgmHash.equals(defaultBgmHash)) stopBgm();
             if (isSameBgm(newHash) && currentPlayer != null) {
                 System.out.println("From another page, Same BGM content. Resuming BGM.");
@@ -112,11 +114,13 @@ public class BgmManager {
         Media media = new Media(audioFile.toURI().toString());
         currentPlayer = new MediaPlayer(media);
 
+        BeatmapSet beatmapSet = beatmap.getBeatmapSet();
+        sendSongChangeEventFromBeatmapSet(beatmapSet);
+
         currentPlayer.setOnReady(() -> {
             Duration previewTime = new Duration(OsuParser.getPreviewTime());
             currentPlayer.seek(previewTime);
 
-            // Loop from preview time
             currentPlayer.setOnEndOfMedia(() -> {
                 currentPlayer.seek(previewTime);
                 currentPlayer.play();
@@ -139,10 +143,14 @@ public class BgmManager {
         }
 
         stopBgm();
+
         Media media = new Media(audioFile.toURI().toString());
         currentPlayer = new MediaPlayer(media);
         currentPlayer.setVolume(0.2);
         currentPlayer.setAutoPlay(false);
+
+        BeatmapSet beatmapSet = beatmap.getBeatmapSet();
+        sendSongChangeEventFromBeatmapSet(beatmapSet);
 
         currentPlayer.setOnError(() -> {
             System.err.println("MediaPlayer error: " + currentPlayer.getError());
@@ -216,15 +224,25 @@ public class BgmManager {
         return currentPlayer != null && currentPlayer.getStatus() == MediaPlayer.Status.PLAYING;
     }
 
+    private void sendSongChangeEventFromBeatmapSet(BeatmapSet beatmapSet) {
+        String audioPath = ResourceManager.getBeatmapSetAudioPath(beatmapSet.getBeatmapSetId());
+        Song song = new Song(beatmapSet.getTitle(), beatmapSet.getArtist(), audioPath);
+        SongChangeEvent songChangeEvent = new SongChangeEvent(song);
+        notifyListeners(songChangeEvent);
+    }
+
+    @Override
     public void addListener(SongEventListener songEventListener) {
         listeners.add(songEventListener);
     }
 
+    @Override
     public void removeListener(SongEventListener songEventListener) {
         listeners.remove(songEventListener);
     }
 
-    private void notifyListeners(SongChangeEvent event) {
+    @Override
+    public void notifyListeners(SongChangeEvent event) {
         for (SongEventListener listener : listeners) {
             listener.update(event);
         }

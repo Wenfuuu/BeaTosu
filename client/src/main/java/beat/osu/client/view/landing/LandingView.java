@@ -226,7 +226,7 @@ public class LandingView extends Page {
         root = new StackPane();
         root.getStyleClass().add("main-layout");
 
-        this.visualizerSize = ScreenManager.SCREEN_HEIGHT * 0.67;
+        this.visualizerSize = ScreenManager.SCREEN_HEIGHT * 0.65;
         this.connectedUsersController = new ConnectedUsersController();
         this.channelController = new ChannelController();
         this.privateChatController = new PrivateChatController();
@@ -373,6 +373,7 @@ public class LandingView extends Page {
 
     @Override
     public void onShow() {
+        visualizerComponent.setupAudioVisualization(BgmManager.getInstance().getCurrentPlayer());
         scene.setRoot(root);
     }
 

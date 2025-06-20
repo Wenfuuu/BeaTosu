@@ -40,12 +40,18 @@ public class ResourceManager {
         return dir;
     }
 
-    // For reading bundled resources (CSS, default assets)
+    public static String getBeatmapSetAudioPath(int beatmapSetId) {
+        File dir = new File(getTempDirectory(), String.valueOf(beatmapSetId));
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        return new File(dir, "audio.mp3").getAbsolutePath();
+    }
+
     public static InputStream getResourceAsStream(String path) {
         return ResourceManager.class.getResourceAsStream("/" + path);
     }
 
-    // For reading user-generated content (beatmaps, temp)
     public static File getUserFile(String relativePath) {
         return new File(applicationDirectory, relativePath);
     }

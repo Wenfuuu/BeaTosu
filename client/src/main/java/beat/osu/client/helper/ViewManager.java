@@ -16,6 +16,8 @@ import java.util.ArrayList;
 public class ViewManager {
     private static SceneManager sceneManager;
     private static Stage primaryStage;
+
+    private static LandingView landingView;
     private static HomeView homeView;
 
     public static void initialize(Stage stage) {
@@ -30,14 +32,18 @@ public class ViewManager {
     }
 
     public static void showLandingView() {
-        LandingView landingView = new LandingView(primaryStage);
+        if (landingView == null) {
+            landingView = new LandingView(primaryStage);
+        } else {
+            landingView.onShow();
+        }
         sceneManager.transitionToPage(landingView);
     }
 
     public static void showHomeView() {
         if (homeView == null) {
             homeView = new HomeView(primaryStage);
-        }else{
+        } else {
             homeView.onShow();
         }
         sceneManager.transitionToPage(homeView);
