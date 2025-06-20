@@ -1,10 +1,9 @@
-package beat.osu.client.view.landing.component.ui;
+package beat.osu.client.view.shared.jukebox.components;
 
 import java.net.URL;
 
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
-import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 
 public class PlaylistContent extends ScrollPane {

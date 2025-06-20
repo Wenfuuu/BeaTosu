@@ -1,4 +1,4 @@
-package beat.osu.client.view.landing.component.modals;
+package beat.osu.client.view.shared.jukebox.modals;
 
 import java.net.URL;
 
@@ -9,8 +9,8 @@ import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.interfaces.song.SongEventListener;
 import beat.osu.client.model.Song;
-import beat.osu.client.view.landing.component.ui.PlaylistContent;
-import beat.osu.client.view.landing.component.ui.PlaylistItem;
+import beat.osu.client.view.shared.jukebox.components.PlaylistContent;
+import beat.osu.client.view.shared.jukebox.components.PlaylistItem;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

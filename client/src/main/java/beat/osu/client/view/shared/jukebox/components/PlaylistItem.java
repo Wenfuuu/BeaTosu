@@ -1,6 +1,5 @@
-package beat.osu.client.view.landing.component.ui;
+package beat.osu.client.view.shared.jukebox.components;
 
-import java.io.File;
 import java.net.URL;
 import java.util.function.Consumer;
 

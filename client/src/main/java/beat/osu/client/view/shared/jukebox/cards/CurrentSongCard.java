@@ -1,4 +1,4 @@
-package beat.osu.client.view.landing.component.ui;
+package beat.osu.client.view.shared.jukebox.cards;
 
 import java.net.URL;
 
@@ -18,14 +18,14 @@ import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
 import lombok.Getter;
 
-public class CurrentSongBox extends StackPane {
+public class CurrentSongCard extends StackPane {
 
     @Getter
     private Label currentSongLabel;
     private HBox contentBox;
     private Rectangle underline;
 
-    public CurrentSongBox(String text) {
+    public CurrentSongCard(String text) {
         super();
         loadStyles();
         initializeComponents(text);
@@ -39,7 +39,7 @@ public class CurrentSongBox extends StackPane {
             System.err.println("CSS file not found!");
         }
 
-        URL cssUrl = CssManager.getLandingCssURL("CurrentSongBox.css");
+        URL cssUrl = CssManager.getLandingCssURL("CurrentSongCard.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {

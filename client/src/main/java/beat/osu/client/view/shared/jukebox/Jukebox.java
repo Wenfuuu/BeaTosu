@@ -1,4 +1,4 @@
-package beat.osu.client.view.landing.component.ui;
+package beat.osu.client.view.shared.jukebox;
 
 import java.net.URL;
 
@@ -7,7 +7,8 @@ import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.interfaces.song.SongEventListener;
 import beat.osu.client.view.landing.component.controls.MediaControls;
-import beat.osu.client.view.landing.component.modals.PlaylistModal;
+import beat.osu.client.view.shared.jukebox.modals.PlaylistModal;
+import beat.osu.client.view.shared.jukebox.cards.CurrentSongCard;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -22,7 +23,7 @@ public class Jukebox extends StackPane implements SongEventListener {
 
     private final PlaylistModal playlistModal;
 
-    private CurrentSongBox currentSongBox;
+    private CurrentSongCard currentSongCard;
     private MediaControls mediaControls;
 
     private VBox contentBox;
@@ -41,7 +42,7 @@ public class Jukebox extends StackPane implements SongEventListener {
     }
 
     private void initializeComponents() {
-        this.currentSongBox = new CurrentSongBox("Nekodex - Circles!");
+        this.currentSongCard = new CurrentSongCard("Nekodex - Circles!");
         this.mediaControls = new MediaControls();
         this.mediaControls.getStyleClass().add("media-controls");
     }
@@ -65,10 +66,10 @@ public class Jukebox extends StackPane implements SongEventListener {
     private void setupLayout() {
         this.contentBox = new VBox(12);
         contentBox.getStyleClass().add("jukebox-content");
-        contentBox.getChildren().addAll(currentSongBox, mediaControls);
+        contentBox.getChildren().addAll(currentSongCard, mediaControls);
         this.getChildren().addAll(contentBox, playlistModal);
         
-        animateCurrentSongBoxIn(currentSongBox);
+        animateCurrentSongCardIn(currentSongCard);
     }
 
     private void setupEventHandlers() {
@@ -88,7 +89,7 @@ public class Jukebox extends StackPane implements SongEventListener {
         mediaControls.getPrevButton().setOnAction(e -> BgmManager.getInstance().playPreviousSong());
     }
 
-    private void animateCurrentSongBoxIn(CurrentSongBox songBox) {
+    private void animateCurrentSongCardIn(CurrentSongCard songBox) {
         int translateLength = songBox.getCurrentSongLabel().getText().length() * 10;
 
         songBox.setTranslateX(translateLength);
@@ -110,10 +111,10 @@ public class Jukebox extends StackPane implements SongEventListener {
 
     @Override
     public void update(SongChangeEvent event) {
-        this.contentBox.getChildren().remove(currentSongBox);
-        this.currentSongBox = new CurrentSongBox(event.getSong().getArtist() + " - " + event.getSong().getTitle());
-        this.contentBox.getChildren().add(0, currentSongBox);
+        this.contentBox.getChildren().remove(currentSongCard);
+        this.currentSongCard = new CurrentSongCard(event.getSong().getArtist() + " - " + event.getSong().getTitle());
+        this.contentBox.getChildren().add(0, currentSongCard);
 
-        animateCurrentSongBoxIn(currentSongBox);
+        animateCurrentSongCardIn(currentSongCard);
     }
 }
