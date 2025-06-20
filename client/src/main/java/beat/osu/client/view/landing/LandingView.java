@@ -239,6 +239,7 @@ public class LandingView extends Page {
         loginModalComponent = new LoginModal(topBarComponent);
         registerModalComponent = new RegisterModal();
         playlistModalComponent = new PlaylistModal();
+        BgmManager.getInstance().addListener(playlistModalComponent);
 
         jukeboxComponent = new Jukebox(playlistModalComponent);
 

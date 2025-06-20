@@ -1,15 +1,12 @@
 package beat.osu.client.view.landing.component.modals;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import beat.osu.client.Main;
 import beat.osu.client.events.song.SongChangeEvent;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.interfaces.song.SongEventListener;
-import beat.osu.client.interfaces.song.SongEventPublisher;
 import beat.osu.client.model.Song;
 import beat.osu.client.utils.BeatmapUtils;
 import beat.osu.client.view.landing.component.ui.PlaylistContent;
@@ -27,10 +24,11 @@ import javafx.scene.text.Font;
 import javafx.util.Duration;
 import lombok.Getter;
 
-public class PlaylistModal extends StackPane {
+public class PlaylistModal extends StackPane implements SongEventListener {
 
     private VBox contentContainer;
     private PlaylistContent playlistContent;
+    private VBox playlistItemsContainer; // Store reference to the container
     @Getter
     private PlaylistItem selectedItem;
 
@@ -104,14 +102,12 @@ public class PlaylistModal extends StackPane {
     }
     
     private void populatePlaylist() {
-        VBox playlistItemsContainer = new VBox();
+        playlistItemsContainer = new VBox();
         playlistItemsContainer.getStyleClass().add("playlist-items-container");
 
         for (Song song : BeatmapUtils.getBeatmapSongs()) {
             PlaylistItem playlistItem = new PlaylistItem(song);
-            
             playlistItem.setSelectionCallback(this::onItemSelected);
-            
             playlistItemsContainer.getChildren().add(playlistItem);
         }
         
@@ -149,5 +145,26 @@ public class PlaylistModal extends StackPane {
         fadeIn.setFromValue(0.0);
         fadeIn.setToValue(1.0);
         fadeIn.play();
+    }
+
+    @Override
+    public void update(SongChangeEvent event) {
+        Song eventSong = event.getSong();
+        if (eventSong == null || playlistItemsContainer == null) return;
+        
+        for (Object node : playlistItemsContainer.getChildren()) {
+            if (node instanceof PlaylistItem) {
+                PlaylistItem playlistItem = (PlaylistItem) node;
+                Song itemSong = playlistItem.getSong();
+                
+                if (itemSong != null &&
+                    eventSong.getArtist().equals(itemSong.getArtist()) &&
+                    eventSong.getTitle().equals(itemSong.getTitle())) {
+                    
+                    onItemSelected(playlistItem);
+                    break;
+                }
+            }
+        }
     }
 }
