@@ -23,7 +23,7 @@ public abstract class Page {
 
     public Page(Stage stage) {
         this.stage = stage;
-        scene = SceneManager.instance.getScene();
+        scene = SceneManager.getInstance().getScene();
         init();
         setLayout();
         setInputManager();

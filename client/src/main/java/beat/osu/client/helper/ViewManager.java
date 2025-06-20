@@ -20,7 +20,7 @@ public class ViewManager {
 
     public static void initialize(Stage stage) {
         primaryStage = stage;
-        sceneManager = SceneManager.getInstance(stage);
+        sceneManager = SceneManager.getInstance();
     }
 
     public static void initializeHomeView() {

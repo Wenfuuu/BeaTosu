@@ -19,11 +19,11 @@ public class SceneManager {
     private Scene scene;
     private boolean isFirstTransition = true;
 
-    public static SceneManager instance;
+    private static SceneManager instance;
 
-    public static SceneManager getInstance(Stage stage) {
+    public static SceneManager getInstance() {
         if (instance == null) {
-            instance = new SceneManager(stage);
+            instance = new SceneManager(StageManager.getStage());
         }
         return instance;
     }
