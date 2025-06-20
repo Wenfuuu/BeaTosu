@@ -4,7 +4,6 @@ import beat.osu.client.helper.ResourceManager;
 import beat.osu.client.model.Song;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -28,7 +27,7 @@ public class BeatmapUtils {
 
                 for (File beatmapFile : beatmapSetFiles) {
                     if (beatmapFile.getName().endsWith(".osu")) {
-                        Song song = parseBeatmapFromFilename(beatmapFile.getName(), audioPath);
+                        Song song = parseBeatmapFromFilename(beatmapSetDirectory.getName(), beatmapFile.getName(), audioPath);
                         if (song != null) {
                             songs.add(song);
                         }
@@ -41,7 +40,7 @@ public class BeatmapUtils {
         return songs;
     }
 
-    private static Song parseBeatmapFromFilename(String filename, String audioPath) {
+    private static Song parseBeatmapFromFilename(String beatmapSetDirectory, String filename, String audioPath) {
         try {
             String nameWithoutExtension = filename.substring(0, filename.lastIndexOf(".osu"));
 
@@ -56,10 +55,11 @@ public class BeatmapUtils {
             String[] artistTitle = artistTitlePart.split(" - ", 2);
             if (artistTitle.length != 2) return null;
 
+            int id = Integer.parseInt(beatmapSetDirectory);
             String artist = artistTitle[0].trim();
             String title = artistTitle[1].trim();
 
-            return new Song(title, artist, audioPath);
+            return new Song(id, title, artist, audioPath);
         } catch (Exception e) {
             System.err.println("Error parsing filename: " + filename);
             return null;

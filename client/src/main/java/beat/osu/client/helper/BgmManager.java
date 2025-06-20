@@ -226,7 +226,7 @@ public class BgmManager implements SongEventPublisher {
 
     private void sendSongChangeEventFromBeatmapSet(BeatmapSet beatmapSet) {
         String audioPath = ResourceManager.getBeatmapSetAudioPath(beatmapSet.getBeatmapSetId());
-        Song song = new Song(beatmapSet.getTitle(), beatmapSet.getArtist(), audioPath);
+        Song song = new Song(beatmapSet.getBeatmapSetId(), beatmapSet.getTitle(), beatmapSet.getArtist(), audioPath);
         SongChangeEvent songChangeEvent = new SongChangeEvent(song);
         notifyListeners(songChangeEvent);
     }

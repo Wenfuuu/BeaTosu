@@ -157,10 +157,7 @@ public class PlaylistModal extends StackPane implements SongEventListener {
                 PlaylistItem playlistItem = (PlaylistItem) node;
                 Song itemSong = playlistItem.getSong();
                 
-                if (itemSong != null &&
-                    eventSong.getArtist().equals(itemSong.getArtist()) &&
-                    eventSong.getTitle().equals(itemSong.getTitle())) {
-                    
+                if (itemSong != null && eventSong.getId() == itemSong.getId()) {
                     onItemSelected(playlistItem);
                     break;
                 }

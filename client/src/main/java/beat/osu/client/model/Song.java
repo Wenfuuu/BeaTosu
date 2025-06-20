@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Song {
+    private int id;
     private String title;
     private String artist;
     private String audioPath;
