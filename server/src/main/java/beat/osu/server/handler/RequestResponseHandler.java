@@ -27,7 +27,6 @@ public class RequestResponseHandler {
             
             outputStream.writeObject(response);
             outputStream.flush();
-            
         } catch (Exception e) {
             System.err.println("RequestResponseHandler: Error handling request: " + e.getMessage());
             

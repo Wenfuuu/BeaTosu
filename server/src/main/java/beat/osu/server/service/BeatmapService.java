@@ -72,7 +72,6 @@ public class BeatmapService {
             }
 
             return Result.success(new GetAllBeatmapsResponse(beatmapDtos));
-
         } catch (RuntimeException e) {
             return Result.failure(Error.internal("Database error: " + e.getMessage()));
         }
@@ -95,8 +94,8 @@ public class BeatmapService {
 
             System.out.println("Beatmap Set inserted successfully: " + request.getId());
             String message = "Beatmap set inserted successfully with ID: " + request.getId();
-            return Result.success(new InsertBeatmapSetResponse(message));
 
+            return Result.success(new InsertBeatmapSetResponse(message));
         } catch (RuntimeException e) {
             return Result.failure(Error.internal("Database error: " + e.getMessage()));
         }
@@ -129,8 +128,8 @@ public class BeatmapService {
 
             System.out.println("Beatmap inserted successfully: " + request.getId());
             String message = "Beatmap inserted successfully with ID: " + request.getId();
-            return Result.success(new InsertBeatmapResponse(message));
 
+            return Result.success(new InsertBeatmapResponse(message));
         } catch (RuntimeException e) {
             return Result.failure(Error.internal("Database error: " + e.getMessage()));
         }

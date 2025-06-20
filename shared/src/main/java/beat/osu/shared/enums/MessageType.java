@@ -5,6 +5,7 @@ public enum MessageType {
     USER,
     AUTH,
     BEATMAP,
+    SCORE,
     CHANNEL,
     PRIVATE_CHAT,
     MATCH,

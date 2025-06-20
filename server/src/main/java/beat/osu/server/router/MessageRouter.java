@@ -15,6 +15,7 @@ import beat.osu.shared.dto.match.requests.CreateMatchRequest;
 import beat.osu.shared.dto.match.requests.JoinMatchRequest;
 import beat.osu.shared.dto.match.requests.KickPlayerRequest;
 import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
+import beat.osu.shared.dto.score.requests.InsertScoreRequest;
 import beat.osu.shared.models.RequestMessage;
 import lombok.RequiredArgsConstructor;
 
@@ -37,6 +38,8 @@ public class MessageRouter {
                 return handleAuthRequest(request, clientId);
             case BEATMAP:
                 return handleBeatmapRequest(request, clientId);
+            case SCORE:
+                return handleScoreRequest(request, clientId);
             case CHANNEL:
                 return handleChannelRequest(request, clientId);
             case PRIVATE_CHAT:
@@ -78,6 +81,17 @@ public class MessageRouter {
                 return beatmapService.insertBeatmapSet((InsertBeatmapSetRequest) request.getPayload());
             default:
                 return Result.failure(Error.validation("Unknown beatmap action: " + request.getAction()));
+        }
+    }
+
+    private Object handleScoreRequest(RequestMessage request, String clientId) {
+        switch (request.getAction()) {
+//            case GET_ALL_SCORES:
+//                return scoreService.
+            case INSERT_SCORE:
+                return scoreService.insertScore((InsertScoreRequest) request.getPayload());
+            default:
+                return Result.failure(Error.validation("Unknown score action: " + request.getAction()));
         }
     }
 
