@@ -430,12 +430,12 @@ public class LandingView extends Page {
         });
 
         subMenuButtonsComponent.getSoloButton().setOnMouseClicked(e -> {
-            ViewManager.showHomeView();
+            ViewManager.getInstance().showHomeView();
             hideSubMenu();
         });
 
         subMenuButtonsComponent.getMultiButton().setOnMouseClicked(e -> {
-            ViewManager.showLobbyView();
+            ViewManager.getInstance().showLobbyView();
             hideSubMenu();
         });
         

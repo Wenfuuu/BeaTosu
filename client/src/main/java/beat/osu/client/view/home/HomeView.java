@@ -191,13 +191,13 @@ public class HomeView extends Page {
             if (selectedBeatmap != null) {
                 BgmManager.getInstance().stopBgm();
 //                new GameView(stage, selectedBeatmap);
-                ViewManager.showGameView(selectedBeatmap);
+                ViewManager.getInstance().showGameView(selectedBeatmap);
             }
         });
 
         bottomBar.getBackButton().setOnMouseClicked(e -> {
             System.out.println("Back button clicked");
-            ViewManager.showLandingView();
+            ViewManager.getInstance().showLandingView();
         });
     }
 }

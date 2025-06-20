@@ -114,34 +114,34 @@ public class GameView extends Page implements GameEventListener {
 
         pauseOverlay.getRetryButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
-            ViewManager.showGameView(beatmap);
+            ViewManager.getInstance().showGameView(beatmap);
         });
 
         pauseOverlay.getLeaveButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
-            ViewManager.showHomeView();
+            ViewManager.getInstance().showHomeView();
         });
 
         resultOverlay.getRetryButton().setOnMouseClicked(e -> {
-            ViewManager.showGameView(beatmap);
+            ViewManager.getInstance().showGameView(beatmap);
         });
 
         resultOverlay.getReplayButton().setOnMouseClicked(e -> {
-            ViewManager.showReplayView(beatmap, gm.getReplayEvents(), gameEndData);
+            ViewManager.getInstance().showReplayView(beatmap, gm.getReplayEvents(), gameEndData);
         });
 
         resultOverlay.getBackButton().setOnMouseClicked(e -> {
-            ViewManager.showHomeView();
+            ViewManager.getInstance().showHomeView();
         });
 
         failOverlay.getRetryButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
-            ViewManager.showGameView(beatmap);
+            ViewManager.getInstance().showGameView(beatmap);
         });
 
         failOverlay.getLeaveButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
-            ViewManager.showHomeView();
+            ViewManager.getInstance().showHomeView();
         });
     }
 

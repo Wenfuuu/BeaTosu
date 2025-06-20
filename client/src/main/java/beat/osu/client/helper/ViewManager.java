@@ -20,18 +20,27 @@ public class ViewManager {
     private static LandingView landingView;
     private static HomeView homeView;
 
-    public static void initialize(Stage stage) {
-        primaryStage = stage;
+    private static ViewManager instance;
+
+    public static ViewManager getInstance() {
+        if (instance == null) {
+            instance = new ViewManager();
+        }
+        return instance;
+    }
+
+    private ViewManager() {
+        primaryStage = StageManager.getStage();
         sceneManager = SceneManager.getInstance();
     }
 
-    public static void initializeHomeView() {
+    public void initializeHomeView() {
         if (homeView == null) {
             homeView = new HomeView(primaryStage);
         }
     }
 
-    public static void showLandingView() {
+    public void showLandingView() {
         if (landingView == null) {
             landingView = new LandingView(primaryStage);
         } else {
@@ -40,7 +49,7 @@ public class ViewManager {
         sceneManager.transitionToPage(landingView);
     }
 
-    public static void showHomeView() {
+    public void showHomeView() {
         if (homeView == null) {
             homeView = new HomeView(primaryStage);
         } else {
@@ -49,12 +58,12 @@ public class ViewManager {
         sceneManager.transitionToPage(homeView);
     }
 
-    public static void showGameView(Beatmap beatmap) {
+    public void showGameView(Beatmap beatmap) {
         GameView gameView = new GameView(primaryStage, beatmap);
         sceneManager.transitionToPage(gameView);
     }
 
-    public static void showReplayView(Beatmap beatmap,
+    public void showReplayView(Beatmap beatmap,
                                       ArrayList<ReplayEventData> replayEvents,
                                       GameEndData gameEndData) {
         ReplayView replayView = new ReplayView(primaryStage, beatmap,
@@ -62,12 +71,12 @@ public class ViewManager {
         sceneManager.transitionToPage(replayView);
     }
 
-    public static void showUploadPage() {
+    public void showUploadPage() {
         UploadPage uploadPage = new UploadPage(primaryStage);
         sceneManager.transitionToPage(uploadPage);
     }
 
-    public static void showLobbyView() {
+    public void showLobbyView() {
         LobbyView lobbyView = new LobbyView(primaryStage);
         sceneManager.transitionToPage(lobbyView);
     }

@@ -103,12 +103,12 @@ public class ReplayView extends Page implements GameEventListener {
 
         pauseOverlay.getRetryButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
-            ViewManager.showReplayView(beatmap, replayEvents, gameEndData);
+            ViewManager.getInstance().showReplayView(beatmap, replayEvents, gameEndData);
         });
 
         pauseOverlay.getLeaveButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
-            ViewManager.showHomeView();
+            ViewManager.getInstance().showHomeView();
         });
     }
 
@@ -530,7 +530,7 @@ public class ReplayView extends Page implements GameEventListener {
                 pauseOverlay.setVisible(false);
                 break;
             case REPLAY_ENDED:
-                ViewManager.showHomeView();
+                ViewManager.getInstance().showHomeView();
                 break;
         }
     }

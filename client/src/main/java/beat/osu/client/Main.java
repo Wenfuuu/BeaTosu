@@ -18,8 +18,7 @@ public class Main extends Application {
 
         StageManager.setStage(stage);
 
-        ViewManager.initialize(StageManager.getStage());
-        ViewManager.initializeHomeView();
+        ViewManager.getInstance().initializeHomeView();
 
         StageManager.getStage().setOnCloseRequest(e -> {
             if (clientService.isConnected()) {
@@ -28,7 +27,7 @@ public class Main extends Application {
             Platform.exit();
         });
 
-        ViewManager.showLandingView();
+        ViewManager.getInstance().showLandingView();
 //        ViewManager.showUploadPage();
     }
 
