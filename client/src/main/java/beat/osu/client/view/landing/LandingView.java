@@ -4,9 +4,6 @@ import java.io.File;
 import java.net.URL;
 
 import beat.osu.client.Main;
-import beat.osu.client.controller.ChannelController;
-import beat.osu.client.controller.ConnectedUsersController;
-import beat.osu.client.controller.PrivateChatController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.BgmManager;
@@ -22,8 +19,6 @@ import beat.osu.client.view.landing.component.modals.LoginModal;
 import beat.osu.client.view.landing.component.modals.RegisterModal;
 import beat.osu.client.view.landing.component.ui.Visualizer;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
-import beat.osu.client.view.shared.bancho.cards.UserCard;
-import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
 import beat.osu.client.view.shared.bancho.modals.SelectChannelModal;
 import beat.osu.client.view.shared.bancho.modals.ViewUserModal;
 import beat.osu.client.view.shared.bancho.panels.ChatPanel;
@@ -55,19 +50,15 @@ public class LandingView extends Page {
     private SubMenuButtons subMenuButtonsComponent;
     private LoginModal loginModalComponent;
     private RegisterModal registerModalComponent;
-    private PlaylistModal playlistModalComponent;
+    private final PlaylistModal playlistModalComponent;
 
-    private Jukebox jukeboxComponent;
+    private final Jukebox jukeboxComponent;
 
-    private OnlineUsersPanel onlineUsersPanel;
-    private ChatPanel chatPanel;
-    private SelectChannelModal selectChannelModal;
-    private BanchoButtons banchoButtons;
-    private ViewUserModal viewUserModal;
-
-    private ConnectedUsersController connectedUsersController;
-    private ChannelController channelController;
-    private PrivateChatController privateChatController;
+    private final OnlineUsersPanel onlineUsersPanel;
+    private final ChatPanel chatPanel;
+    private final SelectChannelModal selectChannelModal;
+    private final BanchoButtons banchoButtons;
+    private final ViewUserModal viewUserModal;
 
     private double visualizerSize;
 
@@ -83,8 +74,20 @@ public class LandingView extends Page {
     private FadeTransition subMenuFadeIn;
     private FadeTransition subMenuFadeOut;
 
-    public LandingView(Stage stage) {
+    public LandingView(Stage stage, BanchoButtons banchoButtons, Jukebox jukebox, PlaylistModal playlistModal,
+                       OnlineUsersPanel onlineUsersPanel, SelectChannelModal selectChannelModal,
+                       ChatPanel chatPanel, ViewUserModal viewUserModal) {
         super(stage);
+
+        this.banchoButtons = banchoButtons;
+        this.jukeboxComponent = jukebox;
+        this.playlistModalComponent = playlistModal;
+
+        this.onlineUsersPanel = onlineUsersPanel;
+        this.selectChannelModal = selectChannelModal;
+        this.chatPanel = chatPanel;
+        this.viewUserModal = viewUserModal;
+
         setupView();
         handleEvent();
 
@@ -227,35 +230,21 @@ public class LandingView extends Page {
         root.getStyleClass().add("main-layout");
 
         this.visualizerSize = ScreenManager.SCREEN_HEIGHT * 0.65;
-        this.connectedUsersController = new ConnectedUsersController();
-        this.channelController = new ChannelController();
-        this.privateChatController = new PrivateChatController();
 
         menuButtonsComponent = new MenuButtons();
         subMenuButtonsComponent = new SubMenuButtons();
-        visualizerComponent = new Visualizer(this.visualizerSize);
         topBarComponent = new TopBar();
         bottomBarComponent = new BottomBar();
         loginModalComponent = new LoginModal(topBarComponent);
         registerModalComponent = new RegisterModal();
-        playlistModalComponent = new PlaylistModal();
-        PlaylistManager.getInstance().addListener(playlistModalComponent);
 
-        jukeboxComponent = new Jukebox(playlistModalComponent);
-
+        visualizerComponent = new Visualizer(this.visualizerSize);
         PlaylistManager.getInstance().addListener(visualizerComponent);
-        PlaylistManager.getInstance().addListener(jukeboxComponent);
 
-        banchoButtons = new BanchoButtons();
         banchoButtons.setVisible(false);
         banchoButtons.setManaged(false);
 
-        onlineUsersPanel = new OnlineUsersPanel(connectedUsersController);
-        selectChannelModal = new SelectChannelModal(channelController, banchoButtons, bottomBarComponent, topBarComponent);
-        chatPanel = new ChatPanel(channelController, privateChatController, selectChannelModal, onlineUsersPanel, banchoButtons);
-
-        viewUserModal = new ViewUserModal();
-
+        // Note: Cannot extract this to shared bc of top and bottom bar
         viewUserModal.setOnStartChatCallback(privateChat -> {
             if (AuthManager.getUser().getId() == privateChat.getOtherUserId()) {
                 Toast.error("You cannot start a chat with yourself!").show();
@@ -267,27 +256,6 @@ public class LandingView extends Page {
                 banchoButtons.toggleChat(chatPanel, bottomBarComponent, onlineUsersPanel, topBarComponent);
             }
         });
-
-        onlineUsersPanel.setUserCardClickCallback(userCard -> {
-            UserCard modalUserCard = new UserCard(
-                userCard.getUserId(),
-                userCard.getUsername(), 
-                userCard.getCountryCode(),
-                userCard.getProfilePicture(),
-                userCard.getPerformance(),
-                userCard.getAccuracy(),
-                userCard.getPlayCount(),
-                userCard.getLevel(),
-                userCard.getRank(),
-                userCard.getIsSupporter(),
-                UserCardBehavior.STATIC
-            );
-            viewUserModal.updateUserCard(modalUserCard);
-            viewUserModal.show();
-        });
-
-        selectChannelModal.setChatPanel(chatPanel);
-        selectChannelModal.setOnlineUsersPanel(onlineUsersPanel);
 
         visualizerComponent.getLogoRayGroup().getStyleClass().add("logo-ray-group");
         menuButtonsComponent.getStyleClass().add("menu-buttons");

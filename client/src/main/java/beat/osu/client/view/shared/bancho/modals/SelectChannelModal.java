@@ -54,14 +54,10 @@ public class SelectChannelModal extends VBox {
     @Setter
     private ChatPanel chatPanel;
     private BanchoButtons banchoButtons;
-    private BottomBar bottomBar;
-    private TopBar topBar;
 
-    public SelectChannelModal(ChannelController channelController, BanchoButtons banchoButtons, BottomBar bottomBar, TopBar topBar) {
+    public SelectChannelModal(ChannelController channelController, BanchoButtons banchoButtons) {
         this.channelController = channelController;
         this.banchoButtons = banchoButtons;
-        this.bottomBar = bottomBar;
-        this.topBar = topBar;
 
         this.channelCards = new ArrayList<>();
         this.allChannels = new ArrayList<>();
@@ -119,12 +115,9 @@ public class SelectChannelModal extends VBox {
         closeButton.setOnAction(e -> {
             this.hide();
             banchoButtons.show();
-            bottomBar.setLowOpacity();
-            topBar.setFullOpacity();
 
             if (banchoButtons.getOnlineUsersButton().isOnlineUserShown()) {
                 onlineUsersPanel.show();
-                topBar.setLowOpacity();
             }
 
             chatPanel.show();
