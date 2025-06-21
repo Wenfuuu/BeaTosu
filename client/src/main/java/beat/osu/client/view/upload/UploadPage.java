@@ -263,6 +263,7 @@ public class UploadPage extends Page {
 
     public UploadPage(Stage stage) {
         super(stage);
+        setupView();
         handleEvent();
     }
 }

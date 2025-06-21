@@ -39,6 +39,7 @@ public class HomeView extends Page {
 
     public HomeView(Stage stage) {
         super(stage);
+        setupView();
         handleEvent();
     }
 

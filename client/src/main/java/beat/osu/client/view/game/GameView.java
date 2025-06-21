@@ -59,6 +59,8 @@ public class GameView extends Page implements GameEventListener {
 
     public GameView(Stage stage, Beatmap selectedBeatmap) {
         super(stage);
+        setupView();
+
         this.beatmap = selectedBeatmap;
         this.circleSize = selectedBeatmap.getCircleSize();
         this.gm = new GameManager(selectedBeatmap, inputManager);

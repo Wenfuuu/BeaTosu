@@ -84,6 +84,7 @@ public class LandingView extends Page {
 
     public LandingView(Stage stage) {
         super(stage);
+        setupView();
         handleEvent();
 
         Toast.information("Hi, Welcome to BeaTosu!").show();

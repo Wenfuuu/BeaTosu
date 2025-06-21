@@ -24,6 +24,9 @@ public abstract class Page {
     public Page(Stage stage) {
         this.stage = stage;
         scene = SceneManager.getInstance().getScene();
+    }
+
+    protected void setupView() {
         init();
         setLayout();
         setInputManager();

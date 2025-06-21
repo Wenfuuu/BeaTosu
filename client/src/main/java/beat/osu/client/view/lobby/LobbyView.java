@@ -15,6 +15,7 @@ public class LobbyView extends Page {
 
     public LobbyView(Stage stage) {
         super(stage);
+        setupView();
     }
 
     @Override

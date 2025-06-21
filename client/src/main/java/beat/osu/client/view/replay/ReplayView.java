@@ -53,6 +53,8 @@ public class ReplayView extends Page implements GameEventListener {
                       ArrayList<ReplayEvent> replayEvents,
                       GameEndEvent gameEndEvent) {
         super(stage);
+        setupView();
+
         this.beatmap = selectedBeatmap;
         this.circleSize = selectedBeatmap.getCircleSize();
         this.replayEvents = replayEvents;
