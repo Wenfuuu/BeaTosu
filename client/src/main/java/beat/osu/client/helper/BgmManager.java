@@ -6,16 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 
-import beat.osu.client.events.song.SongChangeEvent;
-import beat.osu.client.interfaces.song.SongEventListener;
-import beat.osu.client.interfaces.song.SongEventPublisher;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.model.Song;
-import beat.osu.client.utils.BeatmapUtils;
 import beat.osu.client.utils.OsuParser;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -23,25 +17,15 @@ import javafx.util.Duration;
 import lombok.Getter;
 
 @Getter
-public class BgmManager implements SongEventPublisher {
+public class BgmManager {
     private static volatile BgmManager instance;
 
     private String currentBgmHash = null;
     private String defaultBgmHash;
     private MediaPlayer currentPlayer;
-    private final ArrayList<SongEventListener> listeners;
-
-    @Getter
-    private List<Song> playlist;
-    @Getter
-    private int currentSongIndex = -1;
-    @Getter
-    private Song currentSong;
 
     private BgmManager() {
-        listeners = new ArrayList<>();
-        playlist = new ArrayList<>();
-        initializePlaylist();
+
     }
 
     public static BgmManager getInstance() {
@@ -140,7 +124,7 @@ public class BgmManager implements SongEventPublisher {
         BeatmapSet beatmapSet = beatmap.getBeatmapSet();
         String audioPath = ResourceManager.getBeatmapSetAudioPath(beatmapSet.getBeatmapSetId());
         Song song = new Song(beatmapSet.getBeatmapSetId(), beatmapSet.getTitle(), beatmapSet.getArtist(), audioPath);
-        playSong(song);
+        PlaylistManager.getInstance().playSong(song);
 
         currentPlayer.setOnReady(() -> {
             Duration previewTime = new Duration(OsuParser.getPreviewTime());
@@ -209,110 +193,8 @@ public class BgmManager implements SongEventPublisher {
         }
     }
 
-    private void initializePlaylist() {
-        try {
-            playlist.clear();
-            playlist.addAll(BeatmapUtils.getBeatmapSongs());
-            System.out.println("Initialized playlist with " + playlist.size() + " songs");
-        } catch (Exception e) {
-            System.err.println("Failed to initialize playlist: " + e.getMessage());
-        }
-    }
-
-    public void refreshPlaylist() {
-        initializePlaylist();
-        if (currentSongIndex >= playlist.size()) {
-            currentSongIndex = -1;
-            currentSong = null;
-        }
-    }
-
-    public void playNextSong() {
-        if (playlist.isEmpty()) {
-            refreshPlaylist();
-            if (playlist.isEmpty()) {
-                System.err.println("No songs available in playlist");
-                return;
-            }
-        }
-
-        currentSongIndex = (currentSongIndex + 1) % playlist.size();
-        currentSong = playlist.get(currentSongIndex);
-        playSong(currentSong);
-    }
-
-    public void playPreviousSong() {
-        if (playlist.isEmpty()) {
-            refreshPlaylist();
-            if (playlist.isEmpty()) {
-                System.err.println("No songs available in playlist");
-                return;
-            }
-        }
-
-        currentSongIndex = (currentSongIndex - 1 + playlist.size()) % playlist.size();
-        currentSong = playlist.get(currentSongIndex);
-        playSong(currentSong);
-    }
-
-    public void playNextSongFromFiltered(List<Song> filteredSongs) {
-        Song nextSong = getNextSongFromFiltered(filteredSongs);
-        if (nextSong != null) {
-            playSong(nextSong);
-        }
-    }
-
-    public void playPreviousSongFromFiltered(List<Song> filteredSongs) {
-        Song previousSong = getPreviousSongFromFiltered(filteredSongs);
-        if (previousSong != null) {
-            playSong(previousSong);
-        }
-    }
-
-    private Song getNextSongFromFiltered(List<Song> filteredSongs) {
-        if (currentSong == null) {
-            return filteredSongs.isEmpty() ? null : filteredSongs.get(0);
-        }
-
-        int currentFilteredIndex = -1;
-        for (int i = 0; i < filteredSongs.size(); i++) {
-            if (filteredSongs.get(i).getId() == currentSong.getId()) {
-                currentFilteredIndex = i;
-                break;
-            }
-        }
-
-        if (currentFilteredIndex == -1) {
-            return filteredSongs.isEmpty() ? null : filteredSongs.get(0);
-        }
-
-        int nextIndex = (currentFilteredIndex + 1) % filteredSongs.size();
-        return filteredSongs.get(nextIndex);
-    }
-
-    private Song getPreviousSongFromFiltered(List<Song> filteredSongs) {
-        if (currentSong == null) {
-            return filteredSongs.isEmpty() ? null : filteredSongs.get(filteredSongs.size() - 1);
-        }
-
-        int currentFilteredIndex = -1;
-        for (int i = 0; i < filteredSongs.size(); i++) {
-            if (filteredSongs.get(i).getId() == currentSong.getId()) {
-                currentFilteredIndex = i;
-                break;
-            }
-        }
-
-        if (currentFilteredIndex == -1) {
-            return filteredSongs.isEmpty() ? null : filteredSongs.get(filteredSongs.size() - 1);
-        }
-
-        int previousIndex = (currentFilteredIndex - 1 + filteredSongs.size()) % filteredSongs.size();
-        return filteredSongs.get(previousIndex);
-    }
-
-    public void playSong(Song song) {
-        File songFile = new File(song.getAudioPath());
+    public void playAudio(String audioPath) {
+        File songFile = new File(audioPath);
 
         stopBgm();
         try {
@@ -324,16 +206,6 @@ public class BgmManager implements SongEventPublisher {
             System.err.println("Failed to load BGM: " + songFile.getPath());
             e.printStackTrace();
         }
-
-        currentSong = song;
-        for (int i = 0; i < playlist.size(); i++) {
-            if (playlist.get(i).getId() == song.getId()) {
-                currentSongIndex = i;
-                break;
-            }
-        }
-
-        notifyListeners(new SongChangeEvent(song));
     }
 
     public void pauseBgm() {
@@ -359,27 +231,6 @@ public class BgmManager implements SongEventPublisher {
     public void setVolume(double volume) {
         if (currentPlayer != null) {
             currentPlayer.setVolume(volume);
-        }
-    }
-
-    public boolean isPlaying() {
-        return currentPlayer != null && currentPlayer.getStatus() == MediaPlayer.Status.PLAYING;
-    }
-
-    @Override
-    public void addListener(SongEventListener songEventListener) {
-        listeners.add(songEventListener);
-    }
-
-    @Override
-    public void removeListener(SongEventListener songEventListener) {
-        listeners.remove(songEventListener);
-    }
-
-    @Override
-    public void notifyListeners(SongChangeEvent event) {
-        for (SongEventListener listener : listeners) {
-            listener.update(event);
         }
     }
 }

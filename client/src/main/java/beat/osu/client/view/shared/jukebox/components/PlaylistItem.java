@@ -3,8 +3,8 @@ package beat.osu.client.view.shared.jukebox.components;
 import java.net.URL;
 import java.util.function.Consumer;
 
-import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.PlaylistManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.model.Song;
 import javafx.scene.control.Label;
@@ -51,7 +51,7 @@ public class PlaylistItem extends VBox {
             if (onSelectionCallback != null) {
                 onSelectionCallback.accept(this);
             }
-            BgmManager.getInstance().playSong(song);
+            PlaylistManager.getInstance().playSong(song);
         });
     }
 

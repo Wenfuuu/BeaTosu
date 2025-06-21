@@ -2,13 +2,12 @@ package beat.osu.client.view.shared.jukebox.modals;
 
 import java.net.URL;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import beat.osu.client.Main;
 import beat.osu.client.events.song.SongChangeEvent;
-import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.InputManager;
+import beat.osu.client.helper.PlaylistManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.interfaces.song.SongEventListener;
 import beat.osu.client.model.Song;
@@ -42,11 +41,11 @@ public class PlaylistModal extends StackPane implements SongEventListener {
     private InputManager inputManager;
     private Timeline searchUpdateTimeline;
     private String lastSearchQuery = "";
-    private List<Song> currentFilteredSongs;
-    private boolean isFiltered = false;
+    private PlaylistManager playlistManager;
 
     public PlaylistModal() {
         super();
+        playlistManager = PlaylistManager.getInstance();
         initializeComponents();
         setupLayout();
         setupStyling();
@@ -68,35 +67,24 @@ public class PlaylistModal extends StackPane implements SongEventListener {
         if (!currentQuery.equals(lastSearchQuery)) {
             lastSearchQuery = currentQuery;
             
+            playlistManager.applyFilter(currentQuery);
+            
             if (currentQuery.isEmpty()) {
                 searchLabel.setText("Type to search!");
-                isFiltered = false;
-                currentFilteredSongs = null;
-                populatePlaylist();
-                updateSelectedItem();
             } else {
                 searchLabel.setText(currentQuery);
-                isFiltered = true;
-                filterPlaylist(currentQuery);
-                updateSelectedItem();
             }
+            
+            populatePlaylist();
+            updateSelectedItem();
         }
     }
     
-    private void filterPlaylist(String query) {
-        currentFilteredSongs = BgmManager.getInstance().getPlaylist().stream()
-            .filter(song -> song.getTitle().toLowerCase().contains(query) || 
-                           song.getArtist().toLowerCase().contains(query))
-            .collect(Collectors.toList());
-        
-        populatePlaylistWithSongs(currentFilteredSongs);
-    }
-    
     private void updateSelectedItem() {
-        Song currentSong = BgmManager.getInstance().getCurrentSong();
+        Song currentSong = PlaylistManager.getInstance().getCurrentSong();
         if (currentSong == null) return;
         
-        List<Song> displayedSongs = getCurrentDisplayedSongs();
+        List<Song> displayedSongs = playlistManager.getCurrentPlaylist();
         
         for (int i = 0; i < displayedSongs.size(); i++) {
             if (displayedSongs.get(i).getId() == currentSong.getId()) {
@@ -113,7 +101,7 @@ public class PlaylistModal extends StackPane implements SongEventListener {
     }
     
     private List<Song> getCurrentDisplayedSongs() {
-        return isFiltered ? currentFilteredSongs : BgmManager.getInstance().getPlaylist();
+        return playlistManager.getCurrentPlaylist();
     }
     
     private void populatePlaylistWithSongs(List<Song> songs) {
@@ -193,7 +181,7 @@ public class PlaylistModal extends StackPane implements SongEventListener {
     }
     
     private void populatePlaylist() {
-        populatePlaylistWithSongs(BgmManager.getInstance().getPlaylist());
+        populatePlaylistWithSongs(playlistManager.getCurrentPlaylist());
     }
 
     private void onItemSelected(PlaylistItem newSelection) {
@@ -206,8 +194,6 @@ public class PlaylistModal extends StackPane implements SongEventListener {
     }
 
     public void hide() {
-        isFiltered = false;
-
         if (searchUpdateTimeline != null) {
             searchUpdateTimeline.stop();
         }
@@ -220,20 +206,17 @@ public class PlaylistModal extends StackPane implements SongEventListener {
         });
 
         fadeOut.play();
-    }
-
-    public void show() {
+    }    public void show() {
         this.setVisible(true);
-
+        
         if (inputManager != null) {
             inputManager.clearTypedChars();
             lastSearchQuery = "";
             searchLabel.setText("Type to search!");
-            isFiltered = false;
-            currentFilteredSongs = null;
+            playlistManager.clearFilter();
             populatePlaylist();
 
-            Song song = BgmManager.getInstance().getCurrentSong();
+            Song song = PlaylistManager.getInstance().getCurrentSong();
             SongChangeEvent event = new SongChangeEvent(song);
             update(event);
         }
@@ -257,18 +240,10 @@ public class PlaylistModal extends StackPane implements SongEventListener {
     }
 
     public void playNextSong() {
-        if (isFiltered && currentFilteredSongs != null) {
-            BgmManager.getInstance().playNextSongFromFiltered(currentFilteredSongs);
-        } else {
-            BgmManager.getInstance().playNextSong();
-        }
+        PlaylistManager.getInstance().playNextSong();
     }
     
     public void playPreviousSong() {
-        if (isFiltered && currentFilteredSongs != null) {
-            BgmManager.getInstance().playPreviousSongFromFiltered(currentFilteredSongs);
-        } else {
-            BgmManager.getInstance().playPreviousSong();
-        }
+        PlaylistManager.getInstance().playPreviousSong();
     }
 }
