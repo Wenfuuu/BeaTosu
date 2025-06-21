@@ -427,15 +427,15 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         }
 
         if (hitResult == HitResult.PERFECT) {
-            if (perfectCombo && hitObject.isComboEnd()) {
+            if (!imperfectOrMissed && hitObject.isComboEnd()) {
                 gekiHits++;
-            } else
-                perfectHits++;
+            }
+            perfectHits++;
         } else if (hitResult == HitResult.GREAT) {
             if (!imperfectOrMissed && hitObject.isComboEnd()) {
                 greatKatuHits++;
-            } else
-                greatHits++;
+            }
+            greatHits++;
             perfectCombo = false;
         } else if (hitResult == HitResult.GOOD) {
             goodHits++;
