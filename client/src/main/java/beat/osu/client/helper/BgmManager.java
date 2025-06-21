@@ -95,6 +95,7 @@ public class BgmManager {
                 System.out.println("Same BGM content. Skipping playback.");
                 return;
             }
+            System.out.println("stopping current BGM and playing new one.");
             stopBgm();
         } else {
             if(newHash != null && currentBgmHash.equals(defaultBgmHash)) {
@@ -107,6 +108,7 @@ public class BgmManager {
 //                currentPlayer.play();
                 if(currentPlayer.getCurrentTime().lessThan(currentPlayer.getTotalDuration())) currentPlayer.play();
                 else {
+                    // for playing the same song again after completing the game
                     currentBgmHash = null;
                     playPreviewBgm(false);
                     return;
@@ -116,6 +118,8 @@ public class BgmManager {
                 return;
             }
         }
+        System.out.println("From another page, Different BGM content. Playing new BGM.");
+        stopBgm();
         currentBgmHash = newHash;
 
         Media media = new Media(audioFile.toURI().toString());
@@ -195,6 +199,7 @@ public class BgmManager {
 
     public void playAudio(String audioPath) {
         File songFile = new File(audioPath);
+        currentBgmHash = computeFileHash(songFile);
 
         stopBgm();
         try {
