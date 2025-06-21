@@ -172,13 +172,12 @@ public class HomeView extends Page {
 
     public void handleEvent() {
         beatmapPane.setOnBeatmapSelectedListener(beatmap -> {
-            topBar.updateSongInfo(beatmap);
-//            OsuParser.extractAndParse(beatmap);
             try {
                 OsuParser.parseBeatmap(beatmap);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+            topBar.updateSongInfo(beatmap);
             BgmManager.getInstance().playPreviewBgm(false);
             BackgroundManager.setGameBackground(scene);
 

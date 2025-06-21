@@ -2,6 +2,7 @@ package beat.osu.client.view.home.component;
 
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.model.Beatmap;
+import beat.osu.client.utils.OsuParser;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -59,7 +60,7 @@ public class TopBar extends HBox {
                 beatmap.getBeatmapSet().getBpm());
         songDetailLbl.setText(detail);
 
-        songObjectLbl.setText("Circles: 19 Sliders: 25 Spinners: 1");
+        songObjectLbl.setText(OsuParser.getHitObjectCount());
 
         String diff = String.format("CS:%.2f AR:%.2f OD:%.2f HP:%.2f Stars:%.2f",
                 beatmap.getCircleSize(),

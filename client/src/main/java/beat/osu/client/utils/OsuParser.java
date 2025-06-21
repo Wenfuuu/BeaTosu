@@ -64,6 +64,37 @@ public class OsuParser {
                 - 0.2;
     }
 
+    private static String decodeType(int type){
+        boolean isHitCircle = (type & 1) != 0;
+        boolean isSlider = (type & 2) != 0;
+
+        if(isHitCircle) return "circle";
+        else if(isSlider) return "slider";
+        return "spinner";
+    }
+
+    public static String getHitObjectCount() {
+        int circleCount = 0;
+        int sliderCount = 0;
+        int spinnerCount = 0;
+        for (String hitObject : hitObjects) {
+            String[] parts = hitObject.split(",");
+            if (parts.length > 3) {
+                int type = Integer.parseInt(parts[3]);
+                String typeStr = decodeType(type);
+                if (typeStr.equals("circle")) {
+                    circleCount++;
+                } else if (typeStr.equals("slider")) {
+                    sliderCount++;
+                } else if (typeStr.equals("spinner")) {
+                    spinnerCount++;
+                }
+            }
+        }
+        return String.format("Circles: %d Sliders: %d Spinners: %d",
+                circleCount, sliderCount, spinnerCount);
+    }
+
     public static void insertBeatmapSet(String timeString) {
         int beatmapSetId = Integer.parseInt(metadata.get("BeatmapSetID"));
         String title = metadata.get("Title");
