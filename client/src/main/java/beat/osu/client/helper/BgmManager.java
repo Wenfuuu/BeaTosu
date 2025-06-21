@@ -255,6 +255,62 @@ public class BgmManager implements SongEventPublisher {
         playSong(currentSong);
     }
 
+    public void playNextSongFromFiltered(List<Song> filteredSongs) {
+        Song nextSong = getNextSongFromFiltered(filteredSongs);
+        if (nextSong != null) {
+            playSong(nextSong);
+        }
+    }
+
+    public void playPreviousSongFromFiltered(List<Song> filteredSongs) {
+        Song previousSong = getPreviousSongFromFiltered(filteredSongs);
+        if (previousSong != null) {
+            playSong(previousSong);
+        }
+    }
+
+    private Song getNextSongFromFiltered(List<Song> filteredSongs) {
+        if (currentSong == null) {
+            return filteredSongs.isEmpty() ? null : filteredSongs.get(0);
+        }
+
+        int currentFilteredIndex = -1;
+        for (int i = 0; i < filteredSongs.size(); i++) {
+            if (filteredSongs.get(i).getId() == currentSong.getId()) {
+                currentFilteredIndex = i;
+                break;
+            }
+        }
+
+        if (currentFilteredIndex == -1) {
+            return filteredSongs.isEmpty() ? null : filteredSongs.get(0);
+        }
+
+        int nextIndex = (currentFilteredIndex + 1) % filteredSongs.size();
+        return filteredSongs.get(nextIndex);
+    }
+
+    private Song getPreviousSongFromFiltered(List<Song> filteredSongs) {
+        if (currentSong == null) {
+            return filteredSongs.isEmpty() ? null : filteredSongs.get(filteredSongs.size() - 1);
+        }
+
+        int currentFilteredIndex = -1;
+        for (int i = 0; i < filteredSongs.size(); i++) {
+            if (filteredSongs.get(i).getId() == currentSong.getId()) {
+                currentFilteredIndex = i;
+                break;
+            }
+        }
+
+        if (currentFilteredIndex == -1) {
+            return filteredSongs.isEmpty() ? null : filteredSongs.get(filteredSongs.size() - 1);
+        }
+
+        int previousIndex = (currentFilteredIndex - 1 + filteredSongs.size()) % filteredSongs.size();
+        return filteredSongs.get(previousIndex);
+    }
+
     public void playSong(Song song) {
         File songFile = new File(song.getAudioPath());
 

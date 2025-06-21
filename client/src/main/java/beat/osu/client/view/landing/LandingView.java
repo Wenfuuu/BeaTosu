@@ -380,6 +380,8 @@ public class LandingView extends Page {
     }
 
     public void handleEvent() {
+        playlistModalComponent.setInputManager(inputManager);
+
         visualizerComponent.getLogoRayGroup().setOnMouseClicked(e -> {
             toggleMenuPanel();
         });
