@@ -1,0 +1,34 @@
+.navigation-bar {
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-max-height: 64;
+    -fx-pref-height: 64;
+    -fx-min-height: 64;
+}
+
+.button {
+    -fx-padding: 2px 12px 4px 12px;
+    -fx-text-fill: white;
+    -fx-font-family: 'Aller Light';
+    -fx-font-size: 36px;
+    -fx-border-radius: 5;
+    -fx-alignment: center;
+}
+
+.button .text {
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.7), 1, 0, 1, 1),
+                dropshadow(one-pass-box, rgba(0, 0, 0, 0.7), 1, 0, -1, 1),
+                dropshadow(one-pass-box, rgba(0, 0, 0, 0.7), 1, 0, 1, -1),
+                dropshadow(one-pass-box, rgba(0, 0, 0, 0.7), 1, 0, -1, -1);
+}
+
+.back-button {
+    -fx-background-color: linear-gradient(to bottom, #ae7122, #D88C29);
+}
+
+.new-game-button {
+    -fx-background-color: linear-gradient(to bottom, #405ea5, #5076D1);
+}
+
+.quick-join-button {
+    -fx-background-color: linear-gradient(to bottom, #6c9518, #85B81F);
+}

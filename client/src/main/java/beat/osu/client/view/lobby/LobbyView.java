@@ -8,8 +8,8 @@ import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.PlaylistManager;
-import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.ViewManager;
+import beat.osu.client.view.lobby.component.layout.NavigationBar;
 import beat.osu.client.view.lobby.component.layout.TopBar;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
@@ -23,11 +23,9 @@ import beat.osu.client.view.shared.common.Toast;
 import beat.osu.client.view.shared.jukebox.Jukebox;
 import beat.osu.client.view.shared.jukebox.modals.PlaylistModal;
 import javafx.application.Platform;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 public class LobbyView extends Page {
@@ -46,9 +44,8 @@ public class LobbyView extends Page {
     private ViewUserModal viewUserModal;
     private BanchoButtons banchoButtons;
 
-    private Button backbutton;
-
     private TopBar topBar;
+    private NavigationBar navigationBar;
 
     public LobbyView(Stage stage, ConnectedUsersController connectedUsersController, ChatController chatController) {
         super(stage);
@@ -71,6 +68,7 @@ public class LobbyView extends Page {
         root.getChildren().add(backgroundOverlay);
 
         topBar = new TopBar();
+        navigationBar = new NavigationBar();
 
         playlistModal = new PlaylistModal();
         PlaylistManager.getInstance().addListener(playlistModal);
@@ -119,8 +117,6 @@ public class LobbyView extends Page {
 
         playlistModal.setVisible(false);
         
-        backbutton = new Button("Back");
-
         scene.setRoot(root);
 
         URL globalCssUrl = CssManager.getGlobalCssURL();
@@ -149,8 +145,13 @@ public class LobbyView extends Page {
         root.getChildren().add(topBar);
         StackPane.setAlignment(topBar, Pos.TOP_CENTER);
 
-        root.getChildren().addAll(playlistModal, selectChannelModal);
+        VBox mainContent = new VBox();
+        mainContent.getChildren().addAll(navigationBar, chatPanel);
+        root.getChildren().add(mainContent);
+        mainContent.setAlignment(Pos.BOTTOM_CENTER);
+        StackPane.setAlignment(mainContent, Pos.BOTTOM_CENTER);
 
+        root.getChildren().addAll(playlistModal, selectChannelModal);
         StackPane.setAlignment(playlistModal, Pos.CENTER);
         StackPane.setAlignment(selectChannelModal, Pos.CENTER);
 
@@ -161,19 +162,11 @@ public class LobbyView extends Page {
         StackPane.setAlignment(onlineUsersPanel, Pos.TOP_CENTER);
         onlineUsersPanel.setMaxWidth(Double.MAX_VALUE);
 
-        root.getChildren().add(chatPanel);
-        StackPane.setAlignment(chatPanel, Pos.TOP_CENTER);
-        chatPanel.setMaxWidth(Double.MAX_VALUE);
-        StackPane.setMargin(chatPanel, new Insets(ScreenManager.SCREEN_HEIGHT * 0.65, 0, 0, 0));
-
         root.getChildren().add(banchoButtons);
         StackPane.setAlignment(banchoButtons, Pos.BOTTOM_RIGHT);
 
         root.getChildren().add(viewUserModal);
         StackPane.setAlignment(viewUserModal, Pos.CENTER);
-
-        root.getChildren().add(backbutton);
-        StackPane.setAlignment(backbutton, Pos.BOTTOM_LEFT);
     }
 
     @Override
@@ -205,7 +198,7 @@ public class LobbyView extends Page {
             }
         });
 
-        backbutton.setOnMouseClicked(e -> {
+        navigationBar.getBackButton().setOnMouseClicked(e -> {
             ViewManager.getInstance().showLandingView();
         });
 

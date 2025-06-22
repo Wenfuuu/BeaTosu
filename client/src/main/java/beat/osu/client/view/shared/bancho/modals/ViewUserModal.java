@@ -13,6 +13,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import lombok.Setter;
 
 public class ViewUserModal extends VBox {
 
@@ -22,6 +23,7 @@ public class ViewUserModal extends VBox {
     private Button closeButton;
     private VBox buttonsContainer;
     
+    @Setter
     private Consumer<PrivateChatDto> onStartChatCallback;
 
     public ViewUserModal() {
@@ -123,9 +125,5 @@ public class ViewUserModal extends VBox {
         this.getChildren().remove(userCard);
         this.userCard = newUserCard;
         this.getChildren().add(0, userCard);
-    }
-    
-    public void setOnStartChatCallback(Consumer<PrivateChatDto> callback) {
-        this.onStartChatCallback = callback;
     }
 }
