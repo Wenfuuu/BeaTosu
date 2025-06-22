@@ -3,8 +3,9 @@ package beat.osu.client.controller;
 import beat.osu.client.service.ClientService;
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
-import beat.osu.shared.dto.beatmap.responses.InsertBeatmapSetResponse;
+import beat.osu.shared.dto.score.requests.GetScoreRequest;
 import beat.osu.shared.dto.score.requests.InsertScoreRequest;
+import beat.osu.shared.dto.score.responses.GetAllScoresResponse;
 import beat.osu.shared.dto.score.responses.InsertScoreResponse;
 import beat.osu.shared.enums.MessageAction;
 import beat.osu.shared.enums.MessageType;
@@ -18,6 +19,27 @@ public class ScoreController {
 
     public ScoreController() {
         this.clientService = ClientService.getInstance();
+    }
+
+    public CompletableFuture<Result<GetAllScoresResponse>> getScoresByBeatmapId(int beatmapId) {
+        GetScoreRequest requestData = new GetScoreRequest(beatmapId);
+
+        RequestMessage request = new RequestMessage(MessageType.SCORE, MessageAction.GET_ALL_SCORES, requestData);
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendRequest(request).get();
+
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((GetAllScoresResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
     }
 
     public CompletableFuture<Result<InsertScoreResponse>> insertScore(

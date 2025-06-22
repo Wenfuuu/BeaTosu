@@ -55,10 +55,10 @@ public class ScoreRepository {
         }
     }
 
-    public ArrayList<Score> getAllScoresByBeatmapId(int beatmapId) {
+    public ArrayList<Score> getScoresByBeatmapId(int beatmapId) {
         ArrayList<Score> scores = new ArrayList<>();
 
-        String query = "SELECT * FROM beatmap_scores WHERE beatmap_id = ? ORDER BY score DESC;";
+        String query = "SELECT * FROM scores WHERE beatmap_id = ? ORDER BY score DESC;";
         try (var statement = conn.prepareStatement(query)) {
             statement.setInt(1, beatmapId);
             var rs = statement.executeQuery();

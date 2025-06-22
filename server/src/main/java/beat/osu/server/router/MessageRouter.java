@@ -15,6 +15,7 @@ import beat.osu.shared.dto.match.requests.CreateMatchRequest;
 import beat.osu.shared.dto.match.requests.JoinMatchRequest;
 import beat.osu.shared.dto.match.requests.KickPlayerRequest;
 import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
+import beat.osu.shared.dto.score.requests.GetScoreRequest;
 import beat.osu.shared.dto.score.requests.InsertScoreRequest;
 import beat.osu.shared.models.RequestMessage;
 import lombok.RequiredArgsConstructor;
@@ -86,8 +87,8 @@ public class MessageRouter {
 
     private Object handleScoreRequest(RequestMessage request, String clientId) {
         switch (request.getAction()) {
-//            case GET_ALL_SCORES:
-//                return scoreService.
+            case GET_ALL_SCORES:
+                return scoreService.getScoresByBeatmapId((GetScoreRequest) request.getPayload());
             case INSERT_SCORE:
                 return scoreService.insertScore((InsertScoreRequest) request.getPayload());
             default:

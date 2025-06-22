@@ -12,6 +12,8 @@ import beat.osu.client.view.home.component.BottomBar;
 import beat.osu.client.view.home.component.TopBar;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
+import beat.osu.shared.dto.score.ScoreDto;
+import beat.osu.shared.dto.score.responses.GetAllScoresResponse;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -19,6 +21,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,6 +39,7 @@ public class HomeView extends Page {
     private BottomBar bottomBar;
     private BeatmapPane beatmapPane;
     private ArrayList<Beatmap> beatmaps;
+    private ArrayList<ScoreDto> scores;
 
     public HomeView(Stage stage) {
         super(stage);
@@ -67,6 +71,7 @@ public class HomeView extends Page {
 
         if (!beatmaps.isEmpty()) {
             topBar.updateSongInfo(beatmaps.get(0));
+            scores = fetchScores(beatmaps.get(0));
         }
 
         scene.setRoot(root);
@@ -102,9 +107,32 @@ public class HomeView extends Page {
             throw new RuntimeException(e);
         }
         scene.setRoot(root);
-
         BgmManager.getInstance().playPreviewBgm(true);
         BackgroundManager.setGameBackground(scene);
+    }
+
+    private ArrayList<ScoreDto> fetchScores(Beatmap beatmap) {
+        try {
+            Result<GetAllScoresResponse> result = scoreController.getScoresByBeatmapId(beatmap.getBeatmapId()).get();
+            ArrayList<ScoreDto> scores = new ArrayList<>();
+
+            if (result.isSuccess()) {
+                ArrayList<ScoreDto> scoreDtos = result.getValue().getScores();
+                if (scoreDtos != null && !scoreDtos.isEmpty()) {
+                    scores = scoreDtos;
+                    System.out.println("Fetched " + scores.size() + " scores for beatmap ID: " + beatmap.getBeatmapId());
+                } else {
+                    System.out.println("No scores found for beatmap ID: " + beatmap.getBeatmapId());
+                }
+            } else {
+                System.err.println("Failed to fetch scores: " + result.getError().getMessage());
+            }
+
+            return scores;
+        } catch (Exception e) {
+            System.err.println("Error fetching scores: " + e.getMessage());
+            return new ArrayList<>();
+        }
     }
 
     private ArrayList<Beatmap> fetchBeatmaps() {
@@ -180,6 +208,8 @@ public class HomeView extends Page {
             topBar.updateSongInfo(beatmap);
             BgmManager.getInstance().playPreviewBgm(false);
             BackgroundManager.setGameBackground(scene);
+
+            scores = fetchScores(beatmap);
 
             // sfx testing purpose
 //            for (String data: OsuParser.getHitObjects()) {
