@@ -63,7 +63,7 @@ public class Jukebox extends StackPane implements SongEventListener {
             System.err.println("Css file not found!");
         }
 
-        URL cssUrl = CssManager.getLandingCssURL("Jukebox.css");
+        URL cssUrl = CssManager.getSharedCssURL("Jukebox.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {

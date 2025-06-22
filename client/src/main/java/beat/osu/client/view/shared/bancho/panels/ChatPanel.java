@@ -56,7 +56,7 @@ public class ChatPanel extends VBox {
         this.getStyleClass().add("chat-panel");
         this.setVisible(false);
 
-        URL cssUrl = CssManager.getLandingCssURL("ChatPanel.css");
+        URL cssUrl = CssManager.getSharedCssURL("ChatPanel.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {

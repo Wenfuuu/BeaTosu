@@ -75,7 +75,7 @@ public class ChatTabButton extends Button {
         this.setGraphic(container);
         this.setText("");
 
-        URL cssUrl = CssManager.getLandingCssURL("ChatTabButton.css");
+        URL cssUrl = CssManager.getSharedCssURL("ChatTabButton.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {

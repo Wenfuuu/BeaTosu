@@ -15,7 +15,7 @@ public class SortUsersButton extends Button {
         super();
         this.setText(text);
 
-        URL cssUrl = CssManager.getLandingCssURL("SortUsersButton.css");
+        URL cssUrl = CssManager.getSharedCssURL("SortUsersButton.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {

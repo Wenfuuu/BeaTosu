@@ -29,13 +29,6 @@ public class MediaControls extends HBox {
             System.err.println("index.css file not found!");
         }
 
-        URL cssUrl = CssManager.getLandingCssURL("Jukebox.css");
-        if (cssUrl != null) {
-            this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("LoginModal.css file not found!");
-        }
-
         initializeComponents();
         setupLayout();
     }

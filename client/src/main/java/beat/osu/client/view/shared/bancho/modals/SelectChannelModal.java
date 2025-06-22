@@ -228,7 +228,7 @@ public class SelectChannelModal extends VBox {
     }
 
     private void loadStyles() {
-        URL cssUrl = CssManager.getLandingCssURL("SelectChannelModal.css");
+        URL cssUrl = CssManager.getSharedCssURL("SelectChannelModal.css");
 
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());

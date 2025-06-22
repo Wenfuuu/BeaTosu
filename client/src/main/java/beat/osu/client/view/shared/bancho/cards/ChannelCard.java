@@ -75,7 +75,7 @@ public class ChannelCard extends HBox {
     }
 
     private void updateStyles() {
-        URL cssUrl = CssManager.getLandingCssURL("ChannelCard.css");
+        URL cssUrl = CssManager.getSharedCssURL("ChannelCard.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {

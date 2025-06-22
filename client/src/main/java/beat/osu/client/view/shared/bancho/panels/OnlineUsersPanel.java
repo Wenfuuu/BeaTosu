@@ -65,7 +65,7 @@ public class OnlineUsersPanel extends VBox {
             System.err.println("CSS file not found!");
         }
 
-        URL cssUrl = CssManager.getLandingCssURL("OnlineUsersPanel.css");
+        URL cssUrl = CssManager.getSharedCssURL("OnlineUsersPanel.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {

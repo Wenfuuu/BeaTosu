@@ -182,7 +182,7 @@ public class UserCard extends HBox {
             System.err.println("CSS file not found!");
         }
 
-        URL cssUrl = CssManager.getLandingCssURL("UserCard.css");
+        URL cssUrl = CssManager.getSharedCssURL("UserCard.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {

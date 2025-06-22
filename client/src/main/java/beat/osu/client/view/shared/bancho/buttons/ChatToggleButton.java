@@ -23,7 +23,7 @@ public class ChatToggleButton extends Button {
     public ChatToggleButton() {
         super();
 
-        URL cssUrl = CssManager.getLandingCssURL("BanchoButton.css");
+        URL cssUrl = CssManager.getSharedCssURL("BanchoButton.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {

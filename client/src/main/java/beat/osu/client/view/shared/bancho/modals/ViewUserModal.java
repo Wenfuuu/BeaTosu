@@ -78,7 +78,7 @@ public class ViewUserModal extends VBox {
 
     private void setupStyling() {
         try {
-            URL cssUrl = CssManager.getLandingCssURL("ViewUserModal.css");
+            URL cssUrl = CssManager.getSharedCssURL("ViewUserModal.css");
             if (cssUrl != null) {
                 this.getStylesheets().add(cssUrl.toExternalForm());
             }

@@ -39,7 +39,7 @@ public class CurrentSongCard extends StackPane {
             System.err.println("CSS file not found!");
         }
 
-        URL cssUrl = CssManager.getLandingCssURL("CurrentSongCard.css");
+        URL cssUrl = CssManager.getSharedCssURL("CurrentSongCard.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {

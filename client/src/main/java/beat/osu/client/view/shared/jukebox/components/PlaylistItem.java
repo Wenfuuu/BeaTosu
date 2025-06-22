@@ -33,7 +33,7 @@ public class PlaylistItem extends VBox {
     }
 
     private void loadStyles() {
-        URL cssUrl = CssManager.getLandingCssURL("PlaylistItem.css");
+        URL cssUrl = CssManager.getSharedCssURL("PlaylistItem.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {
