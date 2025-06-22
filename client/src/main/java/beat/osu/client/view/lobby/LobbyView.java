@@ -1,6 +1,7 @@
 package beat.osu.client.view.lobby;
 
 import beat.osu.client.controller.ChannelController;
+import beat.osu.client.controller.ChatController;
 import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.controller.PrivateChatController;
 import beat.osu.client.helper.*;
@@ -29,6 +30,7 @@ public class LobbyView extends Page {
     private ConnectedUsersController connectedUsersController;
     private ChannelController channelController;
     private PrivateChatController privateChatController;
+    private ChatController chatController;
 
     private PlaylistModal playlistModalComponent;
     private Jukebox jukeboxComponent;
@@ -38,13 +40,14 @@ public class LobbyView extends Page {
     private ViewUserModal viewUserModal;
     private BanchoButtons banchoButtons;
 
-    public LobbyView(Stage stage, ConnectedUsersController connectedUsersController,
-                     ChannelController channelController, PrivateChatController privateChatController) {
+    public LobbyView(Stage stage, ConnectedUsersController connectedUsersController, ChannelController channelController,
+                     PrivateChatController privateChatController, ChatController chatController) {
         super(stage);
 
         this.connectedUsersController = connectedUsersController;
         this.channelController = channelController;
         this.privateChatController = privateChatController;
+        this.chatController = chatController;
 
         setupView();
         handleEvent();
@@ -65,7 +68,7 @@ public class LobbyView extends Page {
 
         onlineUsersPanel = new OnlineUsersPanel(connectedUsersController);
         selectChannelModal = new SelectChannelModal(channelController, banchoButtons);
-        chatPanel = new ChatPanel(channelController, privateChatController, selectChannelModal, onlineUsersPanel, banchoButtons);
+        chatPanel = new ChatPanel(chatController, selectChannelModal, onlineUsersPanel, banchoButtons);
 
         viewUserModal = new ViewUserModal();
 

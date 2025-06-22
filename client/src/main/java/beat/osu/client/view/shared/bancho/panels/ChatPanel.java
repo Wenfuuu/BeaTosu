@@ -3,32 +3,20 @@ package beat.osu.client.view.shared.bancho.panels;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
+import java.util.Objects;
 
-import beat.osu.client.controller.ChannelController;
-import beat.osu.client.controller.PrivateChatController;
-import beat.osu.client.helper.AuthManager;
+import beat.osu.client.controller.ChatController;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
-import beat.osu.client.view.shared.common.Toast;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.shared.bancho.buttons.ChatTabButton;
 import beat.osu.client.view.shared.bancho.modals.SelectChannelModal;
 import beat.osu.client.view.shared.bancho.tabs.ChatTabs;
-import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.chat.ChannelDto;
 import beat.osu.shared.dto.chat.ChannelMessageDto;
 import beat.osu.shared.dto.chat.PrivateChatDto;
 import beat.osu.shared.dto.chat.PrivateChatMessageDto;
-import beat.osu.shared.dto.chat.events.ChannelMessageEvent;
-import beat.osu.shared.dto.chat.events.PrivateChatMessageEvent;
-import beat.osu.shared.dto.chat.events.UserJoinedChannelEvent;
-import beat.osu.shared.dto.chat.events.UserLeftChannelEvent;
-import beat.osu.shared.dto.chat.responses.GetJoinedChannelsResponse;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
@@ -45,24 +33,20 @@ import javafx.util.Duration;
 
 public class ChatPanel extends VBox {
 
-    private ChannelController channelController;
-    private PrivateChatController privateChatController;
+    private ChatController chatController;
 
     private SelectChannelModal selectChannelModal;
     private OnlineUsersPanel onlineUsersPanel;
     private BanchoButtons banchoButtons;
 
     private ChatTabs chatTabs;
-    private Map<Integer, List<ChannelMessageDto>> channelMessages = new HashMap<>();
-    private Map<Integer, List<PrivateChatMessageDto>> privateChatMessages = new HashMap<>();
     private TextField chatField;
     private ScrollPane messagesScrollPane;
     private VBox messagesContainer;
 
-    public ChatPanel(ChannelController channelController, PrivateChatController privateChatController, SelectChannelModal selectChannelModal, OnlineUsersPanel onlineUsersPanel, BanchoButtons banchoButtons) {
+    public ChatPanel(ChatController chatController, SelectChannelModal selectChannelModal, OnlineUsersPanel onlineUsersPanel, BanchoButtons banchoButtons) {
         super();
-        this.channelController = channelController;
-        this.privateChatController = privateChatController;
+        this.chatController = chatController;
         this.selectChannelModal = selectChannelModal;
         this.onlineUsersPanel = onlineUsersPanel;
         this.banchoButtons = banchoButtons;
@@ -88,7 +72,8 @@ public class ChatPanel extends VBox {
     }
 
     public void show() {
-        loadJoinedChannels();
+        chatController.loadJoinedChannels();
+        chatController.loadExistingPrivateChats();
 
         this.setVisible(true);
         this.setTranslateY(this.getHeight());
@@ -120,92 +105,66 @@ public class ChatPanel extends VBox {
         hideTransition.play();
     }
 
-    private void loadJoinedChannels() {
-        try {
-            Result<GetJoinedChannelsResponse> result = channelController.getJoinedChannels().get();
+    private void setupEventHandlers() {
+        chatController.addJoinedChannelsUpdatedCallback(() -> {
             Platform.runLater(() -> {
-                if (result.isSuccess()) {
-                    GetJoinedChannelsResponse response = result.getValue();
-                    chatTabs.setJoinedChannels(response.getChannels());
-                } else {
-                    System.out.println(result.getError().getMessage());
+                chatTabs.setJoinedChannels(chatController.getJoinedChannels());
+            });
+        });
+        
+        chatController.addChannelAddedCallback(channel -> {
+            Platform.runLater(() -> {
+                chatTabs.addChannel(channel);
+            });
+        });
+        
+        chatController.addChannelRemovedCallback(channelId -> {
+            Platform.runLater(() -> {
+                chatTabs.removeChannel(channelId);
+            });
+        });
+        
+        chatController.addPrivateChatAddedCallback(privateChat -> {
+            Platform.runLater(() -> {
+                chatTabs.addPrivateChat(privateChat);
+            });
+        });
+        
+        chatController.addPrivateChatRemovedCallback(otherUserId -> {
+            Platform.runLater(() -> {
+                chatTabs.removePrivateChat(otherUserId);
+                displayMessages();
+            });
+        });
+        
+        chatController.addChannelMessagesUpdatedCallback(channelId -> {
+            Platform.runLater(() -> {
+                if (chatTabs.getCurrentSelectedTab() instanceof ChannelDto &&
+                        Objects.equals(((ChannelDto) chatTabs.getCurrentSelectedTab()).getId(), channelId)) {
+                    displayMessages();
                 }
             });
-        } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void handleUserJoinedChannel(UserJoinedChannelEvent event) {
-        Platform.runLater(() -> {
-            if (event.getUserId() == AuthManager.getUser().getId()) {
-                chatTabs.addChannel(event.getChannel());
-            }
         });
-    }
-
-    private void handleUserLeftChannel(UserLeftChannelEvent event) {
-        Platform.runLater(() -> {
-            if (event.getUserId() == AuthManager.getUser().getId()) {
-                chatTabs.removeChannel(event.getChannelId());
-            }
-        });
-    }
-
-    private void handleChannelMessage(ChannelMessageEvent event) {
-        Platform.runLater(() -> {
-            ChannelMessageDto message = event.getChannelMessage();
-            int channelId = message.getChannelId();
-            
-            channelMessages.computeIfAbsent(channelId, k -> new ArrayList<>()).add(message);
-            
-            if (chatTabs.getCurrentSelectedTab() != null &&
-                    ((ChannelDto) chatTabs.getCurrentSelectedTab()).getId() == channelId) {
-                displayMessages();
-            }
-        });
-    }
-
-    private void handlePrivateMessage(PrivateChatMessageEvent event) {
-        Platform.runLater(() -> {
-            PrivateChatMessageDto message = event.getPrivateChatMessage();
-            int otherUserId = message.getSenderId() == AuthManager.getUser().getId() 
-                ? message.getRecipientId()
-                : message.getSenderId();
-            
-            privateChatMessages.computeIfAbsent(otherUserId, k -> new ArrayList<>()).add(message);
-            
-            String otherUserName = message.getSenderId() == AuthManager.getUser().getId()
-                ? message.getRecipientName()
-                : message.getSenderName();
-            
-            PrivateChatDto privateChat = new PrivateChatDto(otherUserId, otherUserName);
-            chatTabs.addPrivateChat(privateChat);
-            
-            if (chatTabs.getCurrentSelectedTab() instanceof PrivateChatDto &&
-                ((PrivateChatDto) chatTabs.getCurrentSelectedTab()).getOtherUserId() == otherUserId) {
-                displayMessages();
-            }
+        
+        chatController.addPrivateChatMessagesUpdatedCallback(otherUserId -> {
+            Platform.runLater(() -> {
+                if (chatTabs.getCurrentSelectedTab() instanceof PrivateChatDto &&
+                    ((PrivateChatDto) chatTabs.getCurrentSelectedTab()).getOtherUserId() == otherUserId) {
+                    displayMessages();
+                }
+            });
         });
     }
 
     public void addPrivateChat(PrivateChatDto privateChat) {
-        chatTabs.addPrivateChat(privateChat);
+        chatController.addPrivateChat(privateChat);
         chatTabs.selectTab(privateChat);
     }
 
     public boolean isShowing() {
         return this.isVisible();
     }
-
-    private void setupEventHandlers() {
-        channelController.addChannelMessageCallback(this::handleChannelMessage);
-        channelController.addUserJoinedChannelCallback(this::handleUserJoinedChannel);
-        channelController.addUserLeftChannelCallback(this::handleUserLeftChannel);
-
-        privateChatController.addPrivateChatMessageCallback(this::handlePrivateMessage);
-    }
-
+    
     private void setupUI() {
         chatTabs = new ChatTabs();
         
@@ -249,8 +208,8 @@ public class ChatPanel extends VBox {
     }
     
     private void handleTabClose(ChatTabButton tabButton) {
-        List<ChannelDto> joinedChannels = chatTabs.getJoinedChannels();
-        List<PrivateChatDto> privateChats = chatTabs.getPrivateChats();
+        List<ChannelDto> joinedChannels = chatController.getJoinedChannels();
+        List<PrivateChatDto> privateChats = chatController.getPrivateChats();
         
         ChannelDto channelToLeave = joinedChannels.stream()
                 .filter(channel -> channel.getName().equals(tabButton.getTabText()))
@@ -258,17 +217,7 @@ public class ChatPanel extends VBox {
                 .orElse(null);
 
         if (channelToLeave != null) {
-            channelController.leaveChannel(channelToLeave.getId())
-                    .thenAccept(result -> {
-                        Platform.runLater(() -> {
-                            if (result.isSuccess()) {
-                                chatTabs.removeChannel(channelToLeave.getId());
-                                channelMessages.remove(channelToLeave.getId());
-                            } else {
-                                Toast.error("Failed to leave channel: " + result.getError().getMessage());
-                            }
-                        });
-                    });
+            chatController.leaveChannel(channelToLeave.getId());
         } else {
             PrivateChatDto privateChatToClose = privateChats.stream()
                     .filter(chat -> chat.getOtherUserName().equals(tabButton.getTabText()))
@@ -276,9 +225,7 @@ public class ChatPanel extends VBox {
                     .orElse(null);
             
             if (privateChatToClose != null) {
-                chatTabs.removePrivateChat(privateChatToClose.getOtherUserId());
-                privateChatMessages.remove(privateChatToClose.getOtherUserId());
-                displayMessages();
+                chatController.removePrivateChat(privateChatToClose.getOtherUserId());
             }
         }
     }
@@ -301,21 +248,17 @@ public class ChatPanel extends VBox {
         Object currentTab = chatTabs.getCurrentSelectedTab();
         if (currentTab instanceof ChannelDto) {
             ChannelDto currentChannel = (ChannelDto) currentTab;
-            List<ChannelMessageDto> messages = channelMessages.get(currentChannel.getId());
-            if (messages != null) {
-                for (ChannelMessageDto message : messages) {
-                    HBox messageBox = createChannelMessageItem(message);
-                    messagesContainer.getChildren().add(messageBox);
-                }
+            List<ChannelMessageDto> messages = chatController.getChannelMessages(currentChannel.getId());
+            for (ChannelMessageDto message : messages) {
+                HBox messageBox = createChannelMessageItem(message);
+                messagesContainer.getChildren().add(messageBox);
             }
         } else if (currentTab instanceof PrivateChatDto) {
             PrivateChatDto currentPrivateChat = (PrivateChatDto) currentTab;
-            List<PrivateChatMessageDto> messages = privateChatMessages.get(currentPrivateChat.getOtherUserId());
-            if (messages != null) {
-                for (PrivateChatMessageDto message : messages) {
-                    HBox messageBox = createPrivateChatMessageItem(message);
-                    messagesContainer.getChildren().add(messageBox);
-                }
+            List<PrivateChatMessageDto> messages = chatController.getPrivateChatMessages(currentPrivateChat.getOtherUserId());
+            for (PrivateChatMessageDto message : messages) {
+                HBox messageBox = createPrivateChatMessageItem(message);
+                messagesContainer.getChildren().add(messageBox);
             }
         }
         
@@ -383,28 +326,20 @@ public class ChatPanel extends VBox {
             Object selectedTab = chatTabs.getCurrentSelectedTab();
             if (selectedTab instanceof ChannelDto) {
                 ChannelDto channel = (ChannelDto) selectedTab;
-                channelController.sendChannelMessage(channel.getId(), messageText)
+                chatController.sendChannelMessage(channel.getId(), messageText)
                         .thenAccept(result -> {
                             Platform.runLater(() -> {
-                                if (result.isSuccess()) {
-                                    ChannelMessageDto sentMessage = result.getValue().getChannelMessage();
-                                    channelMessages.computeIfAbsent(channel.getId(), k -> new ArrayList<>()).add(sentMessage);
-                                    displayMessages();
-                                } else {
+                                if (!result.isSuccess()) {
                                     System.err.println("Failed to send message: " + result.getError().getMessage());
                                 }
                             });
                         });
             } else if (selectedTab instanceof PrivateChatDto) {
                 PrivateChatDto privateChat = (PrivateChatDto) selectedTab;
-                privateChatController.sendPrivateMessage(privateChat.getOtherUserId(), messageText)
+                chatController.sendPrivateMessage(privateChat.getOtherUserId(), messageText)
                         .thenAccept(result -> {
                             Platform.runLater(() -> {
-                                if (result.isSuccess()) {
-                                    PrivateChatMessageDto sentMessage = result.getValue().getPrivateChatMessage();
-                                    privateChatMessages.computeIfAbsent(privateChat.getOtherUserId(), k -> new ArrayList<>()).add(sentMessage);
-                                    displayMessages();
-                                } else {
+                                if (!result.isSuccess()) {
                                     System.err.println("Failed to send private message: " + result.getError().getMessage());
                                 }
                             });
@@ -416,7 +351,7 @@ public class ChatPanel extends VBox {
     
     public void startPrivateChat(int otherUserId, String otherUserName) {
         PrivateChatDto privateChat = new PrivateChatDto(otherUserId, otherUserName);
-        chatTabs.addPrivateChat(privateChat);
+        chatController.addPrivateChat(privateChat);
         chatTabs.selectTab(privateChat);
     }
 }

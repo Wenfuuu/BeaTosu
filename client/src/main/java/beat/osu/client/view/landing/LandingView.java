@@ -5,6 +5,7 @@ import java.net.URL;
 
 import beat.osu.client.Main;
 import beat.osu.client.controller.ChannelController;
+import beat.osu.client.controller.ChatController;
 import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.controller.PrivateChatController;
 import beat.osu.client.helper.AuthManager;
@@ -70,6 +71,7 @@ public class LandingView extends Page {
     private ConnectedUsersController connectedUsersController;
     private ChannelController channelController;
     private PrivateChatController privateChatController;
+    private ChatController chatController;
 
     private double visualizerSize;
 
@@ -85,13 +87,14 @@ public class LandingView extends Page {
     private FadeTransition subMenuFadeIn;
     private FadeTransition subMenuFadeOut;
 
-    public LandingView(Stage stage, ConnectedUsersController connectedUsersController,
-                       ChannelController channelController, PrivateChatController privateChatController) {
+    public LandingView(Stage stage, ConnectedUsersController connectedUsersController, ChannelController channelController,
+                       PrivateChatController privateChatController, ChatController chatController) {
         super(stage);
 
         this.connectedUsersController = connectedUsersController;
         this.channelController = channelController;
         this.privateChatController = privateChatController;
+        this.chatController = chatController;
 
         setupView();
         handleEvent();
@@ -259,7 +262,7 @@ public class LandingView extends Page {
 
         onlineUsersPanel = new OnlineUsersPanel(connectedUsersController);
         selectChannelModal = new SelectChannelModal(channelController, banchoButtons);
-        chatPanel = new ChatPanel(channelController, privateChatController, selectChannelModal, onlineUsersPanel, banchoButtons);
+        chatPanel = new ChatPanel(chatController, selectChannelModal, onlineUsersPanel, banchoButtons);
 
         viewUserModal = new ViewUserModal();
 
