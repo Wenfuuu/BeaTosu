@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.function.Consumer;
 
 import beat.osu.client.controller.AuthController;
+import beat.osu.client.factory.ButtonFactory;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
@@ -70,7 +71,7 @@ public class LoginModal extends StackPane {
         if (globalCssUrl != null) {
             this.getStylesheets().add(globalCssUrl.toExternalForm());
         } else {
-            System.err.println("LoginModal.css file not found!");
+            System.err.println("Global css file not found!");
         }
 
          URL cssUrl = CssManager.getLandingCssURL("LoginModal.css");
@@ -119,7 +120,7 @@ public class LoginModal extends StackPane {
         createAccountButton.getStyleClass().addAll("login-button");
         createAccountButton.setMaxWidth(Double.MAX_VALUE);
 
-        backButton = createBackButton();
+        backButton = ButtonFactory.createBackButton();
         StackPane.setAlignment(backButton, Pos.BOTTOM_LEFT);
         StackPane.setMargin(backButton, new Insets(0, 0, 12, 0));
 
@@ -273,94 +274,5 @@ public class LoginModal extends StackPane {
     public void clearFields() {
         userInput.clear();
         passInput.clear();
-    }
-
-    private Button createBackButton() {
-        Button button = new Button();
-        try {
-            String normalImagePath = "/assets/buttons/shared/global_back.png";
-            String hoveredImagePath = "/assets/buttons/shared/global_back_hovered.png";
-            
-            URL normalImageUrl = getClass().getResource(normalImagePath);
-            URL hoveredImageUrl = getClass().getResource(hoveredImagePath);
-            
-            if (normalImageUrl == null) {
-                System.err.println("Image not found: " + normalImagePath);
-                button.setText("〈 back");
-            } else {
-                Image normalImage = new Image(normalImageUrl.toExternalForm());
-                
-                ImageView normalImageView = new ImageView(normalImage);
-                normalImageView.setFitHeight(50);
-                normalImageView.setPreserveRatio(true);
-                
-                button.setGraphic(normalImageView);
-                button.getStyleClass().clear();
-                button.getStyleClass().add("back-button-image");
-                button.setStyle("-fx-padding: 0; -fx-border-width: 0; -fx-background-color: transparent; -fx-background-insets: 0; -fx-background-radius: 0; -fx-border-radius: 0; -fx-effect: null; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
-
-                button.setMinSize(normalImageView.getFitWidth(), normalImageView.getFitHeight());
-                button.setMaxSize(normalImageView.getFitWidth(), normalImageView.getFitHeight());
-                button.setPrefSize(normalImageView.getFitWidth(), normalImageView.getFitHeight());
-                
-                if (hoveredImageUrl != null) {
-                    Image hoveredImage = new Image(hoveredImageUrl.toExternalForm());
-                    ImageView hoveredImageView = new ImageView(hoveredImage);
-                    hoveredImageView.setFitHeight(50);
-                    hoveredImageView.setPreserveRatio(true);
-                    
-                    hoveredImageView.setVisible(false);
-                    
-                    StackPane imageStack = new StackPane();
-                    imageStack.setAlignment(Pos.CENTER_LEFT);
-                    imageStack.getChildren().addAll(normalImageView, hoveredImageView);
-                    
-                    button.setGraphic(imageStack);
-                    
-                    double normalWidth = normalImageView.getBoundsInLocal().getWidth();
-                    double normalHeight = normalImageView.getBoundsInLocal().getHeight();
-                    double hoveredWidth = hoveredImageView.getBoundsInLocal().getWidth();
-                    double hoveredHeight = hoveredImageView.getBoundsInLocal().getHeight();
-                    
-                    double maxWidth = Math.max(normalWidth, hoveredWidth);
-                    double maxHeight = Math.max(normalHeight, hoveredHeight);
-                    
-                    button.setMinSize(maxWidth, maxHeight);
-                    button.setMaxSize(maxWidth, maxHeight);
-                    button.setPrefSize(maxWidth, maxHeight);
-                    
-                    ScaleTransition scaleUp = new ScaleTransition(Duration.millis(80), imageStack);
-                    scaleUp.setToX(1.05);
-                    scaleUp.setToY(1.05);
-                    scaleUp.setInterpolator(Interpolator.EASE_OUT);
-                    
-                    ScaleTransition scaleDown = new ScaleTransition(Duration.millis(100), imageStack);
-                    scaleDown.setToX(1.0);
-                    scaleDown.setToY(1.0);
-                    scaleDown.setInterpolator(Interpolator.EASE_OUT);
-                    
-                    button.setOnMouseEntered(e -> {
-                        scaleDown.stop();
-                        normalImageView.setVisible(false);
-                        hoveredImageView.setVisible(true);
-                        scaleUp.play();
-                    });
-                    
-                    button.setOnMouseExited(e -> {
-                        scaleUp.stop();
-                        normalImageView.setVisible(true);
-                        hoveredImageView.setVisible(false);
-                        scaleDown.play();
-                    });
-                } else {
-                    System.err.println("Hovered image not found: " + hoveredImagePath);
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("Error loading back button images: " + e.getMessage());
-            button.setText("〈 back");
-            button.getStyleClass().add("back-button");
-        }
-        return button;
     }
 }
