@@ -74,12 +74,12 @@ public class LoginModal extends StackPane {
             System.err.println("Global css file not found!");
         }
 
-         URL cssUrl = CssManager.getLandingCssURL("LoginModal.css");
-         if (cssUrl != null) {
-             this.getStylesheets().add(cssUrl.toExternalForm());
-         } else {
-             System.err.println("LoginModal.css file not found!");
-         }
+        URL cssUrl = CssManager.getLandingCssURL("LoginModal.css");
+        if (cssUrl != null) {
+            this.getStylesheets().add(cssUrl.toExternalForm());
+        } else {
+            System.err.println("LoginModal.css file not found!");
+        }
 
         this.setVisible(false);
         this.setManaged(false);
@@ -88,7 +88,6 @@ public class LoginModal extends StackPane {
     private void initialize() {
         this.getStyleClass().add("login-modal-background");
         this.setMaxWidth(650);
-
         formContainer = new VBox(20);
         formContainer.getStyleClass().add("login-form-container");
         formContainer.setMaxWidth(200);
@@ -129,8 +128,7 @@ public class LoginModal extends StackPane {
                 userBox,
                 passBox,
                 signInButton,
-                createAccountButton
-        );
+                createAccountButton);
 
         this.getChildren().addAll(formContainer, backButton);
         StackPane.setAlignment(formContainer, Pos.CENTER_RIGHT);
@@ -162,7 +160,6 @@ public class LoginModal extends StackPane {
                 rays.startUnifiedAnimation();
             }
         });
-
 
         formContainer.setCache(true);
         formContainer.setCacheHint(CacheHint.SPEED);
@@ -218,7 +215,7 @@ public class LoginModal extends StackPane {
             if (onCreateAccountListener != null) {
                 onCreateAccountListener.run();
             }
-             hide();
+            hide();
         });
 
         backButton.setOnAction(e -> hide());
@@ -240,7 +237,7 @@ public class LoginModal extends StackPane {
         this.setTranslateX(-500);
         super.setManaged(true);
         super.setVisible(true);
-//        this.toFront();
+        // this.toFront();
 
         slideIn.setFromX(this.getTranslateX());
         slideIn.play();
@@ -265,7 +262,6 @@ public class LoginModal extends StackPane {
         slideOut.setToX(-500);
         slideOut.play();
     }
-
 
     public boolean isShowing() {
         return isModalVisible || (slideIn != null && slideIn.getStatus() == Animation.Status.RUNNING);

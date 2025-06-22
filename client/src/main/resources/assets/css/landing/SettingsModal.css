@@ -30,9 +30,9 @@
 }
 
 .settings-slider {
-    -fx-min-width: 350px;
-    -fx-max-width: 350px;
-    -fx-pref-width: 350px;
+    -fx-min-width: 475px;
+    -fx-max-width: 475px;
+    -fx-pref-width: 475px;
 }
 
 .settings-slider .track {

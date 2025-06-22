@@ -72,7 +72,7 @@ public class SettingsModal extends StackPane {
         this.setMaxWidth(650);
         formContainer = new VBox(20);
         formContainer.getStyleClass().add("settings-form-container");
-        formContainer.setMaxWidth(350);
+        formContainer.setMaxWidth(200);
         formContainer.setMaxHeight(Region.USE_PREF_SIZE);
         formContainer.setAlignment(Pos.TOP_LEFT);
 
@@ -187,16 +187,14 @@ public class SettingsModal extends StackPane {
     }
 
     private void resetKeybindButton(Button button) {
-        if (button == currentKeybindButton) {
-            button.getStyleClass().remove("keybind-button-waiting");
-            // Reset to previous keybind value
-            if (button == leftClickKeybind) {
-                button.setText(InputManager.getKeybind1().getName().toUpperCase()); // Default or get from InputManager
-            } else if (button == rightClickKeybind) {
-                button.setText(InputManager.getKeybind2().getName().toUpperCase()); // Default or get from InputManager
-            }
-            currentKeybindButton = null;
+        button.getStyleClass().remove("keybind-button-waiting");
+        // Reset to previous keybind value
+        if (button == leftClickKeybind) {
+            button.setText(InputManager.getKeybind1().getName().toUpperCase()); // Default or get from InputManager
+        } else if (button == rightClickKeybind) {
+            button.setText(InputManager.getKeybind2().getName().toUpperCase()); // Default or get from InputManager
         }
+        currentKeybindButton = null;
     }
 
     private void handleComponentEvents() {
@@ -300,6 +298,8 @@ public class SettingsModal extends StackPane {
             return;
         }
 
+        resetKeybindButton(leftClickKeybind);
+        resetKeybindButton(rightClickKeybind);
         isModalVisible = false;
 
         LightRays rays = findLightRays();
