@@ -81,14 +81,6 @@ public class Jukebox extends StackPane implements SongEventListener {
     }
 
     private void setupEventHandlers() {
-        mediaControls.getPlaylistButton().setOnAction(event -> {
-            if (playlistModal.isVisible()) {
-                playlistModal.hide();
-            } else {
-                playlistModal.show();
-            }
-        });
-
         mediaControls.getPlayButton().setOnAction(e -> BgmManager.getInstance().resumeBgm());
         mediaControls.getPauseButton().setOnAction(e -> BgmManager.getInstance().pauseBgm());
         mediaControls.getStopButton().setOnAction(e -> BgmManager.getInstance().stopBgm());

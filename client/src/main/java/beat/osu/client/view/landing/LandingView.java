@@ -535,5 +535,24 @@ public class LandingView extends Page {
                 banchoButtons.getChatToggleButton().setHideIcon();
             }
         });
+
+        jukeboxComponent.getMediaControls().getPlaylistButton().setOnAction(event -> {
+            if (playlistModalComponent.isVisible()) {
+                playlistModalComponent.hide();
+                if (!banchoButtons.isVisible()) {
+                    banchoButtons.show();
+                }
+            } else {
+                if (chatPanel.isShowing()) {
+                    chatPanel.hide();
+                    banchoButtons.getChatToggleButton().setShowIcon();
+                    bottomBarComponent.setFullOpacity();
+                }
+                if (banchoButtons.isVisible()) {
+                    banchoButtons.hide();
+                }
+                playlistModalComponent.show();
+            }
+        });
     }
 }

@@ -78,6 +78,7 @@ public class LobbyView extends Page {
         onlineUsersPanel = new OnlineUsersPanel(connectedUsersController);
         selectChannelModal = new SelectChannelModal(channelController, banchoButtons);
         chatPanel = new ChatPanel(chatController, selectChannelModal, onlineUsersPanel, banchoButtons);
+        chatPanel.show();
 
         viewUserModal = new ViewUserModal();
 
@@ -186,31 +187,27 @@ public class LobbyView extends Page {
             } else {
                 onlineUsersPanel.show();
                 banchoButtons.getOnlineUsersButton().setOnlineUsersShownIcon();
-
-                if (!chatPanel.isShowing()) {
-                    chatPanel.show();
-                    banchoButtons.getChatToggleButton().setHideIcon();
-                }
-            }
-        });
-
-        banchoButtons.getChatToggleButton().setOnMouseClicked(e -> {
-            if (banchoButtons.getChatToggleButton().isChatVisible()) {
-                chatPanel.hide();
-                banchoButtons.getChatToggleButton().setShowIcon();
-
-                if (onlineUsersPanel.isShowing()) {
-                    onlineUsersPanel.hide();
-                    banchoButtons.getOnlineUsersButton().setOnlineUsersHiddenIcon();
-                }
-            } else {
-                chatPanel.show();
-                banchoButtons.getChatToggleButton().setHideIcon();
             }
         });
 
         backbutton.setOnMouseClicked(e -> {
             ViewManager.getInstance().showLandingView();
+        });
+
+        jukeboxComponent.getMediaControls().getPlaylistButton().setOnAction(event -> {
+            if (playlistModalComponent.isVisible()) {
+                playlistModalComponent.hide();
+                chatPanel.show();
+                if (!banchoButtons.isVisible()) {
+                    banchoButtons.show();
+                }
+            } else {
+                chatPanel.hide();
+                if (banchoButtons.isVisible()) {
+                    banchoButtons.hide();
+                }
+                playlistModalComponent.show();
+            }
         });
     }
 }
