@@ -20,8 +20,6 @@ public class Main extends Application {
 
         StageManager.setStage(stage);
 
-        ViewManager.getInstance().initializeHomeView();
-
         StageManager.getStage().setOnCloseRequest(e -> {
             if (clientService.isConnected()) {
                 clientService.disconnect();

@@ -3,6 +3,7 @@ package beat.osu.client.helper;
 import java.util.ArrayList;
 
 import beat.osu.client.controller.ChannelController;
+import beat.osu.client.controller.ChatController;
 import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.controller.PrivateChatController;
 import beat.osu.client.events.game.GameEndEvent;
@@ -27,6 +28,7 @@ public class ViewManager {
     private ConnectedUsersController connectedUsersController;
     private ChannelController channelController;
     private PrivateChatController privateChatController;
+    private ChatController chatController;
 
     private static volatile ViewManager instance;
 
@@ -57,7 +59,7 @@ public class ViewManager {
 
     public void showLandingView() {
         if (landingView == null) {
-            landingView = new LandingView(primaryStage, connectedUsersController, channelController, privateChatController);
+            landingView = new LandingView(primaryStage, connectedUsersController, channelController, privateChatController, chatController);
         } else {
             landingView.onShow();
         }
@@ -93,7 +95,7 @@ public class ViewManager {
 
     public void showLobbyView() {
         if (lobbyView == null) {
-            lobbyView = new LobbyView(primaryStage, connectedUsersController, channelController, privateChatController);
+            lobbyView = new LobbyView(primaryStage, connectedUsersController, channelController, privateChatController, chatController);
         } else {
             lobbyView.onShow();
         }
@@ -104,5 +106,6 @@ public class ViewManager {
         connectedUsersController = new ConnectedUsersController();
         channelController = new ChannelController();
         privateChatController = new PrivateChatController();
+        chatController = new ChatController(channelController, privateChatController);
     }
 }
