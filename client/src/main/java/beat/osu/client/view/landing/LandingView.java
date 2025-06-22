@@ -50,17 +50,21 @@ import javafx.util.Duration;
 public class LandingView extends Page {
 
     private StackPane root;
-    private TopBar topBarComponent;
-    private Visualizer visualizerComponent;
-    private BottomBar bottomBarComponent;
-    private MenuButtons menuButtonsComponent;
-    private SubMenuButtons subMenuButtonsComponent;
-    private LoginModal loginModalComponent;
-    private RegisterModal registerModalComponent;
-    private PlaylistModal playlistModalComponent;
-    private SettingsModal settingsModalComponent;
 
-    private Jukebox jukeboxComponent;
+    private TopBar topBar;
+    private BottomBar bottomBar;
+
+    private Visualizer visualizer;
+
+    private MenuButtons menuButtons;
+    private SubMenuButtons subMenuButtons;
+
+    private LoginModal loginModal;
+    private RegisterModal registerModal;
+    private PlaylistModal playlistModal;
+    private SettingsModal settingsModal;
+
+    private Jukebox jukebox;
 
     private OnlineUsersPanel onlineUsersPanel;
     private ChatPanel chatPanel;
@@ -68,15 +72,14 @@ public class LandingView extends Page {
     private BanchoButtons banchoButtons;
     private ViewUserModal viewUserModal;
 
-    private ConnectedUsersController connectedUsersController;
-    private ChannelController channelController;
-    private PrivateChatController privateChatController;
-    private ChatController chatController;
+    private final ConnectedUsersController connectedUsersController;
+    private final ChatController chatController;
 
     private double visualizerSize;
 
     private boolean isMenuPanelOpen = false;
     private boolean isSubMenuOpen = false;
+
     private TranslateTransition logoSlideOut;
     private TranslateTransition menuSlideIn;
     private TranslateTransition logoSlideIn;
@@ -87,13 +90,10 @@ public class LandingView extends Page {
     private FadeTransition subMenuFadeIn;
     private FadeTransition subMenuFadeOut;
 
-    public LandingView(Stage stage, ConnectedUsersController connectedUsersController, ChannelController channelController,
-                       PrivateChatController privateChatController, ChatController chatController) {
+    public LandingView(Stage stage, ConnectedUsersController connectedUsersController, ChatController chatController) {
         super(stage);
 
         this.connectedUsersController = connectedUsersController;
-        this.channelController = channelController;
-        this.privateChatController = privateChatController;
         this.chatController = chatController;
 
         setupView();
@@ -106,61 +106,61 @@ public class LandingView extends Page {
         double logoTranslateX = -this.visualizerSize / 3.5;
         double menuTranslateX = this.visualizerSize / 1.4;
 
-        visualizerComponent.getLogoRayGroup().setCache(true);
-        visualizerComponent.getLogoRayGroup().setCacheHint(CacheHint.SPEED);
-        menuButtonsComponent.setCache(true);
-        menuButtonsComponent.setCacheHint(CacheHint.SPEED);
-        subMenuButtonsComponent.setCache(true);
-        subMenuButtonsComponent.setCacheHint(CacheHint.SPEED);
+        visualizer.getLogoRayGroup().setCache(true);
+        visualizer.getLogoRayGroup().setCacheHint(CacheHint.SPEED);
+        menuButtons.setCache(true);
+        menuButtons.setCacheHint(CacheHint.SPEED);
+        subMenuButtons.setCache(true);
+        subMenuButtons.setCacheHint(CacheHint.SPEED);
 
         logoSlideOut = new TranslateTransition(Duration.millis(300),
-                visualizerComponent.getLogoRayGroup());
+                visualizer.getLogoRayGroup());
         logoSlideOut.setToX(logoTranslateX);
         logoSlideOut.setInterpolator(Interpolator.EASE_OUT);
         logoSlideOut.setOnFinished(e -> {
-            visualizerComponent.getLogoRayGroup().setCacheHint(CacheHint.DEFAULT);
+            visualizer.getLogoRayGroup().setCacheHint(CacheHint.DEFAULT);
         });
 
-        menuSlideIn = new TranslateTransition(Duration.millis(300), menuButtonsComponent);
-        menuButtonsComponent.setTranslateX(0);
+        menuSlideIn = new TranslateTransition(Duration.millis(300), menuButtons);
+        menuButtons.setTranslateX(0);
         menuSlideIn.setToX(menuTranslateX);
         menuSlideIn.setInterpolator(Interpolator.EASE_OUT);
         menuSlideIn.setOnFinished(e -> {
-            menuButtonsComponent.setCacheHint(CacheHint.DEFAULT);
+            menuButtons.setCacheHint(CacheHint.DEFAULT);
         });
 
         logoSlideIn = new TranslateTransition(Duration.millis(300),
-                visualizerComponent.getLogoRayGroup());
+                visualizer.getLogoRayGroup());
         logoSlideIn.setFromX(logoTranslateX);
         logoSlideIn.setToX(0);
         logoSlideIn.setInterpolator(Interpolator.EASE_OUT);
         logoSlideIn.setOnFinished(e -> {
-            visualizerComponent.getLogoRayGroup().setCacheHint(CacheHint.DEFAULT);
+            visualizer.getLogoRayGroup().setCacheHint(CacheHint.DEFAULT);
         });
 
-        menuSlideOut = new TranslateTransition(Duration.millis(300), menuButtonsComponent);
+        menuSlideOut = new TranslateTransition(Duration.millis(300), menuButtons);
         menuSlideOut.setFromX(menuTranslateX);
         menuSlideOut.setToX(0);
         menuSlideOut.setInterpolator(Interpolator.EASE_OUT);
         menuSlideOut.setOnFinished(e -> {
-            menuButtonsComponent.setCacheHint(CacheHint.DEFAULT);
+            menuButtons.setCacheHint(CacheHint.DEFAULT);
         });
 
-        subMenuButtonsComponent.setTranslateX(menuTranslateX);
+        subMenuButtons.setTranslateX(menuTranslateX);
 
-        menuFadeOut = new FadeTransition(Duration.millis(300), menuButtonsComponent);
+        menuFadeOut = new FadeTransition(Duration.millis(300), menuButtons);
         menuFadeOut.setFromValue(1.0);
         menuFadeOut.setToValue(0.0);
 
-        menuFadeIn = new FadeTransition(Duration.millis(300), menuButtonsComponent);
+        menuFadeIn = new FadeTransition(Duration.millis(300), menuButtons);
         menuFadeIn.setFromValue(0.0);
         menuFadeIn.setToValue(1.0);
 
-        subMenuFadeIn = new FadeTransition(Duration.millis(300), subMenuButtonsComponent);
+        subMenuFadeIn = new FadeTransition(Duration.millis(300), subMenuButtons);
         subMenuFadeIn.setFromValue(0.0);
         subMenuFadeIn.setToValue(1.0);
 
-        subMenuFadeOut = new FadeTransition(Duration.millis(300), subMenuButtonsComponent);
+        subMenuFadeOut = new FadeTransition(Duration.millis(300), subMenuButtons);
         subMenuFadeOut.setFromValue(1.0);
         subMenuFadeOut.setToValue(0.0);
     }
@@ -189,12 +189,12 @@ public class LandingView extends Page {
 
     private void showSubMenu() {
         if (isMenuPanelOpen) {
-            subMenuButtonsComponent.setVisible(true);
-            subMenuButtonsComponent.setManaged(true);
-            menuButtonsComponent.setOpacity(1.0);
-            subMenuButtonsComponent.setCacheHint(CacheHint.DEFAULT);
+            subMenuButtons.setVisible(true);
+            subMenuButtons.setManaged(true);
+            menuButtons.setOpacity(1.0);
+            subMenuButtons.setCacheHint(CacheHint.DEFAULT);
 
-            TranslateTransition menuTranslateOut = new TranslateTransition(Duration.millis(0), menuButtonsComponent);
+            TranslateTransition menuTranslateOut = new TranslateTransition(Duration.millis(0), menuButtons);
             menuTranslateOut.setFromX(this.visualizerSize / 1.4);
             menuTranslateOut.setToX(0);
 
@@ -210,12 +210,12 @@ public class LandingView extends Page {
 
     private void hideSubMenu() {
         if (isSubMenuOpen) {
-            subMenuButtonsComponent.setVisible(false);
-            subMenuButtonsComponent.setManaged(false);
-            menuButtonsComponent.setOpacity(0.0);
-            subMenuButtonsComponent.setCacheHint(CacheHint.DEFAULT);
+            subMenuButtons.setVisible(false);
+            subMenuButtons.setManaged(false);
+            menuButtons.setOpacity(0.0);
+            subMenuButtons.setCacheHint(CacheHint.DEFAULT);
 
-            menuButtonsComponent.setTranslateX(this.visualizerSize / 1.4);
+            menuButtons.setTranslateX(this.visualizerSize / 1.4);
             ParallelTransition switchMenu = new ParallelTransition(menuFadeIn, subMenuFadeOut);
             switchMenu.play();
 
@@ -233,17 +233,17 @@ public class LandingView extends Page {
     }
 
     private void hideAllModals() {
-        if (loginModalComponent.isShowing()) {
-            loginModalComponent.hide();
+        if (loginModal.isShowing()) {
+            loginModal.hide();
         }
-        if (registerModalComponent.isVisible()) {
-            registerModalComponent.setVisible(false);
+        if (registerModal.isVisible()) {
+            registerModal.setVisible(false);
         }
-        if (settingsModalComponent.isShowing()) {
-            settingsModalComponent.hide();
+        if (settingsModal.isShowing()) {
+            settingsModal.hide();
         }
-        if (playlistModalComponent.isVisible()) {
-            playlistModalComponent.setVisible(false);
+        if (playlistModal.isVisible()) {
+            playlistModal.setVisible(false);
         }
     }
 
@@ -254,29 +254,29 @@ public class LandingView extends Page {
 
         this.visualizerSize = ScreenManager.SCREEN_HEIGHT * 0.65;
 
-        menuButtonsComponent = new MenuButtons();
-        subMenuButtonsComponent = new SubMenuButtons();
-        topBarComponent = new TopBar();
-        bottomBarComponent = new BottomBar();
-        loginModalComponent = new LoginModal(topBarComponent);
-        registerModalComponent = new RegisterModal();
-        settingsModalComponent = new SettingsModal();
+        menuButtons = new MenuButtons();
+        subMenuButtons = new SubMenuButtons();
+        topBar = new TopBar();
+        bottomBar = new BottomBar();
+        loginModal = new LoginModal(topBar);
+        registerModal = new RegisterModal();
+        settingsModal = new SettingsModal();
 
-        visualizerComponent = new Visualizer(this.visualizerSize);
-        PlaylistManager.getInstance().addListener(visualizerComponent);
+        visualizer = new Visualizer(this.visualizerSize);
+        PlaylistManager.getInstance().addListener(visualizer);
 
-        playlistModalComponent = new PlaylistModal();
-        PlaylistManager.getInstance().addListener(playlistModalComponent);
+        playlistModal = new PlaylistModal();
+        PlaylistManager.getInstance().addListener(playlistModal);
         
-        jukeboxComponent = new Jukebox(playlistModalComponent);
-        PlaylistManager.getInstance().addListener(jukeboxComponent);
+        jukebox = new Jukebox(playlistModal);
+        PlaylistManager.getInstance().addListener(jukebox);
 
         banchoButtons = new BanchoButtons();
         banchoButtons.setVisible(false);
         banchoButtons.setManaged(false);
 
         onlineUsersPanel = new OnlineUsersPanel(connectedUsersController);
-        selectChannelModal = new SelectChannelModal(channelController, banchoButtons);
+        selectChannelModal = new SelectChannelModal(chatController.getChannelController(), banchoButtons);
         chatPanel = new ChatPanel(chatController, selectChannelModal, onlineUsersPanel, banchoButtons);
 
         viewUserModal = new ViewUserModal();
@@ -311,18 +311,18 @@ public class LandingView extends Page {
         selectChannelModal.setChatPanel(chatPanel);
         selectChannelModal.setOnlineUsersPanel(onlineUsersPanel);
 
-        visualizerComponent.getLogoRayGroup().getStyleClass().add("logo-ray-group");
-        menuButtonsComponent.getStyleClass().add("menu-buttons");
-        subMenuButtonsComponent.getStyleClass().add("menu-buttons");
+        visualizer.getLogoRayGroup().getStyleClass().add("logo-ray-group");
+        menuButtons.getStyleClass().add("menu-buttons");
+        subMenuButtons.getStyleClass().add("menu-buttons");
 
-        visualizerComponent.setMenuBox(menuButtonsComponent);
-        visualizerComponent.setSubMenuBox(subMenuButtonsComponent);
+        visualizer.setMenuBox(menuButtons);
+        visualizer.setSubMenuBox(subMenuButtons);
 
-        subMenuButtonsComponent.setVisible(false);
-        subMenuButtonsComponent.setManaged(false);
-        subMenuButtonsComponent.setOpacity(0.0);
+        subMenuButtons.setVisible(false);
+        subMenuButtons.setManaged(false);
+        subMenuButtons.setOpacity(0.0);
 
-        playlistModalComponent.setVisible(false);
+        playlistModal.setVisible(false);
 
         String bgmPath = "/assets/audio/nekodex-circles.mp3";
         URL bgmUrl = Main.class.getResource(bgmPath);
@@ -337,7 +337,7 @@ public class LandingView extends Page {
         }
 
         if(BgmManager.getInstance().getCurrentPlayer() != null) {
-            visualizerComponent.setupAudioVisualization(BgmManager.getInstance().getCurrentPlayer());
+            visualizer.setupAudioVisualization(BgmManager.getInstance().getCurrentPlayer());
         } else {
             System.err.println("Failed to load BGM: " + bgmPath);
         }
@@ -361,25 +361,25 @@ public class LandingView extends Page {
 
     @Override
     public void setLayout() {
-        root.getChildren().add(visualizerComponent);
-        topBarComponent.setMaxWidth(Double.MAX_VALUE);
+        root.getChildren().add(visualizer);
+        topBar.setMaxWidth(Double.MAX_VALUE);
 
-        root.getChildren().add(topBarComponent);
-        StackPane.setAlignment(topBarComponent, Pos.TOP_CENTER);
+        root.getChildren().add(topBar);
+        StackPane.setAlignment(topBar, Pos.TOP_CENTER);
 
-        bottomBarComponent.setMaxWidth(Double.MAX_VALUE);
-        root.getChildren().add(bottomBarComponent);
-        StackPane.setAlignment(bottomBarComponent, Pos.BOTTOM_CENTER);
+        bottomBar.setMaxWidth(Double.MAX_VALUE);
+        root.getChildren().add(bottomBar);
+        StackPane.setAlignment(bottomBar, Pos.BOTTOM_CENTER);
 
-        root.getChildren().addAll(loginModalComponent, registerModalComponent, settingsModalComponent, playlistModalComponent, selectChannelModal);
-        StackPane.setAlignment(loginModalComponent, Pos.CENTER_LEFT);
-        StackPane.setAlignment(settingsModalComponent, Pos.CENTER_LEFT);
-        StackPane.setAlignment(registerModalComponent, Pos.CENTER);
-        StackPane.setAlignment(playlistModalComponent, Pos.CENTER);
+        root.getChildren().addAll(loginModal, registerModal, settingsModal, playlistModal, selectChannelModal);
+        StackPane.setAlignment(loginModal, Pos.CENTER_LEFT);
+        StackPane.setAlignment(settingsModal, Pos.CENTER_LEFT);
+        StackPane.setAlignment(registerModal, Pos.CENTER);
+        StackPane.setAlignment(playlistModal, Pos.CENTER);
         StackPane.setAlignment(selectChannelModal, Pos.CENTER);
 
-        root.getChildren().add(jukeboxComponent);
-        StackPane.setAlignment(jukeboxComponent, Pos.TOP_RIGHT);
+        root.getChildren().add(jukebox);
+        StackPane.setAlignment(jukebox, Pos.TOP_RIGHT);
 
         root.getChildren().add(onlineUsersPanel);
         StackPane.setAlignment(onlineUsersPanel, Pos.TOP_CENTER);
@@ -399,93 +399,93 @@ public class LandingView extends Page {
 
     @Override
     public void onShow() {
-        visualizerComponent.setupAudioVisualization(BgmManager.getInstance().getCurrentPlayer());
+        visualizer.setupAudioVisualization(BgmManager.getInstance().getCurrentPlayer());
         scene.setRoot(root);
         setInputManager();
-        playlistModalComponent.setInputManager(inputManager);
+        playlistModal.setInputManager(inputManager);
     }
 
     public void handleEvent() {
-        playlistModalComponent.setInputManager(inputManager);
+        playlistModal.setInputManager(inputManager);
 
-        visualizerComponent.getLogoRayGroup().setOnMouseClicked(e -> {
+        visualizer.getLogoRayGroup().setOnMouseClicked(e -> {
             toggleMenuPanel();
         });
 
-        topBarComponent.setUserCardClickHandler(e -> {
-            if (!loginModalComponent.isShowing() && !registerModalComponent.isVisible()) {
-                loginModalComponent.clearFields();
-                loginModalComponent.show();
+        topBar.setUserCardClickHandler(e -> {
+            if (!loginModal.isShowing() && !registerModal.isVisible()) {
+                loginModal.clearFields();
+                loginModal.show();
             }
         });
 
-        loginModalComponent.setOnLoginSuccessListener(user -> {
+        loginModal.setOnLoginSuccessListener(user -> {
             if (user != null) {
-                topBarComponent.updateUserInfo(user);
+                topBar.updateUserInfo(user);
                 updateBanchoButtonsVisibility();
             }
         });
 
-        loginModalComponent.setOnCreateAccountListener(() -> {
-            loginModalComponent.hide();
-            registerModalComponent.setVisible(true);
-            registerModalComponent.toFront();
+        loginModal.setOnCreateAccountListener(() -> {
+            loginModal.hide();
+            registerModal.setVisible(true);
+            registerModal.toFront();
         });
 
         root.setOnMouseClicked(e -> {
-            if (loginModalComponent.isShowing()) {
+            if (loginModal.isShowing()) {
                 Node target = (Node) e.getTarget();
                 boolean clickedOnLoginModal = false;
                 while (target != null) {
-                    if (target == loginModalComponent) {
+                    if (target == loginModal) {
                         clickedOnLoginModal = true;
                         break;
                     }
                     target = target.getParent();
                 }
                 if (!clickedOnLoginModal) {
-                    loginModalComponent.hide();
+                    loginModal.hide();
                 }
             }
 
-            if(settingsModalComponent.isShowing()) {
+            if(settingsModal.isShowing()) {
                 Node target = (Node) e.getTarget();
                 boolean clickedOnSettingsModal = false;
                 while (target != null) {
-                    if (target == settingsModalComponent) {
+                    if (target == settingsModal) {
                         clickedOnSettingsModal = true;
                         break;
                     }
                     target = target.getParent();
                 }
                 if (!clickedOnSettingsModal) {
-                    settingsModalComponent.hide();
+                    settingsModal.hide();
                 }
             }
         });
 
-        menuButtonsComponent.getPlayButton().setOnMouseClicked(e -> {
+        menuButtons.getPlayButton().setOnMouseClicked(e -> {
             showSubMenu();
         });
-        menuButtonsComponent.getOptionButton().setOnMouseClicked(e -> {
-            if(loginModalComponent.isShowing()) loginModalComponent.hide();
+        menuButtons.getOptionButton().setOnMouseClicked(e -> {
+            if(loginModal.isShowing()) loginModal.hide();
 
-            if(!settingsModalComponent.isShowing()) {
-                settingsModalComponent.show();
+            if(!settingsModal.isShowing()) {
+                settingsModal.show();
             }
         });
-        menuButtonsComponent.getExitButton().setOnMouseClicked(e -> {
+        menuButtons.getExitButton().setOnMouseClicked(e -> {
             stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
         });
 
-        subMenuButtonsComponent.getSoloButton().setOnMouseClicked(e -> {
+        subMenuButtons.getSoloButton().setOnMouseClicked(e -> {
             hideSubMenu();
             toggleMenuPanel();
             hideAllModals();
             ViewManager.getInstance().showHomeView();
         });
 
-        subMenuButtonsComponent.getMultiButton().setOnMouseClicked(e -> {
+        subMenuButtons.getMultiButton().setOnMouseClicked(e -> {
             if (!AuthManager.isAuthenticated()) {
                 Toast.error("You must be logged in to play online!").show();
                 return;
@@ -496,23 +496,23 @@ public class LandingView extends Page {
             ViewManager.getInstance().showLobbyView();
         });
 
-        subMenuButtonsComponent.getBackButton().setOnMouseClicked(e -> {
+        subMenuButtons.getBackButton().setOnMouseClicked(e -> {
             hideSubMenu();
         });
 
         banchoButtons.getOnlineUsersButton().setOnMouseClicked(e -> {
             if (banchoButtons.getOnlineUsersButton().isOnlineUserShown()) {
                 onlineUsersPanel.hide();
-                topBarComponent.setFullOpacity();
+                topBar.setFullOpacity();
                 banchoButtons.getOnlineUsersButton().setOnlineUsersHiddenIcon();
             } else {
                 onlineUsersPanel.show();
-                topBarComponent.setLowOpacity();
+                topBar.setLowOpacity();
                 banchoButtons.getOnlineUsersButton().setOnlineUsersShownIcon();
 
                 if (!chatPanel.isShowing()) {
                     chatPanel.show();
-                    bottomBarComponent.setLowOpacity();
+                    bottomBar.setLowOpacity();
                     banchoButtons.getChatToggleButton().setHideIcon();
                 }
             }
@@ -521,24 +521,24 @@ public class LandingView extends Page {
         banchoButtons.getChatToggleButton().setOnMouseClicked(e -> {
             if (banchoButtons.getChatToggleButton().isChatVisible()) {
                 chatPanel.hide();
-                bottomBarComponent.setFullOpacity();
+                bottomBar.setFullOpacity();
                 banchoButtons.getChatToggleButton().setShowIcon();
 
                 if (onlineUsersPanel.isShowing()) {
                     onlineUsersPanel.hide();
-                    topBarComponent.setFullOpacity();
+                    topBar.setFullOpacity();
                     banchoButtons.getOnlineUsersButton().setOnlineUsersHiddenIcon();
                 }
             } else {
                 chatPanel.show();
-                bottomBarComponent.setLowOpacity();
+                bottomBar.setLowOpacity();
                 banchoButtons.getChatToggleButton().setHideIcon();
             }
         });
 
-        jukeboxComponent.getMediaControls().getPlaylistButton().setOnAction(event -> {
-            if (playlistModalComponent.isVisible()) {
-                playlistModalComponent.hide();
+        jukebox.getMediaControls().getPlaylistButton().setOnAction(event -> {
+            if (playlistModal.isVisible()) {
+                playlistModal.hide();
                 if (!banchoButtons.isVisible()) {
                     banchoButtons.show();
                 }
@@ -546,12 +546,12 @@ public class LandingView extends Page {
                 if (chatPanel.isShowing()) {
                     chatPanel.hide();
                     banchoButtons.getChatToggleButton().setShowIcon();
-                    bottomBarComponent.setFullOpacity();
+                    bottomBar.setFullOpacity();
                 }
                 if (banchoButtons.isVisible()) {
                     banchoButtons.hide();
                 }
-                playlistModalComponent.show();
+                playlistModal.show();
             }
         });
     }

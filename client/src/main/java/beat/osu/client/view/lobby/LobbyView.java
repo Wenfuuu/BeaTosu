@@ -34,13 +34,12 @@ public class LobbyView extends Page {
 
     private StackPane root;
 
-    private ConnectedUsersController connectedUsersController;
-    private ChannelController channelController;
-    private PrivateChatController privateChatController;
-    private ChatController chatController;
+    private final ConnectedUsersController connectedUsersController;
+    private final ChatController chatController;
 
-    private PlaylistModal playlistModalComponent;
-    private Jukebox jukeboxComponent;
+    private PlaylistModal playlistModal;
+    private Jukebox jukebox;
+
     private OnlineUsersPanel onlineUsersPanel;
     private ChatPanel chatPanel;
     private SelectChannelModal selectChannelModal;
@@ -49,13 +48,10 @@ public class LobbyView extends Page {
 
     private Button backbutton;
 
-    public LobbyView(Stage stage, ConnectedUsersController connectedUsersController, ChannelController channelController,
-                     PrivateChatController privateChatController, ChatController chatController) {
+    public LobbyView(Stage stage, ConnectedUsersController connectedUsersController, ChatController chatController) {
         super(stage);
 
         this.connectedUsersController = connectedUsersController;
-        this.channelController = channelController;
-        this.privateChatController = privateChatController;
         this.chatController = chatController;
 
         setupView();
@@ -67,16 +63,16 @@ public class LobbyView extends Page {
         root = new StackPane();
         root.getStyleClass().add("root");
 
-        playlistModalComponent = new PlaylistModal();
-        PlaylistManager.getInstance().addListener(playlistModalComponent);
+        playlistModal = new PlaylistModal();
+        PlaylistManager.getInstance().addListener(playlistModal);
 
-        jukeboxComponent = new Jukebox(playlistModalComponent);
-        PlaylistManager.getInstance().addListener(jukeboxComponent);
+        jukebox = new Jukebox(playlistModal);
+        PlaylistManager.getInstance().addListener(jukebox);
 
         banchoButtons = new BanchoButtons();
 
         onlineUsersPanel = new OnlineUsersPanel(connectedUsersController);
-        selectChannelModal = new SelectChannelModal(channelController, banchoButtons);
+        selectChannelModal = new SelectChannelModal(chatController.getChannelController(), banchoButtons);
         chatPanel = new ChatPanel(chatController, selectChannelModal, onlineUsersPanel, banchoButtons);
         chatPanel.show();
 
@@ -112,7 +108,7 @@ public class LobbyView extends Page {
         selectChannelModal.setChatPanel(chatPanel);
         selectChannelModal.setOnlineUsersPanel(onlineUsersPanel);
 
-        playlistModalComponent.setVisible(false);
+        playlistModal.setVisible(false);
         
         backbutton = new Button("Back");
 
@@ -134,13 +130,13 @@ public class LobbyView extends Page {
 
     @Override
     public void setLayout() {
-        root.getChildren().addAll(playlistModalComponent, selectChannelModal);
+        root.getChildren().addAll(playlistModal, selectChannelModal);
 
-        StackPane.setAlignment(playlistModalComponent, Pos.CENTER);
+        StackPane.setAlignment(playlistModal, Pos.CENTER);
         StackPane.setAlignment(selectChannelModal, Pos.CENTER);
 
-        root.getChildren().add(jukeboxComponent);
-        StackPane.setAlignment(jukeboxComponent, Pos.TOP_RIGHT);
+        root.getChildren().add(jukebox);
+        StackPane.setAlignment(jukebox, Pos.TOP_RIGHT);
 
         root.getChildren().add(onlineUsersPanel);
         StackPane.setAlignment(onlineUsersPanel, Pos.TOP_CENTER);
@@ -165,9 +161,9 @@ public class LobbyView extends Page {
     public void onShow() {
         scene.setRoot(root);
         setInputManager();
-        playlistModalComponent.setInputManager(inputManager);
+        playlistModal.setInputManager(inputManager);
 
-        channelController.joinChannel(3).thenAccept(result -> {
+        chatController.getChannelController().joinChannel(3).thenAccept(result -> {
             Platform.runLater(() -> {
                 if (result.isSuccess()) {
                     chatPanel.getChatTabs().selectTab(result.getValue().getChannel());
@@ -178,7 +174,7 @@ public class LobbyView extends Page {
     }
 
     public void handleEvent() {
-        playlistModalComponent.setInputManager(inputManager);
+        playlistModal.setInputManager(inputManager);
 
         banchoButtons.getOnlineUsersButton().setOnMouseClicked(e -> {
             if (banchoButtons.getOnlineUsersButton().isOnlineUserShown()) {
@@ -194,9 +190,9 @@ public class LobbyView extends Page {
             ViewManager.getInstance().showLandingView();
         });
 
-        jukeboxComponent.getMediaControls().getPlaylistButton().setOnAction(event -> {
-            if (playlistModalComponent.isVisible()) {
-                playlistModalComponent.hide();
+        jukebox.getMediaControls().getPlaylistButton().setOnAction(event -> {
+            if (playlistModal.isVisible()) {
+                playlistModal.hide();
                 chatPanel.show();
                 if (!banchoButtons.isVisible()) {
                     banchoButtons.show();
@@ -206,7 +202,7 @@ public class LobbyView extends Page {
                 if (banchoButtons.isVisible()) {
                     banchoButtons.hide();
                 }
-                playlistModalComponent.show();
+                playlistModal.show();
             }
         });
     }

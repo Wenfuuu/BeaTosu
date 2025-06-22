@@ -22,8 +22,10 @@ import beat.osu.shared.dto.chat.responses.GetJoinedChannelsResponse;
 import beat.osu.shared.dto.chat.responses.SendChannelMessageResponse;
 import beat.osu.shared.dto.chat.responses.SendPrivateChatMessageResponse;
 import javafx.application.Platform;
+import lombok.Getter;
 
 public class ChatController {
+    @Getter
     private final ChannelController channelController;
     private final PrivateChatController privateChatController;
     

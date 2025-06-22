@@ -52,9 +52,9 @@ public class ViewManager {
     }
 
     public void initializeViews() {
-        landingView = new LandingView(primaryStage, connectedUsersController, channelController, privateChatController, chatController);
+        landingView = new LandingView(primaryStage, connectedUsersController, chatController);
         homeView = new HomeView(primaryStage);
-        lobbyView = new LobbyView(primaryStage, connectedUsersController, channelController, privateChatController, chatController);
+        lobbyView = new LobbyView(primaryStage, connectedUsersController, chatController);
     }
 
     public void showLandingView() {
