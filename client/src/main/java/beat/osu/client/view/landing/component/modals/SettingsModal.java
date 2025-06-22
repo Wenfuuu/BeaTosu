@@ -1,6 +1,7 @@
 package beat.osu.client.view.landing.component.modals;
 
 import beat.osu.client.factory.ButtonFactory;
+import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.SfxManager;
 import beat.osu.client.view.landing.component.ui.LightRays;
@@ -161,6 +162,8 @@ public class SettingsModal extends StackPane {
     private void handleComponentEvents() {
         bgmVolumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println("BGM Volume changed to: " + newValue);
+            BgmManager.getInstance().setBGM_VOLUME((Double) newValue);
+            BgmManager.getInstance().getCurrentPlayer().setVolume((Double) newValue);
         });
 
         sfxVolumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
