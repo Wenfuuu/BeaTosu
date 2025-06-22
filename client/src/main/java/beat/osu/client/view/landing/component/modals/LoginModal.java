@@ -52,7 +52,7 @@ public class LoginModal extends StackPane {
     private Button backButton;
     private Label titleLabel;
 
-    private TopBar topBar;
+    private final TopBar topBar;
 
     @Setter
     private Consumer<UserDto> onLoginSuccessListener;

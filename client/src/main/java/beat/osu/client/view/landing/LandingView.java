@@ -20,6 +20,7 @@ import beat.osu.client.view.landing.component.layout.BottomBar;
 import beat.osu.client.view.landing.component.layout.TopBar;
 import beat.osu.client.view.landing.component.modals.LoginModal;
 import beat.osu.client.view.landing.component.modals.RegisterModal;
+import beat.osu.client.view.landing.component.modals.SettingsModal;
 import beat.osu.client.view.landing.component.ui.Visualizer;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
@@ -56,6 +57,7 @@ public class LandingView extends Page {
     private LoginModal loginModalComponent;
     private RegisterModal registerModalComponent;
     private PlaylistModal playlistModalComponent;
+    private SettingsModal settingsModalComponent;
 
     private Jukebox jukeboxComponent;
 
@@ -240,6 +242,7 @@ public class LandingView extends Page {
         bottomBarComponent = new BottomBar();
         loginModalComponent = new LoginModal(topBarComponent);
         registerModalComponent = new RegisterModal();
+        settingsModalComponent = new SettingsModal();
 
         visualizerComponent = new Visualizer(this.visualizerSize);
         PlaylistManager.getInstance().addListener(visualizerComponent);
@@ -350,8 +353,9 @@ public class LandingView extends Page {
         root.getChildren().add(bottomBarComponent);
         StackPane.setAlignment(bottomBarComponent, Pos.BOTTOM_CENTER);
 
-        root.getChildren().addAll(loginModalComponent, registerModalComponent, playlistModalComponent, selectChannelModal);
+        root.getChildren().addAll(loginModalComponent, registerModalComponent, settingsModalComponent, playlistModalComponent, selectChannelModal);
         StackPane.setAlignment(loginModalComponent, Pos.CENTER_LEFT);
+        StackPane.setAlignment(settingsModalComponent, Pos.CENTER_LEFT);
         StackPane.setAlignment(registerModalComponent, Pos.CENTER);
         StackPane.setAlignment(playlistModalComponent, Pos.CENTER);
         StackPane.setAlignment(selectChannelModal, Pos.CENTER);
@@ -423,13 +427,32 @@ public class LandingView extends Page {
                     loginModalComponent.hide();
                 }
             }
+
+            if(settingsModalComponent.isShowing()) {
+                Node target = (Node) e.getTarget();
+                boolean clickedOnSettingsModal = false;
+                while (target != null) {
+                    if (target == settingsModalComponent) {
+                        clickedOnSettingsModal = true;
+                        break;
+                    }
+                    target = target.getParent();
+                }
+                if (!clickedOnSettingsModal) {
+                    settingsModalComponent.hide();
+                }
+            }
         });
 
         menuButtonsComponent.getPlayButton().setOnMouseClicked(e -> {
             showSubMenu();
         });
         menuButtonsComponent.getOptionButton().setOnMouseClicked(e -> {
+            if(loginModalComponent.isShowing()) loginModalComponent.hide();
 
+            if(!settingsModalComponent.isShowing()) {
+                settingsModalComponent.show();
+            }
         });
         menuButtonsComponent.getExitButton().setOnMouseClicked(e -> {
             stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
