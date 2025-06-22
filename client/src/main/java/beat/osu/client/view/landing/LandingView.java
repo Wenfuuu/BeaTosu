@@ -83,8 +83,14 @@ public class LandingView extends Page {
     private FadeTransition subMenuFadeIn;
     private FadeTransition subMenuFadeOut;
 
-    public LandingView(Stage stage) {
+    public LandingView(Stage stage, ConnectedUsersController connectedUsersController,
+                       ChannelController channelController, PrivateChatController privateChatController) {
         super(stage);
+
+        this.connectedUsersController = connectedUsersController;
+        this.channelController = channelController;
+        this.privateChatController = privateChatController;
+
         setupView();
         handleEvent();
 
@@ -227,23 +233,21 @@ public class LandingView extends Page {
         root.getStyleClass().add("main-layout");
 
         this.visualizerSize = ScreenManager.SCREEN_HEIGHT * 0.65;
-        this.connectedUsersController = new ConnectedUsersController();
-        this.channelController = new ChannelController();
-        this.privateChatController = new PrivateChatController();
 
         menuButtonsComponent = new MenuButtons();
         subMenuButtonsComponent = new SubMenuButtons();
-        visualizerComponent = new Visualizer(this.visualizerSize);
         topBarComponent = new TopBar();
         bottomBarComponent = new BottomBar();
         loginModalComponent = new LoginModal(topBarComponent);
         registerModalComponent = new RegisterModal();
+
+        visualizerComponent = new Visualizer(this.visualizerSize);
+        PlaylistManager.getInstance().addListener(visualizerComponent);
+
         playlistModalComponent = new PlaylistModal();
         PlaylistManager.getInstance().addListener(playlistModalComponent);
         
         jukeboxComponent = new Jukebox(playlistModalComponent);
-
-        PlaylistManager.getInstance().addListener(visualizerComponent);
         PlaylistManager.getInstance().addListener(jukeboxComponent);
 
         banchoButtons = new BanchoButtons();
@@ -263,9 +267,6 @@ public class LandingView extends Page {
             }
 
             chatPanel.startPrivateChat(privateChat.getOtherUserId(), privateChat.getOtherUserName());
-            if (!chatPanel.isShowing()) {
-                banchoButtons.toggleChat(chatPanel, bottomBarComponent, onlineUsersPanel, topBarComponent);
-            }
         });
 
         onlineUsersPanel.setUserCardClickCallback(userCard -> {
@@ -441,6 +442,11 @@ public class LandingView extends Page {
         });
 
         subMenuButtonsComponent.getMultiButton().setOnMouseClicked(e -> {
+            if (!AuthManager.isAuthenticated()) {
+                Toast.error("You must be logged in to play online!").show();
+                return;
+            }
+
             hideSubMenu();
             toggleMenuPanel();
             ViewManager.getInstance().showLobbyView();
@@ -451,11 +457,39 @@ public class LandingView extends Page {
         });
 
         banchoButtons.getOnlineUsersButton().setOnMouseClicked(e -> {
-            banchoButtons.toggleOnlineUsers(onlineUsersPanel, chatPanel, topBarComponent, bottomBarComponent);
+            if (banchoButtons.getOnlineUsersButton().isOnlineUserShown()) {
+                onlineUsersPanel.hide();
+                topBarComponent.setFullOpacity();
+                banchoButtons.getOnlineUsersButton().setOnlineUsersHiddenIcon();
+            } else {
+                onlineUsersPanel.show();
+                topBarComponent.setLowOpacity();
+                banchoButtons.getOnlineUsersButton().setOnlineUsersShownIcon();
+
+                if (!chatPanel.isShowing()) {
+                    chatPanel.show();
+                    bottomBarComponent.setLowOpacity();
+                    banchoButtons.getChatToggleButton().setHideIcon();
+                }
+            }
         });
 
         banchoButtons.getChatToggleButton().setOnMouseClicked(e -> {
-            banchoButtons.toggleChat(chatPanel, bottomBarComponent, onlineUsersPanel, topBarComponent);
+            if (banchoButtons.getChatToggleButton().isChatVisible()) {
+                chatPanel.hide();
+                bottomBarComponent.setFullOpacity();
+                banchoButtons.getChatToggleButton().setShowIcon();
+
+                if (onlineUsersPanel.isShowing()) {
+                    onlineUsersPanel.hide();
+                    topBarComponent.setFullOpacity();
+                    banchoButtons.getOnlineUsersButton().setOnlineUsersHiddenIcon();
+                }
+            } else {
+                chatPanel.show();
+                bottomBarComponent.setLowOpacity();
+                banchoButtons.getChatToggleButton().setHideIcon();
+            }
         });
     }
 }

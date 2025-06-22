@@ -2,6 +2,9 @@ package beat.osu.client.helper;
 
 import java.util.ArrayList;
 
+import beat.osu.client.controller.ChannelController;
+import beat.osu.client.controller.ConnectedUsersController;
+import beat.osu.client.controller.PrivateChatController;
 import beat.osu.client.events.game.GameEndEvent;
 import beat.osu.client.events.game.ReplayEvent;
 import beat.osu.client.model.Beatmap;
@@ -21,6 +24,10 @@ public class ViewManager {
     private HomeView homeView;
     private LobbyView lobbyView;
 
+    private ConnectedUsersController connectedUsersController;
+    private ChannelController channelController;
+    private PrivateChatController privateChatController;
+
     private static volatile ViewManager instance;
 
     public static ViewManager getInstance() {
@@ -38,6 +45,7 @@ public class ViewManager {
         primaryStage = StageManager.getStage();
         sceneManager = SceneManager.getInstance();
 
+        initializeControllers();
         initializeHomeView();
     }
 
@@ -49,7 +57,7 @@ public class ViewManager {
 
     public void showLandingView() {
         if (landingView == null) {
-            landingView = new LandingView(primaryStage);
+            landingView = new LandingView(primaryStage, connectedUsersController, channelController, privateChatController);
         } else {
             landingView.onShow();
         }
@@ -85,10 +93,16 @@ public class ViewManager {
 
     public void showLobbyView() {
         if (lobbyView == null) {
-            lobbyView = new LobbyView(primaryStage);
+            lobbyView = new LobbyView(primaryStage, connectedUsersController, channelController, privateChatController);
         } else {
             lobbyView.onShow();
         }
         sceneManager.transitionToPage(lobbyView);
+    }
+
+    private void initializeControllers() {
+        connectedUsersController = new ConnectedUsersController();
+        channelController = new ChannelController();
+        privateChatController = new PrivateChatController();
     }
 }

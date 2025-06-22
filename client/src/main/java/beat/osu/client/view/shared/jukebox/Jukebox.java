@@ -5,7 +5,9 @@ import java.net.URL;
 import beat.osu.client.events.song.SongChangeEvent;
 import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.PlaylistManager;
 import beat.osu.client.interfaces.song.SongEventListener;
+import beat.osu.client.model.Song;
 import beat.osu.client.view.landing.component.controls.MediaControls;
 import beat.osu.client.view.shared.jukebox.modals.PlaylistModal;
 import beat.osu.client.view.shared.jukebox.cards.CurrentSongCard;
@@ -42,7 +44,13 @@ public class Jukebox extends StackPane implements SongEventListener {
     }
 
     private void initializeComponents() {
-        this.currentSongCard = new CurrentSongCard("Nekodex - Circles!");
+        if (PlaylistManager.getInstance().getCurrentSong() != null) {
+            Song song = PlaylistManager.getInstance().getCurrentSong();
+            this.currentSongCard = new CurrentSongCard(song.getArtist() + " - " + song.getTitle());
+        } else {
+            this.currentSongCard = new CurrentSongCard("Nekodex - Circles!");
+        }
+
         this.mediaControls = new MediaControls();
         this.mediaControls.getStyleClass().add("media-controls");
     }

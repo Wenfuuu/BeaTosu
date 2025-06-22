@@ -153,8 +153,8 @@ public class PlaylistManager implements SongEventPublisher {
     public void playNextSong() {
         Song nextSong = getNextSong(currentSong);
         if (nextSong != null) {
-            setCurrentSong(nextSong);
             BgmManager.getInstance().playAudio(nextSong.getAudioPath());
+            setCurrentSong(nextSong);
         } else {
             System.err.println("No next song available in playlist");
         }
@@ -163,8 +163,8 @@ public class PlaylistManager implements SongEventPublisher {
     public void playPreviousSong() {
         Song previousSong = getPreviousSong(currentSong);
         if (previousSong != null) {
-            setCurrentSong(previousSong);
             BgmManager.getInstance().playAudio(previousSong.getAudioPath());
+            setCurrentSong(previousSong);
         } else {
             System.err.println("No previous song available in playlist");
         }
