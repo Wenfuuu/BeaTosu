@@ -30,6 +30,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import lombok.Getter;
 
 public class ChatPanel extends VBox {
 
@@ -39,6 +40,7 @@ public class ChatPanel extends VBox {
     private OnlineUsersPanel onlineUsersPanel;
     private BanchoButtons banchoButtons;
 
+    @Getter
     private ChatTabs chatTabs;
     private TextField chatField;
     private ScrollPane messagesScrollPane;

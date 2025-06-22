@@ -23,6 +23,7 @@ import beat.osu.client.view.shared.common.Page;
 import beat.osu.client.view.shared.common.Toast;
 import beat.osu.client.view.shared.jukebox.Jukebox;
 import beat.osu.client.view.shared.jukebox.modals.PlaylistModal;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -164,6 +165,15 @@ public class LobbyView extends Page {
         scene.setRoot(root);
         setInputManager();
         playlistModalComponent.setInputManager(inputManager);
+
+        channelController.joinChannel(3).thenAccept(result -> {
+            Platform.runLater(() -> {
+                if (result.isSuccess()) {
+                    chatPanel.getChatTabs().selectTab(result.getValue().getChannel());
+                    Toast.success("Successfully joined lobby!").show();
+                }
+            });
+        });
     }
 
     public void handleEvent() {
