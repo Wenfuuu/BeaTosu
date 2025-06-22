@@ -15,6 +15,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 public class BgmManager {
@@ -23,6 +24,9 @@ public class BgmManager {
     private String currentBgmHash = null;
     private String defaultBgmHash;
     private MediaPlayer currentPlayer;
+
+    @Setter
+    private double BGM_VOLUME = 0.2;
 
     private BgmManager() {
 
@@ -141,7 +145,7 @@ public class BgmManager {
         });
 
         currentPlayer.setAutoPlay(true);
-        currentPlayer.setVolume(0.2);
+        currentPlayer.setVolume(BGM_VOLUME);
     }
 
     public void prepareGameBgm() {
@@ -159,7 +163,7 @@ public class BgmManager {
 
         Media media = new Media(audioFile.toURI().toString());
         currentPlayer = new MediaPlayer(media);
-        currentPlayer.setVolume(0.2);
+        currentPlayer.setVolume(BGM_VOLUME);
         currentPlayer.setAutoPlay(false);
 
         currentPlayer.setOnError(() -> {
@@ -190,7 +194,7 @@ public class BgmManager {
             Media media = new Media(bgmFile.toURI().toString());
             currentPlayer = new MediaPlayer(media);
             currentPlayer.setAutoPlay(true);
-            currentPlayer.setVolume(0.2);
+            currentPlayer.setVolume(BGM_VOLUME);
         } catch (Exception e) {
             System.err.println("Failed to load BGM: " + bgmFile.getPath());
             e.printStackTrace();
@@ -206,7 +210,7 @@ public class BgmManager {
             Media media = new Media(songFile.toURI().toString());
             currentPlayer = new MediaPlayer(media);
             currentPlayer.setAutoPlay(true);
-            currentPlayer.setVolume(0.2);
+            currentPlayer.setVolume(BGM_VOLUME);
         } catch (Exception e) {
             System.err.println("Failed to load BGM: " + songFile.getPath());
             e.printStackTrace();

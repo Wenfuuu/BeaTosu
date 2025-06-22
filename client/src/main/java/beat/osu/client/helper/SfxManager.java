@@ -5,11 +5,15 @@ import beat.osu.client.model.Beatmap;
 import beat.osu.client.utils.OsuParser;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import lombok.Setter;
 
 import java.io.File;
 import java.net.URL;
 
 public class SfxManager {
+    @Setter
+    private static double SFX_VOLUME = 0.2;
+
 //    private static final String SFX_DIR = "./src/main/resources/assets/sfx/";
     private static URL getSfxResource(String sfxName) {
         return Main.class.getResource("/assets/sfx/" + sfxName);
@@ -37,7 +41,7 @@ public class SfxManager {
             player.setOnEndOfMedia(player::play);
         });
 
-        player.setVolume(0.2);
+        player.setVolume(SFX_VOLUME);
         return player;
     }
 
@@ -59,7 +63,7 @@ public class SfxManager {
         }
 
         MediaPlayer player = new MediaPlayer(media);
-        player.setVolume(0.2);
+        player.setVolume(SFX_VOLUME);
         player.setOnEndOfMedia(player::dispose);
         player.play();
     }
