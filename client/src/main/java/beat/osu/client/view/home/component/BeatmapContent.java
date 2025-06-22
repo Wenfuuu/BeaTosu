@@ -19,15 +19,16 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-public class BeatmapPane extends ScrollPane {
-    private VBox beatmapListBox;
+public class BeatmapContent extends ScrollPane {
+    private final VBox beatmapListBox;
     private ArrayList<Beatmap> beatmaps;
     @Getter
     private Beatmap selectedBeatmap;
     @Setter
-    private Consumer<Beatmap> onBeatmapSelectedListener;// will be used later for changing current BGM
+    private Consumer<Beatmap> onBeatmapSelectedCallback;// will be used later for changing current BGM
 
-    public BeatmapPane(ArrayList<Beatmap> beatmaps) {
+    public BeatmapContent(ArrayList<Beatmap> beatmaps) {
+        this.beatmapListBox = new VBox();
         this.beatmaps = beatmaps;
         this.selectedBeatmap = beatmaps.isEmpty() ? null : beatmaps.get(0);
 
@@ -44,8 +45,6 @@ public class BeatmapPane extends ScrollPane {
     }
 
     private void initializeComponents() {
-        beatmapListBox = new VBox(2);
-        beatmapListBox.setPadding(new Insets(5));
         beatmapListBox.getStyleClass().add("beatmap-list");
     }
 
@@ -54,7 +53,7 @@ public class BeatmapPane extends ScrollPane {
     }
 
     private void loadStyles() {
-        URL cssUrl = CssManager.getHomeCssURL("BeatmapPane.css");
+        URL cssUrl = CssManager.getHomeCssURL("BeatmapContent.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {
@@ -157,8 +156,8 @@ public class BeatmapPane extends ScrollPane {
 
                 selectedBeatmap = beatmaps.get(index);
 
-                if (onBeatmapSelectedListener != null) {
-                    onBeatmapSelectedListener.accept(selectedBeatmap);
+                if (onBeatmapSelectedCallback != null) {
+                    onBeatmapSelectedCallback.accept(selectedBeatmap);
                 }
             }
         });

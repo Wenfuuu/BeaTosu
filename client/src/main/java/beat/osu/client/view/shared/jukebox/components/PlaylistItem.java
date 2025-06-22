@@ -11,6 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import lombok.Getter;
+import lombok.Setter;
 
 public class PlaylistItem extends VBox {
 
@@ -18,10 +19,10 @@ public class PlaylistItem extends VBox {
     private Song song;
     private Label songText;
     private boolean isSelected;
+    @Setter
     private Consumer<PlaylistItem> onSelectionCallback;
 
     public PlaylistItem(Song song) {
-        super();
         this.song = song;
         this.songText = new Label(song.getArtist() + " - " + song.getTitle());
         this.isSelected = false;
@@ -53,10 +54,6 @@ public class PlaylistItem extends VBox {
             }
             PlaylistManager.getInstance().playSong(song);
         });
-    }
-
-    public void setSelectionCallback(Consumer<PlaylistItem> callback) {
-        this.onSelectionCallback = callback;
     }
 
     public void setSelected(boolean selected) {

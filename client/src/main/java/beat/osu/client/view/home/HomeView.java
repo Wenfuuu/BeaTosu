@@ -6,8 +6,9 @@ import beat.osu.client.helper.*;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.utils.OsuParser;
+import beat.osu.client.view.home.component.ScoreContent;
 import beat.osu.client.view.shared.common.Page;
-import beat.osu.client.view.home.component.BeatmapPane;
+import beat.osu.client.view.home.component.BeatmapContent;
 import beat.osu.client.view.home.component.BottomBar;
 import beat.osu.client.view.home.component.TopBar;
 import beat.osu.shared.common.Result;
@@ -21,7 +22,6 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -37,7 +37,8 @@ public class HomeView extends Page {
     private BorderPane mainLayout;
     private TopBar topBar;
     private BottomBar bottomBar;
-    private BeatmapPane beatmapPane;
+    private BeatmapContent beatmapContent;
+    private ScoreContent scoreContent;
     private ArrayList<Beatmap> beatmaps;
     private ArrayList<ScoreDto> scores;
 
@@ -67,11 +68,13 @@ public class HomeView extends Page {
 
         topBar = new TopBar();
         bottomBar = new BottomBar();
-        beatmapPane = new BeatmapPane(beatmaps);
+        beatmapContent = new BeatmapContent(beatmaps);
+        scoreContent = new ScoreContent(new ArrayList<>());
 
         if (!beatmaps.isEmpty()) {
             topBar.updateSongInfo(beatmaps.get(0));
             scores = fetchScores(beatmaps.get(0));
+            scoreContent = new ScoreContent(scores);
         }
 
         scene.setRoot(root);
@@ -93,8 +96,9 @@ public class HomeView extends Page {
     @Override
     public void setLayout() {
         mainLayout.setTop(topBar);
-        mainLayout.setRight(beatmapPane);
+        mainLayout.setRight(beatmapContent);
         mainLayout.setBottom(bottomBar);
+        mainLayout.setLeft(scoreContent);
 
         root.getChildren().addAll(mainLayout);
     }
@@ -102,7 +106,7 @@ public class HomeView extends Page {
     @Override
     public void onShow() {
         try {
-            OsuParser.parseBeatmap(beatmapPane.getSelectedBeatmap());
+            OsuParser.parseBeatmap(beatmapContent.getSelectedBeatmap());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -198,29 +202,30 @@ public class HomeView extends Page {
         }
     }
 
-    public void handleEvent() {
-        beatmapPane.setOnBeatmapSelectedListener(beatmap -> {
-            try {
-                OsuParser.parseBeatmap(beatmap);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            topBar.updateSongInfo(beatmap);
-            BgmManager.getInstance().playPreviewBgm(false);
-            BackgroundManager.setGameBackground(scene);
+    private void onBeatmapSelected(Beatmap beatmap) {
+        try {
+            OsuParser.parseBeatmap(beatmap);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        topBar.updateSongInfo(beatmap);
+        BgmManager.getInstance().playPreviewBgm(false);
+        BackgroundManager.setGameBackground(scene);
 
-            scores = fetchScores(beatmap);
+        scores = fetchScores(beatmap);
+        scoreContent.populateScores(scores);
+//         sfx testing purpose
+//        for (String data: OsuParser.getHitObjects()) {
+//            HitObjectFactory.createHitObject(data, beatmap, 1, 1);
+//        }
+    }
 
-            // sfx testing purpose
-//            for (String data: OsuParser.getHitObjects()) {
-//                HitObjectFactory.createHitObject(data, beatmap,
-//                        1, 1);
-//            }
-        });
+    private void handleEvent() {
+        beatmapContent.setOnBeatmapSelectedCallback(this::onBeatmapSelected);
 
         bottomBar.getLogoView().setOnMouseClicked(e -> {
             System.out.println("clicking play button");
-            Beatmap selectedBeatmap = beatmapPane.getSelectedBeatmap();
+            Beatmap selectedBeatmap = beatmapContent.getSelectedBeatmap();
             if (selectedBeatmap != null) {
                 BgmManager.getInstance().stopBgm();
 //                new GameView(stage, selectedBeatmap);

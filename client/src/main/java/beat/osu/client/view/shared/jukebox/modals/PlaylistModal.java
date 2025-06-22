@@ -115,7 +115,7 @@ public class PlaylistModal extends StackPane implements SongEventListener {
         
         for (Song song : songs) {
             PlaylistItem playlistItem = new PlaylistItem(song);
-            playlistItem.setSelectionCallback(this::onItemSelected);
+            playlistItem.setOnSelectionCallback(this::onItemSelected);
             playlistItemsContainer.getChildren().add(playlistItem);
         }
     }
@@ -206,7 +206,9 @@ public class PlaylistModal extends StackPane implements SongEventListener {
         });
 
         fadeOut.play();
-    }    public void show() {
+    }
+
+    public void show() {
         this.setVisible(true);
         
         if (inputManager != null) {

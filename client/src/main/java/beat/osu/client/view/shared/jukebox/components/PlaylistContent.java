@@ -9,7 +9,6 @@ import javafx.scene.control.ScrollPane;
 public class PlaylistContent extends ScrollPane {
     
     public PlaylistContent() {
-        super();
         loadStyles();
 
         this.getStyleClass().add("playlist-content");
