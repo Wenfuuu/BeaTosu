@@ -229,6 +229,21 @@ public class LandingView extends Page {
         banchoButtons.setManaged(shouldShow);
     }
 
+    private void hideAllModals() {
+        if (loginModalComponent.isShowing()) {
+            loginModalComponent.hide();
+        }
+        if (registerModalComponent.isVisible()) {
+            registerModalComponent.setVisible(false);
+        }
+        if (settingsModalComponent.isShowing()) {
+            settingsModalComponent.hide();
+        }
+        if (playlistModalComponent.isVisible()) {
+            playlistModalComponent.setVisible(false);
+        }
+    }
+
     @Override
     public void init() {
         root = new StackPane();
@@ -461,6 +476,7 @@ public class LandingView extends Page {
         subMenuButtonsComponent.getSoloButton().setOnMouseClicked(e -> {
             hideSubMenu();
             toggleMenuPanel();
+            hideAllModals();
             ViewManager.getInstance().showHomeView();
         });
 

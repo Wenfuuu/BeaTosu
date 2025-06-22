@@ -240,7 +240,7 @@ public class LoginModal extends StackPane {
         this.setTranslateX(-500);
         super.setManaged(true);
         super.setVisible(true);
-        this.toFront();
+//        this.toFront();
 
         slideIn.setFromX(this.getTranslateX());
         slideIn.play();

@@ -190,7 +190,7 @@ public class SettingsModal extends StackPane {
         this.setTranslateX(-500);
         super.setManaged(true);
         super.setVisible(true);
-        this.toFront();
+//        this.toFront();
 
         slideIn.setFromX(this.getTranslateX());
         slideIn.play();
@@ -218,21 +218,5 @@ public class SettingsModal extends StackPane {
 
     public boolean isShowing() {
         return isModalVisible || (slideIn != null && slideIn.getStatus() == Animation.Status.RUNNING);
-    }
-
-    public double getBgmVolume() {
-        return bgmVolumeSlider.getValue();
-    }
-
-    public void setBgmVolume(double value) {
-        bgmVolumeSlider.setValue(value);
-    }
-
-    public double getSfxVolume() {
-        return sfxVolumeSlider.getValue();
-    }
-
-    public void setSfxVolume(double value) {
-        sfxVolumeSlider.setValue(value);
     }
 }
