@@ -2,16 +2,15 @@ package beat.osu.client.view.lobby;
 
 import java.net.URL;
 
-import beat.osu.client.controller.ChannelController;
 import beat.osu.client.controller.ChatController;
 import beat.osu.client.controller.ConnectedUsersController;
-import beat.osu.client.controller.PrivateChatController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.PlaylistManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.ViewManager;
+import beat.osu.client.view.lobby.component.layout.TopBar;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
 import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
@@ -27,6 +26,7 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -48,6 +48,8 @@ public class LobbyView extends Page {
 
     private Button backbutton;
 
+    private TopBar topBar;
+
     public LobbyView(Stage stage, ConnectedUsersController connectedUsersController, ChatController chatController) {
         super(stage);
 
@@ -61,7 +63,14 @@ public class LobbyView extends Page {
     @Override
     public void init() {
         root = new StackPane();
-        root.getStyleClass().add("root");
+
+        Pane backgroundOverlay = new Pane();
+        backgroundOverlay.getStyleClass().add("background-overlay");
+        backgroundOverlay.prefWidthProperty().bind(root.widthProperty());
+        backgroundOverlay.prefHeightProperty().bind(root.heightProperty());
+        root.getChildren().add(backgroundOverlay);
+
+        topBar = new TopBar();
 
         playlistModal = new PlaylistModal();
         PlaylistManager.getInstance().addListener(playlistModal);
@@ -114,6 +123,13 @@ public class LobbyView extends Page {
 
         scene.setRoot(root);
 
+        URL globalCssUrl = CssManager.getGlobalCssURL();
+        if (globalCssUrl != null) {
+            scene.getStylesheets().add(globalCssUrl.toExternalForm());
+        } else {
+            System.err.println("Css file not found!");
+        }
+
         URL cssUrl = CssManager.getLobbyCssURL("LobbyView.css");
         if (cssUrl != null) {
             scene.getStylesheets().add(cssUrl.toExternalForm());
@@ -130,6 +146,9 @@ public class LobbyView extends Page {
 
     @Override
     public void setLayout() {
+        root.getChildren().add(topBar);
+        StackPane.setAlignment(topBar, Pos.TOP_CENTER);
+
         root.getChildren().addAll(playlistModal, selectChannelModal);
 
         StackPane.setAlignment(playlistModal, Pos.CENTER);

@@ -1,0 +1,25 @@
+.top-bar {
+    -fx-spacing: 10;
+    -fx-min-height: 96;
+    -fx-max-height: 96;
+    -fx-pref-height: 96;
+}
+
+.title-label, .match-count-label {
+    -fx-font-family: "Aller Light";
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(one-pass-box, black, 1, 0, 1, 1),
+            dropshadow(one-pass-box, black, 1, 0, -1, 1),
+            dropshadow(one-pass-box, black, 1, 0, 1, -1),
+            dropshadow(one-pass-box, black, 1, 0, -1, -1)
+}
+
+.title-label {
+    -fx-font-size: 48px;
+    -fx-padding: 0;
+}
+
+.match-count-label {
+    -fx-font-size: 24px;
+    -fx-padding: 8 0 0 0;
+}
