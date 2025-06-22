@@ -48,31 +48,28 @@ public class ViewManager {
         sceneManager = SceneManager.getInstance();
 
         initializeControllers();
-        initializeHomeView();
+        initializeViews();
     }
 
-    public void initializeHomeView() {
-        if (homeView == null) {
-            homeView = new HomeView(primaryStage);
-        }
+    public void initializeViews() {
+        landingView = new LandingView(primaryStage, connectedUsersController, channelController, privateChatController, chatController);
+        homeView = new HomeView(primaryStage);
+        lobbyView = new LobbyView(primaryStage, connectedUsersController, channelController, privateChatController, chatController);
     }
 
     public void showLandingView() {
-        if (landingView == null) {
-            landingView = new LandingView(primaryStage, connectedUsersController, channelController, privateChatController, chatController);
-        } else {
-            landingView.onShow();
-        }
+        landingView.onShow();
         sceneManager.transitionToPage(landingView);
     }
 
     public void showHomeView() {
-        if (homeView == null) {
-            homeView = new HomeView(primaryStage);
-        } else {
-            homeView.onShow();
-        }
+        homeView.onShow();
         sceneManager.transitionToPage(homeView);
+    }
+
+    public void showLobbyView() {
+        lobbyView.onShow();
+        sceneManager.transitionToPage(lobbyView);
     }
 
     public void showGameView(Beatmap beatmap) {
@@ -91,15 +88,6 @@ public class ViewManager {
     public void showUploadPage() {
         UploadPage uploadPage = new UploadPage(primaryStage);
         sceneManager.transitionToPage(uploadPage);
-    }
-
-    public void showLobbyView() {
-        if (lobbyView == null) {
-            lobbyView = new LobbyView(primaryStage, connectedUsersController, channelController, privateChatController, chatController);
-        } else {
-            lobbyView.onShow();
-        }
-        sceneManager.transitionToPage(lobbyView);
     }
 
     private void initializeControllers() {

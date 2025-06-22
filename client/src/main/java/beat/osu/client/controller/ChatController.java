@@ -27,13 +27,11 @@ public class ChatController {
     private final ChannelController channelController;
     private final PrivateChatController privateChatController;
     
-    // Data storage
     private Map<Integer, List<ChannelMessageDto>> channelMessages = new HashMap<>();
     private Map<Integer, List<PrivateChatMessageDto>> privateChatMessages = new HashMap<>();
     private List<ChannelDto> joinedChannels = new ArrayList<>();
     private List<PrivateChatDto> privateChats = new ArrayList<>();
     
-    // Callbacks for UI updates
     private List<Consumer<ChannelDto>> channelAddedCallbacks = new ArrayList<>();
     private List<Consumer<Integer>> channelRemovedCallbacks = new ArrayList<>();
     private List<Consumer<PrivateChatDto>> privateChatAddedCallbacks = new ArrayList<>();
@@ -48,7 +46,6 @@ public class ChatController {
         setupEventHandlers();
     }
     
-    // Data access methods
     public List<ChannelMessageDto> getChannelMessages(int channelId) {
         return channelMessages.getOrDefault(channelId, new ArrayList<>());
     }
@@ -65,7 +62,6 @@ public class ChatController {
         return new ArrayList<>(privateChats);
     }
     
-    // Channel operations
     public CompletableFuture<Result<SendChannelMessageResponse>> sendChannelMessage(int channelId, String message) {
         return channelController.sendChannelMessage(channelId, message)
                 .thenApply(result -> {
@@ -80,7 +76,6 @@ public class ChatController {
                 });
     }
     
-    // Private chat operations
     public CompletableFuture<Result<SendPrivateChatMessageResponse>> sendPrivateMessage(int otherUserId, String message) {
         return privateChatController.sendPrivateMessage(otherUserId, message)
                 .thenApply(result -> {
@@ -139,7 +134,6 @@ public class ChatController {
                 });
     }
     
-    // Callback registration methods
     public void addChannelAddedCallback(Consumer<ChannelDto> callback) {
         channelAddedCallbacks.add(callback);
     }
@@ -197,7 +191,6 @@ public class ChatController {
         joinedChannelsUpdatedCallbacks.remove(callback);
     }
     
-    // Event handling setup
     private void setupEventHandlers() {
         channelController.addChannelMessageCallback(this::handleChannelMessage);
         channelController.addUserJoinedChannelCallback(this::handleUserJoinedChannel);
@@ -257,7 +250,6 @@ public class ChatController {
         });
     }
     
-    // Notification methods
     private void notifyChannelAdded(ChannelDto channel) {
         for (Consumer<ChannelDto> callback : channelAddedCallbacks) {
             try {

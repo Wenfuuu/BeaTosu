@@ -17,7 +17,7 @@ public abstract class Page {
     public abstract void setLayout();
     public abstract void onShow();
 
-    private void setInputManager() {
+    public void setInputManager() {
         this.inputManager = new InputManager(scene);
     }
 

@@ -401,6 +401,8 @@ public class LandingView extends Page {
     public void onShow() {
         visualizerComponent.setupAudioVisualization(BgmManager.getInstance().getCurrentPlayer());
         scene.setRoot(root);
+        setInputManager();
+        playlistModalComponent.setInputManager(inputManager);
     }
 
     public void handleEvent() {

@@ -1,10 +1,17 @@
 package beat.osu.client.view.lobby;
 
+import java.net.URL;
+
 import beat.osu.client.controller.ChannelController;
 import beat.osu.client.controller.ChatController;
 import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.controller.PrivateChatController;
-import beat.osu.client.helper.*;
+import beat.osu.client.helper.AuthManager;
+import beat.osu.client.helper.BackgroundManager;
+import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.PlaylistManager;
+import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.ViewManager;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
 import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
@@ -18,10 +25,9 @@ import beat.osu.client.view.shared.jukebox.Jukebox;
 import beat.osu.client.view.shared.jukebox.modals.PlaylistModal;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-
-import java.net.URL;
 
 public class LobbyView extends Page {
 
@@ -39,6 +45,8 @@ public class LobbyView extends Page {
     private SelectChannelModal selectChannelModal;
     private ViewUserModal viewUserModal;
     private BanchoButtons banchoButtons;
+
+    private Button backbutton;
 
     public LobbyView(Stage stage, ConnectedUsersController connectedUsersController, ChannelController channelController,
                      PrivateChatController privateChatController, ChatController chatController) {
@@ -103,6 +111,8 @@ public class LobbyView extends Page {
         selectChannelModal.setOnlineUsersPanel(onlineUsersPanel);
 
         playlistModalComponent.setVisible(false);
+        
+        backbutton = new Button("Back");
 
         scene.setRoot(root);
 
@@ -144,11 +154,16 @@ public class LobbyView extends Page {
 
         root.getChildren().add(viewUserModal);
         StackPane.setAlignment(viewUserModal, Pos.CENTER);
+
+        root.getChildren().add(backbutton);
+        StackPane.setAlignment(backbutton, Pos.BOTTOM_LEFT);
     }
 
     @Override
     public void onShow() {
         scene.setRoot(root);
+        setInputManager();
+        playlistModalComponent.setInputManager(inputManager);
     }
 
     public void handleEvent() {
@@ -182,6 +197,10 @@ public class LobbyView extends Page {
                 chatPanel.show();
                 banchoButtons.getChatToggleButton().setHideIcon();
             }
+        });
+
+        backbutton.setOnMouseClicked(e -> {
+            ViewManager.getInstance().showLandingView();
         });
     }
 }
