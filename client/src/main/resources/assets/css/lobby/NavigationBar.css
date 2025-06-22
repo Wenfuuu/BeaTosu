@@ -1,8 +1,5 @@
 .navigation-bar {
     -fx-background-color: rgba(0, 0, 0, 0.5);
-    -fx-max-height: 64;
-    -fx-pref-height: 64;
-    -fx-min-height: 64;
 }
 
 .button {

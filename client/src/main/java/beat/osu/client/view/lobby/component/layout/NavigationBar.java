@@ -6,20 +6,15 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import lombok.Getter;
 
 import java.net.URL;
 
+@Getter
 public class NavigationBar extends HBox {
 
-    @Getter
     private Button backButton;
-
-    @Getter
     private Button newGameButton;
-
-    @Getter
     private Button quickJoinButton;
 
     public NavigationBar() {
@@ -32,6 +27,10 @@ public class NavigationBar extends HBox {
         this.setAlignment(Pos.CENTER);
         this.getStyleClass().add("navigation-bar");
 
+        this.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.06);
+        this.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.06);
+        this.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.06);
+
         backButton = new Button("Back to Menu");
         newGameButton = new Button("New Game");
         quickJoinButton = new Button("Quick Join");
@@ -39,6 +38,10 @@ public class NavigationBar extends HBox {
         backButton.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.22);
         newGameButton.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.22);
         quickJoinButton.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.22);
+
+        backButton.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.04);
+        newGameButton.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.04);
+        quickJoinButton.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.04);
 
         backButton.getStyleClass().addAll("button", "back-button");
         newGameButton.getStyleClass().addAll("button", "new-game-button");
