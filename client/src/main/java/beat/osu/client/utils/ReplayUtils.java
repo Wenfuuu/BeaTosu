@@ -37,8 +37,8 @@ public class ReplayUtils {
         while ((line = br.readLine()) != null) {
             String[] parts = line.split(",");
             long timeDelta = Long.parseLong(parts[0].split("=")[1]);
-            int x = Integer.parseInt(parts[1].split("=")[1]);
-            int y = Integer.parseInt(parts[2].split("=")[1]);
+            double x = Double.parseDouble(parts[1].split("=")[1]);
+            double y = Double.parseDouble(parts[2].split("=")[1]);
             int keyMask = Integer.parseInt(parts[3].split("=")[1].replace(")", ""));
 
             ReplayEvent event = new ReplayEvent(timeDelta, x, y, keyMask);

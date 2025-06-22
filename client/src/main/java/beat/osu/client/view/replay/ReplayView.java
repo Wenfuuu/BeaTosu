@@ -44,14 +44,12 @@ public class ReplayView extends Page implements GameEventListener {
     private Beatmap beatmap;
     private ArrayList<ReplayEvent> replayEvents;
     private final ReplayManager rm;
-    private final GameEndEvent gameEndEvent;
 
     private Image[] digitImages;
     private ImageView cursorImage;
 
     public ReplayView(Stage stage, Beatmap selectedBeatmap,
-                      ArrayList<ReplayEvent> replayEvents,
-                      GameEndEvent gameEndEvent) {
+                      ArrayList<ReplayEvent> replayEvents) {
         super(stage);
         setupView();
 
@@ -60,7 +58,6 @@ public class ReplayView extends Page implements GameEventListener {
         this.replayEvents = replayEvents;
         this.rm = new ReplayManager(selectedBeatmap, replayEvents, inputManager);
         this.rm.addListener(this);
-        this.gameEndEvent = gameEndEvent;
 
         ChangeListener<Number> resizeListener = (obs, oldVal, newVal) -> updateLayout();
         root.widthProperty().addListener(resizeListener);
@@ -111,7 +108,7 @@ public class ReplayView extends Page implements GameEventListener {
 
         pauseOverlay.getRetryButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
-            ViewManager.getInstance().showReplayView(beatmap, replayEvents, gameEndEvent);
+            ViewManager.getInstance().showReplayView(beatmap, replayEvents);
         });
 
         pauseOverlay.getLeaveButton().setOnMouseClicked(e -> {

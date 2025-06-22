@@ -198,14 +198,14 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         gameLoop.stop();
         String grade = calculateGrade();
         System.out.println("Game ended with grade: " + grade);
+        LocalDateTime now = LocalDateTime.now();
 
         notifyListeners(new GameEvent(GameEventType.GAME_ENDED, new GameEndEvent(
-                score, perfectHits, gekiHits, greatHits, greatKatuHits, goodHits,
-                misses, highestCombo, accuracy, grade)));
+                score, highestCombo, accuracy, perfectHits, gekiHits, greatHits, greatKatuHits, goodHits,
+                misses, grade, now)));
 
         UserDto user = AuthManager.getUser();
         if(user == null) return;
-        LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String formatted = now.format(formatter);
         String osrFileName = String.format("%s-%s-%s.osr",

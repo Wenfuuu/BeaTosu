@@ -24,6 +24,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.net.URL;
 import java.util.Objects;
 
 public class GameView extends Page implements GameEventListener {
@@ -75,6 +76,13 @@ public class GameView extends Page implements GameEventListener {
         handleEvent();
         updateLayout();
         BgmManager.getInstance().prepareGameBgm();
+
+        URL globalCssUrl = CssManager.getGlobalCssURL();
+        if (globalCssUrl != null) {
+            scene.getStylesheets().add(globalCssUrl.toExternalForm());
+        } else {
+            System.err.println("Css file not found!");
+        }
 
         gm.startGame();
     }
@@ -129,7 +137,7 @@ public class GameView extends Page implements GameEventListener {
         });
 
         resultOverlay.getReplayButton().setOnMouseClicked(e -> {
-            ViewManager.getInstance().showReplayView(beatmap, gm.getReplayEvents(), gameEndEvent);
+            ViewManager.getInstance().showReplayView(beatmap, gm.getReplayEvents());
         });
 
         resultOverlay.getBackButton().setOnMouseClicked(e -> {

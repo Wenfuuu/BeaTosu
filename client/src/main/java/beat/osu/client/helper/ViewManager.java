@@ -77,11 +77,8 @@ public class ViewManager {
         sceneManager.transitionToPage(gameView);
     }
 
-    public void showReplayView(Beatmap beatmap,
-                                      ArrayList<ReplayEvent> replayEvents,
-                                      GameEndEvent gameEndEvent) {
-        ReplayView replayView = new ReplayView(primaryStage, beatmap,
-                replayEvents, gameEndEvent);
+    public void showReplayView(Beatmap beatmap, ArrayList<ReplayEvent> replayEvents) {
+        ReplayView replayView = new ReplayView(primaryStage, beatmap, replayEvents);
         sceneManager.transitionToPage(replayView);
     }
 

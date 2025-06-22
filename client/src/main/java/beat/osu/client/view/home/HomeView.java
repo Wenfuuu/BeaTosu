@@ -6,23 +6,26 @@ import beat.osu.client.helper.*;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.utils.OsuParser;
-import beat.osu.client.view.home.component.ScoreContent;
+import beat.osu.client.utils.ReplayUtils;
+import beat.osu.client.view.home.component.*;
 import beat.osu.client.view.shared.common.Page;
-import beat.osu.client.view.home.component.BeatmapContent;
-import beat.osu.client.view.home.component.BottomBar;
-import beat.osu.client.view.home.component.TopBar;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
 import beat.osu.shared.dto.score.ScoreDto;
 import beat.osu.shared.dto.score.responses.GetAllScoresResponse;
+import javafx.animation.FadeTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.SequentialTransition;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
@@ -39,13 +42,18 @@ public class HomeView extends Page {
     private BottomBar bottomBar;
     private BeatmapContent beatmapContent;
     private ScoreContent scoreContent;
+    private ScoreOverlay scoreOverlay;
     private ArrayList<Beatmap> beatmaps;
     private ArrayList<ScoreDto> scores;
+
+    private SequentialTransition hideTransition;
+    private SequentialTransition showTransition;
 
     public HomeView(Stage stage) {
         super(stage);
         setupView();
         handleEvent();
+        setupAnimations();
     }
 
     @Override
@@ -77,6 +85,8 @@ public class HomeView extends Page {
             scoreContent = new ScoreContent(scores);
         }
 
+        scoreOverlay = new ScoreOverlay();
+
         scene.setRoot(root);
         URL globalCssUrl = CssManager.getGlobalCssURL();
         if (globalCssUrl != null) {
@@ -100,7 +110,7 @@ public class HomeView extends Page {
         mainLayout.setBottom(bottomBar);
         mainLayout.setLeft(scoreContent);
 
-        root.getChildren().addAll(mainLayout);
+        root.getChildren().addAll(mainLayout, scoreOverlay);
     }
 
     @Override
@@ -113,6 +123,24 @@ public class HomeView extends Page {
         scene.setRoot(root);
         BgmManager.getInstance().playPreviewBgm(true);
         BackgroundManager.setGameBackground(scene);
+    }
+
+    private void setupAnimations() {
+        FadeTransition fadeOutTransition = new FadeTransition(Duration.millis(500), mainLayout);
+        fadeOutTransition.setFromValue(1);
+        fadeOutTransition.setToValue(0);
+
+        hideTransition = new SequentialTransition(
+                fadeOutTransition,
+                new PauseTransition(Duration.millis(500)));
+
+        FadeTransition fadeInTransition = new FadeTransition(Duration.millis(500), mainLayout);
+        fadeInTransition.setFromValue(0);
+        fadeInTransition.setToValue(1);
+
+        showTransition = new SequentialTransition(
+                fadeInTransition,
+                new PauseTransition(Duration.millis(500)));
     }
 
     private ArrayList<ScoreDto> fetchScores(Beatmap beatmap) {
@@ -221,7 +249,13 @@ public class HomeView extends Page {
     }
 
     private void onScoreSelected(ScoreDto score) {
-        System.out.println("Score selected: " + score.getId());
+        System.out.println("Score clicked: " + score.getId());
+        scoreOverlay.updateResult(score, beatmapContent.getSelectedBeatmap());
+        hideTransition.play();
+        hideTransition.setOnFinished(e -> {
+            scoreOverlay.setVisible(true);
+            scoreOverlay.getShowTransition().play();
+        });
     }
 
     private void handleEvent() {
@@ -241,6 +275,30 @@ public class HomeView extends Page {
         bottomBar.getBackButton().setOnMouseClicked(e -> {
             System.out.println("Back button clicked");
             ViewManager.getInstance().showLandingView();
+        });
+
+        scoreOverlay.getReplayButton().setOnMouseClicked(e -> {
+            ScoreDto score = scoreOverlay.getScore();
+            Beatmap beatmap = beatmapContent.getSelectedBeatmap();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+            String formatted = score.getDate().format(formatter);
+            String osrFileName = String.format("%s-%s-%s.osr",
+                    score.getUserId(), beatmap.getBeatmapId(),
+                    formatted.replace("/", "-").replace(":", "-"));
+
+            try {
+                ViewManager.getInstance().showReplayView(beatmap, ReplayUtils.loadReplay(osrFileName));
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        scoreOverlay.getBackButton().setOnMouseClicked(e -> {
+            scoreOverlay.getHideTransition().play();
+            scoreOverlay.getHideTransition().setOnFinished(event -> {
+                scoreOverlay.setVisible(false);
+                showTransition.play();
+            });
         });
     }
 }

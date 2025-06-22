@@ -1,11 +1,11 @@
-package beat.osu.client.view.game.component;
+package beat.osu.client.view.home.component;
 
 import beat.osu.client.Main;
 import beat.osu.client.factory.ButtonFactory;
-import beat.osu.client.events.game.GameEndEvent;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.model.Beatmap;
+import beat.osu.shared.dto.score.ScoreDto;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ResultOverlay extends BorderPane {
+public class ScoreOverlay extends BorderPane {
     // Score display with images
     private final ImageView[] scoreDigits;
     private final HBox scoreContainer;
@@ -61,8 +61,6 @@ public class ResultOverlay extends BorderPane {
     private Label playedLabel;
     private VBox hitCountsBox;
     @Getter
-    private Button retryButton;
-    @Getter
     private Button replayButton;
     @Getter
     private Button backButton;
@@ -70,8 +68,12 @@ public class ResultOverlay extends BorderPane {
 
     @Getter
     private final FadeTransition showTransition;
+    @Getter
+    private final FadeTransition hideTransition;
+    @Getter
+    private ScoreDto score;
 
-    public ResultOverlay() {
+    public ScoreOverlay() {
         this.setVisible(false);
 
         // Load digit images
@@ -198,9 +200,15 @@ public class ResultOverlay extends BorderPane {
         showTransition = new FadeTransition(Duration.millis(500), this);
         showTransition.setFromValue(0);
         showTransition.setToValue(1);
+
+        // hide animation
+        hideTransition = new FadeTransition(Duration.millis(500), this);
+        hideTransition.setFromValue(1);
+        hideTransition.setToValue(0);
     }
 
-    public void updateResult(GameEndEvent gameEndEvent, Beatmap beatmap) {
+    public void updateResult(ScoreDto score, Beatmap beatmap) {
+        this.score = score;
         String songTitle = String.format("%s - %s [%s]",
                 beatmap.getBeatmapSet().getArtist(), beatmap.getBeatmapSet().getTitle(), beatmap.getVersion());
         songTitleLabel.setText(songTitle);
@@ -212,14 +220,14 @@ public class ResultOverlay extends BorderPane {
         String userName = AuthManager.isAuthenticated() ? AuthManager.getUser().getUsername() : "Guest";
         playedLabel.setText("Played by " + userName + " on " + formatted + ".");
 
-        updateScore(gameEndEvent.getScore());
-        updateCombo(gameEndEvent.getHighestCombo());
-        updateAccuracy(gameEndEvent.getAccuracy());
-        updateGrade(gameEndEvent.getGrade());
+        updateScore(score.getScore());
+        updateCombo(score.getHighestCombo());
+        updateAccuracy(score.getAccuracy());
+        updateGrade(score.getGrade());
 
-        updateHitCounts(gameEndEvent.getPerfectHits(), gameEndEvent.getGekiHits(),
-                gameEndEvent.getGreatHits(), gameEndEvent.getKatuHits(),
-                gameEndEvent.getGoodHits(), gameEndEvent.getMisses());
+        updateHitCounts(score.getPerfectHit(), score.getGekiHit(),
+                score.getGreatHit(), score.getKatuHit(),
+                score.getGoodHit(), score.getMiss());
     }
 
     private void updateScore(long score) {
@@ -367,7 +375,6 @@ public class ResultOverlay extends BorderPane {
         hitCountsBox.getChildren().addAll(hitCountRows);
 
         // Buttons
-        retryButton = ButtonFactory.createResultRetryButton();
         replayButton = ButtonFactory.createResultReplayButton();
         backButton = ButtonFactory.createBackButton();
 
@@ -403,7 +410,7 @@ public class ResultOverlay extends BorderPane {
         VBox rightStats = new VBox(20);
         rightStats.setAlignment(Pos.CENTER);
 
-        rightStats.getChildren().addAll(gradeSymbol, retryButton, replayButton);
+        rightStats.getChildren().addAll(gradeSymbol, replayButton);
 
         Pane contentPane = new Pane();
         contentPane.getChildren().addAll(rankingView, scoreContainer,
