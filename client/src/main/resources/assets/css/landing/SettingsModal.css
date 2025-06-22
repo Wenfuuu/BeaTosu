@@ -72,3 +72,36 @@
 .settings-slider .axis .axis-tick-mark {
     -fx-stroke: rgba(255, 255, 255, 0.5);
 }
+
+/* Keybind Button Styles */
+.keybind-button {
+    -fx-font-family: 'Aller';
+    -fx-font-size: 16px;
+    -fx-text-fill: #FFFFFF;
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-background-radius: 5px;
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-padding: 8px 16px;
+    -fx-min-width: 60px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 3, 0.0, 0, 1);
+}
+
+.keybind-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.15);
+    -fx-border-color: rgba(255, 255, 255, 0.5);
+}
+
+.keybind-button:pressed {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 2, 0.0, 0, 1);
+}
+
+.keybind-button-waiting {
+    -fx-background-color: #109ec5 !important;
+    -fx-border-color: #FFFFFF !important;
+    -fx-text-fill: #FFFFFF !important;
+    -fx-effect: dropshadow(gaussian, rgba(16, 158, 197, 0.5), 5, 0.0, 0, 2) !important;
+}

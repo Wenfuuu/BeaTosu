@@ -3,9 +3,11 @@ package beat.osu.client.view.landing.component.modals;
 import beat.osu.client.factory.ButtonFactory;
 import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.InputManager;
 import beat.osu.client.helper.SfxManager;
 import beat.osu.client.view.landing.component.ui.LightRays;
 import beat.osu.client.view.landing.component.ui.Visualizer;
+import beat.osu.client.view.shared.common.Toast;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
@@ -31,11 +33,16 @@ public class SettingsModal extends StackPane {
     private TranslateTransition slideIn;
     private TranslateTransition slideOut;
     private boolean isModalVisible = false;
-
     private Slider bgmVolumeSlider;
     private Slider sfxVolumeSlider;
     private Button backButton;
     private Label volumeLabel;
+
+    // Keybind components
+    private Label keybindLabel;
+    private Button leftClickKeybind;
+    private Button rightClickKeybind;
+    private Button currentKeybindButton; // Track which button is being configured
 
     public SettingsModal() {
         initialize();
@@ -63,12 +70,31 @@ public class SettingsModal extends StackPane {
     private void initialize() {
         this.getStyleClass().add("settings-modal-background");
         this.setMaxWidth(650);
-
         formContainer = new VBox(20);
         formContainer.getStyleClass().add("settings-form-container");
-        formContainer.setMaxWidth(300);
+        formContainer.setMaxWidth(350);
         formContainer.setMaxHeight(Region.USE_PREF_SIZE);
         formContainer.setAlignment(Pos.TOP_LEFT);
+
+        // Keybind Settings Section
+        keybindLabel = new Label("KEYBINDS");
+        keybindLabel.getStyleClass().add("settings-title");
+
+        // Left Click Keybind
+        Label leftClickLabel = new Label("Left Click");
+        leftClickLabel.getStyleClass().add("settings-label");
+        leftClickKeybind = new Button("Z");
+        leftClickKeybind.getStyleClass().add("keybind-button");
+        leftClickKeybind.setMaxWidth(Double.MAX_VALUE);
+        VBox leftClickBox = new VBox(10, leftClickLabel, leftClickKeybind);
+
+        // Right Click Keybind
+        Label rightClickLabel = new Label("Right Click");
+        rightClickLabel.getStyleClass().add("settings-label");
+        rightClickKeybind = new Button("X");
+        rightClickKeybind.getStyleClass().add("keybind-button");
+        rightClickKeybind.setMaxWidth(Double.MAX_VALUE);
+        VBox rightClickBox = new VBox(10, rightClickLabel, rightClickKeybind);
 
         volumeLabel = new Label("VOLUME");
         volumeLabel.getStyleClass().add("settings-title");
@@ -98,8 +124,10 @@ public class SettingsModal extends StackPane {
         backButton = ButtonFactory.createBackButton();
         StackPane.setAlignment(backButton, Pos.BOTTOM_LEFT);
         StackPane.setMargin(backButton, new Insets(0, 0, 12, 0));
-
         formContainer.getChildren().addAll(
+                keybindLabel,
+                leftClickBox,
+                rightClickBox,
                 volumeLabel,
                 bgmBox,
                 sfxBox);
@@ -155,11 +183,82 @@ public class SettingsModal extends StackPane {
                 }
             }
         }
-
         return null;
     }
 
+    private void resetKeybindButton(Button button) {
+        if (button == currentKeybindButton) {
+            button.getStyleClass().remove("keybind-button-waiting");
+            // Reset to previous keybind value
+            if (button == leftClickKeybind) {
+                button.setText(InputManager.getKeybind1().getName().toUpperCase()); // Default or get from InputManager
+            } else if (button == rightClickKeybind) {
+                button.setText(InputManager.getKeybind2().getName().toUpperCase()); // Default or get from InputManager
+            }
+            currentKeybindButton = null;
+        }
+    }
+
     private void handleComponentEvents() {
+        // Keybind configuration handlers
+        leftClickKeybind.setOnAction(e -> {
+            // Reset other keybind button if it was focused
+            resetKeybindButton(rightClickKeybind);
+
+            currentKeybindButton = leftClickKeybind;
+            leftClickKeybind.setText("Press a key...");
+            leftClickKeybind.getStyleClass().add("keybind-button-waiting");
+            this.requestFocus();
+        });
+
+        rightClickKeybind.setOnAction(e -> {
+            // Reset other keybind button if it was focused
+            resetKeybindButton(leftClickKeybind);
+
+            currentKeybindButton = rightClickKeybind;
+            rightClickKeybind.setText("Press a key...");
+            rightClickKeybind.getStyleClass().add("keybind-button-waiting");
+            this.requestFocus();
+        });
+
+        this.setOnKeyPressed(event -> {
+            System.out.println("Key pressed: " + event.getCode());
+            if (currentKeybindButton != null) {
+                currentKeybindButton.getStyleClass().remove("keybind-button-waiting");
+                if (!event.getCode().isLetterKey()) {
+                    resetKeybindButton(currentKeybindButton);
+                    System.out.println("Only letters are allowed for keybinds");
+                    Toast.error("Only letters are allowed for keybinds").show();
+                    ;
+                    return;
+                }
+
+                if (currentKeybindButton == leftClickKeybind) {
+                    if (event.getCode() == InputManager.getKeybind2()) {
+                        resetKeybindButton(currentKeybindButton);
+                        System.out.println("This key is already bound to another action");
+                        Toast.error("This key is already bound to another action").show();
+                        return;
+                    }
+                    InputManager.setKeybind1(event.getCode());
+                } else if (currentKeybindButton == rightClickKeybind) {
+                    if (event.getCode() == InputManager.getKeybind1()) {
+                        resetKeybindButton(currentKeybindButton);
+                        System.out.println("This key is already bound to another action");
+                        Toast.error("This key is already bound to another action").show();
+                        return;
+                    }
+                    InputManager.setKeybind2(event.getCode());
+                }
+
+                String keyName = event.getCode().getName().toUpperCase();
+                currentKeybindButton.setText(keyName);
+                currentKeybindButton = null;
+                event.consume();
+            }
+        });
+
+        // Volume slider handlers
         bgmVolumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println("BGM Volume changed to: " + newValue);
             BgmManager.getInstance().setBGM_VOLUME((Double) newValue);
@@ -190,7 +289,7 @@ public class SettingsModal extends StackPane {
         this.setTranslateX(-500);
         super.setManaged(true);
         super.setVisible(true);
-//        this.toFront();
+        // this.toFront();
 
         slideIn.setFromX(this.getTranslateX());
         slideIn.play();
