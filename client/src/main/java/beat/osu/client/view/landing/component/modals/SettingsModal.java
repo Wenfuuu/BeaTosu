@@ -2,6 +2,7 @@ package beat.osu.client.view.landing.component.modals;
 
 import beat.osu.client.factory.ButtonFactory;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.SfxManager;
 import beat.osu.client.view.landing.component.ui.LightRays;
 import beat.osu.client.view.landing.component.ui.Visualizer;
 import javafx.animation.Animation;
@@ -164,6 +165,7 @@ public class SettingsModal extends StackPane {
 
         sfxVolumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println("SFX Volume changed to: " + newValue);
+            SfxManager.setSFX_VOLUME((Double) newValue);
         });
 
         backButton.setOnAction(e -> hide());
