@@ -3,8 +3,6 @@ package beat.osu.client.view.home.component;
 import beat.osu.client.Main;
 import beat.osu.client.factory.ButtonFactory;
 import beat.osu.client.helper.CssManager;
-import javafx.animation.Interpolator;
-import javafx.animation.ScaleTransition;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
@@ -12,15 +10,14 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.util.Duration;
 import lombok.Getter;
 
 import java.net.URL;
 import java.util.Objects;
 
 public class BottomBar extends HBox {
-    private Button backBtn;
+    @Getter
+    private Button backButton;
     @Getter
     private ImageView logoView;
     private Region spacer;
@@ -34,7 +31,7 @@ public class BottomBar extends HBox {
     }
 
     private void initializeComponents() {
-        backBtn = ButtonFactory.createBackButton();
+        backButton = ButtonFactory.createBackButton();
 
         spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -51,7 +48,7 @@ public class BottomBar extends HBox {
     }
 
     private void setupLayout() {
-        this.getChildren().addAll(backBtn, spacer, logoView);
+        this.getChildren().addAll(backButton, spacer, logoView);
         this.setAlignment(Pos.CENTER);
         this.toFront();
     }
@@ -63,9 +60,5 @@ public class BottomBar extends HBox {
         } else {
             System.err.println("CSS file not found!");
         }
-    }
-
-    public Button getBackButton() {
-        return backBtn;
     }
 }

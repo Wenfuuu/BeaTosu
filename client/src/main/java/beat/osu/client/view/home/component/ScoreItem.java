@@ -22,8 +22,6 @@ public class ScoreItem extends HBox {
 
     @Getter
     private ScoreDto score;
-    @Setter
-    private Consumer<ScoreItem> onSelectionCallback;
 
     private final ImageView gradeSymbol;
     private final ImageView profilePicture;
@@ -74,7 +72,7 @@ public class ScoreItem extends HBox {
 
         setupUI();
         loadStyles();
-        setupEventHandlers();
+//        setupEventHandlers();
     }
 
     private void setupUI() {
@@ -97,12 +95,10 @@ public class ScoreItem extends HBox {
         }
     }
 
-    private void setupEventHandlers() {
-        this.setOnMouseClicked(event -> {
-            if (onSelectionCallback != null) {
-                onSelectionCallback.accept(this);
-            }
-            // ViewManager.getInstance().showScorePage(score);
-        });
-    }
+//    private void setupEventHandlers() {
+//        this.setOnMouseClicked(event -> {
+//            // ViewManager.getInstance().showScorePage(score);
+//            System.out.println("Clicking on score item: " + score.getId());
+//        });
+//    }
 }

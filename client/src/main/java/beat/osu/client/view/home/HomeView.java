@@ -220,8 +220,13 @@ public class HomeView extends Page {
 //        }
     }
 
+    private void onScoreSelected(ScoreDto score) {
+        System.out.println("Score selected: " + score.getId());
+    }
+
     private void handleEvent() {
         beatmapContent.setOnBeatmapSelectedCallback(this::onBeatmapSelected);
+        scoreContent.setOnScoreSelectedCallback(this::onScoreSelected);
 
         bottomBar.getLogoView().setOnMouseClicked(e -> {
             System.out.println("clicking play button");

@@ -2,15 +2,21 @@ package beat.osu.client.view.home.component;
 
 import beat.osu.client.helper.CssManager;
 import beat.osu.shared.dto.score.ScoreDto;
+import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import lombok.Setter;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 public class ScoreContent extends ScrollPane {
 
     private final VBox scoreListBox;
+    @Setter
+    private Consumer<ScoreDto> onScoreSelectedCallback;
 
     public ScoreContent(ArrayList<ScoreDto> scores) {
         this.scoreListBox = new VBox();
@@ -18,9 +24,6 @@ public class ScoreContent extends ScrollPane {
         this.setFitToWidth(true);
         this.setHbarPolicy(ScrollBarPolicy.NEVER);
         this.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
-
-//        this.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.77);
-//        this.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.77);
 
         initializeComponents();
         setupLayout();
@@ -64,6 +67,21 @@ public class ScoreContent extends ScrollPane {
             setVvalue(vvalue - deltaY / width);
 
             event.consume();
+        });
+
+        scoreListBox.setOnMouseClicked(e -> {
+            Node clickedNode = e.getPickResult().getIntersectedNode();
+
+            while (clickedNode != null && clickedNode.getParent() != scoreListBox) {
+                clickedNode = clickedNode.getParent();
+            }
+
+            if (clickedNode instanceof ScoreItem) {
+                ScoreItem scoreItem = (ScoreItem) clickedNode;
+                if (onScoreSelectedCallback != null) {
+                    onScoreSelectedCallback.accept(scoreItem.getScore());
+                }
+            }
         });
     }
 }
