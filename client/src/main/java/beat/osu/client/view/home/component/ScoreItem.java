@@ -52,7 +52,7 @@ public class ScoreItem extends HBox {
         profilePicture.setFitHeight(50);
         profilePicture.setPreserveRatio(true);
 
-        Label usernameLabel = new Label(String.valueOf(score.getUserId()));
+        Label usernameLabel = new Label(score.getUsername());
         usernameLabel.getStyleClass().add("score-username");
 
         String scoreString = String.format("Score: %,d (%dx)", score.getScore(), score.getHighestCombo());

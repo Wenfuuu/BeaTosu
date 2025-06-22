@@ -31,7 +31,7 @@ public class Main {
         UserService userService = new UserService(userRepository);
         AuthService authService = new AuthService(userRepository, sessionService);
         BeatmapService beatmapService = new BeatmapService(beatmapSetRepository, beatmapRepository);
-        ScoreService scoreService = new ScoreService(scoreRepository);
+        ScoreService scoreService = new ScoreService(scoreRepository, userService);
         ChannelService channelService = new ChannelService(sessionService, userService);
         PrivateChatService privateChatService = new PrivateChatService(sessionService, userService);
         MatchService matchService = new MatchService(sessionService, userService, beatmapService);

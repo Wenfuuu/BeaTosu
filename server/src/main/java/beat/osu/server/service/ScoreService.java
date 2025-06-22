@@ -1,6 +1,7 @@
 package beat.osu.server.service;
 
 import beat.osu.server.entities.Score;
+import beat.osu.server.entities.User;
 import beat.osu.server.repositories.ScoreRepository;
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 public class ScoreService {
 
     private ScoreRepository scoreRepository;
+    private UserService userService;
 
     public Result<GetAllScoresResponse> getScoresByBeatmapId(GetScoreRequest request) {
         if (request == null) {
@@ -27,6 +29,7 @@ public class ScoreService {
             ArrayList<Score> scores = scoreRepository.getScoresByBeatmapId(request.getBeatmapId());
             ArrayList<ScoreDto> scoreDtos = new ArrayList<>();
             for (Score score : scores) {
+                User user = userService.findUserById(score.getUserId());
                 ScoreDto scoreDto = new ScoreDto(
                         score.getId(),
                         score.getBeatmapId(),
@@ -41,8 +44,8 @@ public class ScoreService {
                         score.getGoodHit(),
                         score.getMiss(),
                         score.getGrade(),
-                        score.getDate()
-                );
+                        score.getDate(),
+                        user.getUsername());
                 scoreDtos.add(scoreDto);
             }
 
@@ -71,11 +74,11 @@ public class ScoreService {
                     request.getGoodHit(),
                     request.getMiss(),
                     request.getGrade(),
-                    request.getDate()
-            );
+                    request.getDate());
 
             System.out.println("Score inserted successfully for user ID: " + request.getUserId());
-            String message = "Score inserted successfully for user ID: " + request.getUserId() + " on beatmap ID: " + request.getBeatmapId();
+            String message = "Score inserted successfully for user ID: " + request.getUserId() + " on beatmap ID: "
+                    + request.getBeatmapId();
             return Result.success(new InsertScoreResponse(message));
         } catch (RuntimeException e) {
             return Result.failure(Error.internal("Failed to insert score: " + e.getMessage()));

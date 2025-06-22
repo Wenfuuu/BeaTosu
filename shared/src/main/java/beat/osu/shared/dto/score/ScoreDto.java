@@ -1,5 +1,6 @@
 package beat.osu.shared.dto.score;
 
+import beat.osu.shared.dto.user.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,4 +26,5 @@ public class ScoreDto implements Serializable {
     private int miss;
     private String grade;
     private LocalDateTime date;
+    private String username;
 }
