@@ -14,6 +14,7 @@ import beat.osu.client.model.*;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.utils.ReplayUtils;
 import beat.osu.client.view.shared.common.Toast;
+import beat.osu.shared.dto.game.ReplayEvent;
 import beat.osu.shared.dto.user.UserDto;
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
