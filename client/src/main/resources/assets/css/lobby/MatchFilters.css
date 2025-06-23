@@ -1,0 +1,69 @@
+.match-filters {
+    -fx-alignment: center-left;
+    -fx-padding: 0 0 0 24;
+}
+
+.left-container, .right-container {
+    -fx-min-width: 400;
+    -fx-max-width: 400;
+    -fx-pref-width: 400;
+}
+
+.checkbox {
+    -fx-spacing: 40;
+    -fx-label-padding: 0 0 0 24px;
+}
+
+.checkbox .text {
+    -fx-font-family: "Aller Light";
+    -fx-fill: white;
+    -fx-font-size: 24;
+    -fx-padding: 0;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.5), 1, 0, 1, 1),
+                dropshadow(one-pass-box, rgba(0, 0, 0, 0.5), 1, 0, -1, 1),
+                dropshadow(one-pass-box, rgba(0, 0, 0, 0.5), 1, 0, 1, -1),
+                dropshadow(one-pass-box, rgba(0, 0, 0, 0.5), 1, 0, -1, -1);
+}
+
+.checkbox .box {
+    -fx-background-color: transparent;
+    -fx-border-color: #EC758D;
+    -fx-border-radius: 50%;
+    -fx-background-radius: 50%;
+    -fx-border-width: 2px;
+    -fx-padding: 2px;
+    -fx-min-width: 20px;
+    -fx-min-height: 20px;
+    -fx-max-width: 20px;
+    -fx-max-height: 20px;
+}
+
+.checkbox:selected .box {
+    -fx-background-color: #EC758D;
+    -fx-border-color: #EC758D;
+}
+
+.checkbox .mark {
+    -fx-background-color: transparent;
+}
+
+.search-label {
+    -fx-text-fill: white;
+    -fx-font-family: 'Aller Light';
+    -fx-font-size: 26px;
+}
+
+.search-field {
+    -fx-font-family: 'Aller Bold';
+    -fx-background-color: rgba(0, 0, 0, 0.2);
+    -fx-text-fill: white;
+    -fx-min-width: 300px;
+    -fx-font-size: 24px;
+    -fx-border-color: rgba(255, 255, 255, 0.8);
+    -fx-border-width: 3px;
+    -fx-padding: 1px 2px;
+}
+
+.search-field:focused {
+    -fx-border-color: white;
+}
