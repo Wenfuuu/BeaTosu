@@ -103,7 +103,7 @@ public class ViewUserModal extends VBox {
         startSpectateButton.setOnAction(event -> {
             if (onStartSpectateCallback != null && userCard != null) {
                 UserDto user = AuthManager.getUser();
-                Integer beatmapId = fetchPlayingBeatmapId(user.getId());
+                Integer beatmapId = fetchPlayingBeatmapId(userCard.getUserId());
 
                 if (beatmapId != null) {
                     SpectateDto spectateDto = new SpectateDto(
