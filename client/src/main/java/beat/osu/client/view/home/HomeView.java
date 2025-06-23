@@ -46,8 +46,8 @@ public class HomeView extends Page {
     private ArrayList<Beatmap> beatmaps;
     private ArrayList<ScoreDto> scores;
 
-    private SequentialTransition hideTransition;
-    private SequentialTransition showTransition;
+    private FadeTransition hideTransition;
+    private FadeTransition showTransition;
 
     public HomeView(Stage stage) {
         super(stage);
@@ -126,21 +126,13 @@ public class HomeView extends Page {
     }
 
     private void setupAnimations() {
-        FadeTransition fadeOutTransition = new FadeTransition(Duration.millis(500), mainLayout);
-        fadeOutTransition.setFromValue(1);
-        fadeOutTransition.setToValue(0);
+        hideTransition = new FadeTransition(Duration.millis(500), mainLayout);
+        hideTransition.setFromValue(1);
+        hideTransition.setToValue(0);
 
-        hideTransition = new SequentialTransition(
-                fadeOutTransition,
-                new PauseTransition(Duration.millis(500)));
-
-        FadeTransition fadeInTransition = new FadeTransition(Duration.millis(500), mainLayout);
-        fadeInTransition.setFromValue(0);
-        fadeInTransition.setToValue(1);
-
-        showTransition = new SequentialTransition(
-                fadeInTransition,
-                new PauseTransition(Duration.millis(500)));
+        showTransition = new FadeTransition(Duration.millis(500), mainLayout);
+        showTransition.setFromValue(0);
+        showTransition.setToValue(1);
     }
 
     private ArrayList<ScoreDto> fetchScores(Beatmap beatmap) {
@@ -287,6 +279,8 @@ public class HomeView extends Page {
                     formatted.replace("/", "-").replace(":", "-"));
 
             try {
+                scoreOverlay.getHideTransition().play();
+                showTransition.play();
                 ViewManager.getInstance().showReplayView(beatmap, ReplayUtils.loadReplay(osrFileName));
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
