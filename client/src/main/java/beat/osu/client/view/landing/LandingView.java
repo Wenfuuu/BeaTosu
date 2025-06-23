@@ -291,7 +291,7 @@ public class LandingView extends Page {
         banchoPanelsContainer.setManaged(false);
         banchoPanelsContainer.setMaxWidth(Double.MAX_VALUE);
         banchoPanelsContainer.setMaxHeight(Double.MAX_VALUE);
-        banchoPanelsContainer.setMouseTransparent(true);
+        banchoPanelsContainer.setMouseTransparent(false);
         
         onlineUsersPanel.setMaxWidth(Double.MAX_VALUE);
         chatPanel.setMaxWidth(Double.MAX_VALUE);
@@ -481,6 +481,31 @@ public class LandingView extends Page {
                     settingsModal.hide();
                 }
             }
+
+            if (chatPanel.isShowing() && !onlineUsersPanel.isShowing()) {
+                Node target = (Node) e.getTarget();
+                boolean clickedOnChatPanel = false;
+                boolean clickedOnBanchoButtons = false;
+
+                while (target != null) {
+                    if (target == chatPanel) {
+                        clickedOnChatPanel = true;
+                        break;
+                    }
+                    if (target == banchoButtons) {
+                        clickedOnBanchoButtons = true;
+                        break;
+                    }
+                    target = target.getParent();
+                }
+
+                if (!clickedOnChatPanel && !clickedOnBanchoButtons) {
+                    chatPanel.hide();
+                    bottomBar.setFullOpacity();
+                    banchoButtons.getChatToggleButton().setShowIcon();
+                    updateBanchoPanelsMouseTransparency();
+                }
+            }
         });
 
         menuButtons.getPlayButton().setOnMouseClicked(e -> {
@@ -539,6 +564,7 @@ public class LandingView extends Page {
                     banchoButtons.getChatToggleButton().setHideIcon();
                 }
             }
+            updateBanchoPanelsMouseTransparency();
         });
 
         banchoButtons.getChatToggleButton().setOnMouseClicked(e -> {
@@ -557,6 +583,7 @@ public class LandingView extends Page {
                 bottomBar.setLowOpacity();
                 banchoButtons.getChatToggleButton().setHideIcon();
             }
+            updateBanchoPanelsMouseTransparency();
         });
 
         jukebox.getMediaControls().getPlaylistButton().setOnAction(event -> {
@@ -577,5 +604,10 @@ public class LandingView extends Page {
                 playlistModal.show();
             }
         });
+    }
+
+    private void updateBanchoPanelsMouseTransparency() {
+        boolean shouldBeTransparent = !chatPanel.isShowing() && !onlineUsersPanel.isShowing();
+        banchoPanelsContainer.setMouseTransparent(shouldBeTransparent);
     }
 }
