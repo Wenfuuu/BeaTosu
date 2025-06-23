@@ -1,6 +1,7 @@
 package beat.osu.client.helper;
 
 import beat.osu.client.controller.ScoreController;
+import beat.osu.client.controller.SessionController;
 import beat.osu.client.enums.GameEventType;
 import beat.osu.client.enums.GameState;
 import beat.osu.client.enums.HealthRecover;
@@ -42,6 +43,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private boolean bgmStarted = false;
     private final InputManager inputManager;
     private final ScoreController scoreController;
+    private final SessionController sessionController;
 
     private final Set<KeyCode> previousKeys = new HashSet<>();
     private double currentMouseX;
@@ -111,6 +113,40 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         }
     }
 
+    private void createGameSession() {
+        System.out.println("Creating game session");
+        UserDto user = AuthManager.getUser();
+        if (user == null) {
+            return;
+        }
+
+        sessionController.createPlayingBeatmapSession(user.getId(), beatmap.getBeatmapId()).thenApply(response -> {
+            if (response.isSuccess()) {
+                System.out.println("Session created successfully: " + response.getValue().getMessage());
+            } else {
+                System.err.println("Failed to create session: " + response.getError().getMessage());
+            }
+            return null;
+        });
+    }
+
+    public void removeGameSession() {
+        System.out.println("Removing game session");
+        UserDto user = AuthManager.getUser();
+        if (user == null) {
+            return;
+        }
+        
+        sessionController.removePlayingBeatmapSession(user.getId()).thenApply(response -> {
+            if (response.isSuccess()) {
+                System.out.println("Session removed successfully: " + response.getValue().getMessage());
+            } else {
+                System.err.println("Failed to remove session: " + response.getError().getMessage());
+            }
+            return null;
+        });
+    }
+
     public void startGame() {
         if (gameState == GameState.PLAYING) return;
 
@@ -159,6 +195,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             }
         };
         gameLoop.start();
+        // create game session
+        createGameSession();
     }
 
     private void pauseGame() {
@@ -193,7 +231,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         notifyListeners(new GameEvent(GameEventType.GAME_RESUMED, null));
     }
 
-    private void stopGame() {
+    public void stopGame() {
+        removeGameSession();
         System.out.println("all hit objects processed, stopping game");
         gameState = GameState.COMPLETED;
         gameLoop.stop();
@@ -222,7 +261,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 goodHits, misses, grade, now).thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Score inserted successfully: " + response.getValue().getMessage());
-                Toast.success("Score inserted successfully: " + response.getValue().getMessage());
             } else {
                 System.err.println("Failed to insert score: " + response.getError().getMessage());
             }
@@ -231,6 +269,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void failGame() {
+        removeGameSession();
         System.out.println("Game failed, stopping game");
         gameState = GameState.FAILED;
         gameLoop.stop();
@@ -656,6 +695,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         this.inputManager = inputManager;
         this.hitObjects = new ArrayList<>();
         this.scoreController = new ScoreController();
+        this.sessionController = new SessionController();
         processBeatmap();
     }
 

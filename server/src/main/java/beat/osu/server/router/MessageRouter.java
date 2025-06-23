@@ -11,13 +11,14 @@ import beat.osu.shared.dto.chat.requests.JoinChannelRequest;
 import beat.osu.shared.dto.chat.requests.LeaveChannelRequest;
 import beat.osu.shared.dto.chat.requests.SendChannelMessageRequest;
 import beat.osu.shared.dto.chat.requests.SendPrivateChatMessageRequest;
-import beat.osu.shared.dto.game.requests.CreateSessionRequest;
+import beat.osu.shared.dto.session.requests.CreateSessionRequest;
 import beat.osu.shared.dto.match.requests.CreateMatchRequest;
 import beat.osu.shared.dto.match.requests.JoinMatchRequest;
 import beat.osu.shared.dto.match.requests.KickPlayerRequest;
 import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
 import beat.osu.shared.dto.score.requests.GetScoreRequest;
 import beat.osu.shared.dto.score.requests.InsertScoreRequest;
+import beat.osu.shared.dto.session.requests.RemoveSessionRequest;
 import beat.osu.shared.models.RequestMessage;
 import lombok.RequiredArgsConstructor;
 
@@ -145,9 +146,10 @@ public class MessageRouter {
 
     private Object handleSessionRequest(RequestMessage request, String clientId) {
         switch (request.getAction()) {
-            case CREATE_SESSION:
-                CreateSessionRequest createSessionRequest = (CreateSessionRequest) request.getPayload();
-                sessionService.setSessionData(clientId, createSessionRequest.getKey(), createSessionRequest.getValue());
+            case CREATE_SESSION_DATA:
+                return sessionService.createSessionData((CreateSessionRequest) request.getPayload());
+            case REMOVE_SESSION_DATA:
+                return sessionService.removeSessionKey((RemoveSessionRequest) request.getPayload());
             default:
                 return Result.failure(Error.validation("Unknown session action: " + request.getAction()));
         }

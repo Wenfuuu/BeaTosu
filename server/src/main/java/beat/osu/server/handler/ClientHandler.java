@@ -47,7 +47,7 @@ public class ClientHandler implements Runnable {
             realtimeMessageHandler = new RealtimeMessageHandler(oos, clientId);
 
             activeClients.put(clientId, this);
-            sessionService.createSession(clientId);
+            sessionService.createSessionData(clientId);
 
             System.out.println("Client connected from address: " + clientSocket.getInetAddress() + ": " + clientSocket.getPort() + " with client ID: " + clientId);
 

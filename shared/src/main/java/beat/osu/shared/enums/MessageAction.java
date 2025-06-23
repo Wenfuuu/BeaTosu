@@ -38,5 +38,6 @@ public enum MessageAction implements Serializable {
     KICK_PLAYER,
 
     // Session actions
-    CREATE_SESSION,
+    CREATE_SESSION_DATA,
+    REMOVE_SESSION_DATA,
 }
