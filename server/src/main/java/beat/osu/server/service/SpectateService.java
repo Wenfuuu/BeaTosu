@@ -61,6 +61,7 @@ public class SpectateService {
         spectatorToPlayer.put(spectatorUserId, playingUserId);
         playerToSpectators.computeIfAbsent(playingUserId, k -> ConcurrentHashMap.newKeySet()).add(spectatorUserId);
 
+        System.out.println("Started spectating: " + player.getUsername() + " by spectator: " + spectator.getUsername());
         return Result.success(new StartSpectateResponse("Started spectating " + player.getUsername()));
     }
 
@@ -83,6 +84,7 @@ public class SpectateService {
             for (Integer spectatorUserId : spectators) {
                 String spectatorClientId = sessionService.getClientIdByUserId(spectatorUserId);
                 if (spectatorClientId != null) {
+                    System.out.println("Sending spectate event to spectator: " + spectatorUserId);
                     RealtimeMessageHandler.sendToClient(realtimeMessage, spectatorClientId);
                 }
             }
@@ -98,7 +100,8 @@ public class SpectateService {
             stopSpectate(spectatorUserId);
         }
 
-        return Result.success(new StopSpectateResponse("Stopped spectating"));
+        System.out.println("Stopped spectating for user: " + spectatorUserId);
+        return Result.success(new StopSpectateResponse("Stopped spectating for user: " + spectatorUserId));
     }
 
     public void stopSpectate(int spectatorUserId) {

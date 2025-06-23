@@ -1,12 +1,20 @@
 package beat.osu.client.controller;
 
 import beat.osu.client.service.ClientService;
+import beat.osu.shared.common.Error;
+import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.game.events.SpectateEvent;
+import beat.osu.shared.dto.game.requests.SendSpectateEventRequest;
+import beat.osu.shared.dto.game.responses.SendSpectateEventResponse;
+import beat.osu.shared.enums.MessageAction;
+import beat.osu.shared.enums.MessageType;
 import beat.osu.shared.enums.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
+import beat.osu.shared.models.RequestMessage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 public class SpectateController {
@@ -25,6 +33,26 @@ public class SpectateController {
 
     public void removeSpectateEventCallback(Consumer<SpectateEvent> callback) {
         replayEventCallbacks.remove(callback);
+    }
+
+    public CompletableFuture<Result<SendSpectateEventResponse>> sendSpectateEvent(SpectateEvent event) {
+        SendSpectateEventRequest requestData = new SendSpectateEventRequest(event);
+        RequestMessage request = new RequestMessage(MessageType.SPECTATE, MessageAction.SEND_SPECTATE_EVENT, requestData);
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendRequest(request).get();
+
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((SendSpectateEventResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
     }
 
     private void setupRealtimeHandler() {

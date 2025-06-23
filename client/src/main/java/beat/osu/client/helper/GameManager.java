@@ -2,6 +2,7 @@ package beat.osu.client.helper;
 
 import beat.osu.client.controller.ScoreController;
 import beat.osu.client.controller.SessionController;
+import beat.osu.client.controller.SpectateController;
 import beat.osu.client.enums.GameEventType;
 import beat.osu.client.enums.GameState;
 import beat.osu.client.enums.HealthRecover;
@@ -15,6 +16,7 @@ import beat.osu.client.model.*;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.utils.ReplayUtils;
 import beat.osu.client.events.game.ReplayEvent;
+import beat.osu.shared.dto.game.events.SpectateEvent;
 import beat.osu.shared.dto.user.UserDto;
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
@@ -43,6 +45,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private final InputManager inputManager;
     private final ScoreController scoreController;
     private final SessionController sessionController;
+    private final SpectateController spectateController;
 
     private final Set<KeyCode> previousKeys = new HashSet<>();
     private double currentMouseX;
@@ -410,8 +413,22 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         ReplayEvent replayEvent = new ReplayEvent(timeDelta, currentMouseX, currentMouseY, keyMask);
         replayEvents.add(replayEvent);
 
+        sendSpectateEvent(elapsedMillis, replayEvent);
+
         // Update last event time for next delta calculation
         lastReplayEventTime = elapsedMillis;
+    }
+
+    private void sendSpectateEvent(long elapsedMillis, ReplayEvent replayEvent) {
+        SpectateEvent event = new SpectateEvent(elapsedMillis, replayEvent.getX(), replayEvent.getY(), replayEvent.getKeyMask());
+        spectateController.sendSpectateEvent(event).thenApply(response -> {
+            if (response.isSuccess()) {
+                System.out.println("Spectate event sent successfully: " + response.getValue().getMessage());
+            } else {
+                System.err.println("Failed to send spectate event: " + response.getError().getMessage());
+            }
+            return null;
+        });
     }
 
     private boolean checkHitObjectClick(HitObject hitObject, long elapsedMillis) {
@@ -694,6 +711,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         this.hitObjects = new ArrayList<>();
         this.scoreController = new ScoreController();
         this.sessionController = new SessionController();
+        this.spectateController = new SpectateController();
+
         processBeatmap();
     }
 
