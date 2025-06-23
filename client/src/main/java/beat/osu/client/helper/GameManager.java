@@ -120,7 +120,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             return;
         }
 
-        sessionController.createPlayingBeatmapSession(user.getId(), beatmap.getBeatmapId()).thenApply(response -> {
+        sessionController.createPlayingBeatmapSession(user.getId(), beatmap.getBeatmapSetId()).thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Session created successfully: " + response.getValue().getMessage());
             } else {

@@ -8,7 +8,7 @@ import beat.osu.client.view.game.GameView;
 import beat.osu.client.view.home.HomeView;
 import beat.osu.client.view.landing.LandingView;
 import beat.osu.client.view.lobby.LobbyView;
-import beat.osu.client.view.replay.ReplayView;
+import beat.osu.client.view.game.ReplayView;
 import beat.osu.client.view.upload.UploadPage;
 import beat.osu.shared.dto.game.events.ReplayEvent;
 import javafx.stage.Stage;

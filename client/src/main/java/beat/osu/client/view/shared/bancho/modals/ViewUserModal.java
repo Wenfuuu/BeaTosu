@@ -103,13 +103,13 @@ public class ViewUserModal extends VBox {
         startSpectateButton.setOnAction(event -> {
             if (onStartSpectateCallback != null && userCard != null) {
                 UserDto user = AuthManager.getUser();
-                Integer beatmapId = fetchPlayingBeatmapId(userCard.getUserId());
+                Integer beatmapSetId = fetchPlayingBeatmapId(userCard.getUserId());
 
-                if (beatmapId != null) {
+                if (beatmapSetId != null) {
                     SpectateDto spectateDto = new SpectateDto(
                             user.getId(),
                             userCard.getUserId(),
-                            beatmapId
+                            beatmapSetId
                     );
                     onStartSpectateCallback.accept(spectateDto);
                     hide(); // Close the modal after starting spectate

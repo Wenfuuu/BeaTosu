@@ -322,7 +322,7 @@ public class LandingView extends Page {
             }
 
             System.out.println("Player with id " + spectateDto.getPlayingUserId()
-                    + " is playing beatmap with id " + spectateDto.getBeatmapId());
+                    + " is playing beatmap with set id " + spectateDto.getBeatmapSetId());
 //            ViewManager.getInstance().showSpectateView(spectateDto, spectateController);
         });
 

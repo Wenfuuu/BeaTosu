@@ -1,4 +1,4 @@
-package beat.osu.client.view.replay;
+package beat.osu.client.view.game;
 
 import beat.osu.client.Main;
 import beat.osu.client.enums.HitResult;
