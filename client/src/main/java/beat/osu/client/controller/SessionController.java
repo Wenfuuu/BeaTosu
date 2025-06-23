@@ -4,8 +4,10 @@ import beat.osu.client.service.ClientService;
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.session.requests.CreateSessionDataRequest;
+import beat.osu.shared.dto.session.requests.GetSessionDataRequest;
 import beat.osu.shared.dto.session.requests.RemoveSessionDataRequest;
 import beat.osu.shared.dto.session.responses.CreateSessionDataResponse;
+import beat.osu.shared.dto.session.responses.GetSessionDataResponse;
 import beat.osu.shared.dto.session.responses.RemoveSessionDataResponse;
 import beat.osu.shared.enums.MessageAction;
 import beat.osu.shared.enums.MessageType;
@@ -20,9 +22,30 @@ public class SessionController {
         this.clientService = ClientService.getInstance();
     }
 
+    public CompletableFuture<Result<GetSessionDataResponse>> getSessionValue(int userId, String key) {
+        GetSessionDataRequest requestData = new GetSessionDataRequest(userId, key);
+        RequestMessage request = new RequestMessage(MessageType.SESSION, MessageAction.GET_SESSION_DATA, requestData);
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendRequest(request).get();
+
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    System.out.println("result success " + result.getValue());
+                    return Result.success((GetSessionDataResponse) result.getValue());
+                } else {
+                    System.out.println("result failure " + result.getError().getMessage());
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
+    }
+
     public CompletableFuture<Result<CreateSessionDataResponse>> createPlayingBeatmapSession(int userId, Object value) {
         CreateSessionDataRequest requestData = new CreateSessionDataRequest(userId, "playingBeatmap", value);
-
         RequestMessage request = new RequestMessage(MessageType.SESSION, MessageAction.CREATE_SESSION_DATA, requestData);
 
         return CompletableFuture.supplyAsync(() -> {
@@ -45,7 +68,6 @@ public class SessionController {
 
     public CompletableFuture<Result<RemoveSessionDataResponse>> removePlayingBeatmapSession(int userId) {
         RemoveSessionDataRequest requestData = new RemoveSessionDataRequest(userId, "playingBeatmap");
-
         RequestMessage request = new RequestMessage(MessageType.SESSION, MessageAction.REMOVE_SESSION_DATA, requestData);
 
         return CompletableFuture.supplyAsync(() -> {

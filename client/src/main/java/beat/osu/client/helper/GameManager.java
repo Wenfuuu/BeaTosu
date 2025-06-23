@@ -201,7 +201,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
     private void pauseGame() {
         System.out.println("pausing game");
-
 //        for (ReplayEvent event : replayEvents) {
 //            System.out.println("ReplayEventOsu(time_delta=" + event.getTimeDelta() +
 //                    ", x=" + event.getX() + ", y=" + event.getY() +

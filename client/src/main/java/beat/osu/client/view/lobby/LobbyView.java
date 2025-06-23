@@ -4,6 +4,8 @@ import java.net.URL;
 
 import beat.osu.client.controller.ChatController;
 import beat.osu.client.controller.ConnectedUsersController;
+import beat.osu.client.controller.SessionController;
+import beat.osu.client.controller.SpectateController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.CssManager;
@@ -41,6 +43,8 @@ public class LobbyView extends Page {
 
     private final ConnectedUsersController connectedUsersController;
     private final ChatController chatController;
+    private final SessionController sessionController;
+    private final SpectateController spectateController;
 
     private PlaylistModal playlistModal;
     private Jukebox jukebox;
@@ -58,11 +62,14 @@ public class LobbyView extends Page {
     private VBox banchoPanelsContainer;
     private CreateMatchModal createMatchModal;
 
-    public LobbyView(Stage stage, ConnectedUsersController connectedUsersController, ChatController chatController) {
+    public LobbyView(Stage stage, ConnectedUsersController connectedUsersController, ChatController chatController,
+                     SessionController sessionController, SpectateController spectateController) {
         super(stage);
 
         this.connectedUsersController = connectedUsersController;
         this.chatController = chatController;
+        this.sessionController = sessionController;
+        this.spectateController = spectateController;
 
         setupView();
         handleEvent();
@@ -93,7 +100,7 @@ public class LobbyView extends Page {
         selectChannelModal = new SelectChannelModal(chatController.getChannelController(), banchoButtons);
         chatPanel = new ChatPanel(chatController, selectChannelModal, onlineUsersPanel, banchoButtons);
         
-        viewUserModal = new ViewUserModal();
+        viewUserModal = new ViewUserModal(sessionController);
 
         viewUserModal.setOnStartChatCallback(privateChat -> {
             if (AuthManager.getUser().getId() == privateChat.getOtherUserId()) {

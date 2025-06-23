@@ -6,6 +6,7 @@ import java.net.URL;
 import beat.osu.client.Main;
 import beat.osu.client.controller.ChatController;
 import beat.osu.client.controller.ConnectedUsersController;
+import beat.osu.client.controller.SessionController;
 import beat.osu.client.controller.SpectateController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.BackgroundManager;
@@ -76,6 +77,7 @@ public class LandingView extends Page {
 
     private final ConnectedUsersController connectedUsersController;
     private final ChatController chatController;
+    private final SessionController sessionController;
     private final SpectateController spectateController;
 
     private double visualizerSize;
@@ -94,11 +96,13 @@ public class LandingView extends Page {
     private FadeTransition subMenuFadeOut;
 
     public LandingView(Stage stage, ConnectedUsersController connectedUsersController,
-                       ChatController chatController, SpectateController spectateController) {
+                       ChatController chatController, SessionController sessionController,
+                       SpectateController spectateController) {
         super(stage);
 
         this.connectedUsersController = connectedUsersController;
         this.chatController = chatController;
+        this.sessionController = sessionController;
         this.spectateController = spectateController;
 
         setupView();
@@ -284,7 +288,7 @@ public class LandingView extends Page {
         selectChannelModal = new SelectChannelModal(chatController.getChannelController(), banchoButtons);
         chatPanel = new ChatPanel(chatController, selectChannelModal, onlineUsersPanel, banchoButtons);
 
-        viewUserModal = new ViewUserModal();
+        viewUserModal = new ViewUserModal(sessionController);
 
         banchoPanelsContainer = new VBox();
         banchoPanelsContainer.setVisible(false);
@@ -317,7 +321,9 @@ public class LandingView extends Page {
                 return;
             }
 
-
+            System.out.println("Player with id " + spectateDto.getPlayingUserId()
+                    + " is playing beatmap with id " + spectateDto.getBeatmapId());
+//            ViewManager.getInstance().showSpectateView(spectateDto, spectateController);
         });
 
         onlineUsersPanel.setUserCardClickCallback(userCard -> {

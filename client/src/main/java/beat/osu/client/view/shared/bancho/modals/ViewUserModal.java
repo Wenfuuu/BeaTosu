@@ -1,15 +1,22 @@
 package beat.osu.client.view.shared.bancho.modals;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 
+import beat.osu.client.controller.SessionController;
 import beat.osu.client.controller.SpectateController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.model.Beatmap;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
+import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.chat.PrivateChatDto;
 import beat.osu.shared.dto.game.SpectateDto;
+import beat.osu.shared.dto.score.ScoreDto;
+import beat.osu.shared.dto.score.responses.GetAllScoresResponse;
+import beat.osu.shared.dto.session.responses.GetSessionDataResponse;
 import beat.osu.shared.dto.user.UserDto;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
@@ -26,18 +33,49 @@ public class ViewUserModal extends VBox {
     private Button startChatButton;
     private Button closeButton;
     private VBox buttonsContainer;
-    
+
+    private SessionController sessionController;
+
     @Setter
     private Consumer<PrivateChatDto> onStartChatCallback;
     @Setter
     private Consumer<SpectateDto> onStartSpectateCallback;
 
-    public ViewUserModal() {
+    public ViewUserModal(SessionController sessionController) {
+        this.sessionController = sessionController;
         initializeComponents();
         setLayout();
         setupStyling();
 
         this.setVisible(false);
+    }
+
+    private Integer fetchPlayingBeatmapId(int userId) {
+        try {
+            Result<GetSessionDataResponse> result = sessionController.getSessionValue(userId, "playingBeatmap").get();
+
+            if (result.isSuccess()) {
+                Object sessionValue = result.getValue().getValue();
+                if (sessionValue != null) {
+                    if (sessionValue instanceof Integer) {
+                        System.out.println("Fetched playing beatmap ID: " + sessionValue);
+                        return (Integer) sessionValue;
+                    } else {
+                        System.err.println("Playing beatmap session value is not a number: " + sessionValue.getClass().getSimpleName());
+                        return null;
+                    }
+                } else {
+                    System.out.println("User is not currently playing a beatmap");
+                    return null;
+                }
+            } else {
+                System.err.println("Failed to fetch playing beatmap session: " + result.getError().getMessage());
+                return null;
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching beatmap session: " + e.getMessage());
+            return null;
+        }
     }
 
     private void initializeComponents() {
@@ -64,14 +102,20 @@ public class ViewUserModal extends VBox {
 
         startSpectateButton.setOnAction(event -> {
             if (onStartSpectateCallback != null && userCard != null) {
-//                UserDto user = AuthManager.getUser();
-//                SpectateDto spectateDto = new SpectateDto(
-//                    user.getId(),
-//                    userCard.getUserId(),
-//
-//                );
-//                onStartSpectateCallback.accept(spectateDto);
-//                hide(); // Close the modal after starting spectate
+                UserDto user = AuthManager.getUser();
+                Integer beatmapId = fetchPlayingBeatmapId(user.getId());
+
+                if (beatmapId != null) {
+                    SpectateDto spectateDto = new SpectateDto(
+                            user.getId(),
+                            userCard.getUserId(),
+                            beatmapId
+                    );
+                    onStartSpectateCallback.accept(spectateDto);
+                    hide(); // Close the modal after starting spectate
+                } else {
+                    System.err.println("Cannot start spectating: No beatmap is currently being played");
+                }
             }
         });
 
