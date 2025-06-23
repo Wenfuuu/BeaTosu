@@ -64,7 +64,7 @@ public class MatchFilters extends HBox {
 
         leftContainer.getChildren().addAll(ownedBeatmapsCheckBox, showLockedCheckBox);
         rightContainer.getChildren().addAll(showFullCheckBox, showInProgressCheckBox);
-        HBox.setMargin(searchLabel, new Insets(0, 12, 4, 0));
+        HBox.setMargin(searchLabel, new Insets(0, 12, 6, 0));
         HBox.setMargin(searchTextField, new Insets(0, 0, 4, 0));
 
         this.getChildren().addAll(leftContainer, rightContainer, searchLabel, searchTextField);

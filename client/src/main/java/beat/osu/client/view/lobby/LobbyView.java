@@ -15,6 +15,7 @@ import beat.osu.client.helper.ViewManager;
 import beat.osu.client.view.lobby.component.layout.NavigationBar;
 import beat.osu.client.view.lobby.component.layout.TopBar;
 import beat.osu.client.view.lobby.component.modals.CreateMatchModal;
+import beat.osu.client.view.lobby.component.panels.MatchesPanel;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
 import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
@@ -57,7 +58,8 @@ public class LobbyView extends Page {
 
     private TopBar topBar;
     private NavigationBar navigationBar;
-    private VBox mainContent; 
+    private VBox mainContent;
+    private MatchesPanel matchesPanel;
     
     private VBox banchoPanelsContainer;
     private CreateMatchModal createMatchModal;
@@ -87,6 +89,7 @@ public class LobbyView extends Page {
 
         topBar = new TopBar();
         navigationBar = new NavigationBar();
+        matchesPanel = new MatchesPanel();
 
         playlistModal = new PlaylistModal();
         PlaylistManager.getInstance().addListener(playlistModal);
@@ -178,18 +181,17 @@ public class LobbyView extends Page {
 
     @Override
     public void setLayout() {
-        root.getChildren().add(topBar);
-        StackPane.setAlignment(topBar, Pos.TOP_CENTER);
-
         root.getChildren().add(banchoPanelsContainer);
         StackPane.setAlignment(banchoPanelsContainer, Pos.TOP_CENTER);
 
         mainContent = new VBox();
-        mainContent.getChildren().add(navigationBar);
+        mainContent.getChildren().addAll(topBar, matchesPanel, navigationBar);
+
+        VBox.setVgrow(matchesPanel, Priority.ALWAYS);
         StackPane.setMargin(mainContent, new Insets(0, 0, ScreenManager.SCREEN_HEIGHT * 0.35, 0));
         root.getChildren().add(mainContent);
-        mainContent.setAlignment(Pos.BOTTOM_CENTER);
         StackPane.setAlignment(mainContent, Pos.BOTTOM_CENTER);
+        mainContent.setAlignment(Pos.BOTTOM_CENTER);
 
         root.getChildren().addAll(playlistModal, selectChannelModal);
         StackPane.setAlignment(playlistModal, Pos.CENTER);
