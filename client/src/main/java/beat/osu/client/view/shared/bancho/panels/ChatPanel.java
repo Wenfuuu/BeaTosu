@@ -21,6 +21,7 @@ import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -110,8 +111,8 @@ public class ChatPanel extends VBox {
                 VBox parentContainer = (VBox) this.getParent();
                 boolean onlineUsersPanelVisible = false;
                 
-                for (javafx.scene.Node child : parentContainer.getChildren()) {
-                    if (child.getClass().getSimpleName().equals("OnlineUsersPanel") && child.isVisible()) {
+                for (Node child : parentContainer.getChildren()) {
+                    if (child instanceof OnlineUsersPanel && child.isVisible()) {
                         onlineUsersPanelVisible = true;
                         break;
                     }
