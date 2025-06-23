@@ -148,11 +148,11 @@ public class MessageRouter {
     private Object handleSessionRequest(RequestMessage request, String clientId) {
         switch (request.getAction()) {
             case CREATE_SESSION_DATA:
-                return sessionService.createSessionData((CreateSessionDataRequest) request.getPayload());
+                return sessionService.createSessionData((CreateSessionDataRequest) request.getPayload(), clientId);
             case REMOVE_SESSION_DATA:
-                return sessionService.removeSessionData((RemoveSessionDataRequest) request.getPayload());
+                return sessionService.removeSessionData((RemoveSessionDataRequest) request.getPayload(), clientId);
             case GET_SESSION_DATA:
-                return sessionService.getSessionData((GetSessionDataRequest) request.getPayload());
+                return sessionService.getSessionData((GetSessionDataRequest) request.getPayload(), clientId);
             default:
                 return Result.failure(Error.validation("Unknown session action: " + request.getAction()));
         }
