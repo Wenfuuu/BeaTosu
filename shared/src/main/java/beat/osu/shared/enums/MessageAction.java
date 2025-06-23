@@ -41,4 +41,9 @@ public enum MessageAction implements Serializable {
     CREATE_SESSION_DATA,
     REMOVE_SESSION_DATA,
     GET_SESSION_DATA,
+
+    // Spectate actions
+    START_SPECTATE,
+    SEND_SPECTATE_EVENT,
+    STOP_SPECTATE
 }

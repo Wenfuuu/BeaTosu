@@ -27,9 +27,6 @@ public class RealtimeMessageHandler {
                 case SYSTEM_NOTIFICATION:
                     broadcastToAll(message);
                     break;
-                case SPECTATE_EVENT:
-
-                    break;
                 default:
                     System.out.println("RealtimeMessageHandler: Unknown message type: " + message.getType());
             }

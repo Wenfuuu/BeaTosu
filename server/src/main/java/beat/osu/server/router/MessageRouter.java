@@ -11,6 +11,8 @@ import beat.osu.shared.dto.chat.requests.JoinChannelRequest;
 import beat.osu.shared.dto.chat.requests.LeaveChannelRequest;
 import beat.osu.shared.dto.chat.requests.SendChannelMessageRequest;
 import beat.osu.shared.dto.chat.requests.SendPrivateChatMessageRequest;
+import beat.osu.shared.dto.game.requests.SendSpectateEventRequest;
+import beat.osu.shared.dto.game.requests.StartSpectateRequest;
 import beat.osu.shared.dto.session.requests.CreateSessionDataRequest;
 import beat.osu.shared.dto.match.requests.CreateMatchRequest;
 import beat.osu.shared.dto.match.requests.JoinMatchRequest;
@@ -34,6 +36,7 @@ public class MessageRouter {
     private final PrivateChatService privateChatService;
     private final MatchService matchService;
     private final SessionService sessionService;
+    private final SpectateService spectateService;
 
     public Object routeRequestMessage(RequestMessage request, String clientId) {
         switch (request.getType()) {
@@ -53,6 +56,8 @@ public class MessageRouter {
                 return handleMatchRequest(request, clientId);
             case SESSION:
                 return handleSessionRequest(request, clientId);
+            case SPECTATE:
+                return handleSpectateRequest(request, clientId);
             default:
                 return Result.failure(Error.validation("Unknown request type: " + request.getType()));
         }
@@ -155,6 +160,19 @@ public class MessageRouter {
                 return sessionService.getSessionData((GetSessionDataRequest) request.getPayload(), clientId);
             default:
                 return Result.failure(Error.validation("Unknown session action: " + request.getAction()));
+        }
+    }
+
+    private Object handleSpectateRequest(RequestMessage request, String clientId) {
+        switch (request.getAction()) {
+            case START_SPECTATE:
+                return spectateService.startSpectate((StartSpectateRequest) request.getPayload(), clientId);
+            case SEND_SPECTATE_EVENT:
+                return spectateService.sendSpectateEvent((SendSpectateEventRequest) request.getPayload(), clientId);
+            case STOP_SPECTATE:
+                return spectateService.stopSpectating(clientId);
+            default:
+                return Result.failure(Error.validation("Unknown spectate action: " + request.getAction()));
         }
     }
 }

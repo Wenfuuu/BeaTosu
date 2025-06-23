@@ -10,4 +10,5 @@ public enum MessageType {
     PRIVATE_CHAT,
     MATCH,
     SESSION,
+    SPECTATE,
 }

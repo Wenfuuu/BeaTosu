@@ -14,6 +14,7 @@ import beat.osu.shared.dto.game.requests.SendSpectateEventRequest;
 import beat.osu.shared.dto.game.requests.StartSpectateRequest;
 import beat.osu.shared.dto.game.responses.SendSpectateEventResponse;
 import beat.osu.shared.dto.game.responses.StartSpectateResponse;
+import beat.osu.shared.dto.game.responses.StopSpectateResponse;
 import beat.osu.shared.enums.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
 
@@ -89,6 +90,15 @@ public class SpectateService {
 
         return Result.success(new SendSpectateEventResponse("Spectate event sent to " +
                 (spectators != null ? spectators.size() : 0) + " spectators"));
+    }
+
+    public Result<StopSpectateResponse> stopSpectating(String clientId) {
+        Integer spectatorUserId = (Integer) sessionService.getSessionValue(clientId, "userId");
+        if (spectatorUserId != null) {
+            stopSpectate(spectatorUserId);
+        }
+
+        return Result.success(new StopSpectateResponse("Stopped spectating"));
     }
 
     public void stopSpectate(int spectatorUserId) {

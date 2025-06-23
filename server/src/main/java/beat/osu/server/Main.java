@@ -35,9 +35,11 @@ public class Main {
         ChannelService channelService = new ChannelService(sessionService, userService);
         PrivateChatService privateChatService = new PrivateChatService(sessionService, userService);
         MatchService matchService = new MatchService(sessionService, userService, beatmapService);
+        SpectateService spectateService = new SpectateService(sessionService, userService);
 
         MessageRouter messageRouter = new MessageRouter(systemService, authService, beatmapService,
-                scoreService, channelService, privateChatService, matchService, sessionService);
+                scoreService, channelService, privateChatService, matchService, sessionService,
+                spectateService);
 
         int serverPort = config.getServerPort();
 
