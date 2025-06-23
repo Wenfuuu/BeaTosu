@@ -1,15 +1,12 @@
 package beat.osu.client.view.lobby.component.modals;
 
-import beat.osu.client.events.song.SongChangeEvent;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
-import beat.osu.client.helper.PlaylistManager;
-import beat.osu.client.model.Song;
+import beat.osu.client.helper.ScreenManager;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -20,8 +17,18 @@ public class CreateMatchModal extends VBox {
 
     private Label titleLabel;
 
+    private VBox createMatchForm;
     private Label gameLabel;
     private TextField gameTextField;
+    private CheckBox passwordCheckBox;
+    private Label passwordLabel;
+    private PasswordField passwordField;
+    private Label maxPlayersLabel;
+    private ComboBox<String> maxPlayersComboBox;
+
+    private Button startGameButton;
+    private Button cancelButton;
+    private VBox buttonsContainer;
 
     public CreateMatchModal() {
         initializeComponents();
@@ -42,6 +49,47 @@ public class CreateMatchModal extends VBox {
 
         gameTextField = new TextField();
         gameTextField.getStyleClass().add("game-input");
+
+        passwordCheckBox = new CheckBox("Require password to join");
+        passwordCheckBox.getStyleClass().add("password-checkbox");
+
+        passwordLabel = new Label("Password:");
+        passwordLabel.getStyleClass().add("password-label");
+
+        passwordField = new PasswordField();
+        passwordField.getStyleClass().add("password-input");
+
+        createMatchForm = new VBox();
+        createMatchForm.getStyleClass().add("create-match-form");
+
+        maxPlayersLabel = new Label("Max Players:");
+        maxPlayersLabel.getStyleClass().add("max-players-label");
+
+        maxPlayersComboBox = new ComboBox<>();
+        maxPlayersComboBox.getItems().add("2 players");
+        maxPlayersComboBox.getItems().add("3 players");
+        maxPlayersComboBox.getItems().add("4 players");
+        maxPlayersComboBox.getItems().add("5 players");
+        maxPlayersComboBox.getItems().add("6 players");
+        maxPlayersComboBox.getItems().add("7 players");
+        maxPlayersComboBox.getItems().add("8 players");
+        maxPlayersComboBox.getItems().add("16 players");
+
+        maxPlayersComboBox.getStyleClass().add("dark-combo-box");
+
+        startGameButton = new Button("1. Start Game");
+        cancelButton = new Button("2. Cancel");
+
+        startGameButton.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.52);
+        cancelButton.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.52);
+
+        startGameButton.getStyleClass().addAll("main-button", "start-game-button");
+        cancelButton.getStyleClass().addAll("main-button", "cancel-button");
+
+        buttonsContainer = new VBox();
+        buttonsContainer.setAlignment(Pos.CENTER);
+        buttonsContainer.getStyleClass().add("buttons-container");
+        buttonsContainer.getChildren().addAll(startGameButton, cancelButton);
     }
 
     private void setLayout() {
@@ -51,9 +99,22 @@ public class CreateMatchModal extends VBox {
         gameNameBox.setAlignment(Pos.CENTER_LEFT);
         gameNameBox.getStyleClass().add("game-name-box");
         gameNameBox.getChildren().addAll(gameLabel, gameTextField);
-        VBox.setMargin(gameNameBox, new Insets(156, 0, 0, 0));
 
-        this.getChildren().add(gameNameBox);
+        HBox passwordBox = new HBox();
+        passwordBox.setAlignment(Pos.CENTER_LEFT);
+        passwordBox.getStyleClass().add("password-box");
+        passwordBox.getChildren().addAll(passwordLabel, passwordField);
+
+        HBox maxPlayersBox = new HBox();
+        maxPlayersBox.setAlignment(Pos.CENTER_LEFT);
+        maxPlayersBox.getStyleClass().add("max-players-box");
+        maxPlayersBox.getChildren().addAll(maxPlayersLabel, maxPlayersComboBox);
+
+        createMatchForm.getChildren().addAll(gameNameBox, passwordCheckBox, passwordBox, maxPlayersBox);
+
+        this.getChildren().addAll(createMatchForm, buttonsContainer);
+        VBox.setMargin(createMatchForm, new Insets(156, 0, 0, 0));
+        VBox.setMargin(buttonsContainer, new Insets(84, 0, 0, 0));
     }
 
     private void loadStyles() {

@@ -3,7 +3,7 @@
     -fx-padding: 4px;
 }
 
-.title-label, .game-label {
+.title-label, .game-label, .password-label, .max-players-label {
     -fx-font-family: "Aller Light";
     -fx-text-fill: white;
     -fx-effect: dropshadow(one-pass-box, black, 1, 0, 1, 1),
@@ -17,12 +17,18 @@
     -fx-padding: 0;
 }
 
-.game-label {
-    -fx-font-size: 32;
+.create-match-form {
+    -fx-padding: 0 240 0 64;
+    -fx-spacing: 32;
+}
+
+.game-label, .password-label, .max-players-label {
+    -fx-font-size: 28;
+    -fx-min-width: 270px;
     -fx-padding: 0;
 }
 
-.game-input {
+.game-input, .password-input {
     -fx-font-family: 'Aller';
     -fx-background-color: transparent;
     -fx-text-fill: #FFFFFF;
@@ -35,12 +41,142 @@
     -fx-max-width: 1000px;
 }
 
-.game-input:focused {
+.game-input:focused, .password-input:focused {
     -fx-border-color: #FFFFFF;
     -fx-background-color: transparent;
 }
 
-.game-name-box {
-    -fx-spacing: 96;
-    -fx-padding: 0 240 0 64;
+.game-name-box, .password-box {
+    -fx-spacing: 0;
+}
+
+.password-checkbox {
+    -fx-spacing: 40;
+    -fx-label-padding: 0 0 0 24px;
+}
+
+.password-checkbox .text {
+    -fx-font-family: "Aller Light";
+    -fx-fill: white;
+    -fx-font-size: 28;
+    -fx-padding: 0;
+    -fx-effect: dropshadow(one-pass-box, black, 1, 0, 1, 1),
+                dropshadow(one-pass-box, black, 1, 0, -1, 1),
+                dropshadow(one-pass-box, black, 1, 0, 1, -1),
+                dropshadow(one-pass-box, black, 1, 0, -1, -1);
+}
+
+.password-checkbox .box {
+    -fx-background-color: transparent;
+    -fx-border-color: #EC758D;
+    -fx-border-radius: 50%;
+    -fx-background-radius: 50%;
+    -fx-border-width: 2px;
+    -fx-padding: 2px;
+    -fx-min-width: 20px;
+    -fx-min-height: 20px;
+    -fx-max-width: 20px;
+    -fx-max-height: 20px;
+}
+
+.password-checkbox:selected .box {
+    -fx-background-color: #EC758D;
+    -fx-border-color: #EC758D;
+}
+
+.password-checkbox .mark {
+    -fx-background-color: transparent;
+}
+
+.dark-combo-box {
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-text-fill: white;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-font-size: 22px;
+    -fx-pref-width: 450px;
+    -fx-popup-offset: 0 16;
+}
+
+.dark-combo-box .text {
+    -fx-font-family: "Aller";
+    -fx-font-size: 22px;
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+}
+
+.dark-combo-box .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+
+.dark-combo-box .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.dark-combo-box .arrow {
+    -fx-background-color: white;
+}
+
+.dark-combo-box .list-view {
+    -fx-background-color: rgba(0, 0, 0, 0.7);
+    -fx-border-color: transparent;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 1;
+}
+
+.dark-combo-box .list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-family: "Aller Light";
+    -fx-font-size: 14px;
+    -fx-padding: 6 0 6 24;
+}
+
+.dark-combo-box .list-view .list-cell:hover {
+    -fx-background-color: #BC0E75;
+}
+
+.dark-combo-box .list-view .viewport {
+    -fx-background-color: transparent;
+}
+
+.dark-combo-box .list-view .scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.dark-combo-box .list-view .scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.main-button {
+    -fx-padding: 6px 20px 6px 20px;
+    -fx-text-fill: white;
+    -fx-font-family: 'Aller';
+    -fx-font-size: 52px;
+    -fx-border-radius: 5;
+    -fx-alignment: center;
+}
+
+.main-button .text {
+    -fx-effect: dropshadow(one-pass-box, black, 1, 0, 1, 1),
+    dropshadow(one-pass-box, black, 1, 0, -1, 1),
+    dropshadow(one-pass-box, black, 1, 0, 1, -1),
+    dropshadow(one-pass-box, black, 1, 0, -1, -1);
+}
+
+.start-game-button {
+    -fx-background-color: linear-gradient(to bottom, #1c9f1e, #23b824);
+}
+
+.cancel-button {
+    -fx-background-color: linear-gradient(to bottom, #A6A6A6, #BEBEBE);
+}
+
+.buttons-container {
+    -fx-alignment: center;
+    -fx-spacing: 36;
+    -fx-vgrow: always;
 }
