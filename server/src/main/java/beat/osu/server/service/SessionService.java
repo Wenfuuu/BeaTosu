@@ -2,10 +2,12 @@ package beat.osu.server.service;
 
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
-import beat.osu.shared.dto.session.requests.CreateSessionRequest;
-import beat.osu.shared.dto.session.requests.RemoveSessionRequest;
-import beat.osu.shared.dto.session.responses.CreateSessionResponse;
-import beat.osu.shared.dto.session.responses.RemoveSessionResponse;
+import beat.osu.shared.dto.session.requests.CreateSessionDataRequest;
+import beat.osu.shared.dto.session.requests.GetSessionDataRequest;
+import beat.osu.shared.dto.session.requests.RemoveSessionDataRequest;
+import beat.osu.shared.dto.session.responses.CreateSessionDataResponse;
+import beat.osu.shared.dto.session.responses.GetSessionDataResponse;
+import beat.osu.shared.dto.session.responses.RemoveSessionDataResponse;
 import lombok.Getter;
 
 import java.util.Map;
@@ -15,8 +17,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SessionService {
     private final ConcurrentHashMap<String, Map<String, Object>> sessions = new ConcurrentHashMap<>();
 
-    public void createSessionData(String clientId) {
+    public void initializeClientSession(String clientId) {
         sessions.put(clientId, new ConcurrentHashMap<>());
+    }
+
+    public void removeClientSession(String clientId) {
+        sessions.remove(clientId);
     }
 
     public void setSessionData(String clientId, String key, Object value) {
@@ -26,12 +32,22 @@ public class SessionService {
         }
     }
 
-    public void removeSessionData(String clientId, String key) {
+    public void removeSessionValue(String clientId, String key) {
         Map<String, Object> session = sessions.get(clientId);
         if (session != null) {
             session.remove(key);
         }
-    }    public Result<CreateSessionResponse> createSessionData(CreateSessionRequest request) {
+    }
+
+    public Object getSessionValue(String clientId, String key) {
+        Map<String, Object> session = sessions.get(clientId);
+        if (session != null) {
+            return session.get(key);
+        }
+        return null;
+    }
+
+    public Result<CreateSessionDataResponse> createSessionData(CreateSessionDataRequest request) {
         if (request == null) {
             return Result.failure(Error.badRequest("Create session data is missing"));
         }
@@ -42,13 +58,10 @@ public class SessionService {
         String clientId = getClientIdByUserId(request.getUserId());
         if (clientId == null) {
             System.err.println("CRITICAL: Client not found for user ID: " + request.getUserId() + " during session creation");
-            
-            // Instead of failing, let's be more lenient and just log the warning
-            // This prevents disconnection due to session timing issues
             String warningMessage = "Warning: Client session not found for user ID: " + request.getUserId() + 
                                   ", but continuing. This might be a timing issue.";
             System.out.println(warningMessage);
-            return Result.success(new CreateSessionResponse(warningMessage));
+            return Result.success(new CreateSessionDataResponse(warningMessage));
         }
         
         System.out.println("Found clientId: " + clientId + " for userId: " + request.getUserId());
@@ -57,8 +70,10 @@ public class SessionService {
         String message = "Session created successfully for client ID: " + clientId + " with key: " + request.getKey()
                 + " and value: " + request.getValue();
         System.out.println(message);
-        return Result.success(new CreateSessionResponse(message));
-    }    public Result<RemoveSessionResponse> removeSessionKey(RemoveSessionRequest request) {
+        return Result.success(new CreateSessionDataResponse(message));
+    }
+
+    public Result<RemoveSessionDataResponse> removeSessionData(RemoveSessionDataRequest request) {
         if (request == null) {
             return Result.failure(Error.badRequest("Remove session data is missing"));
         }
@@ -68,34 +83,41 @@ public class SessionService {
         String clientId = getClientIdByUserId(request.getUserId());
         if (clientId == null) {
             System.err.println("CRITICAL: Client not found for user ID: " + request.getUserId() + " during session removal");
-            
-            // Instead of failing, let's be more lenient for remove operations too
-            // If the client is not found, the session data might already be cleaned up
             String warningMessage = "Warning: Client session not found for user ID: " + request.getUserId() + 
                                   " during removal. Session might already be cleaned up.";
             System.out.println(warningMessage);
-            return Result.success(new RemoveSessionResponse(warningMessage));
+            return Result.success(new RemoveSessionDataResponse(warningMessage));
         }
         
         System.out.println("Found clientId: " + clientId + " for userId: " + request.getUserId());
-        removeSessionData(clientId, request.getKey());
+        removeSessionValue(clientId, request.getKey());
 
         String message = "Session removed successfully for client ID: " + clientId + " with key: " + request.getKey();
         System.out.println(message);
-        return Result.success(new RemoveSessionResponse(message));
+        return Result.success(new RemoveSessionDataResponse(message));
     }
 
-    public Object getSessionData(String clientId, String key) {
-        Map<String, Object> session = sessions.get(clientId);
-        if (session != null) {
-            return session.get(key);
+    public Result<GetSessionDataResponse> getSessionData(GetSessionDataRequest request) {
+        if (request == null) {
+            return Result.failure(Error.badRequest("Get session data is missing"));
         }
-        return null;
+
+        String clientId = getClientIdByUserId(request.getUserId());
+        if (clientId == null) {
+            System.err.println("CRITICAL: Client not found for user ID: " + request.getUserId() + " during session creation");
+            String warningMessage = "Warning: Client session not found for user ID: " + request.getUserId() +
+                    ", but continuing. This might be a timing issue.";
+            System.out.println(warningMessage);
+            return Result.success(new GetSessionDataResponse(null, warningMessage));
+        }
+
+        Object value = getSessionValue(clientId, request.getKey());
+        String message = "Session data retrieved successfully for client ID: " + clientId +
+                " with key: " + request.getKey() + " and value: " + value;
+        return Result.success(new GetSessionDataResponse(value, message));
     }
 
-    public void removeSession(String clientId) {
-        sessions.remove(clientId);
-    }    public String getClientIdByUserId(Integer userId) {
+    public String getClientIdByUserId(Integer userId) {
         System.out.println("Looking up clientId for userId: " + userId);
         
         for (Map.Entry<String, Map<String, Object>> entry : sessions.entrySet()) {

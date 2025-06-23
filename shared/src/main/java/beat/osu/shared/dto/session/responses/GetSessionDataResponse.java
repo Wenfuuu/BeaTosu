@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RemoveSessionResponse implements Serializable {
+public class GetSessionDataResponse {
+    private Object value;
     private String message;
 }

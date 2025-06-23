@@ -1,10 +1,7 @@
 package beat.osu.server.service;
 
 import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-import beat.osu.server.entities.PrivateChat;
 import beat.osu.server.entities.User;
 import beat.osu.server.handler.RealtimeMessageHandler;
 import beat.osu.shared.common.Error;
@@ -27,7 +24,7 @@ public class PrivateChatService {
     }
 
     public Result<SendPrivateChatMessageResponse> sendPrivateMessage(SendPrivateChatMessageRequest request, String clientId) {
-        Integer senderId = (Integer) sessionService.getSessionData(clientId, "userId");
+        Integer senderId = (Integer) sessionService.getSessionValue(clientId, "userId");
         if (senderId == null) {
             return Result.failure(Error.unauthorized("User not authenticated"));
         }

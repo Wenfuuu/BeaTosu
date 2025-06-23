@@ -84,7 +84,7 @@ public class ChannelService {
     }
 
     public Result<GetAllChannelsResponse> getAllChannels(String clientId) {
-        Integer userId = (Integer) sessionService.getSessionData(clientId, "userId");
+        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
         if (userId == null) {
             return Result.failure(Error.unauthorized("User not authenticated"));
         }
@@ -110,7 +110,7 @@ public class ChannelService {
     }
 
     public Result<GetJoinedChannelsResponse> getJoinedChannels(String clientId) {
-        Integer userId = (Integer) sessionService.getSessionData(clientId, "userId");
+        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
         if (userId == null) {
             return Result.failure(Error.unauthorized("User not authenticated"));
         }
@@ -144,7 +144,7 @@ public class ChannelService {
             return Result.failure(Error.notFound("Channel not found"));
         }
 
-        Integer userId = (Integer) sessionService.getSessionData(clientId, "userId");
+        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
         if (userId == null) {
             return Result.failure(Error.unauthorized("User not authenticated"));
         }
@@ -178,7 +178,7 @@ public class ChannelService {
             return Result.failure(Error.notFound("Channel not found"));
         }
 
-        Integer userId = (Integer) sessionService.getSessionData(clientId, "userId");
+        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
         if (userId == null) {
             return Result.failure(Error.unauthorized("User not authenticated"));
         }
@@ -216,7 +216,7 @@ public class ChannelService {
             return Result.failure(Error.notFound("Channel not found"));
         }
 
-        Integer userId = (Integer) sessionService.getSessionData(clientId, "userId");
+        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
         if (userId == null) {
             return Result.failure(Error.unauthorized("User not authenticated"));
         }

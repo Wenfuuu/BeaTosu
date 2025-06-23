@@ -9,6 +9,6 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateSessionResponse implements Serializable {
+public class RemoveSessionDataResponse implements Serializable {
     private String message;
 }

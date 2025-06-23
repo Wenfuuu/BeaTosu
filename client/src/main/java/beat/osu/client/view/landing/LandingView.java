@@ -311,6 +311,15 @@ public class LandingView extends Page {
             chatPanel.startPrivateChat(privateChat.getOtherUserId(), privateChat.getOtherUserName());
         });
 
+        viewUserModal.setOnStartSpectateCallback(spectateDto -> {
+            if (AuthManager.getUser().getId() == spectateDto.getPlayingUserId()) {
+                Toast.error("You cannot spectate yourself!").show();
+                return;
+            }
+
+
+        });
+
         onlineUsersPanel.setUserCardClickCallback(userCard -> {
             UserCard modalUserCard = new UserCard(
                     userCard.getUserId(),

@@ -47,7 +47,7 @@ public class ClientHandler implements Runnable {
             realtimeMessageHandler = new RealtimeMessageHandler(oos, clientId);
 
             activeClients.put(clientId, this);
-            sessionService.createSessionData(clientId);
+            sessionService.initializeClientSession(clientId);
 
             System.out.println("Client connected from address: " + clientSocket.getInetAddress() + ": " + clientSocket.getPort() + " with client ID: " + clientId);
 
@@ -92,7 +92,7 @@ public class ClientHandler implements Runnable {
 
     private void cleanup() {
         try {
-            Object userId = sessionService.getSessionData(clientId, "userId");
+            Object userId = sessionService.getSessionValue(clientId, "userId");
             UserDto disconnectedUser = null;
 
             if (userId != null) {
@@ -107,7 +107,7 @@ public class ClientHandler implements Runnable {
             }
 
             activeClients.remove(clientId);
-            sessionService.removeSession(clientId);
+            sessionService.removeClientSession(clientId);
             
             if (realtimeMessageHandler != null) {
                 realtimeMessageHandler.cleanup();

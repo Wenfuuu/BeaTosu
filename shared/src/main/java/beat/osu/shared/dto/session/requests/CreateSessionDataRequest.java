@@ -7,7 +7,8 @@ import java.io.Serializable;
 
 @Data
 @AllArgsConstructor
-public class RemoveSessionRequest implements Serializable {
+public class CreateSessionDataRequest implements Serializable {
     private int userId;
     private String key;
+    private Object value;
 }

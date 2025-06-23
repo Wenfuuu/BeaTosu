@@ -77,7 +77,7 @@ public class MatchService {
     }
 
     public Result<GetAllMatchesResponse> getAllMatches(String clientId) {
-        Integer userId = (Integer) sessionService.getSessionData(clientId, "userId");
+        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
         if (userId == null) {
             return Result.failure(Error.unauthorized("User not authenticated"));
         }
@@ -94,7 +94,7 @@ public class MatchService {
     }
 
     public Result<CreateMatchResponse> createMatch(CreateMatchRequest request, String clientId) {
-        Integer userId = (Integer) sessionService.getSessionData(clientId, "userId");
+        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
         if (userId == null) {
             return Result.failure(Error.unauthorized("User not authenticated"));
         }
@@ -152,7 +152,7 @@ public class MatchService {
             return Result.failure(Error.notFound("Match not found"));
         }
 
-        Integer userId = (Integer) sessionService.getSessionData(clientId, "userId");
+        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
         if (userId == null) {
             return Result.failure(Error.unauthorized("User not authenticated"));
         }
@@ -207,7 +207,7 @@ public class MatchService {
             return Result.failure(Error.notFound("Match not found"));
         }
 
-        Integer userId = (Integer) sessionService.getSessionData(clientId, "userId");
+        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
         if (userId == null) {
             return Result.failure(Error.unauthorized("User not authenticated"));
         }
@@ -255,7 +255,7 @@ public class MatchService {
             return Result.failure(Error.notFound("Match not found"));
         }
 
-        Integer kickingUserId = (Integer) sessionService.getSessionData(clientId, "userId");
+        Integer kickingUserId = (Integer) sessionService.getSessionValue(clientId, "userId");
         if (kickingUserId == null) {
             return Result.failure(Error.unauthorized("User not authenticated"));
         }

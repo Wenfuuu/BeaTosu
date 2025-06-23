@@ -40,4 +40,5 @@ public enum MessageAction implements Serializable {
     // Session actions
     CREATE_SESSION_DATA,
     REMOVE_SESSION_DATA,
+    GET_SESSION_DATA,
 }
