@@ -1,0 +1,163 @@
+package beat.osu.client.controller;
+
+import beat.osu.client.service.ClientService;
+import beat.osu.shared.common.Result;
+import beat.osu.shared.dto.match.MatchDto;
+import beat.osu.shared.dto.match.events.MatchCreatedEvent;
+import beat.osu.shared.dto.match.events.PlayerKickedEvent;
+import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
+import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
+import beat.osu.shared.dto.match.responses.GetAllMatchesResponse;
+import beat.osu.shared.enums.MessageAction;
+import beat.osu.shared.enums.MessageType;
+import beat.osu.shared.enums.RealtimeMessageType;
+import beat.osu.shared.models.RealtimeMessage;
+import beat.osu.shared.models.RequestMessage;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
+public class MatchController {
+
+    private final ClientService clientService;
+    private List<MatchDto> matches = new ArrayList<>();
+
+    private final List<Consumer<MatchCreatedEvent>> matchCreatedCallbacks = new ArrayList<>();
+    private final List<Consumer<UserJoinedMatchEvent>> userJoinedMatchCallbacks = new ArrayList<>();
+    private final List<Consumer<UserLeftMatchEvent>> userLeftMatchCallbacks = new ArrayList<>();
+    private final List<Consumer<PlayerKickedEvent>> playerKickedCallbacks = new ArrayList<>();
+
+    public MatchController() {
+        this.clientService = ClientService.getInstance();
+        requestMatches();
+        setupRealtimeHandler();
+    }
+
+    public void addMatchCreatedCallback(Consumer<MatchCreatedEvent> callback) {
+        matchCreatedCallbacks.add(callback);
+    }
+
+    public void addUserJoinedMatchCallback(Consumer<UserJoinedMatchEvent> callback) {
+        userJoinedMatchCallbacks.add(callback);
+    }
+
+    public void addUserLeftMatchCallback(Consumer<UserLeftMatchEvent> callback) {
+        userLeftMatchCallbacks.add(callback);
+    }
+
+    public void addPlayerKickedCallback(Consumer<PlayerKickedEvent> callback) {
+        playerKickedCallbacks.add(callback);
+    }
+
+    public void removeMatchCreatedCallback(Consumer<MatchCreatedEvent> callback) {
+        matchCreatedCallbacks.remove(callback);
+    }
+
+    public void removeUserJoinedMatchCallback(Consumer<UserJoinedMatchEvent> callback) {
+        userJoinedMatchCallbacks.remove(callback);
+    }
+
+    public void removeUserLeftMatchCallback(Consumer<UserLeftMatchEvent> callback) {
+        userLeftMatchCallbacks.remove(callback);
+    }
+
+    public void removePlayerKickedCallback(Consumer<PlayerKickedEvent> callback) {
+        playerKickedCallbacks.remove(callback);
+    }
+
+    private void setupRealtimeHandler() {
+        if (clientService.getConnection() != null && clientService.getConnection().getRealtimeHandler() != null) {
+            clientService.getConnection().getRealtimeHandler().addCallback(this::handleRealtimeMessage);
+        }
+    }
+
+    private void requestMatches() {
+        if (clientService.getConnection() != null && clientService.getConnection().isConnected()) {
+            RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.GET_ALL_MATCHES, null);
+
+            clientService.getConnection().sendRequest(request).thenAccept(response -> {
+                try {
+                    Result<?> result = (Result<?>) response;
+                    if (result.isSuccess()) {
+                        GetAllMatchesResponse getAllMatchesResponse = (GetAllMatchesResponse) result.getValue();
+                        matches = getAllMatchesResponse.getMatches();
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error processing get all matches response: " + e.getMessage());
+                }
+            }).exceptionally(throwable -> {
+                System.err.println("Error requesting matches: " + throwable.getMessage());
+                return null;
+            });
+        }
+    }
+
+    private void handleRealtimeMessage(RealtimeMessage message) {
+        if (message.getType() == RealtimeMessageType.MATCH_CREATED) {
+            if (message.getPayload() instanceof MatchCreatedEvent) {
+                MatchCreatedEvent event = (MatchCreatedEvent) message.getPayload();
+                matches.add(event.getMatch());
+                notifyMatchCreated(event);
+            }
+        } else if (message.getType() == RealtimeMessageType.USER_JOINED_MATCH) {
+            if (message.getPayload() instanceof UserJoinedMatchEvent) {
+                UserJoinedMatchEvent event = (UserJoinedMatchEvent) message.getPayload();
+                notifyUserJoinedMatch(event);
+                // TODO: Add user to match
+            }
+        } else if (message.getType() == RealtimeMessageType.USER_LEFT_MATCH) {
+            if (message.getPayload() instanceof UserLeftMatchEvent) {
+                UserLeftMatchEvent event = (UserLeftMatchEvent) message.getPayload();
+                notifyUserLeftMatch(event);
+                // TODO: Remove user from match
+            }
+        } else if (message.getType() == RealtimeMessageType.PLAYER_KICKED_FROM_MATCH) {
+            if (message.getPayload() instanceof PlayerKickedEvent) {
+                PlayerKickedEvent event = (PlayerKickedEvent) message.getPayload();
+                notifyPlayerKicked(event);
+                // TODO: Remove player from match
+            }
+        }
+    }
+
+    private void notifyMatchCreated(MatchCreatedEvent event) {
+        for (Consumer<MatchCreatedEvent> callback : matchCreatedCallbacks) {
+            try {
+                callback.accept(event);
+            } catch (Exception e) {
+                System.err.println("Error in match created callback: " + e.getMessage());
+            }
+        }
+    }
+
+    private void notifyUserJoinedMatch(UserJoinedMatchEvent event) {
+        for (Consumer<UserJoinedMatchEvent> callback : userJoinedMatchCallbacks) {
+            try {
+                callback.accept(event);
+            } catch (Exception e) {
+                System.err.println("Error in user joined match callback: " + e.getMessage());
+            }
+        }
+    }
+
+    private void notifyUserLeftMatch(UserLeftMatchEvent event) {
+        for (Consumer<UserLeftMatchEvent> callback : userLeftMatchCallbacks) {
+            try {
+                callback.accept(event);
+            } catch (Exception e) {
+                System.err.println("Error in user left match callback: " + e.getMessage());
+            }
+        }
+    }
+
+    private void notifyPlayerKicked(PlayerKickedEvent event) {
+        for (Consumer<PlayerKickedEvent> callback : playerKickedCallbacks) {
+            try {
+                callback.accept(event);
+            } catch (Exception e) {
+                System.err.println("Error in player kicked callback: " + e.getMessage());
+            }
+        }
+    }
+}
