@@ -79,8 +79,9 @@ public class SessionService {
             return Result.failure(Error.badRequest("Get session data is missing"));
         }
 
-        Object value = getSessionValue(clientId, request.getKey());
-        String message = "Session data retrieved successfully for client ID: " + clientId +
+        String userClientId = getClientIdByUserId(request.getUserId());
+        Object value = getSessionValue(userClientId, request.getKey());
+        String message = "Session data retrieved successfully for client ID: " + userClientId +
                 " with key: " + request.getKey() + " and value: " + value;
         return Result.success(new GetSessionDataResponse(value, message));
     }
