@@ -372,8 +372,7 @@ public class ChatPanel extends VBox {
         }
     }
     
-    public void startPrivateChat(int otherUserId, String otherUserName) {
-        PrivateChatDto privateChat = new PrivateChatDto(otherUserId, otherUserName);
+    public void startPrivateChat(PrivateChatDto privateChat) {
         chatController.addPrivateChat(privateChat);
         chatTabs.selectTab(privateChat);
     }

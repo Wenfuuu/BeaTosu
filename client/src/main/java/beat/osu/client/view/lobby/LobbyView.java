@@ -108,7 +108,7 @@ public class LobbyView extends Page {
                 return;
             }
 
-            chatPanel.startPrivateChat(privateChat.getOtherUserId(), privateChat.getOtherUserName());
+            chatPanel.startPrivateChat(privateChat);
         });
 
         onlineUsersPanel.setUserCardClickCallback(userCard -> {

@@ -378,7 +378,7 @@ public class LandingView extends Page {
                 return;
             }
 
-            chatPanel.startPrivateChat(privateChat.getOtherUserId(), privateChat.getOtherUserName());
+            chatPanel.startPrivateChat(privateChat);
         });
 
         viewUserModal.setOnStartSpectateCallback(spectateDto -> {
