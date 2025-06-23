@@ -279,6 +279,11 @@ public class LandingView extends Page {
                     }
 
                     String expectedDirName = String.format("%d", beatmapDto.getBeatmapSetId());
+
+                    for (String dir : validBeatmapDirs) {
+                        System.out.println("Found directory: " + dir);
+                    }
+
                     System.out.println("Expected dir name: " + expectedDirName);
 
                     if (!validBeatmapDirs.contains(expectedDirName)) {
@@ -395,7 +400,7 @@ public class LandingView extends Page {
                 return;
             }
 
-//            ViewManager.getInstance().showSpectateView(spectateDto, spectateController);
+            ViewManager.getInstance().showSpectateView(spectateDto);
         });
 
         onlineUsersPanel.setUserCardClickCallback(userCard -> {

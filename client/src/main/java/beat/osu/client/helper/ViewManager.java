@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import beat.osu.client.controller.*;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.view.game.GameView;
+import beat.osu.client.view.game.SpectateView;
 import beat.osu.client.view.home.HomeView;
 import beat.osu.client.view.landing.LandingView;
 import beat.osu.client.view.lobby.LobbyView;
 import beat.osu.client.view.game.ReplayView;
 import beat.osu.client.view.upload.UploadPage;
 import beat.osu.client.events.game.ReplayEvent;
+import beat.osu.shared.dto.game.SpectateDto;
 import javafx.stage.Stage;
 
 public class ViewManager {
@@ -78,6 +80,11 @@ public class ViewManager {
     public void showReplayView(Beatmap beatmap, ArrayList<ReplayEvent> replayEvents) {
         ReplayView replayView = new ReplayView(primaryStage, beatmap, replayEvents);
         sceneManager.transitionToPage(replayView);
+    }
+
+    public void showSpectateView(SpectateDto spectateDto) {
+        SpectateView spectateView = new SpectateView(primaryStage, spectateDto, spectateController);
+        sceneManager.transitionToPage(spectateView);
     }
 
     public void showUploadPage() {
