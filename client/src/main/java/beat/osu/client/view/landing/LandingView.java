@@ -6,6 +6,7 @@ import java.net.URL;
 import beat.osu.client.Main;
 import beat.osu.client.controller.ChatController;
 import beat.osu.client.controller.ConnectedUsersController;
+import beat.osu.client.controller.SpectateController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.BgmManager;
@@ -75,6 +76,7 @@ public class LandingView extends Page {
 
     private final ConnectedUsersController connectedUsersController;
     private final ChatController chatController;
+    private final SpectateController spectateController;
 
     private double visualizerSize;
 
@@ -91,11 +93,13 @@ public class LandingView extends Page {
     private FadeTransition subMenuFadeIn;
     private FadeTransition subMenuFadeOut;
 
-    public LandingView(Stage stage, ConnectedUsersController connectedUsersController, ChatController chatController) {
+    public LandingView(Stage stage, ConnectedUsersController connectedUsersController,
+                       ChatController chatController, SpectateController spectateController) {
         super(stage);
 
         this.connectedUsersController = connectedUsersController;
         this.chatController = chatController;
+        this.spectateController = spectateController;
 
         setupView();
         handleEvent();

@@ -10,7 +10,7 @@ import beat.osu.client.model.HitObject;
 import beat.osu.client.view.game.component.GameUI;
 import beat.osu.client.view.game.component.PauseOverlay;
 import beat.osu.client.view.shared.common.Page;
-import beat.osu.shared.dto.game.ReplayEvent;
+import beat.osu.shared.dto.game.events.ReplayEvent;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;

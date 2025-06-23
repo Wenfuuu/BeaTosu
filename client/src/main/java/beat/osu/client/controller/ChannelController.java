@@ -179,11 +179,6 @@ public class ChannelController {
                 UserLeftChannelEvent event = (UserLeftChannelEvent) message.getPayload();
                 notifyUserLeftChannel(event);
             }
-        } else if (message.getType() == RealtimeMessageType.REPLAY_EVENT) {
-//            if (message.getPayload() instanceof Repla) {
-//                ChannelMessageEvent event = (ChannelMessageEvent) message.getPayload();
-////                notifyChannelMessage(event);
-//            }
         }
     }
 

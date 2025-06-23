@@ -37,7 +37,7 @@ public class Main {
         MatchService matchService = new MatchService(sessionService, userService, beatmapService);
 
         MessageRouter messageRouter = new MessageRouter(systemService, authService, beatmapService,
-                scoreService, channelService, privateChatService, matchService);
+                scoreService, channelService, privateChatService, matchService, sessionService);
 
         int serverPort = config.getServerPort();
 

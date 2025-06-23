@@ -11,6 +11,7 @@ import beat.osu.shared.dto.chat.requests.JoinChannelRequest;
 import beat.osu.shared.dto.chat.requests.LeaveChannelRequest;
 import beat.osu.shared.dto.chat.requests.SendChannelMessageRequest;
 import beat.osu.shared.dto.chat.requests.SendPrivateChatMessageRequest;
+import beat.osu.shared.dto.game.requests.CreateSessionRequest;
 import beat.osu.shared.dto.match.requests.CreateMatchRequest;
 import beat.osu.shared.dto.match.requests.JoinMatchRequest;
 import beat.osu.shared.dto.match.requests.KickPlayerRequest;
@@ -30,6 +31,7 @@ public class MessageRouter {
     private final ChannelService channelService;
     private final PrivateChatService privateChatService;
     private final MatchService matchService;
+    private final SessionService sessionService;
 
     public Object routeRequestMessage(RequestMessage request, String clientId) {
         switch (request.getType()) {
@@ -47,6 +49,8 @@ public class MessageRouter {
                 return handlePrivateChatRequest(request, clientId);
             case MATCH:
                 return handleMatchRequest(request, clientId);
+            case SESSION:
+                return handleSessionRequest(request, clientId);
             default:
                 return Result.failure(Error.validation("Unknown request type: " + request.getType()));
         }
@@ -136,6 +140,16 @@ public class MessageRouter {
                 return matchService.kickPlayer((KickPlayerRequest) request.getPayload(), clientId);
             default:
                 return Result.failure(Error.validation("Unknown match action: " + request.getAction()));
+        }
+    }
+
+    private Object handleSessionRequest(RequestMessage request, String clientId) {
+        switch (request.getAction()) {
+            case CREATE_SESSION:
+                CreateSessionRequest createSessionRequest = (CreateSessionRequest) request.getPayload();
+                sessionService.setSessionData(clientId, createSessionRequest.getKey(), createSessionRequest.getValue());
+            default:
+                return Result.failure(Error.validation("Unknown session action: " + request.getAction()));
         }
     }
 }

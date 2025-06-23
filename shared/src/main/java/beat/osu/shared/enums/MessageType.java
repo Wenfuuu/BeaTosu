@@ -9,4 +9,5 @@ public enum MessageType {
     CHANNEL,
     PRIVATE_CHAT,
     MATCH,
+    SESSION,
 }

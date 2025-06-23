@@ -1,7 +1,7 @@
 package beat.osu.client.utils;
 
 import beat.osu.client.helper.ResourceManager;
-import beat.osu.shared.dto.game.ReplayEvent;
+import beat.osu.shared.dto.game.events.ReplayEvent;
 
 import java.io.*;
 import java.util.ArrayList;

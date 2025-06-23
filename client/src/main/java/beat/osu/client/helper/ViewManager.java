@@ -2,10 +2,7 @@ package beat.osu.client.helper;
 
 import java.util.ArrayList;
 
-import beat.osu.client.controller.ChannelController;
-import beat.osu.client.controller.ChatController;
-import beat.osu.client.controller.ConnectedUsersController;
-import beat.osu.client.controller.PrivateChatController;
+import beat.osu.client.controller.*;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.view.game.GameView;
 import beat.osu.client.view.home.HomeView;
@@ -13,7 +10,7 @@ import beat.osu.client.view.landing.LandingView;
 import beat.osu.client.view.lobby.LobbyView;
 import beat.osu.client.view.replay.ReplayView;
 import beat.osu.client.view.upload.UploadPage;
-import beat.osu.shared.dto.game.ReplayEvent;
+import beat.osu.shared.dto.game.events.ReplayEvent;
 import javafx.stage.Stage;
 
 public class ViewManager {
@@ -28,6 +25,7 @@ public class ViewManager {
     private ChannelController channelController;
     private PrivateChatController privateChatController;
     private ChatController chatController;
+    private SpectateController spectateController;
 
     private static volatile ViewManager instance;
 
@@ -51,7 +49,7 @@ public class ViewManager {
     }
 
     public void initializeViews() {
-        landingView = new LandingView(primaryStage, connectedUsersController, chatController);
+        landingView = new LandingView(primaryStage, connectedUsersController, chatController, spectateController);
         homeView = new HomeView(primaryStage);
         lobbyView = new LobbyView(primaryStage, connectedUsersController, chatController);
     }
@@ -91,5 +89,6 @@ public class ViewManager {
         channelController = new ChannelController();
         privateChatController = new PrivateChatController();
         chatController = new ChatController(channelController, privateChatController);
+        spectateController = new SpectateController();
     }
 }

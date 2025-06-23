@@ -3,10 +3,14 @@ package beat.osu.client.view.shared.bancho.modals;
 import java.net.URL;
 import java.util.function.Consumer;
 
+import beat.osu.client.controller.SpectateController;
+import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
 import beat.osu.shared.dto.chat.PrivateChatDto;
+import beat.osu.shared.dto.game.SpectateDto;
+import beat.osu.shared.dto.user.UserDto;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -25,6 +29,8 @@ public class ViewUserModal extends VBox {
     
     @Setter
     private Consumer<PrivateChatDto> onStartChatCallback;
+    @Setter
+    private Consumer<SpectateDto> onStartSpectateCallback;
 
     public ViewUserModal() {
         initializeComponents();
@@ -56,7 +62,19 @@ public class ViewUserModal extends VBox {
         buttonsContainer.getStyleClass().add("buttons-container");
         buttonsContainer.getChildren().addAll(startSpectateButton, startChatButton, closeButton);
 
-//        startSpectateButton.setOnAction(event -> startSpectating());
+        startSpectateButton.setOnAction(event -> {
+            if (onStartSpectateCallback != null && userCard != null) {
+//                UserDto user = AuthManager.getUser();
+//                SpectateDto spectateDto = new SpectateDto(
+//                    user.getId(),
+//                    userCard.getUserId(),
+//
+//                );
+//                onStartSpectateCallback.accept(spectateDto);
+//                hide(); // Close the modal after starting spectate
+            }
+        });
+
         startChatButton.setOnAction(event -> {
             if (onStartChatCallback != null && userCard != null) {
                 PrivateChatDto privateChat = new PrivateChatDto(

@@ -1,4 +1,4 @@
-package beat.osu.shared.dto.game;
+package beat.osu.shared.dto.game.events;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
