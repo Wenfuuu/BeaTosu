@@ -1,7 +1,7 @@
 package beat.osu.client.controller;
 
 import beat.osu.client.service.ClientService;
-import beat.osu.shared.dto.game.events.ReplayEvent;
+import beat.osu.shared.dto.game.events.SpectateEvent;
 import beat.osu.shared.enums.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
 
@@ -12,18 +12,18 @@ import java.util.function.Consumer;
 public class SpectateController {
     private final ClientService clientService;
 
-    private final List<Consumer<ReplayEvent>> replayEventCallbacks = new ArrayList<>();
+    private final List<Consumer<SpectateEvent>> replayEventCallbacks = new ArrayList<>();
 
     public SpectateController() {
         this.clientService = ClientService.getInstance();
         setupRealtimeHandler();
     }
 
-    public void addReplayEventCallback(Consumer<ReplayEvent> callback) {
+    public void addSpectateEventCallback(Consumer<SpectateEvent> callback) {
         replayEventCallbacks.add(callback);
     }
 
-    public void removeReplayEventCallback(Consumer<ReplayEvent> callback) {
+    public void removeSpectateEventCallback(Consumer<SpectateEvent> callback) {
         replayEventCallbacks.remove(callback);
     }
 
@@ -34,16 +34,16 @@ public class SpectateController {
     }
 
     private void handleRealtimeMessage(RealtimeMessage message) {
-        if (message.getType() == RealtimeMessageType.REPLAY_EVENT) {
-            if (message.getPayload() instanceof ReplayEvent) {
-                ReplayEvent event = (ReplayEvent) message.getPayload();
+        if (message.getType() == RealtimeMessageType.SPECTATE_EVENT) {
+            if (message.getPayload() instanceof SpectateEvent) {
+                SpectateEvent event = (SpectateEvent) message.getPayload();
                 notifyReplayEvent(event);
             }
         }
     }
 
-    private void notifyReplayEvent(ReplayEvent event) {
-        for (Consumer<ReplayEvent> callback : replayEventCallbacks) {
+    private void notifyReplayEvent(SpectateEvent event) {
+        for (Consumer<SpectateEvent> callback : replayEventCallbacks) {
             try {
                 callback.accept(event);
             } catch (Exception e) {

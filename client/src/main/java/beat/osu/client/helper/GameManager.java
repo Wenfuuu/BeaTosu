@@ -14,8 +14,7 @@ import beat.osu.client.interfaces.game.GameEventPublisher;
 import beat.osu.client.model.*;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.utils.ReplayUtils;
-import beat.osu.client.view.shared.common.Toast;
-import beat.osu.shared.dto.game.events.ReplayEvent;
+import beat.osu.client.events.game.ReplayEvent;
 import beat.osu.shared.dto.user.UserDto;
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
@@ -120,7 +119,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             return;
         }
 
-        sessionController.createPlayingBeatmapSession(user.getId(), beatmap.getBeatmapSetId()).thenApply(response -> {
+        sessionController.createPlayingBeatmapSession(user.getId(), beatmap.getBeatmapId()).thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Session created successfully: " + response.getValue().getMessage());
             } else {

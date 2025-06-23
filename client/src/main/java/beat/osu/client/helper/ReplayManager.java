@@ -8,7 +8,7 @@ import beat.osu.client.interfaces.game.GameEventListener;
 import beat.osu.client.interfaces.game.GameEventPublisher;
 import beat.osu.client.model.*;
 import beat.osu.client.utils.OsuParser;
-import beat.osu.shared.dto.game.events.ReplayEvent;
+import beat.osu.client.events.game.ReplayEvent;
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
 import lombok.Getter;

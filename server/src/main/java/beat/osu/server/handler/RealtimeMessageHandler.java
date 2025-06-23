@@ -27,7 +27,7 @@ public class RealtimeMessageHandler {
                 case SYSTEM_NOTIFICATION:
                     broadcastToAll(message);
                     break;
-                case REPLAY_EVENT:
+                case SPECTATE_EVENT:
 
                     break;
                 default:

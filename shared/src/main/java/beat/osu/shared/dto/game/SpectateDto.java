@@ -12,5 +12,5 @@ import java.io.Serializable;
 public class SpectateDto implements Serializable {
     private int spectatorUserId;
     private int playingUserId;
-    private int beatmapSetId;
+    private int beatmapId;
 }

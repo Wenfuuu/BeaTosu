@@ -54,16 +54,17 @@ public class SessionService {
 
         System.out.println("Creating session data - Looking for client with userId: " + request.getUserId());
         System.out.println("Current sessions count: " + sessions.size());
-        
+
         String clientId = getClientIdByUserId(request.getUserId());
         if (clientId == null) {
-            System.err.println("CRITICAL: Client not found for user ID: " + request.getUserId() + " during session creation");
-            String warningMessage = "Warning: Client session not found for user ID: " + request.getUserId() + 
-                                  ", but continuing. This might be a timing issue.";
+            System.err.println(
+                    "CRITICAL: Client not found for user ID: " + request.getUserId() + " during session creation");
+            String warningMessage = "Warning: Client session not found for user ID: " + request.getUserId() +
+                    ", but continuing. This might be a timing issue.";
             System.out.println(warningMessage);
             return Result.success(new CreateSessionDataResponse(warningMessage));
         }
-        
+
         System.out.println("Found clientId: " + clientId + " for userId: " + request.getUserId());
         setSessionData(clientId, request.getKey(), request.getValue());
 
@@ -82,13 +83,14 @@ public class SessionService {
 
         String clientId = getClientIdByUserId(request.getUserId());
         if (clientId == null) {
-            System.err.println("CRITICAL: Client not found for user ID: " + request.getUserId() + " during session removal");
-            String warningMessage = "Warning: Client session not found for user ID: " + request.getUserId() + 
-                                  " during removal. Session might already be cleaned up.";
+            System.err.println(
+                    "CRITICAL: Client not found for user ID: " + request.getUserId() + " during session removal");
+            String warningMessage = "Warning: Client session not found for user ID: " + request.getUserId() +
+                    " during removal. Session might already be cleaned up.";
             System.out.println(warningMessage);
             return Result.success(new RemoveSessionDataResponse(warningMessage));
         }
-        
+
         System.out.println("Found clientId: " + clientId + " for userId: " + request.getUserId());
         removeSessionValue(clientId, request.getKey());
 
@@ -104,7 +106,8 @@ public class SessionService {
 
         String clientId = getClientIdByUserId(request.getUserId());
         if (clientId == null) {
-            System.err.println("CRITICAL: Client not found for user ID: " + request.getUserId() + " during session creation");
+            System.err.println(
+                    "CRITICAL: Client not found for user ID: " + request.getUserId() + " during session creation");
             String warningMessage = "Warning: Client session not found for user ID: " + request.getUserId() +
                     ", but continuing. This might be a timing issue.";
             System.out.println(warningMessage);
@@ -119,7 +122,7 @@ public class SessionService {
 
     public String getClientIdByUserId(Integer userId) {
         System.out.println("Looking up clientId for userId: " + userId);
-        
+
         for (Map.Entry<String, Map<String, Object>> entry : sessions.entrySet()) {
             String clientId = entry.getKey();
             Map<String, Object> sessionData = entry.getValue();
@@ -131,13 +134,13 @@ public class SessionService {
 
             Integer sessionUserId = (Integer) sessionData.get("userId");
             System.out.println("Checking clientId: " + clientId + " with userId: " + sessionUserId);
-            
+
             if (sessionUserId != null && sessionUserId.equals(userId)) {
                 System.out.println("Found match! ClientId: " + clientId + " for userId: " + userId);
                 return clientId;
             }
         }
-        
+
         System.err.println("No clientId found for userId: " + userId);
         System.err.println("Available sessions:");
         sessions.forEach((id, data) -> {
@@ -147,7 +150,7 @@ public class SessionService {
                 System.err.println("  ClientId: " + id + " -> null session data");
             }
         });
-        
+
         return null;
     }
 }

@@ -2,19 +2,15 @@ package beat.osu.client.view.landing;
 
 import java.io.File;
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 import beat.osu.client.Main;
-import beat.osu.client.controller.ChatController;
-import beat.osu.client.controller.ConnectedUsersController;
-import beat.osu.client.controller.SessionController;
-import beat.osu.client.controller.SpectateController;
-import beat.osu.client.helper.AuthManager;
-import beat.osu.client.helper.BackgroundManager;
-import beat.osu.client.helper.BgmManager;
-import beat.osu.client.helper.CssManager;
-import beat.osu.client.helper.PlaylistManager;
-import beat.osu.client.helper.ScreenManager;
-import beat.osu.client.helper.ViewManager;
+import beat.osu.client.controller.*;
+import beat.osu.client.helper.*;
+import beat.osu.client.model.Beatmap;
+import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.view.landing.component.controls.MenuButtons;
 import beat.osu.client.view.landing.component.controls.SubMenuButtons;
 import beat.osu.client.view.landing.component.layout.BottomBar;
@@ -34,6 +30,9 @@ import beat.osu.client.view.shared.common.Page;
 import beat.osu.client.view.shared.common.Toast;
 import beat.osu.client.view.shared.jukebox.Jukebox;
 import beat.osu.client.view.shared.jukebox.modals.PlaylistModal;
+import beat.osu.shared.common.Result;
+import beat.osu.shared.dto.beatmap.BeatmapDto;
+import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.ParallelTransition;
@@ -79,6 +78,7 @@ public class LandingView extends Page {
     private final ChatController chatController;
     private final SessionController sessionController;
     private final SpectateController spectateController;
+    private final BeatmapController beatmapController;
 
     private double visualizerSize;
 
@@ -104,6 +104,7 @@ public class LandingView extends Page {
         this.chatController = chatController;
         this.sessionController = sessionController;
         this.spectateController = spectateController;
+        this.beatmapController = new BeatmapController();
 
         setupView();
         handleEvent();
@@ -256,6 +257,71 @@ public class LandingView extends Page {
         }
     }
 
+    private Beatmap fetchBeatmapById(int id) {
+        File tempDir = ResourceManager.getTempDirectory();
+        Set<String> validBeatmapDirs = new HashSet<>();
+
+        if (tempDir.exists() && tempDir.isDirectory()) {
+            for (File file : Objects.requireNonNull(tempDir.listFiles())) {
+                if (file.isDirectory()) {
+                    validBeatmapDirs.add(file.getName());
+                }
+            }
+        }
+
+        try {
+            Result<GetAllBeatmapsResponse> result = beatmapController.getAllBeatmaps().get();
+
+            if (result.isSuccess()) {
+                for (BeatmapDto beatmapDto : result.getValue().getBeatmaps()) {
+                    if (beatmapDto.getId() != id) {
+                        continue;
+                    }
+
+                    String expectedDirName = String.format("%d", beatmapDto.getBeatmapSetId());
+                    System.out.println("Expected dir name: " + expectedDirName);
+
+                    if (!validBeatmapDirs.contains(expectedDirName)) {
+                        return null;
+                    }
+
+                    BeatmapSet beatmapSet = new BeatmapSet(
+                            beatmapDto.getBeatmapSetDto().getId(),
+                            beatmapDto.getBeatmapSetDto().getTitle(),
+                            beatmapDto.getBeatmapSetDto().getArtist(),
+                            beatmapDto.getBeatmapSetDto().getCreator(),
+                            beatmapDto.getBeatmapSetDto().getLength(),
+                            beatmapDto.getBeatmapSetDto().getBpm()
+                    );
+
+                    return new Beatmap(
+                            beatmapDto.getId(),
+                            beatmapDto.getBeatmapSetDto().getId(),
+                            beatmapDto.getVersion(),
+                            beatmapDto.getHpDrainRate(),
+                            beatmapDto.getCircleSize(),
+                            beatmapDto.getOverallDifficulty(),
+                            beatmapDto.getApproachRate(),
+                            beatmapDto.getSliderMultiplier(),
+                            beatmapDto.getSliderTickRate(),
+                            beatmapDto.getStarRating(),
+                            beatmapSet
+                    );
+                }
+
+                System.err.println("Beatmap with ID " + id + " not found in response.");
+            } else {
+                System.err.println("Failed to fetch beatmaps: " + result.getError().getMessage());
+            }
+
+            return null;
+        } catch (Exception e) {
+            System.err.println("Error fetching beatmap: " + e.getMessage());
+            return null;
+        }
+    }
+
+
     @Override
     public void init() {
         root = new StackPane();
@@ -322,7 +388,13 @@ public class LandingView extends Page {
             }
 
             System.out.println("Player with id " + spectateDto.getPlayingUserId()
-                    + " is playing beatmap with set id " + spectateDto.getBeatmapSetId());
+                    + " is playing beatmap with id " + spectateDto.getBeatmapId());
+            Beatmap beatmap = fetchBeatmapById(spectateDto.getBeatmapId());
+            if (beatmap == null) {
+                Toast.error("You don't have this beatmap").show();
+                return;
+            }
+
 //            ViewManager.getInstance().showSpectateView(spectateDto, spectateController);
         });
 

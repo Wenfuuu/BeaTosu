@@ -21,5 +21,5 @@ public enum RealtimeMessageType implements Serializable {
 
     SYSTEM_NOTIFICATION,
 
-    REPLAY_EVENT,
+    SPECTATE_EVENT,
 }
