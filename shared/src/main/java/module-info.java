@@ -32,6 +32,8 @@ module beat.osu.shared {
     exports beat.osu.shared.dto.score.responses;
     exports beat.osu.shared.dto.game;
     exports beat.osu.shared.dto.game.events;
+    exports beat.osu.shared.dto.game.requests;
+    exports beat.osu.shared.dto.game.responses;
     exports beat.osu.shared.dto.session.requests;
     exports beat.osu.shared.dto.session.responses;
 }
