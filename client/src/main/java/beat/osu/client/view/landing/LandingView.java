@@ -4,10 +4,8 @@ import java.io.File;
 import java.net.URL;
 
 import beat.osu.client.Main;
-import beat.osu.client.controller.ChannelController;
 import beat.osu.client.controller.ChatController;
 import beat.osu.client.controller.ConnectedUsersController;
-import beat.osu.client.controller.PrivateChatController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.BgmManager;
@@ -38,11 +36,12 @@ import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.CacheHint;
 import javafx.scene.Node;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
@@ -71,6 +70,8 @@ public class LandingView extends Page {
     private SelectChannelModal selectChannelModal;
     private BanchoButtons banchoButtons;
     private ViewUserModal viewUserModal;
+
+    private VBox banchoPanelsContainer;
 
     private final ConnectedUsersController connectedUsersController;
     private final ChatController chatController;
@@ -281,6 +282,22 @@ public class LandingView extends Page {
 
         viewUserModal = new ViewUserModal();
 
+        banchoPanelsContainer = new VBox();
+        banchoPanelsContainer.setVisible(false);
+        banchoPanelsContainer.setManaged(false);
+        banchoPanelsContainer.setMaxWidth(Double.MAX_VALUE);
+        banchoPanelsContainer.setMaxHeight(Double.MAX_VALUE);
+        banchoPanelsContainer.setMouseTransparent(true);
+        
+        onlineUsersPanel.setMaxWidth(Double.MAX_VALUE);
+        chatPanel.setMaxWidth(Double.MAX_VALUE);
+        VBox.setVgrow(onlineUsersPanel, Priority.ALWAYS);
+        chatPanel.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.35);
+        chatPanel.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.35);
+        chatPanel.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.35);
+        
+        banchoPanelsContainer.getChildren().addAll(onlineUsersPanel, chatPanel);
+
         viewUserModal.setOnStartChatCallback(privateChat -> {
             if (AuthManager.getUser().getId() == privateChat.getOtherUserId()) {
                 Toast.error("You cannot start a chat with yourself!").show();
@@ -381,14 +398,8 @@ public class LandingView extends Page {
         root.getChildren().add(jukebox);
         StackPane.setAlignment(jukebox, Pos.TOP_RIGHT);
 
-        root.getChildren().add(onlineUsersPanel);
-        StackPane.setAlignment(onlineUsersPanel, Pos.TOP_CENTER);
-        onlineUsersPanel.setMaxWidth(Double.MAX_VALUE);
-
-        root.getChildren().add(chatPanel);
-        StackPane.setAlignment(chatPanel, Pos.TOP_CENTER);
-        chatPanel.setMaxWidth(Double.MAX_VALUE);
-        StackPane.setMargin(chatPanel, new Insets(ScreenManager.SCREEN_HEIGHT * 0.65, 0, 0, 0));
+        root.getChildren().add(banchoPanelsContainer);
+        StackPane.setAlignment(banchoPanelsContainer, Pos.TOP_CENTER);
 
         root.getChildren().add(banchoButtons);
         StackPane.setAlignment(banchoButtons, Pos.BOTTOM_RIGHT);

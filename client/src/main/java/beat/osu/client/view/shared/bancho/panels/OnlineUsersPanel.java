@@ -10,7 +10,6 @@ import java.util.Map;
 import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.LocaleManager;
-import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
 import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
 import beat.osu.client.view.shared.bancho.tabs.SortUserTabs;
@@ -72,12 +71,6 @@ public class OnlineUsersPanel extends VBox {
             System.err.println("CSS file not found!");
         }
 
-        double panelHeight = ScreenManager.SCREEN_HEIGHT * 0.65;
-        
-        this.setMaxHeight(panelHeight);
-        this.setMinHeight(panelHeight);
-        this.setPrefHeight(panelHeight);
-
         this.userCards = new ArrayList<>();
         this.userCardMap = new HashMap<>();
 
@@ -130,6 +123,13 @@ public class OnlineUsersPanel extends VBox {
     }
     
     public void show() {
+        if (this.getParent() instanceof VBox) {
+            VBox parentContainer = (VBox) this.getParent();
+            parentContainer.setVisible(true);
+            parentContainer.setManaged(true);
+            parentContainer.setMouseTransparent(false);
+        }
+        
         this.setVisible(true);
         this.setOpacity(0);
         
@@ -143,7 +143,27 @@ public class OnlineUsersPanel extends VBox {
         FadeTransition fadeOut = new FadeTransition(Duration.millis(300), this);
         fadeOut.setFromValue(1);
         fadeOut.setToValue(0);
-        fadeOut.setOnFinished(e -> this.setVisible(false));
+        fadeOut.setOnFinished(e -> {
+            this.setVisible(false);
+            
+            if (this.getParent() instanceof VBox) {
+                VBox parentContainer = (VBox) this.getParent();
+                boolean chatPanelVisible = false;
+                
+                for (javafx.scene.Node child : parentContainer.getChildren()) {
+                    if (child.getClass().getSimpleName().equals("ChatPanel") && child.isVisible()) {
+                        chatPanelVisible = true;
+                        break;
+                    }
+                }
+                
+                if (!chatPanelVisible) {
+                    parentContainer.setVisible(false);
+                    parentContainer.setManaged(false);
+                    parentContainer.setMouseTransparent(true);
+                }
+            }
+        });
         fadeOut.play();
     }
 

@@ -8,7 +8,6 @@ import java.util.Objects;
 
 import beat.osu.client.controller.ChatController;
 import beat.osu.client.helper.CssManager;
-import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.shared.bancho.buttons.ChatTabButton;
 import beat.osu.client.view.shared.bancho.modals.SelectChannelModal;
@@ -63,17 +62,18 @@ public class ChatPanel extends VBox {
             System.err.println("CSS file not found!");
         }
 
-        double panelHeight = ScreenManager.SCREEN_HEIGHT * 0.35;
-        
-        this.setMaxHeight(panelHeight);
-        this.setMinHeight(panelHeight);
-        this.setPrefHeight(panelHeight);
-
         setupEventHandlers();
         setupUI();
     }
 
     public void show() {
+        if (this.getParent() instanceof VBox) {
+            VBox parentContainer = (VBox) this.getParent();
+            parentContainer.setVisible(true);
+            parentContainer.setManaged(true);
+            parentContainer.setMouseTransparent(false);
+        }
+        
         chatController.loadJoinedChannels();
         chatController.loadExistingPrivateChats();
 
@@ -103,7 +103,27 @@ public class ChatPanel extends VBox {
         fadeOut.setToValue(0);
         
         ParallelTransition hideTransition = new ParallelTransition(slideOut, fadeOut);
-        hideTransition.setOnFinished(e -> this.setVisible(false));
+        hideTransition.setOnFinished(e -> {
+            this.setVisible(false);
+            
+            if (this.getParent() instanceof VBox) {
+                VBox parentContainer = (VBox) this.getParent();
+                boolean onlineUsersPanelVisible = false;
+                
+                for (javafx.scene.Node child : parentContainer.getChildren()) {
+                    if (child.getClass().getSimpleName().equals("OnlineUsersPanel") && child.isVisible()) {
+                        onlineUsersPanelVisible = true;
+                        break;
+                    }
+                }
+                
+                if (!onlineUsersPanelVisible) {
+                    parentContainer.setVisible(false);
+                    parentContainer.setManaged(false);
+                    parentContainer.setMouseTransparent(true);
+                }
+            }
+        });
         hideTransition.play();
     }
 

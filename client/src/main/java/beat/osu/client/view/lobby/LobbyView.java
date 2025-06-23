@@ -8,6 +8,7 @@ import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.PlaylistManager;
+import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.ViewManager;
 import beat.osu.client.view.lobby.component.layout.NavigationBar;
 import beat.osu.client.view.lobby.component.layout.TopBar;
@@ -22,11 +23,16 @@ import beat.osu.client.view.shared.common.Page;
 import beat.osu.client.view.shared.common.Toast;
 import beat.osu.client.view.shared.jukebox.Jukebox;
 import beat.osu.client.view.shared.jukebox.modals.PlaylistModal;
+import javafx.animation.FadeTransition;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class LobbyView extends Page {
 
@@ -46,6 +52,9 @@ public class LobbyView extends Page {
 
     private TopBar topBar;
     private NavigationBar navigationBar;
+    private VBox mainContent; 
+    
+    private VBox banchoPanelsContainer;
 
     public LobbyView(Stage stage, ConnectedUsersController connectedUsersController, ChatController chatController) {
         super(stage);
@@ -81,8 +90,7 @@ public class LobbyView extends Page {
         onlineUsersPanel = new OnlineUsersPanel(connectedUsersController);
         selectChannelModal = new SelectChannelModal(chatController.getChannelController(), banchoButtons);
         chatPanel = new ChatPanel(chatController, selectChannelModal, onlineUsersPanel, banchoButtons);
-        chatPanel.show();
-
+        
         viewUserModal = new ViewUserModal();
 
         viewUserModal.setOnStartChatCallback(privateChat -> {
@@ -115,6 +123,23 @@ public class LobbyView extends Page {
         selectChannelModal.setChatPanel(chatPanel);
         selectChannelModal.setOnlineUsersPanel(onlineUsersPanel);
 
+        banchoPanelsContainer = new VBox();
+        banchoPanelsContainer.setMaxWidth(Double.MAX_VALUE);
+        banchoPanelsContainer.setMaxHeight(Double.MAX_VALUE);
+        banchoPanelsContainer.setMouseTransparent(true);
+        
+        onlineUsersPanel.setMaxWidth(Double.MAX_VALUE);
+        chatPanel.setMaxWidth(Double.MAX_VALUE);
+        VBox.setVgrow(onlineUsersPanel, Priority.ALWAYS);
+        chatPanel.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.35);
+        chatPanel.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.35);
+        chatPanel.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.35);
+        
+        banchoPanelsContainer.getChildren().addAll(onlineUsersPanel, chatPanel);
+        
+        banchoPanelsContainer.setVisible(false);
+        banchoPanelsContainer.setManaged(false);
+
         playlistModal.setVisible(false);
         
         scene.setRoot(root);
@@ -145,8 +170,12 @@ public class LobbyView extends Page {
         root.getChildren().add(topBar);
         StackPane.setAlignment(topBar, Pos.TOP_CENTER);
 
-        VBox mainContent = new VBox();
-        mainContent.getChildren().addAll(navigationBar, chatPanel);
+        root.getChildren().add(banchoPanelsContainer);
+        StackPane.setAlignment(banchoPanelsContainer, Pos.TOP_CENTER);
+
+        mainContent = new VBox();
+        mainContent.getChildren().add(navigationBar);
+        mainContent.setPadding(new Insets(0, 0, ScreenManager.SCREEN_HEIGHT * 0.35, 0));
         root.getChildren().add(mainContent);
         mainContent.setAlignment(Pos.BOTTOM_CENTER);
         StackPane.setAlignment(mainContent, Pos.BOTTOM_CENTER);
@@ -157,10 +186,6 @@ public class LobbyView extends Page {
 
         root.getChildren().add(jukebox);
         StackPane.setAlignment(jukebox, Pos.TOP_RIGHT);
-
-        root.getChildren().add(onlineUsersPanel);
-        StackPane.setAlignment(onlineUsersPanel, Pos.TOP_CENTER);
-        onlineUsersPanel.setMaxWidth(Double.MAX_VALUE);
 
         root.getChildren().add(banchoButtons);
         StackPane.setAlignment(banchoButtons, Pos.BOTTOM_RIGHT);
@@ -174,6 +199,11 @@ public class LobbyView extends Page {
         scene.setRoot(root);
         setInputManager();
         playlistModal.setInputManager(inputManager);
+
+        banchoPanelsContainer.setVisible(true);
+        banchoPanelsContainer.setManaged(true);
+        banchoPanelsContainer.setMouseTransparent(false);
+        chatPanel.setVisible(true);
 
         chatController.getChannelController().joinChannel(3).thenAccept(result -> {
             Platform.runLater(() -> {
@@ -192,9 +222,11 @@ public class LobbyView extends Page {
             if (banchoButtons.getOnlineUsersButton().isOnlineUserShown()) {
                 onlineUsersPanel.hide();
                 banchoButtons.getOnlineUsersButton().setOnlineUsersHiddenIcon();
+                showMainContent();
             } else {
                 onlineUsersPanel.show();
                 banchoButtons.getOnlineUsersButton().setOnlineUsersShownIcon();
+                hideMainContent();
             }
         });
 
@@ -205,17 +237,46 @@ public class LobbyView extends Page {
         jukebox.getMediaControls().getPlaylistButton().setOnAction(event -> {
             if (playlistModal.isVisible()) {
                 playlistModal.hide();
-                chatPanel.show();
+                banchoPanelsContainer.setVisible(true);
+                banchoPanelsContainer.setManaged(true);
+                banchoPanelsContainer.setMouseTransparent(false);
+                chatPanel.setVisible(true);
+                showMainContent();
                 if (!banchoButtons.isVisible()) {
                     banchoButtons.show();
                 }
             } else {
-                chatPanel.hide();
+                banchoPanelsContainer.setVisible(false);
+                banchoPanelsContainer.setManaged(false);
+                banchoPanelsContainer.setMouseTransparent(true);
+                hideMainContent();
                 if (banchoButtons.isVisible()) {
                     banchoButtons.hide();
                 }
                 playlistModal.show();
             }
         });
+    }
+
+    private void showMainContent() {
+        mainContent.setVisible(true);
+        mainContent.setManaged(true);
+
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), mainContent);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+        fadeIn.play();
+    }
+
+    private void hideMainContent() {
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), mainContent);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        fadeOut.setOnFinished(e -> {
+            mainContent.setVisible(false);
+            mainContent.setManaged(false);
+        });
+
+        fadeOut.play();
     }
 }

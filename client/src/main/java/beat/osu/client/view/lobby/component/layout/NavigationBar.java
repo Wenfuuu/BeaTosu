@@ -51,7 +51,7 @@ public class NavigationBar extends HBox {
     private void setLayout() {
         this.setAlignment(Pos.CENTER);
         this.setSpacing(30);
-        this.setPadding(new Insets(0, 240, 0, 240));
+        this.setPadding(new Insets(20, 240, 20, 240));
 
         this.getChildren().addAll(backButton, newGameButton, quickJoinButton);
     }
