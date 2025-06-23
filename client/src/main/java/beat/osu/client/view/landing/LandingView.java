@@ -430,6 +430,10 @@ public class LandingView extends Page {
         topBar.setUserCardClickHandler(e -> {
             if (!loginModal.isShowing() && !registerModal.isVisible()) {
                 loginModal.clearFields();
+                if (chatPanel.isVisible()) {
+                    chatPanel.hide();
+                    bottomBar.setFullOpacity();
+                }
                 loginModal.show();
             }
         });
@@ -486,6 +490,10 @@ public class LandingView extends Page {
             if(loginModal.isShowing()) loginModal.hide();
 
             if(!settingsModal.isShowing()) {
+                if (chatPanel.isVisible()) {
+                    chatPanel.hide();
+                    bottomBar.setFullOpacity();
+                }
                 settingsModal.show();
             }
         });
