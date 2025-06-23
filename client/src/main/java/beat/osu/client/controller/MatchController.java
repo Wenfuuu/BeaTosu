@@ -3,6 +3,7 @@ package beat.osu.client.controller;
 import beat.osu.client.service.ClientService;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.match.MatchDto;
+import beat.osu.shared.dto.match.MatchPlayerDto;
 import beat.osu.shared.dto.match.events.MatchCreatedEvent;
 import beat.osu.shared.dto.match.events.PlayerKickedEvent;
 import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
@@ -103,20 +104,20 @@ public class MatchController {
         } else if (message.getType() == RealtimeMessageType.USER_JOINED_MATCH) {
             if (message.getPayload() instanceof UserJoinedMatchEvent) {
                 UserJoinedMatchEvent event = (UserJoinedMatchEvent) message.getPayload();
+                addPlayerToMatch(event.getMatchId(), event.getMatchPlayer());
                 notifyUserJoinedMatch(event);
-                // TODO: Add user to match
             }
         } else if (message.getType() == RealtimeMessageType.USER_LEFT_MATCH) {
             if (message.getPayload() instanceof UserLeftMatchEvent) {
                 UserLeftMatchEvent event = (UserLeftMatchEvent) message.getPayload();
+                removePlayerFromMatch(event.getMatchId(), event.getUserId());
                 notifyUserLeftMatch(event);
-                // TODO: Remove user from match
             }
         } else if (message.getType() == RealtimeMessageType.PLAYER_KICKED_FROM_MATCH) {
             if (message.getPayload() instanceof PlayerKickedEvent) {
                 PlayerKickedEvent event = (PlayerKickedEvent) message.getPayload();
+                removePlayerFromMatch(event.getMatchId(), event.getKickedUserId());
                 notifyPlayerKicked(event);
-                // TODO: Remove player from match
             }
         }
     }
@@ -159,5 +160,25 @@ public class MatchController {
                 System.err.println("Error in player kicked callback: " + e.getMessage());
             }
         }
+    }
+
+    private void addPlayerToMatch(int matchId, MatchPlayerDto player) {
+        for (MatchDto match : matches) {
+            if (match.getId() == matchId) {
+                match.getPlayers().add(player);
+                return;
+            }
+        }
+        System.err.println("Match with ID " + matchId + " not found to add player.");
+    }
+
+    private void removePlayerFromMatch(int matchId, int userId) {
+        for (MatchDto match : matches) {
+            if (match.getId() == matchId) {
+                match.getPlayers().removeIf(p -> p.getUserId() == userId);
+                return;
+            }
+        }
+        System.err.println("Match with ID " + matchId + " not found to remove player.");
     }
 }

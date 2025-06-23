@@ -190,8 +190,10 @@ public class MatchService {
         String message = "Successfully joined match: " + match.getName();
         Result<JoinMatchResponse> response = Result.success(new JoinMatchResponse(matchDto, message));
 
+        MatchPlayerDto matchPlayerDto = convertToMatchPlayerDto(newPlayer);
+
         if (response.isSuccess()) {
-            UserJoinedMatchEvent event = new UserJoinedMatchEvent(matchDto, userId);
+            UserJoinedMatchEvent event = new UserJoinedMatchEvent(match.getId(), matchPlayerDto);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_JOINED_MATCH, clientId, event);
             broadcastMessageToMatchPlayers(clientId, matchId, realtimeMessage);
         }
@@ -364,6 +366,37 @@ public class MatchService {
                 highestRank,
                 match.getWinCondition(),
                 playerDtos
+        );
+    }
+
+    private MatchPlayerDto convertToMatchPlayerDto(MatchPlayer player) {
+        User user = userService.findUserById(player.getUserId());
+        if (user == null) {
+            return null;
+        }
+
+        UserDto userDto = new UserDto(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getCountryCode(),
+                user.getProfilePicture(),
+                user.getPerformance(),
+                user.getAccuracy(),
+                user.getPlayCount(),
+                user.getLevel(),
+                userService.getUserRank(user.getId()),
+                user.isSupporter()
+        );
+
+        return new MatchPlayerDto(
+                player.getId(),
+                player.getMatchId(),
+                player.getUserId(),
+                userDto,
+                player.getRole(),
+                player.getStatus(),
+                player.getSlotIndex()
         );
     }
 
