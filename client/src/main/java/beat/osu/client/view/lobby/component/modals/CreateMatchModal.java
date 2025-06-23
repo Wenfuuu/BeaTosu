@@ -10,6 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import lombok.Getter;
 
 import java.net.URL;
 
@@ -21,13 +22,17 @@ public class CreateMatchModal extends VBox {
     private Label gameLabel;
     private TextField gameTextField;
     private CheckBox passwordCheckBox;
+    private HBox passwordBox;
     private Label passwordLabel;
     private PasswordField passwordField;
     private Label maxPlayersLabel;
     private ComboBox<String> maxPlayersComboBox;
 
+    @Getter
     private Button startGameButton;
+    @Getter
     private Button cancelButton;
+
     private VBox buttonsContainer;
 
     public CreateMatchModal() {
@@ -52,6 +57,10 @@ public class CreateMatchModal extends VBox {
 
         passwordCheckBox = new CheckBox("Require password to join");
         passwordCheckBox.getStyleClass().add("password-checkbox");
+
+        passwordCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            passwordBox.setVisible(newVal);
+        });
 
         passwordLabel = new Label("Password:");
         passwordLabel.getStyleClass().add("password-label");
@@ -100,10 +109,11 @@ public class CreateMatchModal extends VBox {
         gameNameBox.getStyleClass().add("game-name-box");
         gameNameBox.getChildren().addAll(gameLabel, gameTextField);
 
-        HBox passwordBox = new HBox();
+        passwordBox = new HBox();
         passwordBox.setAlignment(Pos.CENTER_LEFT);
         passwordBox.getStyleClass().add("password-box");
         passwordBox.getChildren().addAll(passwordLabel, passwordField);
+        passwordBox.setVisible(false);
 
         HBox maxPlayersBox = new HBox();
         maxPlayersBox.setAlignment(Pos.CENTER_LEFT);
@@ -140,6 +150,11 @@ public class CreateMatchModal extends VBox {
     }
 
     public void show() {
+        gameTextField.clear();
+        passwordField.clear();
+        maxPlayersComboBox.getSelectionModel().clearSelection();
+        passwordCheckBox.setSelected(false);
+
         String username = AuthManager.getUser().getUsername();
         gameTextField.setText(username + "'s game");
 

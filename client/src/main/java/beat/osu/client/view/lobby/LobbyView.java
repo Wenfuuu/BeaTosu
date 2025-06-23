@@ -276,6 +276,10 @@ public class LobbyView extends Page {
                 playlistModal.show();
             }
         });
+
+        createMatchModal.getCancelButton().setOnAction(e -> {
+            createMatchModal.hide();
+        });
     }
 
     private void showMainContent() {
