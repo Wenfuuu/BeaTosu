@@ -12,6 +12,7 @@ import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.ViewManager;
 import beat.osu.client.view.lobby.component.layout.NavigationBar;
 import beat.osu.client.view.lobby.component.layout.TopBar;
+import beat.osu.client.view.lobby.component.modals.CreateMatchModal;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
 import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
@@ -55,6 +56,7 @@ public class LobbyView extends Page {
     private VBox mainContent; 
     
     private VBox banchoPanelsContainer;
+    private CreateMatchModal createMatchModal;
 
     public LobbyView(Stage stage, ConnectedUsersController connectedUsersController, ChatController chatController) {
         super(stage);
@@ -141,6 +143,8 @@ public class LobbyView extends Page {
         banchoPanelsContainer.setManaged(false);
 
         playlistModal.setVisible(false);
+
+        createMatchModal = new CreateMatchModal();
         
         scene.setRoot(root);
 
@@ -192,6 +196,9 @@ public class LobbyView extends Page {
 
         root.getChildren().add(viewUserModal);
         StackPane.setAlignment(viewUserModal, Pos.CENTER);
+
+        root.getChildren().add(createMatchModal);
+        StackPane.setAlignment(createMatchModal, Pos.CENTER);
     }
 
     @Override
@@ -232,6 +239,10 @@ public class LobbyView extends Page {
 
         navigationBar.getBackButton().setOnMouseClicked(e -> {
             ViewManager.getInstance().showLandingView();
+        });
+
+        navigationBar.getNewGameButton().setOnMouseClicked(e -> {
+            createMatchModal.show();
         });
 
         jukebox.getMediaControls().getPlaylistButton().setOnAction(event -> {
