@@ -175,7 +175,7 @@ public class LobbyView extends Page {
 
         mainContent = new VBox();
         mainContent.getChildren().add(navigationBar);
-        mainContent.setPadding(new Insets(0, 0, ScreenManager.SCREEN_HEIGHT * 0.35, 0));
+        StackPane.setMargin(mainContent, new Insets(0, 0, ScreenManager.SCREEN_HEIGHT * 0.35, 0));
         root.getChildren().add(mainContent);
         mainContent.setAlignment(Pos.BOTTOM_CENTER);
         StackPane.setAlignment(mainContent, Pos.BOTTOM_CENTER);
@@ -241,7 +241,9 @@ public class LobbyView extends Page {
                 banchoPanelsContainer.setManaged(true);
                 banchoPanelsContainer.setMouseTransparent(false);
                 chatPanel.setVisible(true);
-                showMainContent();
+                if (!onlineUsersPanel.isVisible()) {
+                    showMainContent();
+                }
                 if (!banchoButtons.isVisible()) {
                     banchoButtons.show();
                 }
