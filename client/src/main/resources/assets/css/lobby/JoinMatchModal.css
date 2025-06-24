@@ -1,0 +1,77 @@
+.root {
+    -fx-background-color: rgba(24, 64, 101, 0.9);
+    -fx-padding: 4px;
+}
+
+.title-label, .password-label {
+    -fx-font-family: "Aller Light";
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(one-pass-box, black, 1, 0, 1, 1),
+    dropshadow(one-pass-box, black, 1, 0, -1, 1),
+    dropshadow(one-pass-box, black, 1, 0, 1, -1),
+    dropshadow(one-pass-box, black, 1, 0, -1, -1);
+}
+
+.title-label {
+    -fx-font-size: 48px;
+    -fx-padding: 0;
+}
+
+.password-label {
+    -fx-font-size: 28;
+    -fx-min-width: 270px;
+    -fx-padding: 0;
+}
+
+.password-input {
+    -fx-font-family: 'Aller';
+    -fx-background-color: transparent;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 26px;
+    -fx-border-color: rgba(255, 255, 255, 0.8);
+    -fx-border-width: 3px;
+    -fx-padding: 2px 4px;
+    -fx-min-width: 1000px;
+    -fx-pref-width: 1000px;
+    -fx-max-width: 1000px;
+}
+
+.password-input:focused {
+    -fx-border-color: #FFFFFF;
+    -fx-background-color: transparent;
+}
+
+.password-box {
+    -fx-spacing: 0;
+    -fx-padding: 0 0 0 64;
+}
+
+.main-button {
+    -fx-padding: 6px 20px 6px 20px;
+    -fx-text-fill: white;
+    -fx-font-family: 'Aller';
+    -fx-font-size: 52px;
+    -fx-border-radius: 5;
+    -fx-alignment: center;
+}
+
+.main-button .text {
+    -fx-effect: dropshadow(one-pass-box, black, 1, 0, 1, 1),
+    dropshadow(one-pass-box, black, 1, 0, -1, 1),
+    dropshadow(one-pass-box, black, 1, 0, 1, -1),
+    dropshadow(one-pass-box, black, 1, 0, -1, -1);
+}
+
+.join-game-button {
+    -fx-background-color: linear-gradient(to bottom, #1c9f1e, #23b824);
+}
+
+.cancel-button {
+    -fx-background-color: linear-gradient(to bottom, #A6A6A6, #BEBEBE);
+}
+
+.buttons-container {
+    -fx-alignment: center;
+    -fx-spacing: 36;
+    -fx-vgrow: always;
+}

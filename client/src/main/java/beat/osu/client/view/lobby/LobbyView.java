@@ -15,6 +15,7 @@ import beat.osu.client.helper.ViewManager;
 import beat.osu.client.view.lobby.component.layout.NavigationBar;
 import beat.osu.client.view.lobby.component.layout.TopBar;
 import beat.osu.client.view.lobby.component.modals.CreateMatchModal;
+import beat.osu.client.view.lobby.component.modals.JoinMatchModal;
 import beat.osu.client.view.lobby.component.panels.MatchesPanel;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
@@ -63,6 +64,7 @@ public class LobbyView extends Page {
     
     private VBox banchoPanelsContainer;
     private CreateMatchModal createMatchModal;
+    private JoinMatchModal joinMatchModal;
 
     public LobbyView(Stage stage, ConnectedUsersController connectedUsersController, ChatController chatController,
                      SessionController sessionController, SpectateController spectateController) {
@@ -155,6 +157,7 @@ public class LobbyView extends Page {
         playlistModal.setVisible(false);
 
         createMatchModal = new CreateMatchModal();
+        joinMatchModal = new JoinMatchModal();
         
         scene.setRoot(root);
 
@@ -209,6 +212,9 @@ public class LobbyView extends Page {
 
         root.getChildren().add(createMatchModal);
         StackPane.setAlignment(createMatchModal, Pos.CENTER);
+
+        root.getChildren().add(joinMatchModal);
+        StackPane.setAlignment(joinMatchModal, Pos.CENTER);
     }
 
     @Override
@@ -282,6 +288,10 @@ public class LobbyView extends Page {
 
         createMatchModal.getCancelButton().setOnAction(e -> {
             createMatchModal.hide();
+        });
+
+        joinMatchModal.getCancelButton().setOnAction(e -> {
+            joinMatchModal.hide();
         });
     }
 
