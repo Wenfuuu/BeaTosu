@@ -37,8 +37,8 @@ public class SceneManager {
     private void setupStage() {
         stage.setTitle("BeaTOsu!");
         stage.setFullScreenExitHint("");
-        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
-        stage.setResizable(false);
+//        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+//        stage.setResizable(false);
         stage.setFullScreen(true);
 
         stage.getIcons().add(new Image(Objects.requireNonNull(Main.class

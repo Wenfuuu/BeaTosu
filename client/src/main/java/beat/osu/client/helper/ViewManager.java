@@ -82,8 +82,8 @@ public class ViewManager {
         sceneManager.transitionToPage(replayView);
     }
 
-    public void showSpectateView(SpectateDto spectateDto) {
-        SpectateView spectateView = new SpectateView(primaryStage, spectateDto, spectateController);
+    public void showSpectateView(Beatmap beatmap, SpectateDto spectateDto) {
+        SpectateView spectateView = new SpectateView(primaryStage, beatmap, spectateDto, spectateController);
         sceneManager.transitionToPage(spectateView);
     }
 

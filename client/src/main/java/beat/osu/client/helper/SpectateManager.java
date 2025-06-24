@@ -11,6 +11,7 @@ import beat.osu.client.interfaces.game.GameEventPublisher;
 import beat.osu.client.interfaces.game.HitObjectListener;
 import beat.osu.client.model.*;
 import beat.osu.client.utils.OsuParser;
+import beat.osu.shared.dto.game.SpectateDto;
 import beat.osu.shared.dto.game.events.SpectateEvent;
 import javafx.animation.AnimationTimer;
 import lombok.Getter;
@@ -342,7 +343,19 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
         processBeatmap();
     }
 
+    public void startSpectate(SpectateDto spectateDto) {
+        spectateController.startSpectate(spectateDto).thenApply(response -> {
+            if (response.isSuccess()) {
+                System.out.println("Successfully start spectating: " + response.getValue().getMessage());
+            } else {
+                System.err.println("Failed to start spectating: " + response.getError().getMessage());
+            }
+            return null;
+        });
+    }
+
     private void updateSpectate(SpectateEvent event) {
+        System.out.println("Received spectate event: " + event);
 
     }
 

@@ -77,7 +77,6 @@ public class LandingView extends Page {
     private final ConnectedUsersController connectedUsersController;
     private final ChatController chatController;
     private final SessionController sessionController;
-    private final SpectateController spectateController;
     private final BeatmapController beatmapController;
 
     private double visualizerSize;
@@ -103,7 +102,6 @@ public class LandingView extends Page {
         this.connectedUsersController = connectedUsersController;
         this.chatController = chatController;
         this.sessionController = sessionController;
-        this.spectateController = spectateController;
         this.beatmapController = new BeatmapController();
 
         setupView();
@@ -400,7 +398,7 @@ public class LandingView extends Page {
                 return;
             }
 
-            ViewManager.getInstance().showSpectateView(spectateDto);
+            ViewManager.getInstance().showSpectateView(beatmap, spectateDto);
         });
 
         onlineUsersPanel.setUserCardClickCallback(userCard -> {
