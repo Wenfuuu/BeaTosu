@@ -10,4 +10,6 @@ public class ReplayEvent {
     private double x;
     private double y;
     private int keyMask;
+    private double screenWidth;
+    private double screenHeight;
 }

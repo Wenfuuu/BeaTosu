@@ -6,6 +6,7 @@ import beat.osu.client.factory.HitObjectFactory;
 import beat.osu.client.interfaces.game.HitObjectListener;
 import beat.osu.client.interfaces.game.GameEventListener;
 import beat.osu.client.interfaces.game.GameEventPublisher;
+import beat.osu.client.interfaces.game.CoordinateConverter;
 import beat.osu.client.model.*;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.events.game.ReplayEvent;
@@ -36,6 +37,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     private boolean bgmStarted = false;
     private final ArrayList<ReplayEvent> replayEvents;
     private final InputManager inputManager;
+    private final CoordinateConverter coordinateConverter;
 
     private double currentMouseX;
     private double currentMouseY;
@@ -65,8 +67,11 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     private boolean imperfectOrMissed = false;
 
     private void updateMousePosition(double x, double y) {
-        this.currentMouseX = x;
-        this.currentMouseY = y;
+        // Convert replay coordinates to current screen coordinates
+        this.currentMouseX = coordinateConverter.convertReplayMouseX(x);
+        this.currentMouseY = coordinateConverter.convertReplayMouseY(y);
+        System.out.println("ReplayManager: Original coordinates X=" + x + ", Y=" + y);
+        System.out.println("ReplayManager: Converted coordinates X=" + currentMouseX + ", Y=" + currentMouseY);
         notifyListeners(new GameEvent(GameEventType.CURSOR_MOVED, new CursorMoveEvent(currentMouseX, currentMouseY)));
     }
 
@@ -87,7 +92,8 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     }
 
     public void startReplay() {
-        if (replayState == ReplayState.PLAYING) return;
+        if (replayState == ReplayState.PLAYING)
+            return;
 
         replayState = ReplayState.PLAYING;
         bgmStarted = false;
@@ -206,7 +212,8 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
                     }
                 }
 
-                if (hitObject instanceof HitSpinner) break;
+                if (hitObject instanceof HitSpinner)
+                    break;
                 if (elapsedMillis > hitObject.getHitTime() + getHitWindow()) {
                     handleMiss(hitObject);
                     iterator.remove();
@@ -534,11 +541,12 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     }
 
     public ReplayManager(Beatmap beatmap, ArrayList<ReplayEvent> replayEvents,
-            InputManager inputManager) {
+            InputManager inputManager, CoordinateConverter coordinateConverter) {
         this.beatmap = beatmap;
         this.hitObjects = new ArrayList<>();
         this.replayEvents = replayEvents;
         this.inputManager = inputManager;
+        this.coordinateConverter = coordinateConverter;
         processBeatmap();
     }
 

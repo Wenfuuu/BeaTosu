@@ -5,6 +5,7 @@ import beat.osu.client.enums.HitResult;
 import beat.osu.client.events.game.*;
 import beat.osu.client.helper.*;
 import beat.osu.client.interfaces.game.GameEventListener;
+import beat.osu.client.interfaces.game.CoordinateConverter;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.HitObject;
 import beat.osu.client.view.game.component.GameUI;
@@ -26,7 +27,7 @@ import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class ReplayView extends Page implements GameEventListener {
+public class ReplayView extends Page implements GameEventListener, CoordinateConverter {
     private final double OSU_WIDTH = 640.0;
     private final double OSU_HEIGHT = 480.0;
     private final double OSU_ASPECT_RATIO = OSU_WIDTH / OSU_HEIGHT;
@@ -48,16 +49,21 @@ public class ReplayView extends Page implements GameEventListener {
 
     private Image[] digitImages;
     private ImageView cursorImage;
+    private double currentMasterScaleFactor = 1.0;
+    private double currentViewportTopLeftX = 0.0;
+    private double currentViewportTopLeftY = 0.0;
 
-    public ReplayView(Stage stage, Beatmap selectedBeatmap,
-                      ArrayList<ReplayEvent> replayEvents) {
+    private double originalRecordingWidth = 0.0;
+    private double originalRecordingHeight = 0.0;
+
+    public ReplayView(Stage stage, Beatmap selectedBeatmap, ArrayList<ReplayEvent> replayEvents) {
         super(stage);
         setupView();
 
         this.beatmap = selectedBeatmap;
         this.circleSize = selectedBeatmap.getCircleSize();
         this.replayEvents = replayEvents;
-        this.rm = new ReplayManager(selectedBeatmap, replayEvents, inputManager);
+        this.rm = new ReplayManager(selectedBeatmap, replayEvents, inputManager, this);
         this.rm.addListener(this);
 
         ChangeListener<Number> resizeListener = (obs, oldVal, newVal) -> updateLayout();
@@ -119,7 +125,7 @@ public class ReplayView extends Page implements GameEventListener {
     }
 
     private void showHitImage(HitObject hitObject, HitResult hitResult,
-                              boolean perfectCombo, boolean imperfectOrMissed) {
+            boolean perfectCombo, boolean imperfectOrMissed) {
         String imagePath = "";
         switch (hitResult) {
             case PERFECT:
@@ -378,6 +384,12 @@ public class ReplayView extends Page implements GameEventListener {
             return;
         }
 
+        // Store replay dimensions
+        if (originalRecordingWidth <= 0 && originalRecordingHeight <= 0) {
+            originalRecordingWidth = replayEvents.get(0).getScreenWidth();
+            originalRecordingHeight = replayEvents.get(0).getScreenHeight();
+        }
+
         double masterScaleFactor;
         double paneAspectRatio = paneWidth / paneHeight;
 
@@ -386,12 +398,16 @@ public class ReplayView extends Page implements GameEventListener {
         } else {
             masterScaleFactor = paneWidth / OSU_WIDTH;
         }
-
         double scaledRefScreenWidth = OSU_WIDTH * masterScaleFactor;
         double scaledRefScreenHeight = OSU_HEIGHT * masterScaleFactor;
 
         double viewportTopLeftX = (paneWidth - scaledRefScreenWidth) / 2.0;
         double viewportTopLeftY = (paneHeight - scaledRefScreenHeight) / 2.0;
+
+        // Store current scaling values for coordinate conversion
+        this.currentMasterScaleFactor = masterScaleFactor;
+        this.currentViewportTopLeftX = viewportTopLeftX;
+        this.currentViewportTopLeftY = viewportTopLeftY;
 
         osuPixelDiameter = (54.4 - (4.48 * this.circleSize)) * 2.0;
         double unscaledOsuPixelRadius = osuPixelDiameter / 2.0;
@@ -549,5 +565,55 @@ public class ReplayView extends Page implements GameEventListener {
                 }
                 break;
         }
+    }
+
+    public double convertReplayMouseX(double replayX) {
+        if (originalRecordingWidth <= 0) {
+            return replayX;
+        }
+
+        double originalMasterScaleFactor;
+        double originalAspectRatio = originalRecordingWidth / originalRecordingHeight;
+
+        if (originalAspectRatio > OSU_ASPECT_RATIO) {
+            originalMasterScaleFactor = originalRecordingHeight / OSU_HEIGHT;
+        } else {
+            originalMasterScaleFactor = originalRecordingWidth / OSU_WIDTH;
+        }
+
+        double originalScaledRefScreenWidth = OSU_WIDTH * originalMasterScaleFactor;
+        double originalViewportTopLeftX = (originalRecordingWidth - originalScaledRefScreenWidth) / 2.0;
+
+        double refX = (replayX - originalViewportTopLeftX) / originalMasterScaleFactor;
+
+        double currentX = currentViewportTopLeftX + (refX * currentMasterScaleFactor);
+        System.out.println("Converted replayY: " + replayX + " to currentY: " + currentX);
+
+        return currentX;
+    }
+
+    public double convertReplayMouseY(double replayY) {
+        if (originalRecordingHeight <= 0) {
+            return replayY;
+        }
+
+        double originalMasterScaleFactor;
+        double originalAspectRatio = originalRecordingWidth / originalRecordingHeight;
+
+        if (originalAspectRatio > OSU_ASPECT_RATIO) {
+            originalMasterScaleFactor = originalRecordingHeight / OSU_HEIGHT;
+        } else {
+            originalMasterScaleFactor = originalRecordingWidth / OSU_WIDTH;
+        }
+
+        double originalScaledRefScreenHeight = OSU_HEIGHT * originalMasterScaleFactor;
+        double originalViewportTopLeftY = (originalRecordingHeight - originalScaledRefScreenHeight) / 2.0;
+
+        double refY = (replayY - originalViewportTopLeftY) / originalMasterScaleFactor;
+
+        double currentY = currentViewportTopLeftY + (refY * currentMasterScaleFactor);
+        System.out.println("Converted replayY: " + replayY + " to currentY: " + currentY);
+
+        return currentY;
     }
 }

@@ -50,6 +50,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private final Set<KeyCode> previousKeys = new HashSet<>();
     private double currentMouseX;
     private double currentMouseY;
+    private double paneWidth;
+    private double paneHeight;
 
     // Replay event storage
     @Getter
@@ -410,7 +412,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         }
 
         // Create and store replay event
-        ReplayEvent replayEvent = new ReplayEvent(timeDelta, currentMouseX, currentMouseY, keyMask);
+        ReplayEvent replayEvent = new ReplayEvent(timeDelta, currentMouseX, currentMouseY, keyMask, paneWidth, paneHeight);
         replayEvents.add(replayEvent);
 
         sendSpectateEvent(elapsedMillis, replayEvent);
@@ -705,9 +707,11 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         hitObjects.add(newHitObject);
     }
 
-    public GameManager(Beatmap beatmap, InputManager inputManager) {
+    public GameManager(Beatmap beatmap, InputManager inputManager, double paneWidth, double paneHeight) {
         this.beatmap = beatmap;
         this.inputManager = inputManager;
+        this.paneWidth = paneWidth;
+        this.paneHeight = paneHeight;
         this.hitObjects = new ArrayList<>();
         this.scoreController = new ScoreController();
         this.sessionController = new SessionController();
