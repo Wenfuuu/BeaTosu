@@ -67,7 +67,6 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     private boolean imperfectOrMissed = false;
 
     private void updateMousePosition(double x, double y) {
-        // Convert replay coordinates to current screen coordinates
         this.currentMouseX = coordinateConverter.convertReplayMouseX(x);
         this.currentMouseY = coordinateConverter.convertReplayMouseY(y);
         System.out.println("ReplayManager: Original coordinates X=" + x + ", Y=" + y);

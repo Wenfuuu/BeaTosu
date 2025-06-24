@@ -567,6 +567,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
         }
     }
 
+    @Override
     public double convertReplayMouseX(double replayX) {
         if (originalRecordingWidth <= 0) {
             return replayX;
@@ -592,6 +593,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
         return currentX;
     }
 
+    @Override
     public double convertReplayMouseY(double replayY) {
         if (originalRecordingHeight <= 0) {
             return replayY;

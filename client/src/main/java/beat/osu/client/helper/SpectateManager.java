@@ -6,6 +6,7 @@ import beat.osu.client.enums.HealthRecover;
 import beat.osu.client.enums.HitResult;
 import beat.osu.client.events.game.*;
 import beat.osu.client.factory.HitObjectFactory;
+import beat.osu.client.interfaces.game.CoordinateConverter;
 import beat.osu.client.interfaces.game.GameEventListener;
 import beat.osu.client.interfaces.game.GameEventPublisher;
 import beat.osu.client.interfaces.game.HitObjectListener;
@@ -13,7 +14,6 @@ import beat.osu.client.model.*;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.shared.dto.game.SpectateDto;
 import beat.osu.shared.dto.game.events.SpectateEvent;
-import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
@@ -33,10 +33,9 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     private final Beatmap beatmap;
     @Getter
     private final ArrayList<HitObject> hitObjects;
-    private AnimationTimer spectateLoop;
-    private long startTimeNanos = -1;
 //    private boolean bgmStarted = false;
     private final InputManager inputManager;
+    private final CoordinateConverter coordinateConverter;
 
     private double currentMouseX;
     private double currentMouseY;
@@ -66,8 +65,8 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     private boolean firstSpectateEvent = true;
 
     private void updateMousePosition(double x, double y) {
-        this.currentMouseX = x;
-        this.currentMouseY = y;
+        this.currentMouseX = coordinateConverter.convertReplayMouseX(x);
+        this.currentMouseY = coordinateConverter.convertReplayMouseY(y);
 
         Platform.runLater(() -> {
             notifyListeners(new GameEvent(GameEventType.CURSOR_MOVED,
@@ -353,11 +352,12 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
         hitObjects.add(newHitObject);
     }
 
-    public SpectateManager(Beatmap beatmap, SpectateController spectateController, InputManager inputManager) {
+    public SpectateManager(Beatmap beatmap, SpectateController spectateController, InputManager inputManager, CoordinateConverter coordinateConverter) {
         this.beatmap = beatmap;
         this.hitObjects = new ArrayList<>();
         this.spectateController = spectateController;
         this.inputManager = inputManager;
+        this.coordinateConverter = coordinateConverter;
 
         setupUserCallbacks();
         processBeatmap();
@@ -372,8 +372,6 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
             }
             return null;
         });
-
-        startTimeNanos = -1;
 
         // Reset spectate event processing
         wasKey1Pressed = false;

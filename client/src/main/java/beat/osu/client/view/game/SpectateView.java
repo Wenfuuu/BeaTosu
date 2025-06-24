@@ -5,12 +5,14 @@ import beat.osu.client.controller.SpectateController;
 import beat.osu.client.enums.HitResult;
 import beat.osu.client.events.game.*;
 import beat.osu.client.helper.*;
+import beat.osu.client.interfaces.game.CoordinateConverter;
 import beat.osu.client.interfaces.game.GameEventListener;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.HitObject;
 import beat.osu.client.view.game.component.GameUI;
 import beat.osu.client.view.shared.common.Page;
 import beat.osu.shared.dto.game.SpectateDto;
+import beat.osu.shared.dto.game.events.SpectateEvent;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -25,7 +27,7 @@ import javafx.util.Duration;
 
 import java.util.Objects;
 
-public class SpectateView extends Page implements GameEventListener {
+public class SpectateView extends Page implements GameEventListener, CoordinateConverter {
     private final double OSU_WIDTH = 640.0;
     private final double OSU_HEIGHT = 480.0;
     private final double OSU_ASPECT_RATIO = OSU_WIDTH / OSU_HEIGHT;
@@ -45,6 +47,12 @@ public class SpectateView extends Page implements GameEventListener {
 
     private Image[] digitImages;
     private ImageView cursorImage;
+    private double currentMasterScaleFactor = 1.0;
+    private double currentViewportTopLeftX = 0.0;
+    private double currentViewportTopLeftY = 0.0;
+
+    private double originalRecordingWidth = 0.0;
+    private double originalRecordingHeight = 0.0;
 
     public SpectateView(Stage stage, Beatmap beatmap, SpectateDto spectateDto, SpectateController spectateController) {
         super(stage);
@@ -52,12 +60,14 @@ public class SpectateView extends Page implements GameEventListener {
 
         this.spectateController = spectateController;
         this.circleSize = beatmap.getCircleSize();
-        this.sm = new SpectateManager(beatmap, spectateController, inputManager);
+        this.sm = new SpectateManager(beatmap, spectateController, inputManager, this);
         this.sm.addListener(this);
 
         ChangeListener<Number> resizeListener = (obs, oldVal, newVal) -> updateLayout();
         root.widthProperty().addListener(resizeListener);
         root.heightProperty().addListener(resizeListener);
+
+        setupUserCallbacks();
 
         initializeUI();
         loadBackground();
@@ -66,6 +76,18 @@ public class SpectateView extends Page implements GameEventListener {
         BgmManager.getInstance().prepareGameBgm();
 
         sm.startSpectate(spectateDto);
+    }
+
+    private void updateSpectateDimensions(SpectateEvent event) {
+        // Store spectate dimensions
+        if (originalRecordingWidth <= 0 && originalRecordingHeight <= 0) {
+            originalRecordingWidth = event.getScreenWidth();
+            originalRecordingHeight = event.getScreenHeight();
+        }
+    }
+
+    private void setupUserCallbacks() {
+        spectateController.addSpectateEventCallback(this::updateSpectateDimensions);
     }
 
     private void initializeUI() {
@@ -374,6 +396,11 @@ public class SpectateView extends Page implements GameEventListener {
         double viewportTopLeftX = (paneWidth - scaledRefScreenWidth) / 2.0;
         double viewportTopLeftY = (paneHeight - scaledRefScreenHeight) / 2.0;
 
+        // Store current scaling values for coordinate conversion
+        this.currentMasterScaleFactor = masterScaleFactor;
+        this.currentViewportTopLeftX = viewportTopLeftX;
+        this.currentViewportTopLeftY = viewportTopLeftY;
+
         osuPixelDiameter = (54.4 - (4.48 * this.circleSize)) * 2.0;
         double unscaledOsuPixelRadius = osuPixelDiameter / 2.0;
 
@@ -518,5 +545,57 @@ public class SpectateView extends Page implements GameEventListener {
                 }
                 break;
         }
+    }
+
+    @Override
+    public double convertReplayMouseX(double replayX) {
+        if (originalRecordingWidth <= 0) {
+            return replayX;
+        }
+
+        double originalMasterScaleFactor;
+        double originalAspectRatio = originalRecordingWidth / originalRecordingHeight;
+
+        if (originalAspectRatio > OSU_ASPECT_RATIO) {
+            originalMasterScaleFactor = originalRecordingHeight / OSU_HEIGHT;
+        } else {
+            originalMasterScaleFactor = originalRecordingWidth / OSU_WIDTH;
+        }
+
+        double originalScaledRefScreenWidth = OSU_WIDTH * originalMasterScaleFactor;
+        double originalViewportTopLeftX = (originalRecordingWidth - originalScaledRefScreenWidth) / 2.0;
+
+        double refX = (replayX - originalViewportTopLeftX) / originalMasterScaleFactor;
+
+        double currentX = currentViewportTopLeftX + (refX * currentMasterScaleFactor);
+        System.out.println("Converted replayY: " + replayX + " to currentY: " + currentX);
+
+        return currentX;
+    }
+
+    @Override
+    public double convertReplayMouseY(double replayY) {
+        if (originalRecordingHeight <= 0) {
+            return replayY;
+        }
+
+        double originalMasterScaleFactor;
+        double originalAspectRatio = originalRecordingWidth / originalRecordingHeight;
+
+        if (originalAspectRatio > OSU_ASPECT_RATIO) {
+            originalMasterScaleFactor = originalRecordingHeight / OSU_HEIGHT;
+        } else {
+            originalMasterScaleFactor = originalRecordingWidth / OSU_WIDTH;
+        }
+
+        double originalScaledRefScreenHeight = OSU_HEIGHT * originalMasterScaleFactor;
+        double originalViewportTopLeftY = (originalRecordingHeight - originalScaledRefScreenHeight) / 2.0;
+
+        double refY = (replayY - originalViewportTopLeftY) / originalMasterScaleFactor;
+
+        double currentY = currentViewportTopLeftY + (refY * currentMasterScaleFactor);
+        System.out.println("Converted replayY: " + replayY + " to currentY: " + currentY);
+
+        return currentY;
     }
 }
