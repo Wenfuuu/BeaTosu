@@ -1,16 +1,16 @@
 package beat.osu.client.view.lobby.component.cards;
 
-import beat.osu.client.Main;
-import beat.osu.client.helper.CssManager;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.VBox;
-import lombok.Getter;
-
 import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.Objects;
+
+import beat.osu.client.Main;
+import beat.osu.client.helper.CssManager;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 public class MatchPlayerCard extends VBox {
 
@@ -19,19 +19,16 @@ public class MatchPlayerCard extends VBox {
 
     private Integer userId;
     private String username;
-    private String rank;
+    private int rank;
     private String country;
     private byte[] profilePicture;
 
     private boolean isActive;
 
     private ImageView profileImageView;
-    private Label usernameLabel;
-    private Label rankLabel;
-    private Label countryLabel;
 
     public MatchPlayerCard(Integer matchPlayerId, Integer matchId, Integer userId, String username,
-                           String rank, String country, byte[] profilePicture, boolean isActive) {
+                           int rank, String country, byte[] profilePicture, boolean isActive) {
         this.matchPlayerId = matchPlayerId;
         this.matchId = matchId;
         this.userId = userId;
@@ -65,6 +62,8 @@ public class MatchPlayerCard extends VBox {
         profileImageView.setSmooth(true);
         profileImageView.setCache(true);
         setDefaultProfilePicture();
+        
+        setupHoverPopup();
     }
 
     private void setupLayout() {
@@ -81,7 +80,6 @@ public class MatchPlayerCard extends VBox {
     }
 
     private void updateUserInfo() {
-
         updateProfilePicture();
     }
 
@@ -111,5 +109,63 @@ public class MatchPlayerCard extends VBox {
                 setDefaultProfilePicture();
             }
         }
+    }
+    
+    private void setupHoverPopup() {
+        if (!isActive || username == null) {
+            return;
+        }
+        
+        String tooltipText = username + "  (#" + rank + ")\n" + (country != null ? country : "Unknown");
+
+        Tooltip playerTooltip = new Tooltip(tooltipText);
+        playerTooltip.getStyleClass().add("player-tooltip");
+
+        playerTooltip.setShowDelay(Duration.millis(100));
+        playerTooltip.setHideDelay(Duration.millis(100));
+
+        Tooltip.install(this, playerTooltip);
+    }
+
+    public void updateCard(Integer userId, String username, int rank, String country,
+                           byte[] profilePicture, boolean isActive) {
+        this.userId = userId;
+        this.username = username;
+        this.rank = rank;
+        this.country = country;
+        this.profilePicture = profilePicture;
+        this.isActive = isActive;
+
+        refreshCard();
+    }
+
+    private void refreshCard() {
+        Tooltip.uninstall(this, null);
+        refreshActiveStatus();
+        refreshUserComponents();
+    }
+
+    private void refreshUserComponents() {
+        updateProfilePicture();
+        refreshTooltip();
+    }
+
+    private void refreshActiveStatus() {
+        this.getStyleClass().removeAll("inactive", "locked", "unlocked");
+
+        if (!isActive) {
+            this.getStyleClass().add("inactive");
+        } else if (username == null) {
+            this.getStyleClass().add("locked");
+        } else {
+            this.getStyleClass().add("unlocked");
+        }
+
+        refreshTooltip();
+    }
+
+    private void refreshTooltip() {
+        Tooltip.uninstall(this, null);
+        setupHoverPopup();
     }
 }

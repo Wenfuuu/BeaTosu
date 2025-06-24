@@ -25,3 +25,14 @@
     -fx-border-color: rgba(139, 195, 43, 0.4);
     -fx-border-width: 2px;
 }
+
+.player-tooltip {
+    -fx-background-color: black;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-family: "Aller";
+    -fx-background-radius: 2;
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-radius: 2;
+    -fx-padding: 1px 2px;
+}

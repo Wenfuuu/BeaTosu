@@ -1,7 +1,6 @@
 package beat.osu.client.view.lobby.component.ui;
 
 import beat.osu.client.helper.CssManager;
-import beat.osu.shared.dto.beatmap.requests.InsertBeatmapRequest;
 import javafx.geometry.Insets;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
