@@ -11,6 +11,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import lombok.Getter;
 
 public class MatchPlayerCard extends VBox {
 
@@ -18,17 +19,18 @@ public class MatchPlayerCard extends VBox {
     private Integer matchId;
 
     private Integer userId;
+    @Getter
     private String username;
     private int rank;
     private String country;
     private byte[] profilePicture;
 
-    private boolean isActive;
+    private boolean isHost;
 
     private ImageView profileImageView;
 
     public MatchPlayerCard(Integer matchPlayerId, Integer matchId, Integer userId, String username,
-                           int rank, String country, byte[] profilePicture, boolean isActive) {
+                           int rank, String country, byte[] profilePicture, boolean isHost) {
         this.matchPlayerId = matchPlayerId;
         this.matchId = matchId;
         this.userId = userId;
@@ -36,7 +38,11 @@ public class MatchPlayerCard extends VBox {
         this.rank = rank;
         this.country = country;
         this.profilePicture = profilePicture;
-        this.isActive = isActive;
+        this.isHost = isHost;
+
+        if (isHost) {
+            this.getStyleClass().add("host");
+        }
 
         initializeComponents();
         setupLayout();
@@ -47,22 +53,26 @@ public class MatchPlayerCard extends VBox {
     private void initializeComponents() {
         this.getStyleClass().add("match-player-card");
 
-        if (!isActive) {
-            this.getStyleClass().add("inactive");
-        } else if (username == null) {
-            this.getStyleClass().add("locked");
-        } else {
-            this.getStyleClass().add("unlocked");
-        }
-
         profileImageView = new ImageView();
         profileImageView.getStyleClass().add("profile-picture");
-        profileImageView.setFitWidth(54);
-        profileImageView.setFitHeight(54);
         profileImageView.setSmooth(true);
         profileImageView.setCache(true);
-        setDefaultProfilePicture();
-        
+
+        if (isHost) {
+            profileImageView.setFitWidth(96);
+            profileImageView.setFitHeight(96);
+        } else {
+            profileImageView.setFitWidth(54);
+            profileImageView.setFitHeight(54);
+        }
+
+         if (username == null) {
+            this.getStyleClass().add("unlocked");
+        } else {
+            this.getStyleClass().add("locked");
+             setDefaultProfilePicture();
+        }
+
         setupHoverPopup();
     }
 
@@ -112,7 +122,7 @@ public class MatchPlayerCard extends VBox {
     }
     
     private void setupHoverPopup() {
-        if (!isActive || username == null) {
+        if (username == null) {
             return;
         }
         
@@ -128,13 +138,12 @@ public class MatchPlayerCard extends VBox {
     }
 
     public void updateCard(Integer userId, String username, int rank, String country,
-                           byte[] profilePicture, boolean isActive) {
+                           byte[] profilePicture) {
         this.userId = userId;
         this.username = username;
         this.rank = rank;
         this.country = country;
         this.profilePicture = profilePicture;
-        this.isActive = isActive;
 
         refreshCard();
     }
@@ -153,9 +162,7 @@ public class MatchPlayerCard extends VBox {
     private void refreshActiveStatus() {
         this.getStyleClass().removeAll("inactive", "locked", "unlocked");
 
-        if (!isActive) {
-            this.getStyleClass().add("inactive");
-        } else if (username == null) {
+         if (username == null) {
             this.getStyleClass().add("locked");
         } else {
             this.getStyleClass().add("unlocked");

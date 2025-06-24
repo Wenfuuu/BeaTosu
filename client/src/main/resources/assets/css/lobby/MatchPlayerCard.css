@@ -9,9 +9,15 @@
     -fx-alignment: center;
 }
 
-.inactive {
-    -fx-background-color: rgba(0, 0, 0, 0.1);
-    -fx-border-color: rgba(0, 0, 0, 0.2);
+.match-player-card.host {
+    -fx-max-width: 102px;
+    -fx-min-width: 102px;
+    -fx-pref-width: 102px;
+    -fx-max-height: 102px;
+    -fx-min-height: 102px;
+    -fx-pref-height: 102px;
+    -fx-padding: 0;
+    -fx-alignment: center;
 }
 
 .locked {
