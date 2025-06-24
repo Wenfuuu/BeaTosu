@@ -1,0 +1,27 @@
+.match-player-card {
+    -fx-max-width: 60px;
+    -fx-min-width: 60px;
+    -fx-pref-width: 60px;
+    -fx-max-height: 60px;
+    -fx-min-height: 60px;
+    -fx-pref-height: 60px;
+    -fx-padding: 0;
+    -fx-alignment: center;
+}
+
+.inactive {
+    -fx-background-color: rgba(0, 0, 0, 0.1);
+    -fx-border-color: rgba(0, 0, 0, 0.2);
+}
+
+.locked {
+    -fx-background-color: rgba(231, 66, 7, 0.4);
+    -fx-border-color: rgba(231, 66, 7, 0.8);
+    -fx-border-width: 2px;
+}
+
+.unlocked {
+    -fx-background-color: rgba(139, 195, 43, 0.2);
+    -fx-border-color: rgba(139, 195, 43, 0.4);
+    -fx-border-width: 2px;
+}
