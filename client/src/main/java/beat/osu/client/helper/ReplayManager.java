@@ -64,7 +64,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     private boolean perfectCombo = true;
     private boolean imperfectOrMissed = false;
 
-    public void updateMousePosition(double x, double y) {
+    private void updateMousePosition(double x, double y) {
         this.currentMouseX = x;
         this.currentMouseY = y;
         notifyListeners(new GameEvent(GameEventType.CURSOR_MOVED, new CursorMoveEvent(currentMouseX, currentMouseY)));
@@ -490,7 +490,6 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void processBeatmap() {
-        // OsuParser.extractAndParse(beatmap);
         try {
             OsuParser.parseBeatmap(beatmap);
         } catch (IOException e) {

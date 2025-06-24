@@ -14,11 +14,16 @@ import beat.osu.client.utils.OsuParser;
 import beat.osu.shared.dto.game.SpectateDto;
 import beat.osu.shared.dto.game.events.SpectateEvent;
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
+import javafx.scene.input.KeyCode;
+import javafx.util.Duration;
 import lombok.Getter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SpectateManager implements GameEventPublisher, HitObjectListener {
@@ -30,19 +35,13 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     private final ArrayList<HitObject> hitObjects;
     private AnimationTimer spectateLoop;
     private long startTimeNanos = -1;
-    private long pauseStartNanos = -1;
-    private long totalPausedNanos = 0;
-//    private final long replayStartOffset = 2000;
-//    private long lastHpDrainMillis = 0;
-//    private ReplayState replayState = ReplayState.NOT_STARTED;
-    private boolean bgmStarted = false;
+//    private boolean bgmStarted = false;
     private final InputManager inputManager;
 
     private double currentMouseX;
     private double currentMouseY;
 
     // Replay event processing fields
-    private long currentSpectateTime = -2000;
     private boolean wasKey1Pressed = false;
     private boolean wasKey2Pressed = false;
 
@@ -64,10 +63,32 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     private boolean perfectCombo = true;
     private boolean imperfectOrMissed = false;
 
-    public void updateMousePosition(double x, double y) {
+    private boolean firstSpectateEvent = true;
+
+    private void updateMousePosition(double x, double y) {
         this.currentMouseX = x;
         this.currentMouseY = y;
-        notifyListeners(new GameEvent(GameEventType.CURSOR_MOVED, new CursorMoveEvent(currentMouseX, currentMouseY)));
+
+        Platform.runLater(() -> {
+            notifyListeners(new GameEvent(GameEventType.CURSOR_MOVED,
+                    new CursorMoveEvent(currentMouseX, currentMouseY)));
+        });
+    }
+
+    private void pauseAllAnimations() {
+        for (HitObject hitObject : hitObjects) {
+            if (hitObject.isVisible() && !hitObject.isHit()) {
+                hitObject.pauseAnimations();
+            }
+        }
+    }
+
+    private void resumeAllAnimations() {
+        for (HitObject hitObject : hitObjects) {
+            if (hitObject.isVisible() && !hitObject.isHit()) {
+                hitObject.resumeAnimations();
+            }
+        }
     }
 
     private boolean checkHitObjectClick(HitObject hitObject, long elapsedMillis) {
@@ -289,7 +310,6 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void processBeatmap() {
-        // OsuParser.extractAndParse(beatmap);
         try {
             OsuParser.parseBeatmap(beatmap);
         } catch (IOException e) {
@@ -352,11 +372,100 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
             }
             return null;
         });
+
+        startTimeNanos = -1;
+
+        // Reset spectate event processing
+        wasKey1Pressed = false;
+        wasKey2Pressed = false;
     }
 
     private void updateSpectate(SpectateEvent event) {
         System.out.println("Received spectate event: " + event);
+        Platform.runLater(() -> {
+            if (firstSpectateEvent) {
+                firstSpectateEvent = false;
+                BgmManager.getInstance().getCurrentPlayer().seek(Duration.millis(event.getCurrentTime()));
+                BgmManager.getInstance().playGameBgm();
+            }
 
+            Set<KeyCode> currentKeys = inputManager.getPressedKeys();
+            boolean pressedEsc = currentKeys.contains(KeyCode.ESCAPE);
+
+            if (pressedEsc) {
+//            if (replayState == ReplayState.PLAYING) {
+//                pauseReplay();
+//            } else if (replayState == ReplayState.PAUSED) {
+//                resumeReplay();
+//            }
+            }
+
+            long elapsedMillis = event.getCurrentTime();
+            boolean keyPressed = processSpectateEvents(event);
+
+            Iterator<HitObject> iterator = hitObjects.iterator();
+            while (iterator.hasNext()) {
+                HitObject hitObject = iterator.next();
+                hitObject.update(elapsedMillis);
+                if (hitObject instanceof HitSpinner) {
+                    ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
+                } else if (hitObject instanceof HitSlider) {
+                    ((HitSlider) hitObject).updateSlider(currentMouseX, currentMouseY);
+                }
+
+                if (hitObject.getHitTime() > elapsedMillis + 5000) {// skip processing if far
+                    break;
+                }
+
+                if (hitObject.isVisible() && !hitObject.isHit()) {
+                    if (keyPressed) {
+                        if (checkHitObjectClick(hitObject, elapsedMillis)) {
+                            keyPressed = false; // Prevent hitting overlapping objects
+                        }
+                    }
+
+                    if (hitObject instanceof HitSpinner) break;
+                    if (elapsedMillis > hitObject.getHitTime() + getHitWindow()) {
+                        handleMiss(hitObject);
+                        iterator.remove();
+                        continue;
+                    }
+                }
+                if (hitObject.isHit() && !hitObject.isVisible()) {
+                    iterator.remove();
+                }
+            }
+
+            if (hitObjects.isEmpty()) {
+//            stopSpectate();
+            }
+        });
+    }
+
+    private boolean processSpectateEvents(SpectateEvent event) {
+        boolean keyPressed = false;
+
+        updateMousePosition(event.getX(), event.getY());
+
+        // Check for key state changes
+        boolean key1Pressed = (event.getKeyMask() & 1) != 0; // Bit 0 for key 1
+        boolean key2Pressed = (event.getKeyMask() & 2) != 0; // Bit 1 for key 2
+
+        // Detect key press events (transition from not pressed to pressed)
+        if (key1Pressed && !wasKey1Pressed) {
+            keyPressed = true;
+            System.out.println("Key 1 pressed at time: " + event.getCurrentTime());
+        }
+        if (key2Pressed && !wasKey2Pressed) {
+            keyPressed = true;
+            System.out.println("Key 2 pressed at time: " + event.getCurrentTime());
+        }
+
+        // Update previous key states
+        wasKey1Pressed = key1Pressed;
+        wasKey2Pressed = key2Pressed;
+
+        return keyPressed;
     }
 
     private void setupUserCallbacks() {
@@ -365,46 +474,53 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
 
     @Override
     public void addListener(GameEventListener gameEventListener) {
-
+        gameEventListenerList.add(gameEventListener);
     }
 
     @Override
     public void removeListener(GameEventListener gameEventListener) {
-
+        gameEventListenerList.remove(gameEventListener);
     }
 
     @Override
     public void notifyListeners(GameEvent event) {
-
+        for (GameEventListener gameEventListener : gameEventListenerList) {
+            gameEventListener.update(event);
+        }
     }
 
     @Override
     public void onHit(HitObject hitObject, HitResult result) {
-
+        System.out.println("on hit");
+        notifyHit(hitObject, result);
     }
 
     @Override
     public void onMiss(HitObject hitObject) {
-
+        notifyMiss(hitObject);
     }
 
     @Override
-    public void onAdditionalSpin(HitObject hitObject, int extraSpins) {
-
+    public void onAdditionalSpin(HitObject hitObject, int additionalSpin) {
+        notifyListeners(new GameEvent(GameEventType.ADDITIONAL_SPIN,
+                new AdditionalSpinEvent(hitObject, additionalSpin)));
     }
 
     @Override
     public void onSliderTick(HitObject hitObject) {
-
+        System.out.println("on slider tick");
+        notifyHit(hitObject, HitResult.SLIDER_TICK);
     }
 
     @Override
     public void onSliderRepeat(HitObject hitObject) {
-
+        System.out.println("on slider repeat");
+        notifyHit(hitObject, HitResult.SLIDER_REPEAT);
     }
 
     @Override
     public void onSliderEnd(HitObject hitObject) {
-
+        System.out.println("on slider end");
+        notifyHit(hitObject, HitResult.SLIDER_END);
     }
 }
