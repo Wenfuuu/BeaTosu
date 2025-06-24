@@ -1,5 +1,10 @@
 .matches-panel {
-    /*-fx-background-color: rgba(0, 0, 0, 0.5);*/
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-padding: 8 0 0 0;
+}
+
+.matches-container {
+    -fx-spacing: 3px;
 }
 
 .matches-scroll-pane {
@@ -9,8 +14,6 @@
     -fx-fit-to-height: false;
     -fx-hbar-policy: never;
     -fx-vbar-policy: as-needed;
-    -fx-border-color: white;
-    -fx-border-width: 2 0 2 0;
 }
 
 .matches-scroll-pane .viewport {

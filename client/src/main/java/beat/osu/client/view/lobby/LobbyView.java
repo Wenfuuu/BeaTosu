@@ -186,6 +186,7 @@ public class LobbyView extends Page {
 
         mainContent = new VBox();
         mainContent.getChildren().addAll(topBar, matchesPanel, navigationBar);
+        VBox.setMargin(topBar, new Insets(0, 0, 0, 12));
 
         VBox.setVgrow(matchesPanel, Priority.ALWAYS);
         StackPane.setMargin(mainContent, new Insets(0, 0, ScreenManager.SCREEN_HEIGHT * 0.35, 0));

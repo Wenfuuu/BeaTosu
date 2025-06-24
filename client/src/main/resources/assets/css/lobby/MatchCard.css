@@ -1,0 +1,94 @@
+.match-card {
+    -fx-min-height: 108px;
+    -fx-max-height: 108px;
+    -fx-pref-height: 108px;
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+}
+
+.gamemode-label, .player-count-label, .rank-range-label {
+    -fx-text-fill: #ffffff;
+}
+
+.gamemode-label {
+    -fx-font-size: 22px;
+    -fx-font-family: 'Aller';
+}
+
+.player-count-label {
+    -fx-font-size: 20px;
+    -fx-font-family: 'Aller';
+}
+
+.rank-range-label {
+    -fx-font-size: 18px;
+    -fx-font-family: 'Aller';
+}
+
+.game-data {
+    -fx-alignment: center-left;
+    -fx-spacing: 16px;
+}
+
+.game-info {
+    -fx-alignment: top-left;
+    -fx-spacing: 2px;
+}
+
+.left-container {
+    -fx-min-width: 440px;
+    -fx-pref-width: 440px;
+    -fx-max-width: 440px;
+    -fx-alignment: top-left;
+    -fx-spacing: 8px;
+}
+
+.right-container {
+    -fx-alignment: center-left;
+    -fx-spacing: 14px;
+    -fx-pref-height: 108px;
+    -fx-min-height: 108px;
+    -fx-max-height: 108px;
+}
+
+.match-name-label {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 20px;
+    -fx-font-family: 'Aller';
+    -fx-translate-x: 8px;
+}
+
+.beatmap-name-label {
+    -fx-text-fill: rgb(254, 215, 109);
+    -fx-font-size: 17px;
+    -fx-font-family: 'Aller Light';
+    -fx-translate-x: 8px;
+    -fx-translate-y: -3px;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.5), 1, 0, 1, 1),
+                dropshadow(one-pass-box,  rgba(0, 0, 0, 0.5), 1, 0, -1, 1),
+                dropshadow(one-pass-box,  rgba(0, 0, 0, 0.5), 1, 0, 1, -1),
+                dropshadow(one-pass-box,  rgba(0, 0, 0, 0.5), 1, 0, -1, -1);
+}
+
+.match-data {
+    -fx-alignment: top-left;
+    -fx-spacing: 0;
+}
+
+.match-player-cards-container {
+    -fx-alignment: center-left;
+    -fx-spacing: 14px;
+    -fx-translate-y: -2px;
+}
+
+.inactive-card {
+    -fx-max-width: 60px;
+    -fx-min-width: 60px;
+    -fx-pref-width: 60px;
+    -fx-max-height: 60px;
+    -fx-min-height: 60px;
+    -fx-pref-height: 60px;
+    -fx-padding: 0;
+    -fx-alignment: center;
+    -fx-background-color: rgba(0, 0, 0, 0.05);
+    -fx-border-color: rgba(0, 0, 0, 0.1);
+}
