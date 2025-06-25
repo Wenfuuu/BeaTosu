@@ -2,7 +2,11 @@ package beat.osu.client.view.lobby;
 
 import java.net.URL;
 
-import beat.osu.client.controller.*;
+import beat.osu.client.controller.ChatController;
+import beat.osu.client.controller.ConnectedUsersController;
+import beat.osu.client.controller.MatchController;
+import beat.osu.client.controller.SessionController;
+import beat.osu.client.controller.SpectateController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.CssManager;
@@ -226,6 +230,8 @@ public class LobbyView extends Page {
         banchoPanelsContainer.setManaged(true);
         banchoPanelsContainer.setMouseTransparent(false);
         chatPanel.setVisible(true);
+
+        matchesPanel.loadInitialMatches();
 
         chatController.getChannelController().joinChannel(3).thenAccept(result -> {
             Platform.runLater(() -> {

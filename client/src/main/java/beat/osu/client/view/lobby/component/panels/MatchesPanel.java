@@ -5,19 +5,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import beat.osu.client.controller.MatchController;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.view.lobby.component.cards.MatchCard;
 import beat.osu.client.view.lobby.component.ui.MatchFilters;
 import beat.osu.shared.dto.match.MatchDto;
-import beat.osu.shared.dto.match.MatchPlayerDto;
 import beat.osu.shared.dto.match.events.MatchCreatedEvent;
 import beat.osu.shared.dto.match.events.PlayerKickedEvent;
 import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
 import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
-import beat.osu.shared.dto.user.UserDto;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -108,7 +105,7 @@ public class MatchesPanel extends VBox {
         });
     }
 
-    private void loadInitialMatches() {
+    public void loadInitialMatches() {
         Platform.runLater(() -> {
             List<MatchDto> matches = matchController.getMatches();
             for (MatchDto match : matches) {
@@ -122,8 +119,6 @@ public class MatchesPanel extends VBox {
         matchController.addUserJoinedMatchCallback(this::onUserJoinedMatch);
         matchController.addUserLeftMatchCallback(this::onUserLeftMatch);
         matchController.addPlayerKickedCallback(this::onPlayerKicked);
-        
-        loadInitialMatches();
     }
     
     private void onMatchCreated(MatchCreatedEvent event) {
