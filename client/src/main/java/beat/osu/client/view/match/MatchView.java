@@ -31,11 +31,8 @@ import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -197,7 +194,7 @@ public class MatchView extends Page {
                 createMatchPlayer(2, 3, "SpeedyBeat", "speedy@osu.com", "KR", 4600, 97.88, 3700, 107, 420, true, PlayerRole.HOST, PlayerStatus.READY),
                 createMatchPlayer(3, 4, "AimQueen", "aimqueen@osu.com", "RU", 4300, 96.50, 3500, 99, 550, false, PlayerRole.PLAYER, PlayerStatus.NO_MAP),
                 createMatchPlayer(4, 5, "TapGod", "tapgod@osu.com", "CN", 4950, 98.22, 3900, 105, 470, true, PlayerRole.PLAYER, PlayerStatus.READY),
-                createMatchPlayer(5, 6, "SliderPro", "slider@osu.com", "DE", 4700, 96.40, 3400, 102, 360, false, PlayerRole.PLAYER, PlayerStatus.NOT_READY)
+                createMatchPlayer(5, 6, "SliderPro", "slider@osu.com", "DE", 4700, 96.40, 3400, 102, 360, false, PlayerRole.PLAYER, PlayerStatus.NOT_READY),
                 createMatchPlayer(6, 7, "ClickWizard", "clickwizard@osu.com", "FR", 4600, 97.10, 3800, 108, 410, true, PlayerRole.PLAYER, PlayerStatus.READY),
                 createMatchPlayer(7, 8, "BeatCrusher", "crusher@osu.com", "AU", 4400, 95.75, 3100, 100, 390, false, PlayerRole.PLAYER, PlayerStatus.READY),
                 createMatchPlayer(8, 9, "NoScopeTapper", "noscope@osu.com", "CA", 5000, 98.90, 5000, 110, 280, true, PlayerRole.PLAYER, PlayerStatus.NOT_READY),
@@ -207,6 +204,7 @@ public class MatchView extends Page {
         );
 
         MatchSlotPanel matchSlotPanel = new MatchSlotPanel(maxPlayerCount, matchPlayers);
+        matchSlotPanel.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.46);
 
         Button leaveMatchButton = new Button("Leave Match");
         leaveMatchButton.getStyleClass().add("leave-match-button");
