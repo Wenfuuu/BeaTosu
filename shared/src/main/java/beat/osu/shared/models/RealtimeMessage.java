@@ -1,6 +1,6 @@
 package beat.osu.shared.models;
 
-import beat.osu.shared.enums.RealtimeMessageType;
+import beat.osu.shared.enums.message.RealtimeMessageType;
 import lombok.Data;
 
 import java.io.Serializable;

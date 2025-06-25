@@ -1,7 +1,7 @@
 package beat.osu.server.handler;
 
 import beat.osu.shared.models.RealtimeMessage;
-import beat.osu.shared.enums.RealtimeMessageType;
+import beat.osu.shared.enums.message.RealtimeMessageType;
 
 import java.io.ObjectOutputStream;
 import java.util.concurrent.ConcurrentHashMap;

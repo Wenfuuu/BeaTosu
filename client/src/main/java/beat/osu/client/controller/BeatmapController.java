@@ -8,8 +8,8 @@ import beat.osu.shared.dto.beatmap.requests.InsertBeatmapSetRequest;
 import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
 import beat.osu.shared.dto.beatmap.responses.InsertBeatmapResponse;
 import beat.osu.shared.dto.beatmap.responses.InsertBeatmapSetResponse;
-import beat.osu.shared.enums.MessageAction;
-import beat.osu.shared.enums.MessageType;
+import beat.osu.shared.enums.message.MessageAction;
+import beat.osu.shared.enums.message.MessageType;
 import beat.osu.shared.models.RequestMessage;
 
 import java.util.concurrent.CompletableFuture;

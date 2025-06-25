@@ -10,7 +10,7 @@ import beat.osu.shared.dto.auth.responses.LoginResponse;
 import beat.osu.shared.dto.auth.responses.RegisterResponse;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.dto.user.events.UserConnectedEvent;
-import beat.osu.shared.enums.RealtimeMessageType;
+import beat.osu.shared.enums.message.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
 import lombok.AllArgsConstructor;
 

@@ -7,8 +7,8 @@ import beat.osu.shared.dto.score.requests.GetScoreRequest;
 import beat.osu.shared.dto.score.requests.InsertScoreRequest;
 import beat.osu.shared.dto.score.responses.GetAllScoresResponse;
 import beat.osu.shared.dto.score.responses.InsertScoreResponse;
-import beat.osu.shared.enums.MessageAction;
-import beat.osu.shared.enums.MessageType;
+import beat.osu.shared.enums.message.MessageAction;
+import beat.osu.shared.enums.message.MessageType;
 import beat.osu.shared.models.RequestMessage;
 
 import java.time.LocalDateTime;

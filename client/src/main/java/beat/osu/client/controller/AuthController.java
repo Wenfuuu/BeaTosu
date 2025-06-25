@@ -8,8 +8,8 @@ import beat.osu.shared.dto.auth.requests.LoginRequest;
 import beat.osu.shared.dto.auth.requests.RegisterRequest;
 import beat.osu.shared.dto.auth.responses.LoginResponse;
 import beat.osu.shared.dto.auth.responses.RegisterResponse;
-import beat.osu.shared.enums.MessageAction;
-import beat.osu.shared.enums.MessageType;
+import beat.osu.shared.enums.message.MessageAction;
+import beat.osu.shared.enums.message.MessageType;
 import beat.osu.shared.models.RequestMessage;
 
 import java.util.concurrent.CompletableFuture;

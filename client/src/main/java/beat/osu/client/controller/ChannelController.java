@@ -19,9 +19,9 @@ import beat.osu.shared.dto.chat.responses.GetJoinedChannelsResponse;
 import beat.osu.shared.dto.chat.responses.JoinChannelResponse;
 import beat.osu.shared.dto.chat.responses.LeaveChannelResponse;
 import beat.osu.shared.dto.chat.responses.SendChannelMessageResponse;
-import beat.osu.shared.enums.MessageAction;
-import beat.osu.shared.enums.MessageType;
-import beat.osu.shared.enums.RealtimeMessageType;
+import beat.osu.shared.enums.message.MessageAction;
+import beat.osu.shared.enums.message.MessageType;
+import beat.osu.shared.enums.message.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
 import beat.osu.shared.models.RequestMessage;
 

@@ -32,7 +32,7 @@ import beat.osu.shared.dto.match.responses.JoinMatchResponse;
 import beat.osu.shared.dto.match.responses.KickPlayerResponse;
 import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
 import beat.osu.shared.dto.user.UserDto;
-import beat.osu.shared.enums.RealtimeMessageType;
+import beat.osu.shared.enums.message.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
 
 public class MatchService {

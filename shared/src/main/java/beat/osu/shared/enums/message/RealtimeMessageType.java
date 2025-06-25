@@ -1,4 +1,4 @@
-package beat.osu.shared.enums;
+package beat.osu.shared.enums.message;
 
 import java.io.Serializable;
 

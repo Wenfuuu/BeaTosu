@@ -11,9 +11,9 @@ import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.chat.events.PrivateChatMessageEvent;
 import beat.osu.shared.dto.chat.requests.SendPrivateChatMessageRequest;
 import beat.osu.shared.dto.chat.responses.SendPrivateChatMessageResponse;
-import beat.osu.shared.enums.MessageAction;
-import beat.osu.shared.enums.MessageType;
-import beat.osu.shared.enums.RealtimeMessageType;
+import beat.osu.shared.enums.message.MessageAction;
+import beat.osu.shared.enums.message.MessageType;
+import beat.osu.shared.enums.message.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
 import beat.osu.shared.models.RequestMessage;
 

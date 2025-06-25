@@ -6,7 +6,7 @@ import beat.osu.server.service.SessionService;
 import beat.osu.server.service.UserService;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.dto.user.events.UserDisconnectedEvent;
-import beat.osu.shared.enums.RealtimeMessageType;
+import beat.osu.shared.enums.message.RealtimeMessageType;
 import beat.osu.shared.models.RequestMessage;
 import beat.osu.shared.models.RealtimeMessage;
 import lombok.Getter;

@@ -1,8 +1,8 @@
 package beat.osu.client.connection;
 
 import beat.osu.client.config.ConfigurationManager;
-import beat.osu.shared.enums.MessageAction;
-import beat.osu.shared.enums.MessageType;
+import beat.osu.shared.enums.message.MessageAction;
+import beat.osu.shared.enums.message.MessageType;
 import beat.osu.shared.models.RealtimeMessage;
 import beat.osu.shared.models.RequestMessage;
 import beat.osu.shared.models.ResponseMessage;

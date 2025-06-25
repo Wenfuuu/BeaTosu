@@ -1,7 +1,7 @@
 package beat.osu.shared.models;
 
-import beat.osu.shared.enums.MessageAction;
-import beat.osu.shared.enums.MessageType;
+import beat.osu.shared.enums.message.MessageAction;
+import beat.osu.shared.enums.message.MessageType;
 import lombok.Data;
 
 import java.io.Serializable;

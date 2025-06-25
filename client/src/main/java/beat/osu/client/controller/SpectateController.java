@@ -10,9 +10,9 @@ import beat.osu.shared.dto.game.requests.StartSpectateRequest;
 import beat.osu.shared.dto.game.responses.SendSpectateEventResponse;
 import beat.osu.shared.dto.game.responses.StartSpectateResponse;
 import beat.osu.shared.dto.game.responses.StopSpectateResponse;
-import beat.osu.shared.enums.MessageAction;
-import beat.osu.shared.enums.MessageType;
-import beat.osu.shared.enums.RealtimeMessageType;
+import beat.osu.shared.enums.message.MessageAction;
+import beat.osu.shared.enums.message.MessageType;
+import beat.osu.shared.enums.message.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
 import beat.osu.shared.models.RequestMessage;
 

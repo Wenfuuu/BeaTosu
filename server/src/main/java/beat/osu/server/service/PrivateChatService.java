@@ -10,7 +10,7 @@ import beat.osu.shared.dto.chat.PrivateChatMessageDto;
 import beat.osu.shared.dto.chat.events.PrivateChatMessageEvent;
 import beat.osu.shared.dto.chat.requests.SendPrivateChatMessageRequest;
 import beat.osu.shared.dto.chat.responses.SendPrivateChatMessageResponse;
-import beat.osu.shared.enums.RealtimeMessageType;
+import beat.osu.shared.enums.message.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
 
 public class PrivateChatService {

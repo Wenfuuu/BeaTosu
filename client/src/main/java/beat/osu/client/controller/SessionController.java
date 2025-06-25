@@ -9,8 +9,8 @@ import beat.osu.shared.dto.session.requests.RemoveSessionDataRequest;
 import beat.osu.shared.dto.session.responses.CreateSessionDataResponse;
 import beat.osu.shared.dto.session.responses.GetSessionDataResponse;
 import beat.osu.shared.dto.session.responses.RemoveSessionDataResponse;
-import beat.osu.shared.enums.MessageAction;
-import beat.osu.shared.enums.MessageType;
+import beat.osu.shared.enums.message.MessageAction;
+import beat.osu.shared.enums.message.MessageType;
 import beat.osu.shared.models.RequestMessage;
 
 import java.util.concurrent.CompletableFuture;

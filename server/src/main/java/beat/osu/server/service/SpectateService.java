@@ -15,7 +15,7 @@ import beat.osu.shared.dto.game.requests.StartSpectateRequest;
 import beat.osu.shared.dto.game.responses.SendSpectateEventResponse;
 import beat.osu.shared.dto.game.responses.StartSpectateResponse;
 import beat.osu.shared.dto.game.responses.StopSpectateResponse;
-import beat.osu.shared.enums.RealtimeMessageType;
+import beat.osu.shared.enums.message.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
 
 public class SpectateService {
