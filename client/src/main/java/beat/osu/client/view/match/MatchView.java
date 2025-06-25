@@ -35,7 +35,7 @@ public class MatchView extends Page {
     private Integer matchId;
     private String matchName;
     private String matchPassword;
-    private String status;
+    private boolean inProgress;
     private int maxPlayerCount;
 
     private int beatmapId;
@@ -74,7 +74,7 @@ public class MatchView extends Page {
         this.matchId = matchDto.getId();
         this.matchName = matchDto.getName();
         this.matchPassword = matchDto.getPassword();
-        this.status = matchDto.getStatus();
+        this.inProgress = matchDto.isInProgress();
         this.maxPlayerCount = matchDto.getMaxPlayerCount();
         this.beatmapId = matchDto.getBeatmapId();
         this.beatmapName = matchDto.getBeatmapName();

@@ -32,6 +32,8 @@ import beat.osu.shared.dto.match.responses.JoinMatchResponse;
 import beat.osu.shared.dto.match.responses.KickPlayerResponse;
 import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
 import beat.osu.shared.dto.user.UserDto;
+import beat.osu.shared.enums.match.PlayerRole;
+import beat.osu.shared.enums.match.PlayerStatus;
 import beat.osu.shared.enums.message.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
 
@@ -112,7 +114,7 @@ public class MatchService {
                 matchId,
                 request.getName().trim(),
                 request.getPassword(),
-                "waiting",
+                false,
                 request.getMaxPlayerCount(),
                 0,
                 "score"
@@ -122,7 +124,7 @@ public class MatchService {
         matchPlayers.put(matchId, ConcurrentHashMap.newKeySet());
 
         int hostPlayerId = matchPlayerIdGenerator.getAndIncrement();
-        MatchPlayer hostPlayer = new MatchPlayer(hostPlayerId, matchId, userId, "host", "ready", 0);
+        MatchPlayer hostPlayer = new MatchPlayer(hostPlayerId, matchId, userId, PlayerRole.HOST, PlayerStatus.READY, 0);
         matchPlayers.get(matchId).add(hostPlayer);
         userMatches.computeIfAbsent(userId, k -> ConcurrentHashMap.newKeySet()).add(matchId);
 
@@ -177,7 +179,7 @@ public class MatchService {
         }
 
         int newPlayerId = matchPlayerIdGenerator.getAndIncrement();
-        MatchPlayer newPlayer = new MatchPlayer(newPlayerId, matchId, userId, "player", "not_ready", availableSlot);
+        MatchPlayer newPlayer = new MatchPlayer(newPlayerId, matchId, userId, PlayerRole.PLAYER, PlayerStatus.NOT_READY, availableSlot);
         matchPlayers.get(matchId).add(newPlayer);
         userMatches.computeIfAbsent(userId, k -> ConcurrentHashMap.newKeySet()).add(matchId);
 
@@ -214,7 +216,7 @@ public class MatchService {
         }
 
         MatchPlayer player = findPlayerInMatch(matchId, userId);
-        String playerRole = player != null ? player.getRole() : "player";
+        PlayerRole playerRole = player != null ? player.getRole() : PlayerRole.PLAYER;
 
         removePlayerFromMatch(matchId, userId);
         Set<Integer> userMatchSet = userMatches.get(userId);
@@ -353,7 +355,7 @@ public class MatchService {
                 match.getId(),
                 match.getName(),
                 match.getPassword(),
-                match.getStatus(),
+                match.isInProgress(),
                 match.getMaxPlayerCount(),
                 match.getBeatmapId(),
                 beatmapName,
@@ -422,7 +424,7 @@ public class MatchService {
         Set<MatchPlayer> players = matchPlayers.get(matchId);
         if (players != null && !players.isEmpty()) {
             MatchPlayer newHost = players.iterator().next();
-            newHost.setRole("host");
+            newHost.setRole(PlayerRole.HOST);
         }
     }
 
@@ -463,7 +465,7 @@ public class MatchService {
                 Set<MatchPlayer> players = matchPlayers.get(matchId);
                 if (players != null) {
                     MatchPlayer userPlayer = findPlayerInMatch(matchId, userId);
-                    boolean wasHost = userPlayer != null && "host".equals(userPlayer.getRole());
+                    boolean wasHost = userPlayer != null && PlayerRole.HOST.equals(userPlayer.getRole());
                     
                     removePlayerFromMatch(matchId, userId);
                     

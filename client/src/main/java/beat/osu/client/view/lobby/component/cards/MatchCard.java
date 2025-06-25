@@ -21,7 +21,7 @@ public class MatchCard extends HBox {
     private Integer matchId;
     private String matchName;
     private String matchPassword;
-    private String status;
+    private boolean inProgress;
     private int maxPlayerCount;
 
     private int beatmapId;
@@ -47,14 +47,14 @@ public class MatchCard extends HBox {
     private Label beatmapNameLabel;
     private Map<Integer, MatchPlayerCard> playerCards; // map index to player
 
-    public MatchCard(Integer matchId, String matchName, String matchPassword, String status,
+    public MatchCard(Integer matchId, String matchName, String matchPassword, boolean inProgress,
                         int maxPlayerCount, int beatmapId, String beatmapName,
                         int lowestRank, int highestRank, String winCondition,
                         List<MatchPlayerDto> players) {
         this.matchId = matchId;
         this.matchName = matchName;
         this.matchPassword = matchPassword;
-        this.status = status;
+        this.inProgress = inProgress;
         this.maxPlayerCount = maxPlayerCount;
         this.beatmapId = beatmapId;
         this.beatmapName = beatmapName;

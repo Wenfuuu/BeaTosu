@@ -82,7 +82,7 @@ public class MatchesPanel extends VBox {
             match.getId(),
             match.getName(),
             match.getPassword(),
-            match.getStatus(),
+            match.isInProgress(),
             match.getMaxPlayerCount(),
             match.getBeatmapId(),
             match.getBeatmapName(),

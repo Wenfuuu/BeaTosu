@@ -11,7 +11,7 @@ public class Match {
     private int id;
     private String name;
     private String password;
-    private String status;
+    private boolean inProgress;
     private int maxPlayerCount;
     private int beatmapId;
     private String winCondition;

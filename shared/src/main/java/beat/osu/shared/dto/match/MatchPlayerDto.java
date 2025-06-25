@@ -3,6 +3,8 @@ package beat.osu.shared.dto.match;
 import java.io.Serializable;
 
 import beat.osu.shared.dto.user.UserDto;
+import beat.osu.shared.enums.match.PlayerRole;
+import beat.osu.shared.enums.match.PlayerStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,8 +19,8 @@ public class MatchPlayerDto implements Serializable {
 
     private UserDto user;
 
-    private String role;
-    private String status;
+    private PlayerRole role;
+    private PlayerStatus status;
 
     private int matchSlotIndex;
 }
