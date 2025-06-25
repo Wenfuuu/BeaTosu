@@ -1,5 +1,10 @@
 package beat.osu.client.connection;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.concurrent.CompletableFuture;
+
 import beat.osu.client.config.ConfigurationManager;
 import beat.osu.shared.enums.message.MessageAction;
 import beat.osu.shared.enums.message.MessageType;
@@ -7,11 +12,6 @@ import beat.osu.shared.models.RealtimeMessage;
 import beat.osu.shared.models.RequestMessage;
 import beat.osu.shared.models.ResponseMessage;
 import lombok.Getter;
-
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.util.concurrent.CompletableFuture;
 
 public class ServerConnection {
     private ConfigurationManager configurationManager;
@@ -101,13 +101,21 @@ public class ServerConnection {
             if (readerThread != null) {
                 readerThread.interrupt();
             }
-            if (oos != null) {
-                RequestMessage disconnectMsg = new RequestMessage(
-                        MessageType.SYSTEM, MessageAction.DISCONNECT, null);
-                oos.writeObject(disconnectMsg);
-                oos.flush();
-                oos.close();
+            
+            if (oos != null && socket != null && !socket.isClosed()) {
+                try {
+                    RequestMessage disconnectMsg = new RequestMessage(
+                            MessageType.SYSTEM, MessageAction.DISCONNECT, null);
+                    oos.writeObject(disconnectMsg);
+                    oos.flush();
+                    
+                    Thread.sleep(100);
+                } catch (Exception e) {
+                    System.out.println("Note: Could not send disconnect message: " + e.getMessage());
+                }
             }
+            
+            if (oos != null) oos.close();
             if (ois != null) ois.close();
             if (socket != null) socket.close();
 

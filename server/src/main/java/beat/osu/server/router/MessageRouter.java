@@ -1,6 +1,14 @@
 package beat.osu.server.router;
 
-import beat.osu.server.service.*;
+import beat.osu.server.service.AuthService;
+import beat.osu.server.service.BeatmapService;
+import beat.osu.server.service.ChannelService;
+import beat.osu.server.service.MatchService;
+import beat.osu.server.service.PrivateChatService;
+import beat.osu.server.service.ScoreService;
+import beat.osu.server.service.SessionService;
+import beat.osu.server.service.SpectateService;
+import beat.osu.server.service.SystemService;
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.auth.requests.LoginRequest;
@@ -13,13 +21,13 @@ import beat.osu.shared.dto.chat.requests.SendChannelMessageRequest;
 import beat.osu.shared.dto.chat.requests.SendPrivateChatMessageRequest;
 import beat.osu.shared.dto.game.requests.SendSpectateEventRequest;
 import beat.osu.shared.dto.game.requests.StartSpectateRequest;
-import beat.osu.shared.dto.session.requests.CreateSessionDataRequest;
 import beat.osu.shared.dto.match.requests.CreateMatchRequest;
 import beat.osu.shared.dto.match.requests.JoinMatchRequest;
 import beat.osu.shared.dto.match.requests.KickPlayerRequest;
 import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
 import beat.osu.shared.dto.score.requests.GetScoreRequest;
 import beat.osu.shared.dto.score.requests.InsertScoreRequest;
+import beat.osu.shared.dto.session.requests.CreateSessionDataRequest;
 import beat.osu.shared.dto.session.requests.GetSessionDataRequest;
 import beat.osu.shared.dto.session.requests.RemoveSessionDataRequest;
 import beat.osu.shared.models.RequestMessage;
@@ -67,6 +75,8 @@ public class MessageRouter {
         switch (request.getAction()) {
             case GET_CONNECTED_USERS:
                 return systemService.getConnectedUsers();
+            case DISCONNECT:
+                return Result.success("Disconnection acknowledged");
             default:
                 return Result.failure(Error.validation("Unknown system action: " + request.getAction()));
         }
