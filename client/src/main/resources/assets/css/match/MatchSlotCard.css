@@ -1,0 +1,48 @@
+.match-slot-card {
+    -fx-background-color: transparent;
+    -fx-alignment: center;
+}
+
+.separator {
+    -fx-min-width: 12px;
+    -fx-max-width: 12px;
+    -fx-pref-width: 12px;
+    -fx-background-color: white;
+}
+
+.info-box {
+    -fx-padding: 4px 60px 8px 10px;
+    -fx-alignment: center;
+}
+
+.info-box.unlocked {
+    -fx-background-color: rgba(139, 195, 43, 0.2);
+}
+
+.info-box.locked {
+    -fx-background-color: rgba(231, 66, 7, 0.4);
+}
+
+.username-label, .rank-label {
+    -fx-text-fill: white;
+    -fx-font-size: 32px;
+    -fx-font-family: "Aller Light";
+}
+
+.username-label {
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.5), 1, 0, 1, 1),
+    dropshadow(one-pass-box, rgba(0, 0, 0, 0.5), 1, 0, -1, 1),
+    dropshadow(one-pass-box, rgba(0, 0, 0, 0.5), 1, 0, 1, -1),
+    dropshadow(one-pass-box, rgba(0, 0, 0, 0.5), 1, 0, -1, -1);
+}
+
+.player-tooltip {
+    -fx-background-color: black;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-family: "Aller";
+    -fx-background-radius: 2;
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-radius: 2;
+    -fx-padding: 1px 2px;
+}
