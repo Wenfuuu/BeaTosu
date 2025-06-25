@@ -77,11 +77,6 @@ public class MatchService {
     }
 
     public Result<GetAllMatchesResponse> getAllMatches(String clientId) {
-        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
-        if (userId == null) {
-            return Result.failure(Error.unauthorized("User not authenticated"));
-        }
-
         List<MatchDto> matchDtos = new ArrayList<>();
 
         List<Match> matchList = new ArrayList<>(matches.values());
