@@ -8,12 +8,12 @@ import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.match.PlayerStatus;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 import java.net.URL;
@@ -50,11 +50,7 @@ public class MatchSlotCard extends HBox {
         this.status = status;
         this.matchSlotIndex = matchSlotIndex;
 
-        if (user == null) {
-            this.isLocked = false;
-        } else {
-            this.isLocked = true;
-        }
+        this.isLocked = user != null;
 
         loadIcons();
         initializeComponents();
@@ -67,36 +63,42 @@ public class MatchSlotCard extends HBox {
 
         slotIcon = new ImageView();
 
-        if (isLocked) {
+        if (role == PlayerRole.HOST) {
+            slotIcon.setImage(hostIcon);
+        } else if (isLocked) {
             slotIcon.setImage(lockedIcon);
         } else {
             slotIcon.setImage(unlockedIcon);
         }
 
-        slotIcon.getStyleClass().add("slot-icon");
-
         separator = new VBox();
         separator.getStyleClass().add("separator");
 
-        usernameLabel = new Label(user.getUsername());
+        usernameLabel = new Label(user != null ? user.getUsername() : "");
         usernameLabel.getStyleClass().add("username-label");
 
-        rankLabel = new Label("#" + user.getRank());
+        rankLabel = new Label(user != null ? "#" + user.getRank() : "");
         rankLabel.getStyleClass().add("rank-label");
 
         setupHoverPopup();
     }
 
     private void setupLayout() {
-        slotIcon.setFitHeight(this.heightProperty().get() - 4);
+        slotIcon.setFitHeight(this.heightProperty().get() - 2);
         slotIcon.setPreserveRatio(true);
+
+        HBox iconContainer = new HBox(slotIcon);
+        iconContainer.setMinWidth(42);
+        iconContainer.setMaxWidth(42);
+        iconContainer.setPrefWidth(42);
+        iconContainer.setAlignment(Pos.CENTER);
 
         VBox infoSpace = new VBox();
         HBox.setHgrow(infoSpace, Priority.ALWAYS);
         HBox infoBox = new HBox(usernameLabel, infoSpace, rankLabel);
-        infoBox.setMinWidth(ScreenManager.SCREEN_WIDTH / 2.8);
-        infoBox.setMaxWidth(ScreenManager.SCREEN_WIDTH / 2.8);
-        infoBox.setPrefWidth(ScreenManager.SCREEN_WIDTH / 2.8);
+        infoBox.setMinWidth(ScreenManager.SCREEN_WIDTH / 2.7);
+        infoBox.setMaxWidth(ScreenManager.SCREEN_WIDTH / 2.7);
+        infoBox.setPrefWidth(ScreenManager.SCREEN_WIDTH / 2.7);
         infoBox.getStyleClass().add("info-box");
 
         if (isLocked) {
@@ -110,7 +112,7 @@ public class MatchSlotCard extends HBox {
         separator.maxHeightProperty().bind(this.heightProperty());
         HBox.setMargin(separator, new Insets(0, 12, 0, 18));
 
-        this.getChildren().addAll(slotIcon, separator, infoBox);
+        this.getChildren().addAll(iconContainer, separator, infoBox);
     }
 
     private void loadStyles() {
@@ -143,5 +145,60 @@ public class MatchSlotCard extends HBox {
         playerTooltip.setHideDelay(Duration.millis(100));
 
         Tooltip.install(this, playerTooltip);
+    }
+
+    public void updateCard(UserDto user, PlayerRole role, PlayerStatus status) {
+        this.user = user;
+        this.role = role;
+        this.status = status;
+        this.isLocked = user != null;
+
+        refreshCard();
+    }
+
+    private void refreshCard() {
+        Tooltip.uninstall(this, null);
+        refreshSlotStatus();
+        refreshLabels();
+        refreshTooltip();
+    }
+
+    private void refreshSlotStatus() {
+        this.getStyleClass().removeAll("locked", "unlocked", "host");
+
+        if (role == PlayerRole.HOST) {
+            slotIcon.setImage(hostIcon);
+            this.getStyleClass().add("host");
+        } else if (isLocked) {
+            slotIcon.setImage(lockedIcon);
+            this.getStyleClass().add("locked");
+        } else {
+            slotIcon.setImage(unlockedIcon);
+            this.getStyleClass().add("unlocked");
+        }
+
+        HBox infoBox = (HBox) this.getChildren().get(2);
+        infoBox.getStyleClass().removeAll("locked", "unlocked");
+
+        if (isLocked) {
+            infoBox.getStyleClass().add("locked");
+        } else {
+            infoBox.getStyleClass().add("unlocked");
+        }
+    }
+
+    private void refreshLabels() {
+        if (user != null) {
+            usernameLabel.setText(user.getUsername());
+            rankLabel.setText("#" + user.getRank());
+        } else {
+            usernameLabel.setText("");
+            rankLabel.setText("");
+        }
+    }
+
+    private void refreshTooltip() {
+        Tooltip.uninstall(this, null);
+        setupHoverPopup();
     }
 }

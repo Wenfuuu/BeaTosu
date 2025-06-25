@@ -1,11 +1,18 @@
 package beat.osu.client.view.match;
 
+import java.net.URL;
+import java.util.List;
+
 import beat.osu.client.controller.ChatController;
 import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.controller.MatchController;
 import beat.osu.client.controller.SessionController;
-import beat.osu.client.helper.*;
+import beat.osu.client.helper.AuthManager;
+import beat.osu.client.helper.BackgroundManager;
+import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.view.match.component.layout.TopBar;
+import beat.osu.client.view.match.component.panels.MatchSlotPanel;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
 import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
@@ -17,16 +24,20 @@ import beat.osu.client.view.shared.common.Page;
 import beat.osu.client.view.shared.common.Toast;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
+import beat.osu.shared.dto.user.UserDto;
+import beat.osu.shared.enums.match.PlayerRole;
+import beat.osu.shared.enums.match.PlayerStatus;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
+import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
-import java.net.URL;
-import java.util.List;
 
 public class MatchView extends Page {
 
@@ -179,9 +190,44 @@ public class MatchView extends Page {
         root.getChildren().add(banchoPanelsContainer);
         StackPane.setAlignment(banchoPanelsContainer, Pos.TOP_CENTER);
 
+        // Mock data
+        List<MatchPlayerDto> matchPlayers = List.of(
+                createMatchPlayer(0, 1, "SamplePlayer", "sample@osu.com", "JP", 4200, 98.76, 3000, 101, 500, true, PlayerRole.PLAYER, PlayerStatus.READY),
+                createMatchPlayer(1, 2, "RhythmMaster", "rhythm@osu.com", "US", 5100, 99.12, 4800, 115, 300, false, PlayerRole.PLAYER, PlayerStatus.NOT_READY),
+                createMatchPlayer(2, 3, "SpeedyBeat", "speedy@osu.com", "KR", 4600, 97.88, 3700, 107, 420, true, PlayerRole.HOST, PlayerStatus.READY),
+                createMatchPlayer(3, 4, "AimQueen", "aimqueen@osu.com", "RU", 4300, 96.50, 3500, 99, 550, false, PlayerRole.PLAYER, PlayerStatus.NO_MAP),
+                createMatchPlayer(4, 5, "TapGod", "tapgod@osu.com", "CN", 4950, 98.22, 3900, 105, 470, true, PlayerRole.PLAYER, PlayerStatus.READY),
+                createMatchPlayer(5, 6, "SliderPro", "slider@osu.com", "DE", 4700, 96.40, 3400, 102, 360, false, PlayerRole.PLAYER, PlayerStatus.NOT_READY)
+                createMatchPlayer(6, 7, "ClickWizard", "clickwizard@osu.com", "FR", 4600, 97.10, 3800, 108, 410, true, PlayerRole.PLAYER, PlayerStatus.READY),
+                createMatchPlayer(7, 8, "BeatCrusher", "crusher@osu.com", "AU", 4400, 95.75, 3100, 100, 390, false, PlayerRole.PLAYER, PlayerStatus.READY),
+                createMatchPlayer(8, 9, "NoScopeTapper", "noscope@osu.com", "CA", 5000, 98.90, 5000, 110, 280, true, PlayerRole.PLAYER, PlayerStatus.NOT_READY),
+                createMatchPlayer(9, 10, "TimingKing", "timing@osu.com", "BR", 4650, 97.50, 3700, 106, 440, false, PlayerRole.PLAYER, PlayerStatus.READY),
+                createMatchPlayer(10, 11, "Rhythmical", "rhythmical@osu.com", "SE", 4500, 96.85, 3600, 104, 330, true, PlayerRole.PLAYER, PlayerStatus.NO_MAP),
+                createMatchPlayer(11, 12, "FlashBeat", "flash@osu.com", "IN", 4800, 97.60, 3900, 109, 410, false, PlayerRole.PLAYER, PlayerStatus.READY)
+        );
+
+        MatchSlotPanel matchSlotPanel = new MatchSlotPanel(maxPlayerCount, matchPlayers);
+
+        Button leaveMatchButton = new Button("Leave Match");
+        leaveMatchButton.getStyleClass().add("leave-match-button");
+        leaveMatchButton.setMaxWidth(Double.MAX_VALUE);
+        VBox.setMargin(leaveMatchButton, new Insets(8, 36, 0, 36));
+
+        VBox leftPanel = new VBox(matchSlotPanel, leaveMatchButton);
+        leftPanel.getStyleClass().add("left-panel");
+        leftPanel.setMinWidth(ScreenManager.SCREEN_WIDTH / 2);
+        leftPanel.setMaxWidth(ScreenManager.SCREEN_WIDTH / 2);
+        leftPanel.setPrefWidth(ScreenManager.SCREEN_WIDTH / 2);
+
+        VBox rightPanel = new VBox();
+        rightPanel.setMinWidth(ScreenManager.SCREEN_WIDTH / 2);
+        rightPanel.setMaxWidth(ScreenManager.SCREEN_WIDTH / 2);
+        rightPanel.setPrefWidth(ScreenManager.SCREEN_WIDTH / 2);
+
+        HBox matchContent = new HBox(leftPanel, rightPanel);
+
         mainContent = new VBox();
-        mainContent.getChildren().addAll(topBar);
-        VBox.setMargin(topBar, new Insets(0, 0, 0, 0));
+        mainContent.getChildren().addAll(topBar, matchContent);
 
         VBox.setVgrow(mainContent, Priority.ALWAYS);
         StackPane.setMargin(mainContent, new Insets(0, 0, ScreenManager.SCREEN_HEIGHT * 0.35, 0));
@@ -242,5 +288,45 @@ public class MatchView extends Page {
         });
 
         fadeOut.play();
+    }
+
+    private MatchPlayerDto createMatchPlayer(
+            int slotIndex,
+            int userId,
+            String username,
+            String email,
+            String countryCode,
+            int performance,
+            double accuracy,
+            int playCount,
+            int level,
+            int rank,
+            boolean isSupporter,
+            PlayerRole role,
+            PlayerStatus status
+    ) {
+        UserDto user = new UserDto(
+                userId,
+                username,
+                email,
+                countryCode,
+                null,
+                performance,
+                accuracy,
+                playCount,
+                level,
+                rank,
+                isSupporter
+        );
+
+        return new MatchPlayerDto(
+                userId,
+                matchId,
+                user.getId(),
+                user,
+                role,
+                status,
+                slotIndex
+        );
     }
 }

@@ -1,0 +1,21 @@
+.leave-match-button {
+    -fx-padding: 4px 20px 6px 20px;
+    -fx-text-fill: white;
+    -fx-font-family: 'Aller';
+    -fx-font-size: 40px;
+    -fx-border-radius: 4px;
+    -fx-alignment: center;
+    -fx-background-color: linear-gradient(to bottom, #B87824, #D68C29);
+}
+
+.leave-match-button .text {
+    -fx-effect: dropshadow(one-pass-box, black, 1, 0, 1, 1),
+    dropshadow(one-pass-box, black, 1, 0, -1, 1),
+    dropshadow(one-pass-box, black, 1, 0, 1, -1),
+    dropshadow(one-pass-box, black, 1, 0, -1, -1);
+}
+
+.left-panel, .right-panel {
+    -fx-padding: 12 0 10 0;
+    -fx-alignment: center;
+}

@@ -1,6 +1,5 @@
 .match-slot-card {
     -fx-background-color: transparent;
-    -fx-alignment: center;
 }
 
 .separator {
@@ -25,8 +24,15 @@
 
 .username-label, .rank-label {
     -fx-text-fill: white;
-    -fx-font-size: 32px;
     -fx-font-family: "Aller Light";
+}
+
+.username-label {
+    -fx-font-size: 30px;
+}
+
+.rank-label {
+    -fx-font-size: 28px;
 }
 
 .username-label {
