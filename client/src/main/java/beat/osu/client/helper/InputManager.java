@@ -37,6 +37,7 @@ public class InputManager {
     public String getTypedChars() {
         return typedChars.toString();
     }
+
     public void clearTypedChars() {
         typedChars.setLength(0);
     }

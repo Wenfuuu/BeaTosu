@@ -7,6 +7,7 @@ import beat.osu.shared.dto.game.SpectateDto;
 import beat.osu.shared.dto.game.events.SpectateEvent;
 import beat.osu.shared.dto.game.requests.SendSpectateEventRequest;
 import beat.osu.shared.dto.game.requests.StartSpectateRequest;
+import beat.osu.shared.dto.game.requests.StopSpectateRequest;
 import beat.osu.shared.dto.game.responses.SendSpectateEventResponse;
 import beat.osu.shared.dto.game.responses.StartSpectateResponse;
 import beat.osu.shared.dto.game.responses.StopSpectateResponse;
@@ -62,7 +63,7 @@ public class SpectateController {
     
     // stop spectate
     public CompletableFuture<Result<StopSpectateResponse>> stopSpectate() {
-        RequestMessage request = new RequestMessage(MessageType.SPECTATE, MessageAction.STOP_SPECTATE, null);
+        RequestMessage request = new RequestMessage(MessageType.SPECTATE, MessageAction.STOP_SPECTATE, new StopSpectateRequest("stop spectate"));
 
         return CompletableFuture.supplyAsync(() -> {
             try {

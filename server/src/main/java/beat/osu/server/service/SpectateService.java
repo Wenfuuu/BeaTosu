@@ -72,26 +72,51 @@ public class SpectateService {
         }
 
         SpectateEvent spectateEvent = request.getSpectateEvent();
-
         Set<Integer> spectators = playerToSpectators.get(playingUserId);
+        int sentCount = 0;
+
         if (spectators != null && !spectators.isEmpty()) {
             RealtimeMessage realtimeMessage = new RealtimeMessage(
                     RealtimeMessageType.SPECTATE_EVENT,
                     clientId,
                     spectateEvent);
 
-            // Send to all spectators
-            for (Integer spectatorUserId : spectators) {
+            // Create a copy to avoid ConcurrentModificationException
+            Set<Integer> spectatorsCopy = Set.copyOf(spectators);
+
+            for (Integer spectatorUserId : spectatorsCopy) {
                 String spectatorClientId = sessionService.getClientIdByUserId(spectatorUserId);
-                if (spectatorClientId != null) {
-                    System.out.println("Sending spectate event to spectator: " + spectatorUserId);
-                    RealtimeMessageHandler.sendToClient(realtimeMessage, spectatorClientId);
+
+                if (spectatorClientId != null && sessionService.isClientConnected(spectatorClientId)) {
+                    try {
+                        System.out.println("Sending spectate event to spectator: " + spectatorUserId);
+                        RealtimeMessageHandler.sendToClient(realtimeMessage, spectatorClientId);
+                        sentCount++;
+                    } catch (Exception e) {
+                        System.err.println("Failed to send to spectator " + spectatorUserId + ": " + e.getMessage());
+                        // Optional: cleanup if you know it's disconnected now
+                        handleDisconnectedSpectator(spectatorUserId, playingUserId);
+                    }
+                } else {
+                    // Spectator is not connected, remove from spectating
+                    handleDisconnectedSpectator(spectatorUserId, playingUserId);
                 }
             }
         }
 
-        return Result.success(new SendSpectateEventResponse("Spectate event sent to " +
-                (spectators != null ? spectators.size() : 0) + " spectators"));
+        return Result.success(new SendSpectateEventResponse("Spectate event sent to " + sentCount + " spectators"));
+    }
+
+    private void handleDisconnectedSpectator(int spectatorUserId, int playingUserId) {
+        Set<Integer> spectators = playerToSpectators.get(playingUserId);
+        if (spectators != null) {
+            spectators.remove(spectatorUserId);
+            if (spectators.isEmpty()) {
+                playerToSpectators.remove(playingUserId);
+            }
+        }
+
+        spectatorToPlayer.remove(spectatorUserId);
     }
 
     public Result<StopSpectateResponse> stopSpectating(String clientId) {

@@ -86,6 +86,10 @@ public class SessionService {
         return Result.success(new GetSessionDataResponse(value, message));
     }
 
+    public boolean isClientConnected(String clientId) {
+        return sessions.containsKey(clientId);
+    }
+
     public String getClientIdByUserId(Integer userId) {
         System.out.println("Looking up clientId for userId: " + userId);
 

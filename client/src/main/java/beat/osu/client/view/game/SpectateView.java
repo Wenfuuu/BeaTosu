@@ -60,7 +60,7 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
 
         this.spectateController = spectateController;
         this.circleSize = beatmap.getCircleSize();
-        this.sm = new SpectateManager(beatmap, spectateController, inputManager, this);
+        this.sm = new SpectateManager(beatmap, spectateDto, spectateController, inputManager, this);
         this.sm.addListener(this);
 
         ChangeListener<Number> resizeListener = (obs, oldVal, newVal) -> updateLayout();
@@ -74,8 +74,6 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
         handleEvent();
         updateLayout();
         BgmManager.getInstance().prepareGameBgm();
-
-        sm.startSpectate(spectateDto);
     }
 
     private void updateSpectateDimensions(SpectateEvent event) {

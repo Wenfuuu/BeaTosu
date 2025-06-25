@@ -33,7 +33,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     private final Beatmap beatmap;
     @Getter
     private final ArrayList<HitObject> hitObjects;
-//    private boolean bgmStarted = false;
+    // private boolean bgmStarted = false;
     private final InputManager inputManager;
     private final CoordinateConverter coordinateConverter;
 
@@ -63,6 +63,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     private boolean imperfectOrMissed = false;
 
     private boolean firstSpectateEvent = true;
+    private volatile boolean spectateStoppingFlag = false;
 
     private void updateMousePosition(double x, double y) {
         this.currentMouseX = coordinateConverter.convertReplayMouseX(x);
@@ -352,7 +353,8 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
         hitObjects.add(newHitObject);
     }
 
-    public SpectateManager(Beatmap beatmap, SpectateController spectateController, InputManager inputManager, CoordinateConverter coordinateConverter) {
+    public SpectateManager(Beatmap beatmap, SpectateDto spectateDto, SpectateController spectateController,
+            InputManager inputManager, CoordinateConverter coordinateConverter) {
         this.beatmap = beatmap;
         this.hitObjects = new ArrayList<>();
         this.spectateController = spectateController;
@@ -361,9 +363,46 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
 
         setupUserCallbacks();
         processBeatmap();
+
+        startSpectate(spectateDto);
+    }
+
+    private void resetSpectateState() {
+        // Reset all game state variables
+        masterComboNumber = 0;
+        currentComboNumberInSet = 0;
+        currentComboSetIndex = 0;
+        comboSkipCounter = 0;
+
+        score = 0;
+        perfectHits = 0;
+        greatHits = 0;
+        goodHits = 0;
+        gekiHits = 0;
+        greatKatuHits = 0;
+        misses = 0;
+        accuracy = 100.0;
+        health = 100;
+        highestCombo = 0;
+        perfectCombo = true;
+        imperfectOrMissed = false;
+
+        firstSpectateEvent = true;
+        wasKey1Pressed = false;
+        wasKey2Pressed = false;
+        spectateStoppingFlag = false;
+
+        currentMouseX = 0;
+        currentMouseY = 0;
     }
 
     public void startSpectate(SpectateDto spectateDto) {
+        System.out.println("Starting spectate session - clearing input state");
+
+        resetSpectateState();
+        inputManager.getPressedKeys().clear();
+        System.out.println("Cleared input manager key states");
+
         spectateController.startSpectate(spectateDto).thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Successfully start spectating: " + response.getValue().getMessage());
@@ -373,29 +412,84 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
             return null;
         });
 
-        // Reset spectate event processing
         wasKey1Pressed = false;
         wasKey2Pressed = false;
     }
 
     public void stopSpectate() {
+        spectateStoppingFlag = true;
+        
         spectateController.stopSpectate().thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Successfully stopped spectating: " + response.getValue().getMessage());
+                
+                // Use Platform.runLater to ensure UI cleanup happens on JavaFX Application Thread
+                Platform.runLater(() -> {
+                    try {
+                        cleanupSpectateResources();
+                        ViewManager.getInstance().showLandingView();
+                    } catch (Exception e) {
+                        System.err.println("Error during spectate cleanup: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                });
             } else {
                 System.err.println("Failed to stop spectating: " + response.getError().getMessage());
+                spectateStoppingFlag = false;
             }
             return null;
         });
+    }
 
-        firstSpectateEvent = true;
-        hitObjects.clear();
-        ViewManager.getInstance().showLandingView();
+    private void cleanupSpectateResources() {
+        try {
+            if (BgmManager.getInstance().getCurrentPlayer() != null) {
+                BgmManager.getInstance().getCurrentPlayer().stop();
+            }
+
+            for (HitObject hitObject : hitObjects) {
+                if (hitObject != null) {
+                    hitObject.pauseAnimations();
+                    hitObject.setVisible(false);
+                }
+            }
+            
+            // Clear the hit objects list
+            hitObjects.clear();
+
+            firstSpectateEvent = true;
+            wasKey1Pressed = false;
+            wasKey2Pressed = false;
+            
+            // Clear input manager state
+            inputManager.getPressedKeys().clear();
+            
+            System.out.println("Spectate resources cleaned up successfully");
+        } catch (Exception e) {
+            System.err.println("Error during spectate resource cleanup: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void updateSpectate(SpectateEvent event) {
+        // Early exit if spectate is stopping
+        if (spectateStoppingFlag) {
+            System.out.println("Ignoring spectate event - spectate session is stopping");
+            return;
+        }
+        
         System.out.println("Received spectate event: " + event);
         Platform.runLater(() -> {
+            if (spectateStoppingFlag) {
+                System.out.println("Ignoring spectate event in Platform.runLater - spectate session is stopping");
+                return;
+            }
+
+            if (hitObjects == null || (hitObjects.isEmpty() && !firstSpectateEvent)) {
+                System.out.println("Ignoring spectate event - session appears to be stopped");
+                return;
+            }
+            
             if (firstSpectateEvent) {
                 firstSpectateEvent = false;
                 BgmManager.getInstance().getCurrentPlayer().seek(Duration.millis(event.getCurrentTime()));
@@ -406,12 +500,9 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
             boolean pressedEsc = currentKeys.contains(KeyCode.ESCAPE);
 
             if (pressedEsc) {
-//            if (replayState == ReplayState.PLAYING) {
-//                pauseReplay();
-//            } else if (replayState == ReplayState.PAUSED) {
-//                resumeReplay();
-//            }
+                System.out.println("Escape key pressed, stopping spectate session");
                 stopSpectate();
+                return;
             }
 
             long elapsedMillis = event.getCurrentTime();
@@ -438,7 +529,8 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
                         }
                     }
 
-                    if (hitObject instanceof HitSpinner) break;
+                    if (hitObject instanceof HitSpinner)
+                        break;
                     if (elapsedMillis > hitObject.getHitTime() + getHitWindow()) {
                         handleMiss(hitObject);
                         iterator.remove();
@@ -450,7 +542,8 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
                 }
             }
 
-            if (hitObjects.isEmpty()) {
+            if (hitObjects.isEmpty() && !firstSpectateEvent) {
+                System.out.println("All hit objects processed, spectate session ending naturally");
                 stopSpectate();
             }
         });
@@ -460,12 +553,9 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
         boolean keyPressed = false;
 
         updateMousePosition(event.getX(), event.getY());
-
-        // Check for key state changes
         boolean key1Pressed = (event.getKeyMask() & 1) != 0; // Bit 0 for key 1
         boolean key2Pressed = (event.getKeyMask() & 2) != 0; // Bit 1 for key 2
 
-        // Detect key press events (transition from not pressed to pressed)
         if (key1Pressed && !wasKey1Pressed) {
             keyPressed = true;
             System.out.println("Key 1 pressed at time: " + event.getCurrentTime());
