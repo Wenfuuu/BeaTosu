@@ -183,10 +183,10 @@ public class MatchView extends Page {
         mainContent.getChildren().addAll(topBar);
         VBox.setMargin(topBar, new Insets(0, 0, 0, 0));
 
+        VBox.setVgrow(mainContent, Priority.ALWAYS);
         StackPane.setMargin(mainContent, new Insets(0, 0, ScreenManager.SCREEN_HEIGHT * 0.35, 0));
         root.getChildren().add(mainContent);
         StackPane.setAlignment(mainContent, Pos.BOTTOM_CENTER);
-        mainContent.setAlignment(Pos.BOTTOM_CENTER);
 
         root.getChildren().addAll(selectChannelModal);
         StackPane.setAlignment(selectChannelModal, Pos.CENTER);
