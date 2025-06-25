@@ -10,9 +10,11 @@ import beat.osu.client.view.home.HomeView;
 import beat.osu.client.view.landing.LandingView;
 import beat.osu.client.view.lobby.LobbyView;
 import beat.osu.client.view.game.ReplayView;
+import beat.osu.client.view.match.MatchView;
 import beat.osu.client.view.upload.UploadPage;
 import beat.osu.client.events.game.ReplayEvent;
 import beat.osu.shared.dto.game.SpectateDto;
+import beat.osu.shared.dto.match.MatchDto;
 import javafx.stage.Stage;
 
 public class ViewManager {
@@ -71,6 +73,12 @@ public class ViewManager {
     public void showLobbyView() {
         lobbyView.onShow();
         sceneManager.transitionToPage(lobbyView);
+    }
+
+    public void showMatchView(MatchDto matchDto) {
+        MatchView matchView = new MatchView(primaryStage, matchDto, connectedUsersController, chatController, matchController, sessionController);
+        matchView.onShow();
+        sceneManager.transitionToPage(matchView);
     }
 
     public void showGameView(Beatmap beatmap) {

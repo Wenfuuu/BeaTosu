@@ -8,6 +8,7 @@ import java.util.Map;
 
 import beat.osu.client.controller.MatchController;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ViewManager;
 import beat.osu.client.view.lobby.component.cards.MatchCard;
 import beat.osu.client.view.lobby.component.ui.MatchFilters;
 import beat.osu.shared.dto.match.MatchDto;
@@ -90,6 +91,10 @@ public class MatchesPanel extends VBox {
             match.getWinCondition(),
             match.getPlayers()
         );
+
+        matchCard.setOnMouseClicked(e -> {
+            ViewManager.getInstance().showMatchView(match);
+        });
         
         matchCards.add(matchCard);
         matchCardMap.put(match.getId(), matchCard);
