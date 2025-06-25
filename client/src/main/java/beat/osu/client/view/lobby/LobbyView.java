@@ -155,7 +155,7 @@ public class LobbyView extends Page {
 
         playlistModal.setVisible(false);
 
-        createMatchModal = new CreateMatchModal();
+        createMatchModal = new CreateMatchModal(matchController);
         joinMatchModal = new JoinMatchModal();
         
         scene.setRoot(root);

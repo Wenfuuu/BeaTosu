@@ -1,8 +1,10 @@
 package beat.osu.client.view.lobby.component.modals;
 
+import beat.osu.client.controller.MatchController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.view.shared.common.Toast;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -35,10 +37,15 @@ public class CreateMatchModal extends VBox {
 
     private VBox buttonsContainer;
 
-    public CreateMatchModal() {
+    private final MatchController matchController;
+
+    public CreateMatchModal(MatchController matchController) {
+        this.matchController = matchController;
+
         initializeComponents();
         setLayout();
         loadStyles();
+        setupEventHandlers();
 
         this.setVisible(false);
     }
@@ -83,6 +90,7 @@ public class CreateMatchModal extends VBox {
         maxPlayersComboBox.getItems().add("7 players");
         maxPlayersComboBox.getItems().add("8 players");
         maxPlayersComboBox.getItems().add("16 players");
+        maxPlayersComboBox.setValue("4 players");
 
         maxPlayersComboBox.getStyleClass().add("dark-combo-box");
 
@@ -136,6 +144,28 @@ public class CreateMatchModal extends VBox {
         } catch (Exception e) {
             System.err.println("Could not load CreateMatchModal CSS: " + e.getMessage());
         }
+    }
+
+    private void setupEventHandlers() {
+        startGameButton.setOnAction(event -> {
+            String gameName = gameTextField.getText();
+            String password = passwordField.getText();
+            String maxPlayersSelection = maxPlayersComboBox.getSelectionModel().getSelectedItem();
+            int maxPlayers = Integer.parseInt(maxPlayersSelection.split(" ")[0]);
+
+            if (gameName.isEmpty()) {
+                Toast.error("Please enter the game name!");
+                return;
+            }
+
+            if (passwordCheckBox.isSelected() && password.isEmpty()) {
+                Toast.error("Please enter the password!");
+                return;
+            }
+
+            matchController.createMatch(gameName, password, maxPlayers);
+            hide();
+        });
     }
 
     public void hide() {

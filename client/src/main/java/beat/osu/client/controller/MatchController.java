@@ -2,9 +2,11 @@ package beat.osu.client.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import beat.osu.client.service.ClientService;
+import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
@@ -12,6 +14,8 @@ import beat.osu.shared.dto.match.events.MatchCreatedEvent;
 import beat.osu.shared.dto.match.events.PlayerKickedEvent;
 import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
 import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
+import beat.osu.shared.dto.match.requests.CreateMatchRequest;
+import beat.osu.shared.dto.match.responses.CreateMatchResponse;
 import beat.osu.shared.dto.match.responses.GetAllMatchesResponse;
 import beat.osu.shared.enums.MessageAction;
 import beat.osu.shared.enums.MessageType;
@@ -95,6 +99,26 @@ public class MatchController {
                 return null;
             });
         }
+    }
+
+    public CompletableFuture<Result<CreateMatchResponse>> createMatch(String gameName, String password, int maxPlayers) {
+        CreateMatchRequest requestData =  new CreateMatchRequest(gameName, password, maxPlayers);
+         RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.CREATE_MATCH, requestData);
+
+         return CompletableFuture.supplyAsync(() -> {
+             try {
+                 Object response = clientService.getConnection().sendRequest(request).get();
+
+                 Result<?> result = (Result<?>) response;
+                 if (result.isSuccess()) {
+                     return Result.success((CreateMatchResponse) result.getValue());
+                 } else {
+                     return Result.failure(result.getError());
+                 }
+             } catch (Exception e) {
+                 return Result.failure(Error.network(e.getMessage()));
+             }
+         });
     }
 
     private void handleRealtimeMessage(RealtimeMessage message) {

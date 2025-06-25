@@ -110,7 +110,7 @@ public class MatchCard extends HBox {
             playerCards.put(i, emptyCard);
         }
 
-        for (int i = 1; i < maxPlayerCount; i++) {
+        for (int i = 1; i < players.size(); i++) {
             MatchPlayerDto player = players.get(i);
             if (player == null) {
                 continue;
