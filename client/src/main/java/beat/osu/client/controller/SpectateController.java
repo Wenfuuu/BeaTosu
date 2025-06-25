@@ -9,6 +9,7 @@ import beat.osu.shared.dto.game.requests.SendSpectateEventRequest;
 import beat.osu.shared.dto.game.requests.StartSpectateRequest;
 import beat.osu.shared.dto.game.responses.SendSpectateEventResponse;
 import beat.osu.shared.dto.game.responses.StartSpectateResponse;
+import beat.osu.shared.dto.game.responses.StopSpectateResponse;
 import beat.osu.shared.enums.MessageAction;
 import beat.osu.shared.enums.MessageType;
 import beat.osu.shared.enums.RealtimeMessageType;
@@ -60,7 +61,24 @@ public class SpectateController {
     }
     
     // stop spectate
+    public CompletableFuture<Result<StopSpectateResponse>> stopSpectate() {
+        RequestMessage request = new RequestMessage(MessageType.SPECTATE, MessageAction.STOP_SPECTATE, null);
 
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendRequest(request).get();
+
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((StopSpectateResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
+    }
 
     public CompletableFuture<Result<SendSpectateEventResponse>> sendSpectateEvent(SpectateEvent event) {
         SendSpectateEventRequest requestData = new SendSpectateEventRequest(event);

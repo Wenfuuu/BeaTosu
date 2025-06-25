@@ -378,6 +378,21 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
         wasKey2Pressed = false;
     }
 
+    public void stopSpectate() {
+        spectateController.stopSpectate().thenApply(response -> {
+            if (response.isSuccess()) {
+                System.out.println("Successfully stopped spectating: " + response.getValue().getMessage());
+            } else {
+                System.err.println("Failed to stop spectating: " + response.getError().getMessage());
+            }
+            return null;
+        });
+
+        firstSpectateEvent = true;
+        hitObjects.clear();
+        ViewManager.getInstance().showLandingView();
+    }
+
     private void updateSpectate(SpectateEvent event) {
         System.out.println("Received spectate event: " + event);
         Platform.runLater(() -> {
@@ -396,6 +411,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
 //            } else if (replayState == ReplayState.PAUSED) {
 //                resumeReplay();
 //            }
+                stopSpectate();
             }
 
             long elapsedMillis = event.getCurrentTime();
@@ -435,7 +451,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
             }
 
             if (hitObjects.isEmpty()) {
-//            stopSpectate();
+                stopSpectate();
             }
         });
     }
