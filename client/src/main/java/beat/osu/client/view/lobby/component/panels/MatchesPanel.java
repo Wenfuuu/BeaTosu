@@ -1,34 +1,50 @@
 package beat.osu.client.view.lobby.component.panels;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import beat.osu.client.controller.MatchController;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.view.lobby.component.cards.MatchCard;
 import beat.osu.client.view.lobby.component.ui.MatchFilters;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
+import beat.osu.shared.dto.match.events.MatchCreatedEvent;
+import beat.osu.shared.dto.match.events.PlayerKickedEvent;
+import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
+import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
 import beat.osu.shared.dto.user.UserDto;
+import javafx.animation.FadeTransition;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
-
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import javafx.util.Duration;
 
 public class MatchesPanel extends VBox {
 
     private MatchFilters matchFilters;
 
-    private final List<MatchDto> matches;
+    private final List<MatchCard> matchCards;
+    private Map<Integer, MatchCard> matchCardMap;
     private VBox matchesContainer;
     private ScrollPane matchesScrollPane;
 
-    public MatchesPanel() {
-        this.matches = new ArrayList<>();
+    private MatchController matchController;
+
+    public MatchesPanel(MatchController matchController) {
+        this.matchController = matchController;
+        this.matchCards = new ArrayList<>();
+        this.matchCardMap = new HashMap<>();
 
         initializeComponents();
         setLayout();
         loadStyles();
+        setupMatchCallbacks();
     }
 
     private void initializeComponents() {
@@ -44,56 +60,9 @@ public class MatchesPanel extends VBox {
         matchesScrollPane.getStyleClass().add("matches-scroll-pane");
     }
 
-    List<MatchPlayerDto> generateMatchPlayers(int matchId) {
-        List<MatchPlayerDto> players = new ArrayList<>();
-
-        UserDto hostUser = new UserDto(
-                matchId, "osuHost" + matchId, "host" + matchId + "@example.com", "JP", null,
-                9400 + matchId, 96.0 + matchId % 3, 1200 + matchId, 50 + matchId, 240 + matchId, true
-        );
-        players.add(new MatchPlayerDto(matchId, matchId, matchId, hostUser, "host", "active", 0));
-
-        for (int i = 1; i <= 15; i++) {
-            int userId = matchId * 100 + i;
-            UserDto user = new UserDto(
-                    userId, "osuUser" + userId, "user" + userId + "@example.com", "US", null,
-                    10000 + userId, 95.0 + (userId % 5), 1000 + userId, 40 + userId % 10, 100 + userId % 50, false
-            );
-
-            Random rand = new Random();
-            if (rand.nextInt(10) % 3 == 0) {
-                players.add(null);
-            } else {
-                players.add(new MatchPlayerDto(userId, matchId, i, user, "player", "active", i));
-            }
-        }
-
-        return players;
-    }
-
     private void setLayout() {
         this.getChildren().addAll(matchFilters, matchesScrollPane);
-
-        Random rand = new Random();
-
-        for (int matchId = 1; matchId <= 6; matchId++) {
-            MatchCard matchCard = new MatchCard(
-                    matchId,
-                    "Dummy Match " + matchId,
-                    String.valueOf(1000 + matchId),
-                    "open",
-                    rand.nextInt(10) + 4,
-                    123000 + matchId,
-                    "Dummy Beatmap " + matchId,
-                    282000 + matchId,
-                    1800000 + matchId,
-                    "Score",
-                    generateMatchPlayers(matchId)
-            );
-            matchesContainer.getChildren().add(matchCard);
-        }
     }
-
 
     private void loadStyles() {
         try {
@@ -103,6 +72,106 @@ public class MatchesPanel extends VBox {
             }
         } catch (Exception e) {
             System.err.println("Could not load MatchesPanel CSS: " + e.getMessage());
+        }
+    }
+
+    private void addMatch(MatchDto match) {
+        if (matchCardMap.containsKey(match.getId())) {
+            return;
+        }
+        
+        MatchCard matchCard = new MatchCard(
+            match.getId(),
+            match.getName(),
+            match.getPassword(),
+            match.getStatus(),
+            match.getMaxPlayerCount(),
+            match.getBeatmapId(),
+            match.getBeatmapName(),
+            match.getLowestRank(),
+            match.getHighestRank(),
+            match.getWinCondition(),
+            match.getPlayers()
+        );
+        
+        matchCards.add(matchCard);
+        matchCardMap.put(match.getId(), matchCard);
+        
+        Platform.runLater(() -> {
+            matchCard.setOpacity(0);
+            matchesContainer.getChildren().add(matchCard);
+            
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), matchCard);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+            fadeIn.play();
+        });
+    }
+
+    private void loadInitialMatches() {
+        Platform.runLater(() -> {
+            List<MatchDto> matches = matchController.getMatches();
+            for (MatchDto match : matches) {
+                addMatch(match);
+            }
+        });
+    }
+    
+    private void setupMatchCallbacks() {
+        matchController.addMatchCreatedCallback(this::onMatchCreated);
+        matchController.addUserJoinedMatchCallback(this::onUserJoinedMatch);
+        matchController.addUserLeftMatchCallback(this::onUserLeftMatch);
+        matchController.addPlayerKickedCallback(this::onPlayerKicked);
+        
+        loadInitialMatches();
+    }
+    
+    private void onMatchCreated(MatchCreatedEvent event) {
+        Platform.runLater(() -> addMatch(event.getMatch()));
+    }
+    
+    private void onUserJoinedMatch(UserJoinedMatchEvent event) {
+        Platform.runLater(() -> {
+            MatchCard matchCard = matchCardMap.get(event.getMatchId());
+            if (matchCard != null) {
+                matchCard.updatePlayerCount(matchCard.getPlayerCount() + 1);
+            }
+        });
+    }
+    
+    private void onUserLeftMatch(UserLeftMatchEvent event) {
+        Platform.runLater(() -> {
+            MatchCard matchCard = matchCardMap.get(event.getMatchId());
+            if (matchCard != null) {
+                matchCard.updatePlayerCount(matchCard.getPlayerCount() - 1);
+            }
+        });
+    }
+    
+    private void onPlayerKicked(PlayerKickedEvent event) {
+        Platform.runLater(() -> {
+            MatchCard matchCard = matchCardMap.get(event.getMatchId());
+            if (matchCard != null) {
+                matchCard.updatePlayerCount(matchCard.getPlayerCount() - 1);
+            }
+        });
+    }
+    
+    private void removeMatch(int matchId) {
+        MatchCard matchCard = matchCardMap.get(matchId);
+        if (matchCard == null) {
+            return;
+        }
+        
+        matchCards.remove(matchCard);
+        matchCardMap.remove(matchId);
+        
+        if (matchesContainer.getChildren().contains(matchCard)) {
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(300), matchCard);
+            fadeOut.setFromValue(1);
+            fadeOut.setToValue(0);
+            fadeOut.setOnFinished(e -> matchesContainer.getChildren().remove(matchCard));
+            fadeOut.play();
         }
     }
 }

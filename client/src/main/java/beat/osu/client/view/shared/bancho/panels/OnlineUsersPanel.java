@@ -58,13 +58,6 @@ public class OnlineUsersPanel extends VBox {
         this.getStyleClass().add("online-users-panel");
         this.setVisible(false);
 
-        URL globalCssUrl = CssManager.getGlobalCssURL();
-        if (globalCssUrl != null) {
-            this.getStylesheets().add(globalCssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file not found!");
-        }
-
         URL cssUrl = CssManager.getSharedCssURL("OnlineUsersPanel.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());

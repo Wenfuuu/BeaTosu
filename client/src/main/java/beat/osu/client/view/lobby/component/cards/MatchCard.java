@@ -189,6 +189,16 @@ public class MatchCard extends HBox {
         );
     }
 
+    public int getPlayerCount() {
+        return players != null ? players.size() : 0;
+    }
+
+    public void updatePlayerCount(int newPlayerCount) {
+        if (playerCountLabel != null) {
+            playerCountLabel.setText(newPlayerCount + " / " + maxPlayerCount);
+        }
+    }
+
     private String formatRank(int rank) {
         return String.format("%,d", rank);
     }

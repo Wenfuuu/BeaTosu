@@ -1,5 +1,9 @@
 package beat.osu.client.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
 import beat.osu.client.service.ClientService;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.match.MatchDto;
@@ -14,14 +18,13 @@ import beat.osu.shared.enums.MessageType;
 import beat.osu.shared.enums.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
 import beat.osu.shared.models.RequestMessage;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
+import lombok.Getter;
 
 public class MatchController {
 
     private final ClientService clientService;
+
+    @Getter
     private List<MatchDto> matches = new ArrayList<>();
 
     private final List<Consumer<MatchCreatedEvent>> matchCreatedCallbacks = new ArrayList<>();

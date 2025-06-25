@@ -2,10 +2,7 @@ package beat.osu.client.view.lobby;
 
 import java.net.URL;
 
-import beat.osu.client.controller.ChatController;
-import beat.osu.client.controller.ConnectedUsersController;
-import beat.osu.client.controller.SessionController;
-import beat.osu.client.controller.SpectateController;
+import beat.osu.client.controller.*;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.CssManager;
@@ -47,6 +44,7 @@ public class LobbyView extends Page {
     private final ChatController chatController;
     private final SessionController sessionController;
     private final SpectateController spectateController;
+    private final MatchController matchController;
 
     private PlaylistModal playlistModal;
     private Jukebox jukebox;
@@ -67,13 +65,14 @@ public class LobbyView extends Page {
     private JoinMatchModal joinMatchModal;
 
     public LobbyView(Stage stage, ConnectedUsersController connectedUsersController, ChatController chatController,
-                     SessionController sessionController, SpectateController spectateController) {
+                     SessionController sessionController, SpectateController spectateController, MatchController matchController) {
         super(stage);
 
         this.connectedUsersController = connectedUsersController;
         this.chatController = chatController;
         this.sessionController = sessionController;
         this.spectateController = spectateController;
+        this.matchController = matchController;
 
         setupView();
         handleEvent();
@@ -91,7 +90,7 @@ public class LobbyView extends Page {
 
         topBar = new TopBar();
         navigationBar = new NavigationBar();
-        matchesPanel = new MatchesPanel();
+        matchesPanel = new MatchesPanel(matchController);
 
         playlistModal = new PlaylistModal();
         PlaylistManager.getInstance().addListener(playlistModal);

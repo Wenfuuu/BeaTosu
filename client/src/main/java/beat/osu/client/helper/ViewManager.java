@@ -29,6 +29,7 @@ public class ViewManager {
     private ChatController chatController;
     private SessionController sessionController;
     private SpectateController spectateController;
+    private MatchController matchController;
 
     private static volatile ViewManager instance;
 
@@ -54,7 +55,7 @@ public class ViewManager {
     public void initializeViews() {
         landingView = new LandingView(primaryStage, connectedUsersController, chatController, sessionController, spectateController);
         homeView = new HomeView(primaryStage);
-        lobbyView = new LobbyView(primaryStage, connectedUsersController, chatController, sessionController, spectateController);
+        lobbyView = new LobbyView(primaryStage, connectedUsersController, chatController, sessionController, spectateController, matchController);
     }
 
     public void showLandingView() {
@@ -99,5 +100,6 @@ public class ViewManager {
         chatController = new ChatController(channelController, privateChatController);
         sessionController = new SessionController();
         spectateController = new SpectateController();
+        matchController = new MatchController();
     }
 }
