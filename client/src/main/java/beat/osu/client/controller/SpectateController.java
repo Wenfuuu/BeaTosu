@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 public class SpectateController {
     private final ClientService clientService;
 
-    private final List<Consumer<SpectateEvent>> replayEventCallbacks = new ArrayList<>();
+    private final List<Consumer<SpectateEvent>> spectateEventCallbacks = new ArrayList<>();
 
     public SpectateController() {
         this.clientService = ClientService.getInstance();
@@ -34,11 +34,11 @@ public class SpectateController {
     }
 
     public void addSpectateEventCallback(Consumer<SpectateEvent> callback) {
-        replayEventCallbacks.add(callback);
+        spectateEventCallbacks.add(callback);
     }
 
     public void removeSpectateEventCallback(Consumer<SpectateEvent> callback) {
-        replayEventCallbacks.remove(callback);
+        spectateEventCallbacks.remove(callback);
     }
 
     // start spectate
@@ -128,7 +128,7 @@ public class SpectateController {
     }
 
     private void notifyReplayEvent(SpectateEvent event) {
-        for (Consumer<SpectateEvent> callback : replayEventCallbacks) {
+        for (Consumer<SpectateEvent> callback : spectateEventCallbacks) {
             try {
                 callback.accept(event);
             } catch (Exception e) {
