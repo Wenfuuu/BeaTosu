@@ -24,12 +24,33 @@
     -fx-text-fill: white;
 }
 
-.changing-map-title, .no-map-title {
+.changing-map-title, .no-map-title, .beatmap-name-label {
     -fx-font-size: 28px;
     -fx-font-family: "Aller Light";
+}
+
+.beatmap-info {
+    -fx-font-size: 22px;
+    -fx-font-family: "Aller Light";
+    -fx-translate-y: -2px;
+}
+
+.beatmap-version {
+    -fx-font-size: 22px;
+    -fx-font-family: "Aller";
+    -fx-translate-y: -4px;
+}
+
+.beatmap-stars-box {
+    -fx-font-size: 20px;
+    -fx-translate-y: -5px;
 }
 
 .changing-map-description, .no-map-description {
     -fx-font-size: 20px;
     -fx-font-family: "Aller";
+}
+
+.gamemode-box {
+    -fx-padding: 10 12 0 12;
 }

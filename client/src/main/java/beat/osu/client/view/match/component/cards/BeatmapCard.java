@@ -1,21 +1,26 @@
 package beat.osu.client.view.match.component.cards;
 
+import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.view.match.component.enums.BeatmapCardVariant;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
-import javax.swing.text.html.ImageView;
 import java.net.URL;
+import java.util.Objects;
 
 public class BeatmapCard extends HBox {
 
     private BeatmapCardVariant variant;
 
-    private String beatmapId;
-    private String beatmapSetId;
+    private int beatmapId;
+    private int beatmapSetId;
     private String beatmapName;
     private String artist;
     private String creator;
@@ -56,7 +61,7 @@ public class BeatmapCard extends HBox {
         return card;
     }
 
-    public static BeatmapCard available(String beatmapId, String beatmapSetId, String beatmapName, String artist, String creator, double stars) {
+    public static BeatmapCard available(int beatmapId, int beatmapSetId, String beatmapName, String artist, String creator, double stars) {
         BeatmapCard card = new BeatmapCard(BeatmapCardVariant.AVAILABLE);
         card.getStyleClass().add("available-map-card");
 
@@ -127,36 +132,52 @@ public class BeatmapCard extends HBox {
     }
 
     private void updateAvailableMapUI() {
-        if (beatmapNameLabel == null) {
-            beatmapNameLabel = new Label(beatmapName);
-            beatmapNameLabel.getStyleClass().add("beatmap-name");
-            this.getChildren().add(beatmapNameLabel);
-        } else {
-            beatmapNameLabel.setText(beatmapName);
+        beatmapImageView = new ImageView(new Image(Objects.requireNonNull(
+                Main.class.getResourceAsStream("/assets/images/avatar-guest.png")))); // Change later
+
+        beatmapImageView.setPreserveRatio(true);
+        beatmapImageView.setSmooth(true);
+        beatmapImageView.setFitHeight(this.getPrefHeight() - 1);
+
+        HBox.setHgrow(beatmapImageView, Priority.NEVER);
+
+        this.getChildren().add(beatmapImageView);
+
+        ImageView gamemodeImageView = new ImageView();
+        try {
+            Image gamemodeImage = new Image(Objects.requireNonNull(
+                    Main.class.getResource("/assets/gamemode/osu-gamemode.png")).toExternalForm());
+            gamemodeImageView.setImage(gamemodeImage);
+            gamemodeImageView.setFitHeight(32);
+            gamemodeImageView.setFitWidth(32);
+        } catch (Exception e) {
+            System.err.println("Could not load gamemode icon: " + e.getMessage());
+            gamemodeImageView.setImage(null);
         }
 
-        if (beatmapInfoLabel == null) {
-            beatmapInfoLabel = new Label(String.format("%s // %s", artist, creator));
-            beatmapInfoLabel.getStyleClass().add("beatmap-info");
-            this.getChildren().add(beatmapInfoLabel);
-        } else {
-            beatmapInfoLabel.setText(String.format("%s // %s", artist, creator));
-        }
+        VBox gamemodeBox = new VBox(gamemodeImageView);
+        gamemodeBox.getStyleClass().add("gamemode-box");
+        this.getChildren().add(gamemodeBox);
 
-        if (beatmapVersionLabel == null) {
-            beatmapVersionLabel = new Label("Version: " + "N/A"); // Placeholder for version
-            beatmapVersionLabel.getStyleClass().add("beatmap-version");
-            this.getChildren().add(beatmapVersionLabel);
-        } else {
-            beatmapVersionLabel.setText("Version: " + "N/A"); // Placeholder for version
-        }
+        VBox infoBox = new VBox(0);
 
-        if (beatmapStarsBox == null) {
-            beatmapStarsBox = new HBox();
-            beatmapStarsBox.getStyleClass().add("beatmap-stars-box");
-            this.getChildren().add(beatmapStarsBox);
-        }
+        beatmapNameLabel = new Label(beatmapName);
+        beatmapNameLabel.getStyleClass().add("beatmap-name-label");
+
+        beatmapInfoLabel = new Label(String.format("%s // %s", artist, creator));
+        beatmapInfoLabel.getStyleClass().add("beatmap-info");
+
+        beatmapVersionLabel = new Label("Houshou Hari's Normal"); // Add Version Here later
+        beatmapVersionLabel.getStyleClass().add("beatmap-version");
+
+        beatmapStarsBox = createStarsBox();
+        beatmapStarsBox.getStyleClass().add("beatmap-stars-box");
+
+        infoBox.getChildren().addAll(beatmapNameLabel, beatmapInfoLabel, beatmapVersionLabel, beatmapStarsBox);
+        this.getChildren().add(infoBox);
     }
+
+
 
     private void loadStyles() {
         URL cssUrl = CssManager.getMatchCssURL("BeatmapCard.css");
@@ -165,5 +186,14 @@ public class BeatmapCard extends HBox {
         } else {
             System.err.println("CSS file not found!");
         }
+    }
+
+    private HBox createStarsBox() {
+        HBox starsBox = new HBox(8);
+        for (int i = 0; i < stars; i++) {
+            Label star = new Label("★");
+            starsBox.getChildren().add(star);
+        }
+        return starsBox;
     }
 }

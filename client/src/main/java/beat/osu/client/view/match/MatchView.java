@@ -261,7 +261,7 @@ public class MatchView extends Page {
         readyButton = new Button("Ready");
         readyButton.getStyleClass().add("ready-button");
 
-        BeatmapCard card = BeatmapCard.noMap("No Title", "Reol");
+        BeatmapCard card = BeatmapCard.available(1, 1, "Lost Umbrella", "inabakumori", "Ryuusei Aika", 5.0);
         VBox.setMargin(card, new Insets(16, 0, 0, 0));
 
         VBox rightPanel = new VBox(card);
