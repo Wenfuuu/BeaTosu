@@ -307,7 +307,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         Set<KeyCode> currentKeys = inputManager.getPressedKeys();
 
         // store game information for replay
-        System.out.println("Current game time: " + elapsedMillis + " ms");
+//        System.out.println("Current game time: " + elapsedMillis + " ms");
         // Store replay event data
         storeReplayEvent(elapsedMillis, currentKeys);
 

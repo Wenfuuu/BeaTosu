@@ -15,6 +15,7 @@ import beat.osu.client.utils.OsuParser;
 import beat.osu.shared.dto.game.SpectateDto;
 import beat.osu.shared.dto.game.events.SpectateEvent;
 import beat.osu.shared.dto.game.events.SpectateStatusEvent;
+import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
@@ -37,6 +38,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     // private boolean bgmStarted = false;
     private final InputManager inputManager;
     private final CoordinateConverter coordinateConverter;
+    private AnimationTimer spectateLoop;
 
     private double currentMouseX;
     private double currentMouseY;
@@ -130,8 +132,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
         hitObject.setHit(true);
         hitObject.playHitEffect();
 
-        if (!(hitObject instanceof HitCircle))
-            return;
+        if (!(hitObject instanceof HitCircle)) return;
         // play sfx
         for (String sfx : hitObject.getSfxFilenames()) {
             SfxManager.playSfx(sfx);
@@ -144,10 +145,8 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void notifyHit(HitObject hitObject, HitResult hitResult) {
-        // Notify observers
         notifyListeners(new GameEvent(GameEventType.HIT_OBJECT_HIT,
-                new HitObjectEvent(hitObject, hitResult,
-                        perfectCombo, imperfectOrMissed)));
+                new HitObjectEvent(hitObject, hitResult, perfectCombo, imperfectOrMissed)));
     }
 
     private void handleMiss(HitObject hitObject) {
@@ -161,7 +160,6 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
         imperfectOrMissed = true;
         hitObject.playMissEffect();
 
-        // Notify observers
         notifyListeners(new GameEvent(GameEventType.HIT_OBJECT_MISSED,
                 new HitObjectEvent(hitObject, HitResult.MISS, false, true)));
 
@@ -274,6 +272,24 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
 
         wasKey1Pressed = false;
         wasKey2Pressed = false;
+
+        spectateLoop = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                if (spectateStoppingFlag) {
+                    System.out.println("Spectate loop stopped due to stopping flag");
+                    stop();
+                    return;
+                }
+                Set<KeyCode> currentKeys = inputManager.getPressedKeys();
+                boolean pressedEsc = currentKeys.contains(KeyCode.ESCAPE);
+
+                if (pressedEsc) {
+                    notifyListeners(new GameEvent(GameEventType.SPECTATE_EXIT, null));
+                }
+            }
+        };
+        spectateLoop.start();
     }
 
     public void stopSpectate() {

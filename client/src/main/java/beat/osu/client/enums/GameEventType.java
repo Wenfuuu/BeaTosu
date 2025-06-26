@@ -19,4 +19,5 @@ public enum GameEventType {
     REPLAY_RESUMED,
     REPLAY_ENDED,
     CURSOR_MOVED,
+    SPECTATE_EXIT,
 }

@@ -548,6 +548,9 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
                     cursorImage.setLayoutY(cursorY - cursorImage.getFitHeight() / 2);
                 }
                 break;
+            case SPECTATE_EXIT:
+                if (spectatePauseOverlay.isVisible()) sm.stopSpectate();
+                break;
         }
     }
 
