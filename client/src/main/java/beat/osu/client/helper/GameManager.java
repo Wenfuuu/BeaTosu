@@ -17,6 +17,7 @@ import beat.osu.client.utils.OsuParser;
 import beat.osu.client.utils.ReplayUtils;
 import beat.osu.client.events.game.ReplayEvent;
 import beat.osu.shared.dto.game.events.SpectateEvent;
+import beat.osu.shared.dto.game.events.SpectateStatusEvent;
 import beat.osu.shared.dto.user.UserDto;
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
@@ -316,11 +317,27 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             if (gameState == GameState.PLAYING || gameState == GameState.BREAK_PERIOD) {
                 pauseGame();
                 // notify to listeners that spectate is paused
-
+                SpectateStatusEvent event = new SpectateStatusEvent(true);
+                spectateController.notifySpectatorsStatusChange(event).thenApply(response -> {
+                    if (response.isSuccess()) {
+                        System.out.println("Spectate status event sent successfully: " + response.getValue().getMessage());
+                    } else {
+                        System.err.println("Failed to send spectate status event: " + response.getError().getMessage());
+                    }
+                    return null;
+                });
             } else if (gameState == GameState.PAUSED) {
                 resumeGame();
                 // notify to listeners that spectate is resumed
-
+                SpectateStatusEvent event = new SpectateStatusEvent(false);
+                spectateController.notifySpectatorsStatusChange(event).thenApply(response -> {
+                    if (response.isSuccess()) {
+                        System.out.println("Spectate status event sent successfully: " + response.getValue().getMessage());
+                    } else {
+                        System.err.println("Failed to send spectate status event: " + response.getError().getMessage());
+                    }
+                    return null;
+                });
             }
             previousKeys.clear();
             previousKeys.addAll(currentKeys);

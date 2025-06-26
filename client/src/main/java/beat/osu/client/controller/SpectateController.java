@@ -6,9 +6,11 @@ import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.game.SpectateDto;
 import beat.osu.shared.dto.game.events.SpectateEvent;
 import beat.osu.shared.dto.game.events.SpectateStatusEvent;
+import beat.osu.shared.dto.game.requests.NotifySpectateStatusRequest;
 import beat.osu.shared.dto.game.requests.SendSpectateEventRequest;
 import beat.osu.shared.dto.game.requests.StartSpectateRequest;
 import beat.osu.shared.dto.game.requests.StopSpectateRequest;
+import beat.osu.shared.dto.game.responses.NotifySpectateStatusResponse;
 import beat.osu.shared.dto.game.responses.SendSpectateEventResponse;
 import beat.osu.shared.dto.game.responses.StartSpectateResponse;
 import beat.osu.shared.dto.game.responses.StopSpectateResponse;
@@ -91,11 +93,26 @@ public class SpectateController {
         });
     }
 
-    // notify spectators pause
+    // notify spectators spectate status change
+    public CompletableFuture<Result<NotifySpectateStatusResponse>> notifySpectatorsStatusChange(SpectateStatusEvent event) {
+        NotifySpectateStatusRequest requestData = new NotifySpectateStatusRequest(event);
+        RequestMessage request = new RequestMessage(MessageType.SPECTATE, MessageAction.CHANGE_SPECTATE_STATUS, requestData);
 
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendRequest(request).get();
 
-    // notify spectators resume
-
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((NotifySpectateStatusResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
+    }
 
     public CompletableFuture<Result<SendSpectateEventResponse>> sendSpectateEvent(SpectateEvent event) {
         SendSpectateEventRequest requestData = new SendSpectateEventRequest(event);
