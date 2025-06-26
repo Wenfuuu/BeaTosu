@@ -1,4 +1,4 @@
-package beat.osu.client.view.landing.component.controls;
+package beat.osu.client.view.shared.jukebox.components;
 
 import java.net.URL;
 

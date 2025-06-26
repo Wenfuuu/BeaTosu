@@ -8,7 +8,7 @@ import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.PlaylistManager;
 import beat.osu.client.interfaces.song.SongEventListener;
 import beat.osu.client.model.Song;
-import beat.osu.client.view.landing.component.controls.MediaControls;
+import beat.osu.client.view.shared.jukebox.components.MediaControls;
 import beat.osu.client.view.shared.jukebox.modals.PlaylistModal;
 import beat.osu.client.view.shared.jukebox.cards.CurrentSongCard;
 import javafx.animation.KeyFrame;
