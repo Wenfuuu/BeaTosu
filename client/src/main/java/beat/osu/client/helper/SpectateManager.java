@@ -51,15 +51,8 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     private int comboSkipCounter = 0;
 
     private int score = 0;
-    private int perfectHits = 0;
-    private int greatHits = 0;
-    private int goodHits = 0;
-    private int gekiHits = 0;
-    private int greatKatuHits = 0;
-    private int misses = 0;
     private double accuracy = 100.0;
     private double health = 100;
-    private int highestCombo = 0;
     private boolean perfectCombo = true;
     private boolean imperfectOrMissed = false;
 
@@ -183,8 +176,6 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
         imperfectOrMissed = true;
         hitObject.playMissEffect();
 
-        misses++;
-
         // Notify observers
         notifyListeners(new GameEvent(GameEventType.HIT_OBJECT_MISSED,
                 new HitObjectEvent(hitObject, HitResult.MISS, false, true)));
@@ -266,15 +257,8 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
         comboSkipCounter = 0;
 
         score = 0;
-        perfectHits = 0;
-        greatHits = 0;
-        goodHits = 0;
-        gekiHits = 0;
-        greatKatuHits = 0;
-        misses = 0;
         accuracy = 100.0;
         health = 100;
-        highestCombo = 0;
         perfectCombo = true;
         imperfectOrMissed = false;
 
