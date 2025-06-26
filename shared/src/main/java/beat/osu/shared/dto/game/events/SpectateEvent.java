@@ -14,4 +14,8 @@ public class SpectateEvent implements Serializable {
     private int keyMask;
     private double screenWidth;
     private double screenHeight;
+    private int combo;
+    private int score;
+    private double accuracy;
+    private double health;
 }

@@ -423,7 +423,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
     private void sendSpectateEvent(long elapsedMillis, ReplayEvent replayEvent) {
         SpectateEvent event = new SpectateEvent(elapsedMillis, replayEvent.getX(),
-                replayEvent.getY(), replayEvent.getKeyMask(), paneWidth, paneHeight);
+                replayEvent.getY(), replayEvent.getKeyMask(), paneWidth, paneHeight,
+                masterComboNumber, score, accuracy, health);
         spectateController.sendSpectateEvent(event).thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Spectate event sent successfully: " + response.getValue().getMessage());

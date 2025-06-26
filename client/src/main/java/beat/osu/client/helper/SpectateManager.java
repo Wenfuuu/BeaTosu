@@ -111,41 +111,6 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
         return false;
     }
 
-    private void updateHighestCombo(int combo) {
-        if (combo > highestCombo) {
-            highestCombo = combo;
-        }
-    }
-
-    private double getModMultiplier() {
-        return 1.0;
-    }
-
-    private void updateHitCount(HitObject hitObject, HitResult hitResult) {
-        if (hitResult != HitResult.SPIN && hitResult != HitResult.COMPLETE_SPIN && hitResult != HitResult.SLIDER_END) {
-            // System.out.println("combo naik");
-            masterComboNumber++;
-            updateHighestCombo(masterComboNumber);
-        }
-
-        if (hitResult == HitResult.PERFECT) {
-            if (perfectCombo && hitObject.isComboEnd()) {
-                gekiHits++;
-            } else
-                perfectHits++;
-        } else if (hitResult == HitResult.GREAT) {
-            if (!imperfectOrMissed && hitObject.isComboEnd()) {
-                greatKatuHits++;
-            } else
-                greatHits++;
-            perfectCombo = false;
-        } else if (hitResult == HitResult.GOOD) {
-            goodHits++;
-            perfectCombo = false;
-            imperfectOrMissed = true;
-        }
-    }
-
     private void handleHit(HitObject hitObject, long timingError) {
         HitResult hitResult = HitResult.fromTimingError(timingError, beatmap.getOverallDifficulty());
 
@@ -184,32 +149,8 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
             notifyHit(hitObject, hitResult);
     }
 
-    private HealthRecover getHealthRecover(HitObject hitObject, HitResult hitResult) {
-        switch (hitResult) {
-            case PERFECT:
-                if (hitObject.isComboEnd()) {
-                    if (perfectCombo)
-                        return HealthRecover.GEKI;
-                    else
-                        return HealthRecover.PERFECT_KATU;
-                } else {
-                    return HealthRecover.PERFECT;
-                }
-            case GREAT:
-                if (!imperfectOrMissed && hitObject.isComboEnd()) {
-                    return HealthRecover.GREAT_KATU;
-                } else {
-                    return HealthRecover.GREAT;
-                }
-            case GOOD:
-                return HealthRecover.GOOD;
-            case SPIN:
-                return HealthRecover.SPIN;
-            case COMPLETE_SPIN:
-                return HealthRecover.COMPLETE_SPIN;
-            default:
-                return HealthRecover.NONE;
-        }
+    private double getModMultiplier() {
+        return 1.0;
     }
 
     private double calculateScoreFactor(HitResult hitResult) {
@@ -224,35 +165,10 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void notifyHit(HitObject hitObject, HitResult hitResult) {
-        // masterComboNumber++;
-        // updateHighestCombo(masterComboNumber);
-        updateHitCount(hitObject, hitResult);
-
-        int hitValue = hitResult.getScore();
-
-        double scoreFactor = calculateScoreFactor(hitResult);
-        int hitScore = (int) Math.round(hitValue * scoreFactor);
-        score += hitScore;
-        // System.out.println(score);
-
-        // Update accuracy
-        updateAccuracy();
-
-        // Update health based on judgement
-        HealthRecover healthRecover = getHealthRecover(hitObject, hitResult);
-        double hpRecover = healthRecover.getHpRecover();
-        health = Math.min(100, health + hpRecover);
-
         // Notify observers
-        notifyListeners(new GameEvent(GameEventType.SCORE_CHANGED,
-                new ScoreChangeEvent(score, hitScore)));
-        notifyListeners(new GameEvent(GameEventType.COMBO_CHANGED,
-                new ComboChangeEvent(masterComboNumber, false)));
         notifyListeners(new GameEvent(GameEventType.HIT_OBJECT_HIT,
                 new HitObjectEvent(hitObject, hitResult,
                         perfectCombo, imperfectOrMissed)));
-        notifyListeners(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
-        notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
     }
 
     private void handleMiss(HitObject hitObject) {
@@ -267,42 +183,16 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
         hitObject.playMissEffect();
 
         misses++;
-        int oldCombo = masterComboNumber;
-        masterComboNumber = 0;
-
-        // Update accuracy
-        updateAccuracy();
-
-        // Update health (missing decreases health)
-        double hpLoss = (0.12 + 0.04 * beatmap.getHpDrainRate()) * 100;
-        // System.out.println("hp loss: " + hpLoss);
-        health = Math.max(0, health - hpLoss);
 
         // Notify observers
-        notifyListeners(new GameEvent(GameEventType.COMBO_CHANGED,
-                new ComboChangeEvent(masterComboNumber, oldCombo > 0)));
         notifyListeners(new GameEvent(GameEventType.HIT_OBJECT_MISSED,
-                new HitObjectEvent(hitObject, HitResult.MISS,
-                        false, true)));
-        notifyListeners(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
-        notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
+                new HitObjectEvent(hitObject, HitResult.MISS, false, true)));
 
         // Check for game over (health reaches 0)
-        if (health <= 0) {
-            System.out.println("hp reached 0, stopping game");
+//        if (health <= 0) {
+//            System.out.println("hp reached 0, stopping game");
             // failGame();
-        }
-    }
-
-    private void updateAccuracy() {
-        double hitValues = (perfectHits * HitResult.PERFECT.getScore()) +
-                (gekiHits * HitResult.PERFECT.getScore()) +
-                (greatHits * HitResult.GREAT.getScore()) +
-                (greatKatuHits * HitResult.GREAT.getScore()) +
-                (goodHits * HitResult.GOOD.getScore());
-        double maximumValues = (perfectHits + gekiHits + greatHits + greatKatuHits + goodHits + misses)
-                * HitResult.PERFECT.getScore();
-        accuracy = maximumValues > 0 ? (hitValues / maximumValues) * 100.0 : 100.0;
+//        }
     }
 
     private long getHitWindow() {
@@ -418,12 +308,13 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
 
     public void stopSpectate() {
         spectateStoppingFlag = true;
-        
+
         spectateController.stopSpectate().thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Successfully stopped spectating: " + response.getValue().getMessage());
-                
-                // Use Platform.runLater to ensure UI cleanup happens on JavaFX Application Thread
+
+                // Use Platform.runLater to ensure UI cleanup happens on JavaFX Application
+                // Thread
                 Platform.runLater(() -> {
                     try {
                         cleanupSpectateResources();
@@ -453,17 +344,17 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
                     hitObject.setVisible(false);
                 }
             }
-            
+
             // Clear the hit objects list
             hitObjects.clear();
 
             firstSpectateEvent = true;
             wasKey1Pressed = false;
             wasKey2Pressed = false;
-            
+
             // Clear input manager state
             inputManager.getPressedKeys().clear();
-            
+
             System.out.println("Spectate resources cleaned up successfully");
         } catch (Exception e) {
             System.err.println("Error during spectate resource cleanup: " + e.getMessage());
@@ -477,7 +368,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
             System.out.println("Ignoring spectate event - spectate session is stopping");
             return;
         }
-        
+
         System.out.println("Received spectate event: " + event);
         Platform.runLater(() -> {
             if (spectateStoppingFlag) {
@@ -489,7 +380,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
                 System.out.println("Ignoring spectate event - session appears to be stopped");
                 return;
             }
-            
+
             if (firstSpectateEvent) {
                 firstSpectateEvent = false;
                 BgmManager.getInstance().getCurrentPlayer().seek(Duration.millis(event.getCurrentTime()));
@@ -507,6 +398,16 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
 
             long elapsedMillis = event.getCurrentTime();
             boolean keyPressed = processSpectateEvents(event);
+            masterComboNumber = event.getCombo();
+            score = event.getScore();
+            accuracy = event.getAccuracy();
+            health = event.getHealth();
+
+            notifyListeners(new GameEvent(GameEventType.SCORE_CHANGED, score));
+            notifyListeners(new GameEvent(GameEventType.COMBO_CHANGED,
+                    new ComboChangeEvent(masterComboNumber, false)));
+            notifyListeners(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
+            notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
 
             Iterator<HitObject> iterator = hitObjects.iterator();
             while (iterator.hasNext()) {

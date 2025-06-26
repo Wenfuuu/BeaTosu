@@ -478,9 +478,9 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
                 }
                 break;
             case SCORE_CHANGED:
-                ScoreChangeEvent scoreChangeEvent = event.getData(ScoreChangeEvent.class);
-                if (scoreChangeEvent != null) {
-                    uiPane.updateScore(scoreChangeEvent.getScore());
+                Integer score = event.getData(Integer.class);
+                if (score != null) {
+                    uiPane.updateScore(score);
                 }
                 break;
             case HIT_OBJECT_MISSED:
