@@ -25,6 +25,7 @@ public class ViewManager {
     private HomeView homeView;
     private LobbyView lobbyView;
 
+    private BeatmapController beatmapController;
     private ConnectedUsersController connectedUsersController;
     private ChannelController channelController;
     private PrivateChatController privateChatController;
@@ -76,7 +77,7 @@ public class ViewManager {
     }
 
     public void showMatchView(MatchDto matchDto) {
-        MatchView matchView = new MatchView(primaryStage, matchDto, connectedUsersController, chatController, matchController, sessionController);
+        MatchView matchView = new MatchView(primaryStage, matchDto, connectedUsersController, chatController, matchController, sessionController, beatmapController);
         matchView.onShow();
         sceneManager.transitionToPage(matchView);
     }
@@ -102,6 +103,7 @@ public class ViewManager {
     }
 
     private void initializeControllers() {
+        beatmapController = new BeatmapController();
         connectedUsersController = new ConnectedUsersController();
         channelController = new ChannelController();
         privateChatController = new PrivateChatController();

@@ -1,16 +1,16 @@
 package beat.osu.client.view.match;
 
+import java.io.File;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
-import beat.osu.client.controller.ChatController;
-import beat.osu.client.controller.ConnectedUsersController;
-import beat.osu.client.controller.MatchController;
-import beat.osu.client.controller.SessionController;
-import beat.osu.client.helper.AuthManager;
-import beat.osu.client.helper.BackgroundManager;
-import beat.osu.client.helper.CssManager;
-import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.controller.*;
+import beat.osu.client.helper.*;
+import beat.osu.client.model.Beatmap;
+import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.view.match.component.cards.BeatmapCard;
 import beat.osu.client.view.match.component.layout.TopBar;
 import beat.osu.client.view.match.component.panels.MatchSlotPanel;
@@ -23,6 +23,9 @@ import beat.osu.client.view.shared.bancho.panels.ChatPanel;
 import beat.osu.client.view.shared.bancho.panels.OnlineUsersPanel;
 import beat.osu.client.view.shared.common.Page;
 import beat.osu.client.view.shared.common.Toast;
+import beat.osu.shared.common.Result;
+import beat.osu.shared.dto.beatmap.BeatmapDto;
+import beat.osu.shared.dto.beatmap.responses.GetBeatmapByIdResponse;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
 import beat.osu.shared.dto.user.UserDto;
@@ -62,7 +65,7 @@ public class MatchView extends Page {
     private final ChatController chatController;
     private final MatchController matchController;
     private final SessionController sessionController;
-
+    private final BeatmapController beatmapController;
 
     private OnlineUsersPanel onlineUsersPanel;
     private ChatPanel chatPanel;
@@ -90,14 +93,15 @@ public class MatchView extends Page {
 
     private Button readyButton;
 
-    public MatchView(Stage stage, MatchDto matchDto, ConnectedUsersController connectedUsersController,
-                     ChatController chatController,MatchController matchController, SessionController sessionController) {
+    public MatchView(Stage stage, MatchDto matchDto, ConnectedUsersController connectedUsersController, ChatController chatController,
+                     MatchController matchController, SessionController sessionController, BeatmapController beatmapController) {
         super(stage);
 
         this.connectedUsersController = connectedUsersController;
         this.chatController = chatController;
         this.matchController = matchController;
         this.sessionController = sessionController;
+        this.beatmapController = beatmapController;
 
         this.matchId = matchDto.getId();
         this.matchName = matchDto.getName();
@@ -261,7 +265,8 @@ public class MatchView extends Page {
         readyButton = new Button("Ready");
         readyButton.getStyleClass().add("ready-button");
 
-        BeatmapCard card = BeatmapCard.available(1, 1, "Lost Umbrella", "inabakumori", "Ryuusei Aika", 5.0);
+        Beatmap beatmap = fetchBeatmapById(5103482);
+        BeatmapCard card = BeatmapCard.available(beatmap);
         VBox.setMargin(card, new Insets(16, 0, 0, 0));
 
         VBox rightPanel = new VBox(card);
@@ -333,6 +338,71 @@ public class MatchView extends Page {
         });
 
         fadeOut.play();
+    }
+
+    private Beatmap fetchBeatmapById(int id) {
+        File tempDir = ResourceManager.getTempDirectory();
+        Set<String> validBeatmapDirs = new HashSet<>();
+
+        if (tempDir.exists() && tempDir.isDirectory()) {
+            for (File file : Objects.requireNonNull(tempDir.listFiles())) {
+                if (file.isDirectory()) {
+                    validBeatmapDirs.add(file.getName());
+                }
+            }
+        }
+
+        try {
+            Result<GetBeatmapByIdResponse> result = beatmapController.getBeatmapById(id).get();
+
+            if (result.isSuccess()) {
+                BeatmapDto beatmapDto = result.getValue().getBeatmap();
+
+                String expectedDirName = String.format("%d", beatmapDto.getBeatmapSetId());
+
+                for (String dir : validBeatmapDirs) {
+                    System.out.println("Found directory: " + dir);
+                }
+
+                System.out.println("Expected dir name: " + expectedDirName);
+
+                if (!validBeatmapDirs.contains(expectedDirName)) {
+                    System.out.println("Beatmap directory not found in temp directory: " + expectedDirName);
+                    return null;
+                }
+
+                BeatmapSet beatmapSet = new BeatmapSet(
+                        beatmapDto.getBeatmapSetDto().getId(),
+                        beatmapDto.getBeatmapSetDto().getTitle(),
+                        beatmapDto.getBeatmapSetDto().getArtist(),
+                        beatmapDto.getBeatmapSetDto().getCreator(),
+                        beatmapDto.getBeatmapSetDto().getLength(),
+                        beatmapDto.getBeatmapSetDto().getBpm()
+                );
+
+                return new Beatmap(
+                        beatmapDto.getId(),
+                        beatmapDto.getBeatmapSetDto().getId(),
+                        beatmapDto.getVersion(),
+                        beatmapDto.getHpDrainRate(),
+                        beatmapDto.getCircleSize(),
+                        beatmapDto.getOverallDifficulty(),
+                        beatmapDto.getApproachRate(),
+                        beatmapDto.getSliderMultiplier(),
+                        beatmapDto.getSliderTickRate(),
+                        beatmapDto.getStarRating(),
+                        beatmapSet
+                );
+
+            } else {
+                System.err.println("Failed to fetch beatmaps: " + result.getError().getMessage());
+            }
+
+            return null;
+        } catch (Exception e) {
+            System.err.println("Error fetching beatmap: " + e.getMessage());
+            return null;
+        }
     }
 
     private MatchPlayerDto createMatchPlayer(

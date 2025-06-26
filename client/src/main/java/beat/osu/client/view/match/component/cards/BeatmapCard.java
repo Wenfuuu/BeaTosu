@@ -2,16 +2,20 @@ package beat.osu.client.view.match.component.cards;
 
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ResourceManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.model.Beatmap;
+import beat.osu.client.utils.OsuParser;
 import beat.osu.client.view.match.component.enums.BeatmapCardVariant;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
 
@@ -22,9 +26,11 @@ public class BeatmapCard extends HBox {
     private int beatmapId;
     private int beatmapSetId;
     private String beatmapName;
+    private String version;
     private String artist;
     private String creator;
     private double stars;
+    private String beatmapBgPath;
 
     // Components for changing and no map variants
     private Label titleLabel;
@@ -61,16 +67,24 @@ public class BeatmapCard extends HBox {
         return card;
     }
 
-    public static BeatmapCard available(int beatmapId, int beatmapSetId, String beatmapName, String artist, String creator, double stars) {
+    public static BeatmapCard available(Beatmap beatmap) {
         BeatmapCard card = new BeatmapCard(BeatmapCardVariant.AVAILABLE);
         card.getStyleClass().add("available-map-card");
 
-        card.beatmapId = beatmapId;
-        card.beatmapSetId = beatmapSetId;
-        card.beatmapName = beatmapName;
-        card.artist = artist;
-        card.creator = creator;
-        card.stars = stars;
+        card.beatmapId = beatmap.getBeatmapId();
+        card.beatmapSetId = beatmap.getBeatmapSetId();
+        card.beatmapName = beatmap.getBeatmapSet().getTitle();
+        card.version = beatmap.getVersion();
+        card.artist = beatmap.getBeatmapSet().getArtist();
+        card.creator = beatmap.getBeatmapSet().getCreator();
+        card.stars = beatmap.getStarRating();
+
+        try {
+            OsuParser.parseBeatmap(beatmap);
+            card.beatmapBgPath = card.getBgImagePath(beatmap.getBeatmapSetId(), OsuParser.getBgFile());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         card.updateUI();
         return card;
@@ -132,11 +146,10 @@ public class BeatmapCard extends HBox {
     }
 
     private void updateAvailableMapUI() {
-        beatmapImageView = new ImageView(new Image(Objects.requireNonNull(
-                Main.class.getResourceAsStream("/assets/images/avatar-guest.png")))); // Change later
+        File imageFile = new File(this.beatmapBgPath);
+        beatmapImageView = new ImageView(new Image(imageFile.toURI().toString()));
 
         beatmapImageView.setPreserveRatio(true);
-        beatmapImageView.setSmooth(true);
         beatmapImageView.setFitHeight(this.getPrefHeight() - 1);
 
         HBox.setHgrow(beatmapImageView, Priority.NEVER);
@@ -167,7 +180,7 @@ public class BeatmapCard extends HBox {
         beatmapInfoLabel = new Label(String.format("%s // %s", artist, creator));
         beatmapInfoLabel.getStyleClass().add("beatmap-info");
 
-        beatmapVersionLabel = new Label("Houshou Hari's Normal"); // Add Version Here later
+        beatmapVersionLabel = new Label(version);
         beatmapVersionLabel.getStyleClass().add("beatmap-version");
 
         beatmapStarsBox = createStarsBox();
@@ -176,8 +189,6 @@ public class BeatmapCard extends HBox {
         infoBox.getChildren().addAll(beatmapNameLabel, beatmapInfoLabel, beatmapVersionLabel, beatmapStarsBox);
         this.getChildren().add(infoBox);
     }
-
-
 
     private void loadStyles() {
         URL cssUrl = CssManager.getMatchCssURL("BeatmapCard.css");
@@ -195,5 +206,12 @@ public class BeatmapCard extends HBox {
             starsBox.getChildren().add(star);
         }
         return starsBox;
+    }
+
+    private String getBgImagePath(int beatmapSetId, String gameBg) {
+        File tempDir = ResourceManager.getTempDirectory();
+        File beatmapDir = new File(tempDir, String.valueOf(beatmapSetId));
+        File imageFile = new File(beatmapDir, gameBg);
+        return imageFile.getAbsolutePath();
     }
 }
