@@ -187,6 +187,8 @@ public class MessageRouter {
                 return spectateService.stopSpectating(clientId);
             case CHANGE_SPECTATE_STATUS:
                 return spectateService.notifySpectatorsStatusChange((NotifySpectateStatusRequest) request.getPayload(), clientId);
+            case PLAYER_EXIT_GAME:
+                return spectateService.notifySpectatorsPlayerExited(clientId);
             default:
                 return Result.failure(Error.validation("Unknown spectate action: " + request.getAction()));
         }

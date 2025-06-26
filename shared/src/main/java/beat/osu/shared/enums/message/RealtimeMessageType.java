@@ -23,4 +23,5 @@ public enum RealtimeMessageType implements Serializable {
 
     SPECTATE_EVENT,
     SPECTATE_STATUS_CHANGE,
+    PLAYER_EXIT_GAME,
 }

@@ -48,4 +48,5 @@ public enum MessageAction implements Serializable {
     SEND_SPECTATE_EVENT,
     STOP_SPECTATE,
     CHANGE_SPECTATE_STATUS,
+    PLAYER_EXIT_GAME,
 }

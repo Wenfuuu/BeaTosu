@@ -11,13 +11,11 @@ import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.game.SpectateDto;
 import beat.osu.shared.dto.game.events.SpectateEvent;
 import beat.osu.shared.dto.game.events.SpectateStatusEvent;
+import beat.osu.shared.dto.game.requests.NotifyExitRequest;
 import beat.osu.shared.dto.game.requests.NotifySpectateStatusRequest;
 import beat.osu.shared.dto.game.requests.SendSpectateEventRequest;
 import beat.osu.shared.dto.game.requests.StartSpectateRequest;
-import beat.osu.shared.dto.game.responses.NotifySpectateStatusResponse;
-import beat.osu.shared.dto.game.responses.SendSpectateEventResponse;
-import beat.osu.shared.dto.game.responses.StartSpectateResponse;
-import beat.osu.shared.dto.game.responses.StopSpectateResponse;
+import beat.osu.shared.dto.game.responses.*;
 import beat.osu.shared.enums.message.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
 
@@ -153,6 +151,50 @@ public class SpectateService {
         String message = "Game " + action + " notification sent to " + sentCount + " spectators";
         System.out.println(message);
         return Result.success(new NotifySpectateStatusResponse(message));
+    }
+
+    public Result<NotifyExitResponse> notifySpectatorsPlayerExited(String clientId) {
+        Integer playingUserId = (Integer) sessionService.getSessionValue(clientId, "userId");
+        if (playingUserId == null) {
+            return Result.failure(Error.unauthorized("User not authenticated"));
+        }
+
+        Set<Integer> spectators = playerToSpectators.get(playingUserId);
+        int sentCount = 0;
+
+        if (spectators != null && !spectators.isEmpty()) {
+            RealtimeMessage realtimeMessage = new RealtimeMessage(
+                    RealtimeMessageType.PLAYER_EXIT_GAME,
+                    clientId,
+                    "player exited");
+
+            // Create a copy to avoid ConcurrentModificationException
+            Set<Integer> spectatorsCopy = Set.copyOf(spectators);
+
+            for (Integer spectatorUserId : spectatorsCopy) {
+                String spectatorClientId = sessionService.getClientIdByUserId(spectatorUserId);
+
+                if (spectatorClientId != null && sessionService.isClientConnected(spectatorClientId)) {
+                    try {
+                        System.out.println("Sending game exit notification to spectator: " + spectatorUserId);
+                        RealtimeMessageHandler.sendToClient(realtimeMessage, spectatorClientId);
+                        sentCount++;
+                    } catch (Exception e) {
+                        System.err.println("Failed to send game exit notification to spectator " + spectatorUserId + ": " + e.getMessage());
+                        handleDisconnectedSpectator(spectatorUserId, playingUserId);
+                    }
+                } else {
+                    // Spectator is not connected, remove from spectating
+                    handleDisconnectedSpectator(spectatorUserId, playingUserId);
+                }
+            }
+        }
+        // Clean up spectating relationships since the player exited
+        removeUserFromAllSpectating(playingUserId);
+
+        String message = "Player exit notification sent to " + sentCount + " spectators";
+        System.out.println(message);
+        return Result.success(new NotifyExitResponse(message));
     }
 
     private void handleDisconnectedSpectator(int spectatorUserId, int playingUserId) {
