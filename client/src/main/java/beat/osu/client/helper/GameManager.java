@@ -436,7 +436,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         ReplayEvent replayEvent = new ReplayEvent(timeDelta, currentMouseX, currentMouseY, keyMask, paneWidth, paneHeight);
         replayEvents.add(replayEvent);
 
-        sendSpectateEvent(elapsedMillis, replayEvent);
+        if(AuthManager.isAuthenticated()) sendSpectateEvent(elapsedMillis, replayEvent);
 
         // Update last event time for next delta calculation
         lastReplayEventTime = elapsedMillis;

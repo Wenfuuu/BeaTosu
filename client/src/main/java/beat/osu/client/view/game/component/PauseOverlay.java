@@ -1,6 +1,7 @@
 package beat.osu.client.view.game.component;
 
 import beat.osu.client.factory.ButtonFactory;
+import beat.osu.client.helper.ScreenManager;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -9,7 +10,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import lombok.Getter;
 
 @Getter
@@ -24,7 +24,7 @@ public class PauseOverlay extends StackPane {
         this.setVisible(false);
 
         pauseLabel = new Label("PAUSED");
-        pauseLabel.setFont(Font.font("Arial", FontWeight.BOLD, 48));
+        pauseLabel.setFont(new Font("Aller Light", ScreenManager.SCREEN_HEIGHT / 15));
         pauseLabel.setTextFill(Color.WHITE);
         pauseLabel.setEffect(new DropShadow(10, Color.BLACK));
 

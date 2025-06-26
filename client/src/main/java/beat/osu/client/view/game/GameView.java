@@ -53,7 +53,6 @@ public class GameView extends Page implements GameEventListener {
 
     private final Beatmap beatmap;
     private final GameManager gm;
-    private GameEndEvent gameEndEvent;
 
     // additional spins
     private Image[] digitImages;
@@ -597,7 +596,7 @@ public class GameView extends Page implements GameEventListener {
                 break;
             case GAME_ENDED:
                 System.out.println("game ended, show result overlay here");
-                this.gameEndEvent = event.getData(GameEndEvent.class);
+                GameEndEvent gameEndEvent = event.getData(GameEndEvent.class);
                 if (gameEndEvent != null) {
                     resultOverlay.updateResult(gameEndEvent, beatmap);
                 }

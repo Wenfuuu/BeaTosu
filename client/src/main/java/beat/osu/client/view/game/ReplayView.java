@@ -24,6 +24,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -75,6 +76,13 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
         handleEvent();
         updateLayout();
         BgmManager.getInstance().prepareGameBgm();
+
+        URL globalCssUrl = CssManager.getGlobalCssURL();
+        if (globalCssUrl != null) {
+            scene.getStylesheets().add(globalCssUrl.toExternalForm());
+        } else {
+            System.err.println("Css file not found!");
+        }
 
         rm.startReplay();
     }

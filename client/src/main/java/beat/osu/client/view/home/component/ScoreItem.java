@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 public class ScoreItem extends HBox {
 
     @Getter
-    private ScoreDto score;
+    private final ScoreDto score;
 
     private final ImageView gradeSymbol;
     private final ImageView profilePicture;
@@ -72,7 +72,6 @@ public class ScoreItem extends HBox {
 
         setupUI();
         loadStyles();
-//        setupEventHandlers();
     }
 
     private void setupUI() {
@@ -94,11 +93,4 @@ public class ScoreItem extends HBox {
             System.err.println("CSS file not found!");
         }
     }
-
-//    private void setupEventHandlers() {
-//        this.setOnMouseClicked(event -> {
-//            // ViewManager.getInstance().showScorePage(score);
-//            System.out.println("Clicking on score item: " + score.getId());
-//        });
-//    }
 }
