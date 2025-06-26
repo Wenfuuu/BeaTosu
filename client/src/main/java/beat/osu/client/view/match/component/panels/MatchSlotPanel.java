@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.view.match.component.cards.MatchSlotCard;
 import beat.osu.shared.dto.match.MatchPlayerDto;
 import beat.osu.shared.enums.match.PlayerRole;
@@ -13,6 +14,7 @@ import beat.osu.shared.enums.match.PlayerStatus;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
@@ -44,14 +46,14 @@ public class MatchSlotPanel extends VBox {
 
         slotsContainer = new VBox();
         slotsContainer.getStyleClass().add("slots-container");
+        VBox.setVgrow(slotsContainer, Priority.ALWAYS);
 
         slotsScrollPane = new ScrollPane(slotsContainer);
         slotsScrollPane.getStyleClass().add("slots-scroll-pane");
         slotsScrollPane.setFitToWidth(true);
         slotsScrollPane.setFitToHeight(true);
         slotsScrollPane.setPrefViewportWidth(Region.USE_COMPUTED_SIZE);
-        slotsScrollPane.setMaxWidth(Region.USE_PREF_SIZE);
-        VBox.setMargin(slotsScrollPane, new Insets(0, 0, 0, 44));
+        VBox.setMargin(slotsScrollPane, new Insets(0, ScreenManager.SCREEN_WIDTH * 0.05, 0, ScreenManager.SCREEN_WIDTH * 0.022));
 
         matchSlotCardsMap = new HashMap<>();
 

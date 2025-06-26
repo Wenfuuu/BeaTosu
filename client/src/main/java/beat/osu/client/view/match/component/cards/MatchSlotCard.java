@@ -1,9 +1,11 @@
 package beat.osu.client.view.match.component.cards;
 
+import java.net.URL;
+import java.util.Objects;
+
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.LocaleManager;
-import beat.osu.client.helper.ScreenManager;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.match.PlayerStatus;
@@ -13,11 +15,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-
-import java.net.URL;
-import java.util.Objects;
 
 public class MatchSlotCard extends HBox {
 
@@ -96,9 +97,7 @@ public class MatchSlotCard extends HBox {
         VBox infoSpace = new VBox();
         HBox.setHgrow(infoSpace, Priority.ALWAYS);
         HBox infoBox = new HBox(usernameLabel, infoSpace, rankLabel);
-        infoBox.setMinWidth(ScreenManager.SCREEN_WIDTH / 2.7);
-        infoBox.setMaxWidth(ScreenManager.SCREEN_WIDTH / 2.7);
-        infoBox.setPrefWidth(ScreenManager.SCREEN_WIDTH / 2.7);
+        HBox.setHgrow(infoBox, Priority.ALWAYS);
         infoBox.getStyleClass().add("info-box");
 
         if (isLocked) {

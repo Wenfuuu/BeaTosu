@@ -46,11 +46,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -312,11 +309,11 @@ public class MatchView extends Page {
 
         HBox matchContent = new HBox(leftPanel, rightPanel);
 
-        HBox buttonContainer = new HBox(20);
+        HBox buttonContainer = new HBox(ScreenManager.SCREEN_WIDTH * 0.045);
         buttonContainer.setAlignment(Pos.CENTER);
         buttonContainer.setPadding(new Insets(12, 36, 12, 36));
         
-        double buttonWidth = (ScreenManager.SCREEN_WIDTH - 72 - 20) / 2;
+        double buttonWidth = (ScreenManager.SCREEN_WIDTH * 0.955 - 72) / 2;
         
         leaveMatchButton.setPrefWidth(buttonWidth);
         leaveMatchButton.setMaxWidth(buttonWidth);
