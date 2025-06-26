@@ -14,6 +14,7 @@ import beat.osu.client.model.*;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.shared.dto.game.SpectateDto;
 import beat.osu.shared.dto.game.events.SpectateEvent;
+import beat.osu.shared.dto.game.events.SpectateStatusEvent;
 import javafx.application.Platform;
 import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
@@ -473,8 +474,15 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
         return keyPressed;
     }
 
+    private void updateSpectateStatus(SpectateStatusEvent event) {
+        System.out.println("Received spectate status event, spectate pause status: " + event.isPaused());
+        if (event.isPaused()) pauseAllAnimations();
+        else resumeAllAnimations();
+    }
+
     private void setupUserCallbacks() {
         spectateController.addSpectateEventCallback(this::updateSpectate);
+        spectateController.addSpectateStatusEventCallback(this::updateSpectateStatus);
     }
 
     @Override
