@@ -6,18 +6,14 @@
 
 .no-map-card {
     -fx-background-color: rgba(255, 99, 2, 0.8);
-    -fx-padding: 3px 0 0 20px;
-    -fx-spacing: 0;
-}
-
-.available-map-card {
-    -fx-background-color: #E24893;
 }
 
 .changing-map-card {
     -fx-background-color: #A9A9A9;
-    -fx-padding: 3px 0 0 20px;
-    -fx-spacing: 0;
+}
+
+.beatmap-overlay {
+    -fx-background-color: rgba(226, 72, 147, 0.80);
 }
 
 .changing-map-title, .changing-map-description {
@@ -27,30 +23,31 @@
 .changing-map-title, .no-map-title, .beatmap-name-label {
     -fx-font-size: 28px;
     -fx-font-family: "Aller Light";
+    -fx-text-fill: white;
 }
 
 .beatmap-info {
     -fx-font-size: 22px;
     -fx-font-family: "Aller Light";
-    -fx-translate-y: -2px;
+    -fx-text-fill: white;
 }
 
 .beatmap-version {
     -fx-font-size: 22px;
     -fx-font-family: "Aller";
-    -fx-translate-y: -4px;
+    -fx-text-fill: white;
 }
 
 .beatmap-stars-box {
     -fx-font-size: 20px;
-    -fx-translate-y: -5px;
 }
 
 .changing-map-description, .no-map-description {
     -fx-font-size: 20px;
     -fx-font-family: "Aller";
+    -fx-text-fill: white;
 }
 
 .gamemode-box {
-    -fx-padding: 10 12 0 12;
+    -fx-padding: 12 0 0 0;
 }

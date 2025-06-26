@@ -7,11 +7,15 @@ import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.view.match.component.enums.BeatmapCardVariant;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.io.File;
@@ -19,7 +23,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
 
-public class BeatmapCard extends HBox {
+public class BeatmapCard extends StackPane {
 
     private BeatmapCardVariant variant;
 
@@ -128,6 +132,7 @@ public class BeatmapCard extends HBox {
 
         VBox noMapContent = new VBox(0);
         noMapContent.getChildren().addAll(titleLabel, descriptionLabel);
+        noMapContent.setPadding(new Insets(3, 0, 0, 20));
 
         this.getChildren().add(noMapContent);
     }
@@ -141,20 +146,33 @@ public class BeatmapCard extends HBox {
 
         VBox changingMapContent = new VBox(0);
         changingMapContent.getChildren().addAll(titleLabel, descriptionLabel);
+        changingMapContent.setPadding(new Insets(3, 0, 0, 20));
 
         this.getChildren().add(changingMapContent);
     }
 
     private void updateAvailableMapUI() {
         File imageFile = new File(this.beatmapBgPath);
-        beatmapImageView = new ImageView(new Image(imageFile.toURI().toString()));
+        Image image = new Image(imageFile.toURI().toString());
+        beatmapImageView = new ImageView(image);
 
         beatmapImageView.setPreserveRatio(true);
-        beatmapImageView.setFitHeight(this.getPrefHeight() - 1);
+        double fitHeight = this.getPrefHeight() - 1;
+        beatmapImageView.setFitHeight(fitHeight);
 
-        HBox.setHgrow(beatmapImageView, Priority.NEVER);
+        double aspectRatio = image.getWidth() / image.getHeight();
+        double calculatedWidth = fitHeight * aspectRatio;
 
-        this.getChildren().add(beatmapImageView);
+        StackPane.setAlignment(beatmapImageView, Pos.CENTER_LEFT);
+
+        Region overlay = new Region();
+        overlay.getStyleClass().add("beatmap-overlay");
+        overlay.setPrefSize(this.getPrefWidth(), this.getPrefHeight());
+
+        HBox contentContainer = new HBox();
+        StackPane.setMargin(contentContainer, new Insets(0, 0, 0, calculatedWidth + 10));
+        contentContainer.setSpacing(10);
+        HBox.setHgrow(contentContainer, Priority.NEVER);
 
         ImageView gamemodeImageView = new ImageView();
         try {
@@ -169,10 +187,13 @@ public class BeatmapCard extends HBox {
         }
 
         VBox gamemodeBox = new VBox(gamemodeImageView);
+        gamemodeBox.setAlignment(Pos.TOP_CENTER);
         gamemodeBox.getStyleClass().add("gamemode-box");
-        this.getChildren().add(gamemodeBox);
 
-        VBox infoBox = new VBox(0);
+        VBox infoBox = new VBox(-2);
+        infoBox.setAlignment(Pos.CENTER_LEFT);
+        infoBox.setPadding(new Insets(4, 0, 4, 0));
+        HBox.setHgrow(infoBox, Priority.NEVER);
 
         beatmapNameLabel = new Label(beatmapName);
         beatmapNameLabel.getStyleClass().add("beatmap-name-label");
@@ -187,7 +208,9 @@ public class BeatmapCard extends HBox {
         beatmapStarsBox.getStyleClass().add("beatmap-stars-box");
 
         infoBox.getChildren().addAll(beatmapNameLabel, beatmapInfoLabel, beatmapVersionLabel, beatmapStarsBox);
-        this.getChildren().add(infoBox);
+        contentContainer.getChildren().addAll(gamemodeBox, infoBox);
+
+        this.getChildren().addAll(beatmapImageView, overlay, contentContainer);
     }
 
     private void loadStyles() {
