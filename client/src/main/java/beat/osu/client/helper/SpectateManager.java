@@ -445,14 +445,8 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
 
     private void updateSpectateStatus(SpectateStatusEvent event) {
         System.out.println("Received spectate status event, spectate pause status: " + event.isPaused());
-        if (event.isPaused()) {
-            pauseAllAnimations();
-            notifyListeners(new GameEvent(GameEventType.SPECTATE_PAUSED, null));
-        }
-        else {
-            resumeAllAnimations();
-            notifyListeners(new GameEvent(GameEventType.SPECTATE_RESUMED, null));
-        }
+        if (event.isPaused()) pauseAllAnimations();
+        else resumeAllAnimations();
     }
 
     private void setupUserCallbacks() {
