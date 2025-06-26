@@ -19,6 +19,7 @@ import javafx.animation.SequentialTransition;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -40,7 +41,9 @@ public class HomeView extends Page {
     private BorderPane mainLayout;
     private TopBar topBar;
     private BottomBar bottomBar;
+    private VBox rightBar;
     private BeatmapContent beatmapContent;
+    private UploadBox uploadBox;
     private ScoreContent scoreContent;
     private ScoreOverlay scoreOverlay;
     private ArrayList<Beatmap> beatmaps;
@@ -76,7 +79,10 @@ public class HomeView extends Page {
 
         topBar = new TopBar();
         bottomBar = new BottomBar();
+        rightBar = new VBox();
         beatmapContent = new BeatmapContent(beatmaps);
+        uploadBox = new UploadBox();
+        uploadBox.setOnUploadCompleteCallback(this::refreshBeatmaps);
         scoreContent = new ScoreContent(new ArrayList<>());
 
         if (!beatmaps.isEmpty()) {
@@ -105,8 +111,10 @@ public class HomeView extends Page {
 
     @Override
     public void setLayout() {
+        rightBar.getChildren().addAll(beatmapContent, uploadBox);
+
         mainLayout.setTop(topBar);
-        mainLayout.setRight(beatmapContent);
+        mainLayout.setRight(rightBar);
         mainLayout.setBottom(bottomBar);
         mainLayout.setLeft(scoreContent);
 
@@ -294,5 +302,20 @@ public class HomeView extends Page {
                 showTransition.play();
             });
         });
+    }
+
+    private void refreshBeatmaps() {
+        beatmaps = fetchBeatmaps();
+
+        rightBar.getChildren().remove(beatmapContent);
+        beatmapContent = new BeatmapContent(beatmaps);
+        beatmapContent.setOnBeatmapSelectedCallback(this::onBeatmapSelected);
+        rightBar.getChildren().add(0, beatmapContent);
+
+        if (!beatmaps.isEmpty()) {
+            topBar.updateSongInfo(beatmaps.get(0));
+            scores = fetchScores(beatmaps.get(0));
+            scoreContent.populateScores(scores);
+        }
     }
 }

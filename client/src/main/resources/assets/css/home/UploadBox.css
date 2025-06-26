@@ -1,0 +1,23 @@
+.drop-box {
+    -fx-border-color: #ff66aa;
+    -fx-border-width: 2;
+    -fx-border-style: dashed;
+    -fx-background-color: rgba(32, 32, 32, 0.9);
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-padding: 30;
+    -fx-alignment: center;
+    -fx-font-size: 14px;
+    -fx-effect: dropshadow(gaussian, rgba(255, 102, 170, 0.3), 10, 0.5, 0, 0);
+}
+
+.drop-box:hover {
+    -fx-background-color: rgba(42, 42, 42, 0.95);
+    -fx-cursor: hand;
+}
+
+.drop-box .label {
+    -fx-text-fill: #ff66aa;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
