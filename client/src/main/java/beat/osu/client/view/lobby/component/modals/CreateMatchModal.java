@@ -157,7 +157,17 @@ public class CreateMatchModal extends VBox {
                 return;
             }
 
-            matchController.createMatch(gameName, password, maxPlayers);
+            matchController.createMatch(gameName, password, maxPlayers).thenAccept(result -> {
+                if (result.isSuccess()) {
+                    Toast.success("Game created successfully!");
+                    hide();
+                } else {
+                    Toast.error("Error creating game: " + result.getError().getMessage());
+                }
+            }).exceptionally(throwable -> {
+                Toast.error("Network error: " + throwable.getMessage());
+                return null;
+            });
             hide();
         });
     }

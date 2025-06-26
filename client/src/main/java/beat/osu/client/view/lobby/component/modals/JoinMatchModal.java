@@ -1,18 +1,19 @@
 package beat.osu.client.view.lobby.component.modals;
 
-import beat.osu.client.helper.AuthManager;
+import java.net.URL;
+
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import lombok.Getter;
-
-import java.net.URL;
 
 public class JoinMatchModal extends VBox {
 
@@ -28,6 +29,11 @@ public class JoinMatchModal extends VBox {
     private Button cancelButton;
 
     private VBox buttonsContainer;
+
+    @Getter
+    private Integer selectedMatchId;
+    @Getter
+    private String selectedMatchName;
 
     public JoinMatchModal() {
         initializeComponents();
@@ -108,5 +114,19 @@ public class JoinMatchModal extends VBox {
         fadeIn.setFromValue(0.0);
         fadeIn.setToValue(1.0);
         fadeIn.play();
+    }
+
+    public void showForMatch(Integer matchId, String matchName) {
+        this.selectedMatchId = matchId;
+        this.selectedMatchName = matchName;
+
+        passwordBox.setVisible(true);
+        passwordBox.setManaged(true);
+
+        show();
+    }
+
+    public String getPassword() {
+        return passwordField.getText();
     }
 }

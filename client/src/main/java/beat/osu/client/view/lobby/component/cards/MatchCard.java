@@ -15,10 +15,13 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import lombok.Getter;
 
 public class MatchCard extends HBox {
 
+    @Getter
     private Integer matchId;
+    @Getter
     private String matchName;
     private String matchPassword;
     private boolean inProgress;
@@ -191,6 +194,10 @@ public class MatchCard extends HBox {
 
     public int getPlayerCount() {
         return players != null ? players.size() : 0;
+    }
+
+    public boolean hasPassword() {
+        return matchPassword != null && !matchPassword.trim().isEmpty();
     }
 
     public void updatePlayerCount(int newPlayerCount) {

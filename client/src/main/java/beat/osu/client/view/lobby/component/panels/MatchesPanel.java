@@ -8,7 +8,6 @@ import java.util.Map;
 
 import beat.osu.client.controller.MatchController;
 import beat.osu.client.helper.CssManager;
-import beat.osu.client.helper.ViewManager;
 import beat.osu.client.view.lobby.component.cards.MatchCard;
 import beat.osu.client.view.lobby.component.ui.MatchFilters;
 import beat.osu.shared.dto.match.MatchDto;
@@ -22,8 +21,14 @@ import javafx.geometry.Insets;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import lombok.Setter;
 
 public class MatchesPanel extends VBox {
+
+    @FunctionalInterface
+    public interface MatchCardClickCallback {
+        void onMatchCardClicked(MatchCard matchCard);
+    }
 
     private MatchFilters matchFilters;
 
@@ -33,6 +38,9 @@ public class MatchesPanel extends VBox {
     private ScrollPane matchesScrollPane;
 
     private MatchController matchController;
+
+    @Setter
+    private MatchCardClickCallback matchCardClickCallback;
 
     public MatchesPanel(MatchController matchController) {
         this.matchController = matchController;
@@ -93,7 +101,9 @@ public class MatchesPanel extends VBox {
         );
 
         matchCard.setOnMouseClicked(e -> {
-            ViewManager.getInstance().showMatchView(match);
+            if (matchCardClickCallback != null) {
+                matchCardClickCallback.onMatchCardClicked(matchCard);
+            }
         });
         
         matchCards.add(matchCard);

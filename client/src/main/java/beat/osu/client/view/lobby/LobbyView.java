@@ -1,6 +1,7 @@
 package beat.osu.client.view.lobby;
 
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 import beat.osu.client.controller.ChatController;
 import beat.osu.client.controller.ConnectedUsersController;
@@ -29,6 +30,8 @@ import beat.osu.client.view.shared.common.Page;
 import beat.osu.client.view.shared.common.Toast;
 import beat.osu.client.view.shared.jukebox.Jukebox;
 import beat.osu.client.view.shared.jukebox.modals.PlaylistModal;
+import beat.osu.shared.common.Result;
+import beat.osu.shared.dto.match.responses.JoinMatchResponse;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -246,6 +249,16 @@ public class LobbyView extends Page {
     public void handleEvent() {
         playlistModal.setInputManager(inputManager);
 
+        matchesPanel.setMatchCardClickCallback(matchCard -> {
+            boolean hasPassword = matchCard.hasPassword();
+            
+            if (hasPassword) {
+                joinMatchModal.showForMatch(matchCard.getMatchId(), matchCard.getMatchName());
+            } else {
+                joinMatch(matchCard.getMatchId(), matchCard.getMatchName());
+            }
+        });
+
         banchoButtons.getOnlineUsersButton().setOnMouseClicked(e -> {
             if (banchoButtons.getOnlineUsersButton().isOnlineUserShown()) {
                 onlineUsersPanel.hide();
@@ -298,6 +311,28 @@ public class LobbyView extends Page {
         joinMatchModal.getCancelButton().setOnAction(e -> {
             joinMatchModal.hide();
         });
+
+        joinMatchModal.getJoinGameButton().setOnAction(e -> {
+            Integer matchId = joinMatchModal.getSelectedMatchId();
+            String password = joinMatchModal.getPassword();
+
+            joinMatch(matchId, password);
+            joinMatchModal.hide();
+        });
+    }
+
+    private void joinMatch(int matchId, String password) {
+        try {
+            Result<JoinMatchResponse> response = matchController.joinMatch(matchId, password).get();
+            if (response.isSuccess()) {
+                JoinMatchResponse joinResponse = response.getValue();
+                Toast.success("Successfully joined lobby: " + joinResponse.getMessage()).show();
+            } else {
+                Toast.error("Failed to join match: " + response.getError().getMessage()).show();
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void showMainContent() {

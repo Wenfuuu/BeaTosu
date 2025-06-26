@@ -165,6 +165,9 @@ public class MatchService {
 
         if (match.getPassword() != null && !match.getPassword().isEmpty()) {
             if (request.getPassword() == null || !request.getPassword().equals(match.getPassword())) {
+                System.out.println("Input password: " + request.getPassword());
+                System.out.println("Real password: " + match.getPassword());
+
                 return Result.failure(Error.validation("Invalid password"));
             }
         }
@@ -260,7 +263,7 @@ public class MatchService {
         }
 
         MatchPlayer kickingPlayer = findPlayerInMatch(matchId, kickingUserId);
-        if (kickingPlayer == null || !"host".equals(kickingPlayer.getRole())) {
+        if (kickingPlayer == null || !kickingPlayer.getRole().equals(PlayerRole.HOST)) {
             return Result.failure(Error.unauthorized("Only the host can kick players"));
         }
 

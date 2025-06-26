@@ -15,8 +15,10 @@ import beat.osu.shared.dto.match.events.PlayerKickedEvent;
 import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
 import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
 import beat.osu.shared.dto.match.requests.CreateMatchRequest;
+import beat.osu.shared.dto.match.requests.JoinMatchRequest;
 import beat.osu.shared.dto.match.responses.CreateMatchResponse;
 import beat.osu.shared.dto.match.responses.GetAllMatchesResponse;
+import beat.osu.shared.dto.match.responses.JoinMatchResponse;
 import beat.osu.shared.enums.message.MessageAction;
 import beat.osu.shared.enums.message.MessageType;
 import beat.osu.shared.enums.message.RealtimeMessageType;
@@ -102,7 +104,7 @@ public class MatchController {
     }
 
     public CompletableFuture<Result<CreateMatchResponse>> createMatch(String gameName, String password, int maxPlayers) {
-        CreateMatchRequest requestData =  new CreateMatchRequest(gameName, password, maxPlayers);
+         CreateMatchRequest requestData =  new CreateMatchRequest(gameName, password, maxPlayers);
          RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.CREATE_MATCH, requestData);
 
          return CompletableFuture.supplyAsync(() -> {
@@ -119,6 +121,26 @@ public class MatchController {
                  return Result.failure(Error.network(e.getMessage()));
              }
          });
+    }
+
+    public CompletableFuture<Result<JoinMatchResponse>> joinMatch(int matchId, String password) {
+        JoinMatchRequest requestData = new JoinMatchRequest(matchId, password);
+        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.JOIN_MATCH, requestData);
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendRequest(request).get();
+
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((JoinMatchResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
     }
 
     private void handleRealtimeMessage(RealtimeMessage message) {
