@@ -282,6 +282,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             throw new RuntimeException(e);
         }
 
+        notifySpectatorsPlayerExited();
+
         scoreController.insertScore(beatmap.getBeatmapId(), user.getId(), score,
                 highestCombo, accuracy, perfectHits, gekiHits, greatHits, greatKatuHits,
                 goodHits, misses, grade, now).thenApply(response -> {
@@ -289,6 +291,17 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 System.out.println("Score inserted successfully: " + response.getValue().getMessage());
             } else {
                 System.err.println("Failed to insert score: " + response.getError().getMessage());
+            }
+            return null;
+        });
+    }
+
+    public void notifySpectatorsPlayerExited() {
+        spectateController.notifySpectatorsPlayerExited().thenApply(response -> {
+            if (response.isSuccess()) {
+                System.out.println("Player exit event sent successfully: " + response.getValue().getMessage());
+            } else {
+                System.err.println("Failed to send player exit event: " + response.getError().getMessage());
             }
             return null;
         });

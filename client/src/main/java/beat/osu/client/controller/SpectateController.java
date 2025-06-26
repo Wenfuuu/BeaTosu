@@ -6,14 +6,8 @@ import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.game.SpectateDto;
 import beat.osu.shared.dto.game.events.SpectateEvent;
 import beat.osu.shared.dto.game.events.SpectateStatusEvent;
-import beat.osu.shared.dto.game.requests.NotifySpectateStatusRequest;
-import beat.osu.shared.dto.game.requests.SendSpectateEventRequest;
-import beat.osu.shared.dto.game.requests.StartSpectateRequest;
-import beat.osu.shared.dto.game.requests.StopSpectateRequest;
-import beat.osu.shared.dto.game.responses.NotifySpectateStatusResponse;
-import beat.osu.shared.dto.game.responses.SendSpectateEventResponse;
-import beat.osu.shared.dto.game.responses.StartSpectateResponse;
-import beat.osu.shared.dto.game.responses.StopSpectateResponse;
+import beat.osu.shared.dto.game.requests.*;
+import beat.osu.shared.dto.game.responses.*;
 import beat.osu.shared.enums.message.MessageAction;
 import beat.osu.shared.enums.message.MessageType;
 import beat.osu.shared.enums.message.RealtimeMessageType;
@@ -30,6 +24,7 @@ public class SpectateController {
 
     private final List<Consumer<SpectateEvent>> spectateEventCallbacks = new ArrayList<>();
     private final List<Consumer<SpectateStatusEvent>> spectateStatusEventCallbacks = new ArrayList<>();
+    private final List<Consumer<String>> playerExitedCallbacks = new ArrayList<>();
 
     public SpectateController() {
         this.clientService = ClientService.getInstance();
@@ -50,6 +45,14 @@ public class SpectateController {
 
     public void removeSpectateStatusEventCallback(Consumer<SpectateStatusEvent> callback) {
         spectateStatusEventCallbacks.remove(callback);
+    }
+
+    public void addPlayerExitedCallback(Consumer<String> callback) {
+        playerExitedCallbacks.add(callback);
+    }
+
+    public void removePlayerExitedCallback(Consumer<String> callback) {
+        playerExitedCallbacks.remove(callback);
     }
 
     // start spectate
@@ -114,6 +117,26 @@ public class SpectateController {
         });
     }
 
+    // notify spectators player exited game
+    public CompletableFuture<Result<NotifyExitResponse>> notifySpectatorsPlayerExited() {
+        RequestMessage request = new RequestMessage(MessageType.SPECTATE, MessageAction.PLAYER_EXIT_GAME, new NotifyExitRequest("Player exited game"));
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendRequest(request).get();
+
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success(null);
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
+    }
+
     public CompletableFuture<Result<SendSpectateEventResponse>> sendSpectateEvent(SpectateEvent event) {
         SendSpectateEventRequest requestData = new SendSpectateEventRequest(event);
         RequestMessage request = new RequestMessage(MessageType.SPECTATE, MessageAction.SEND_SPECTATE_EVENT, requestData);
@@ -151,6 +174,11 @@ public class SpectateController {
                 SpectateStatusEvent event = (SpectateStatusEvent) message.getPayload();
                 notifySpectateStatusEvent(event);
             }
+        } else if (message.getType() == RealtimeMessageType.PLAYER_EXIT_GAME) {
+            if (message.getPayload() instanceof String) {
+                String exitMessage = (String) message.getPayload();
+                notifyPlayerExited(exitMessage);
+            }
         }
     }
 
@@ -170,6 +198,16 @@ public class SpectateController {
                 callback.accept(event);
             } catch (Exception e) {
                 System.err.println("Error in spectate status event callback: " + e.getMessage());
+            }
+        }
+    }
+
+    private void notifyPlayerExited(String message) {
+        for (Consumer<String> callback : playerExitedCallbacks) {
+            try {
+                callback.accept(message);
+            } catch (Exception e) {
+                System.err.println("Error in player exited callback: " + e.getMessage());
             }
         }
     }

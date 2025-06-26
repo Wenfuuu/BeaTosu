@@ -20,7 +20,6 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -72,7 +71,7 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
         root.widthProperty().addListener(resizeListener);
         root.heightProperty().addListener(resizeListener);
 
-        setupUserCallbacks();
+        setupSpectateCallbacks();
 
         initializeUI();
         loadBackground();
@@ -99,7 +98,7 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
         spectatePauseOverlay.setVisible(event.isPaused());
     }
 
-    private void setupUserCallbacks() {
+    private void setupSpectateCallbacks() {
         spectateController.addSpectateEventCallback(this::updateSpectateDimensions);
         spectateController.addSpectateStatusEventCallback(this::updateSpectateStatus);
     }
