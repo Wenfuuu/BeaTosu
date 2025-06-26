@@ -11,6 +11,7 @@ import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.view.match.component.cards.BeatmapCard;
 import beat.osu.client.view.match.component.layout.TopBar;
 import beat.osu.client.view.match.component.panels.MatchSlotPanel;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
@@ -31,6 +32,9 @@ import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -69,6 +73,22 @@ public class MatchView extends Page {
     private TopBar topBar;
     private VBox mainContent;
     private VBox banchoPanelsContainer;
+
+    // left panel components
+    private MatchSlotPanel matchSlotPanel;
+    private Button leaveMatchButton;
+
+    // Right panel components
+    private Label gameNameLabel;
+    private Button changePasswordButton;
+    private TextField gameNameTextField;
+    private Label beatmapNameLabel;
+    private Button changeBeatmapButton;
+    private BeatmapCard beatmapCard;
+    private Label winConditionLabel;
+    private ComboBox<String> winConditionComboBox;
+
+    private Button readyButton;
 
     public MatchView(Stage stage, MatchDto matchDto, ConnectedUsersController connectedUsersController,
                      ChatController chatController,MatchController matchController, SessionController sessionController) {
@@ -203,10 +223,10 @@ public class MatchView extends Page {
                 createMatchPlayer(11, 12, "FlashBeat", "flash@osu.com", "IN", 4800, 97.60, 3900, 109, 410, false, PlayerRole.PLAYER, PlayerStatus.READY)
         );
 
-        MatchSlotPanel matchSlotPanel = new MatchSlotPanel(maxPlayerCount, matchPlayers);
+        matchSlotPanel = new MatchSlotPanel(maxPlayerCount, matchPlayers);
         matchSlotPanel.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.46);
 
-        Button leaveMatchButton = new Button("Leave Match");
+        leaveMatchButton = new Button("Leave Match");
         leaveMatchButton.getStyleClass().add("leave-match-button");
         leaveMatchButton.setMaxWidth(Double.MAX_VALUE);
         VBox.setMargin(leaveMatchButton, new Insets(8, 36, 0, 36));
@@ -217,7 +237,34 @@ public class MatchView extends Page {
         leftPanel.setMaxWidth(ScreenManager.SCREEN_WIDTH / 2);
         leftPanel.setPrefWidth(ScreenManager.SCREEN_WIDTH / 2);
 
-        VBox rightPanel = new VBox();
+
+        gameNameLabel = new Label("Game Name");
+        gameNameLabel.getStyleClass().add("game-name-label");
+
+        changePasswordButton = new Button("Change Password");
+        changePasswordButton.getStyleClass().add("change-password-button");
+
+        gameNameTextField = new TextField(matchName);
+        gameNameTextField.getStyleClass().add("game-name-text-field");
+
+        beatmapNameLabel = new Label("Beatmap");
+        beatmapNameLabel.getStyleClass().add("beatmap-label");
+
+        changeBeatmapButton = new Button("Change...");
+        changeBeatmapButton.getStyleClass().add("change-beatmap-button");
+
+        winConditionLabel = new Label("Win Condition");
+        winConditionComboBox = new ComboBox<>();
+        winConditionComboBox.getStyleClass().add("win-condition-combo");
+        winConditionComboBox.getItems().addAll("score", "accuracy", "combo");
+
+        readyButton = new Button("Ready");
+        readyButton.getStyleClass().add("ready-button");
+
+        BeatmapCard card = BeatmapCard.noMap("No Title", "Reol");
+        VBox.setMargin(card, new Insets(16, 0, 0, 0));
+
+        VBox rightPanel = new VBox(card);
         rightPanel.setMinWidth(ScreenManager.SCREEN_WIDTH / 2);
         rightPanel.setMaxWidth(ScreenManager.SCREEN_WIDTH / 2);
         rightPanel.setPrefWidth(ScreenManager.SCREEN_WIDTH / 2);

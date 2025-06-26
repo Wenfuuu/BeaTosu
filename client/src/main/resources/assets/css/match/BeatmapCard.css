@@ -1,0 +1,35 @@
+.beatmap-card {
+    -fx-border-color: black;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.5, 0, 0);
+}
+
+.no-map-card {
+    -fx-background-color: rgba(255, 99, 2, 0.8);
+    -fx-padding: 3px 0 0 20px;
+    -fx-spacing: 0;
+}
+
+.available-map-card {
+    -fx-background-color: #E24893;
+}
+
+.changing-map-card {
+    -fx-background-color: #A9A9A9;
+    -fx-padding: 3px 0 0 20px;
+    -fx-spacing: 0;
+}
+
+.changing-map-title, .changing-map-description {
+    -fx-text-fill: white;
+}
+
+.changing-map-title, .no-map-title {
+    -fx-font-size: 28px;
+    -fx-font-family: "Aller Light";
+}
+
+.changing-map-description, .no-map-description {
+    -fx-font-size: 20px;
+    -fx-font-family: "Aller";
+}
