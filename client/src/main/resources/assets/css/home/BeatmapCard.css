@@ -1,0 +1,29 @@
+/* BeatmapCard styles */
+.beatmap-card {
+    -fx-background-radius: 3;
+}
+
+.beatmap-card:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.2), 8, 0, 0, 2);
+}
+
+.beatmap-card.selected {
+    -fx-border-color: white;
+    -fx-border-width: 2;
+    -fx-border-radius: 3;
+}
+
+.beatmap-content {
+    -fx-background-radius: 3;
+}
+
+.beatmap-content .label {
+    -fx-font-family: "Aller";
+    -fx-text-fill: white;
+    -fx-font-size: 12;
+}
+
+.beatmap-content .title {
+    -fx-font-weight: bold;
+    -fx-font-size: 14;
+}
