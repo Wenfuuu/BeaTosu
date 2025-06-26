@@ -27,6 +27,7 @@ public class SpectateController {
     private final ClientService clientService;
 
     private final List<Consumer<SpectateEvent>> spectateEventCallbacks = new ArrayList<>();
+    private final List<Consumer<SpectateStatusEvent>> spectateStatusEventCallbacks = new ArrayList<>();
 
     public SpectateController() {
         this.clientService = ClientService.getInstance();
@@ -39,6 +40,14 @@ public class SpectateController {
 
     public void removeSpectateEventCallback(Consumer<SpectateEvent> callback) {
         spectateEventCallbacks.remove(callback);
+    }
+
+    public void addSpectateStatusEventCallback(Consumer<SpectateStatusEvent> callback) {
+        spectateStatusEventCallbacks.add(callback);
+    }
+
+    public void removeSpectateStatusEventCallback(Consumer<SpectateStatusEvent> callback) {
+        spectateStatusEventCallbacks.remove(callback);
     }
 
     // start spectate
@@ -118,21 +127,32 @@ public class SpectateController {
         if (message.getType() == RealtimeMessageType.SPECTATE_EVENT) {
             if (message.getPayload() instanceof SpectateEvent) {
                 SpectateEvent event = (SpectateEvent) message.getPayload();
-                notifyReplayEvent(event);
+                notifySpectateEvent(event);
             }
         } else if (message.getType() == RealtimeMessageType.SPECTATE_STATUS_CHANGE) {
             if (message.getPayload() instanceof SpectateStatusEvent) {
-
+                SpectateStatusEvent event = (SpectateStatusEvent) message.getPayload();
+                notifySpectateStatusEvent(event);
             }
         }
     }
 
-    private void notifyReplayEvent(SpectateEvent event) {
+    private void notifySpectateEvent(SpectateEvent event) {
         for (Consumer<SpectateEvent> callback : spectateEventCallbacks) {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in replay event callback: " + e.getMessage());
+                System.err.println("Error in spectate event callback: " + e.getMessage());
+            }
+        }
+    }
+
+    private void notifySpectateStatusEvent(SpectateStatusEvent event) {
+        for (Consumer<SpectateStatusEvent> callback : spectateStatusEventCallbacks) {
+            try {
+                callback.accept(event);
+            } catch (Exception e) {
+                System.err.println("Error in spectate status event callback: " + e.getMessage());
             }
         }
     }
