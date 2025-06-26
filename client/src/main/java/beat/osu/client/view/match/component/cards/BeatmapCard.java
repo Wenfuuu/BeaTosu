@@ -1,5 +1,10 @@
 package beat.osu.client.view.match.component.cards;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Objects;
+
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ResourceManager;
@@ -17,11 +22,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Objects;
 
 public class BeatmapCard extends StackPane {
 
@@ -107,6 +107,18 @@ public class BeatmapCard extends StackPane {
         loadStyles();
     }
 
+    private double getTitleFontSize() {
+        return ScreenManager.SCREEN_HEIGHT * 0.0259;
+    }
+
+    private double getInfoFontSize() {
+        return ScreenManager.SCREEN_HEIGHT * 0.02;
+    }
+
+    private double getDescriptionFontSize() {
+        return ScreenManager.SCREEN_HEIGHT * 0.0185;
+    }
+
     private void updateUI() {
         switch (variant) {
             case NO_MAP:
@@ -126,9 +138,11 @@ public class BeatmapCard extends StackPane {
     private void updateNoMapUI() {
         titleLabel = new Label(artist + " - " + beatmapName);
         titleLabel.getStyleClass().add("no-map-title");
+        titleLabel.setStyle("-fx-font-size: " + getTitleFontSize() + "px;");
 
         descriptionLabel = new Label("// Click to download this map!");
         descriptionLabel.getStyleClass().add("no-map-description");
+        descriptionLabel.setStyle("-fx-font-size: " + getDescriptionFontSize() + "px;");
 
         VBox noMapContent = new VBox(0);
         noMapContent.getChildren().addAll(titleLabel, descriptionLabel);
@@ -140,9 +154,11 @@ public class BeatmapCard extends StackPane {
     private void updateChangingMapUI() {
         titleLabel = new Label("Host is changing the map.");
         titleLabel.getStyleClass().add("changing-map-title");
+        titleLabel.setStyle("-fx-font-size: " + getTitleFontSize() + "px;");
 
         descriptionLabel = new Label("// Please wait!");
         descriptionLabel.getStyleClass().add("changing-map-description");
+        descriptionLabel.setStyle("-fx-font-size: " + getDescriptionFontSize() + "px;");
 
         VBox changingMapContent = new VBox(0);
         changingMapContent.getChildren().addAll(titleLabel, descriptionLabel);
@@ -197,15 +213,19 @@ public class BeatmapCard extends StackPane {
 
         beatmapNameLabel = new Label(beatmapName);
         beatmapNameLabel.getStyleClass().add("beatmap-name-label");
+        beatmapNameLabel.setStyle("-fx-font-size: " + getTitleFontSize() + "px;");
 
         beatmapInfoLabel = new Label(String.format("%s // %s", artist, creator));
         beatmapInfoLabel.getStyleClass().add("beatmap-info");
+        beatmapInfoLabel.setStyle("-fx-font-size: " + getInfoFontSize() + "px;");
 
         beatmapVersionLabel = new Label(version);
         beatmapVersionLabel.getStyleClass().add("beatmap-version");
+        beatmapVersionLabel.setStyle("-fx-font-size: " + getInfoFontSize() + "px;");
 
         beatmapStarsBox = createStarsBox();
         beatmapStarsBox.getStyleClass().add("beatmap-stars-box");
+        beatmapStarsBox.setStyle("-fx-font-size: " + (getInfoFontSize() * 0.9) + "px;");
 
         infoBox.getChildren().addAll(beatmapNameLabel, beatmapInfoLabel, beatmapVersionLabel, beatmapStarsBox);
         contentContainer.getChildren().addAll(gamemodeBox, infoBox);
@@ -224,8 +244,10 @@ public class BeatmapCard extends StackPane {
 
     private HBox createStarsBox() {
         HBox starsBox = new HBox(8);
+        double starFontSize = getInfoFontSize() * 0.9; // Slightly smaller than info text
         for (int i = 0; i < stars; i++) {
             Label star = new Label("★");
+            star.setStyle("-fx-font-size: " + starFontSize + "px;");
             starsBox.getChildren().add(star);
         }
         return starsBox;

@@ -21,29 +21,21 @@
 }
 
 .changing-map-title, .no-map-title, .beatmap-name-label {
-    -fx-font-size: 28px;
     -fx-font-family: "Aller Light";
     -fx-text-fill: white;
 }
 
 .beatmap-info {
-    -fx-font-size: 22px;
     -fx-font-family: "Aller Light";
     -fx-text-fill: white;
 }
 
 .beatmap-version {
-    -fx-font-size: 22px;
     -fx-font-family: "Aller";
     -fx-text-fill: white;
 }
 
-.beatmap-stars-box {
-    -fx-font-size: 20px;
-}
-
 .changing-map-description, .no-map-description {
-    -fx-font-size: 20px;
     -fx-font-family: "Aller";
     -fx-text-fill: white;
 }
