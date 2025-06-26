@@ -166,7 +166,7 @@ public class SpectateService {
             RealtimeMessage realtimeMessage = new RealtimeMessage(
                     RealtimeMessageType.PLAYER_EXIT_GAME,
                     clientId,
-                    "player exited");
+                    "Host has exited the game");
 
             // Create a copy to avoid ConcurrentModificationException
             Set<Integer> spectatorsCopy = Set.copyOf(spectators);

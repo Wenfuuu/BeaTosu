@@ -8,8 +8,10 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import lombok.Getter;
 
 public class SpectatePauseOverlay extends StackPane {
+    @Getter
     private final Label pauseLabel;
     private final Label escapeLabel;
 

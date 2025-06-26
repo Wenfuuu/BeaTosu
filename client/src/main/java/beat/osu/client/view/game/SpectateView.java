@@ -98,9 +98,16 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
         spectatePauseOverlay.setVisible(event.isPaused());
     }
 
+    private void onPlayerExited(String message) {
+        Platform.runLater(() -> {
+            spectatePauseOverlay.getPauseLabel().setText(message);
+        });
+    }
+
     private void setupSpectateCallbacks() {
         spectateController.addSpectateEventCallback(this::updateSpectateDimensions);
         spectateController.addSpectateStatusEventCallback(this::updateSpectateStatus);
+        spectateController.addPlayerExitedCallback(this::onPlayerExited);
     }
 
     private void initializeUI() {

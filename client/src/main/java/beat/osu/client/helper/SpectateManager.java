@@ -225,7 +225,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
         this.inputManager = inputManager;
         this.coordinateConverter = coordinateConverter;
 
-        setupUserCallbacks();
+        setupSpectateCallbacks();
         processBeatmap();
 
         startSpectate(spectateDto);
@@ -466,7 +466,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
         else resumeAllAnimations();
     }
 
-    private void setupUserCallbacks() {
+    private void setupSpectateCallbacks() {
         spectateController.addSpectateEventCallback(this::updateSpectate);
         spectateController.addSpectateStatusEventCallback(this::updateSpectateStatus);
     }

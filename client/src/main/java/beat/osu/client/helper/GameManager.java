@@ -297,6 +297,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     public void notifySpectatorsPlayerExited() {
+        System.out.println("Notifying spectators that player exited game");
         spectateController.notifySpectatorsPlayerExited().thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Player exit event sent successfully: " + response.getValue().getMessage());
