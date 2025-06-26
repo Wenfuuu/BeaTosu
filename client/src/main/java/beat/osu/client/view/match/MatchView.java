@@ -7,8 +7,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import beat.osu.client.controller.*;
-import beat.osu.client.helper.*;
+import beat.osu.client.controller.BeatmapController;
+import beat.osu.client.controller.ChatController;
+import beat.osu.client.controller.ConnectedUsersController;
+import beat.osu.client.controller.MatchController;
+import beat.osu.client.controller.SessionController;
+import beat.osu.client.helper.AuthManager;
+import beat.osu.client.helper.BackgroundManager;
+import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ResourceManager;
+import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.view.match.component.cards.BeatmapCard;
@@ -38,8 +46,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -228,16 +239,14 @@ public class MatchView extends Page {
         );
 
         matchSlotPanel = new MatchSlotPanel(maxPlayerCount, matchPlayers);
-        matchSlotPanel.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.5);
-        matchSlotPanel.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.5);
-        matchSlotPanel.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.5);
+        matchSlotPanel.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.43);
+        matchSlotPanel.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.43);
+        matchSlotPanel.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.43);
 
         leaveMatchButton = new Button("Leave Match");
         leaveMatchButton.getStyleClass().add("leave-match-button");
-        leaveMatchButton.setMaxWidth(Double.MAX_VALUE);
-        VBox.setMargin(leaveMatchButton, new Insets(8, 36, 0, 36));
 
-        VBox leftPanel = new VBox(matchSlotPanel, leaveMatchButton);
+        VBox leftPanel = new VBox(matchSlotPanel);
         leftPanel.getStyleClass().add("left-panel");
         leftPanel.setMinWidth(ScreenManager.SCREEN_WIDTH / 2);
         leftPanel.setMaxWidth(ScreenManager.SCREEN_WIDTH / 2);
@@ -283,8 +292,6 @@ public class MatchView extends Page {
 
         readyButton = new Button("Ready");
         readyButton.getStyleClass().add("ready-button");
-        readyButton.setMaxWidth(Double.MAX_VALUE);
-        VBox.setMargin(readyButton, new Insets(16, 36, 0, 36));
 
         Beatmap beatmap = fetchBeatmapById(5103482);
         BeatmapCard card = BeatmapCard.available(beatmap);
@@ -292,11 +299,11 @@ public class MatchView extends Page {
         VBox rightContent = new VBox(gameBox, gameNameTextField, beatmapBox, card, winConditionBox);
         rightContent.setPadding(new Insets(24, 0, 10, ScreenManager.SCREEN_WIDTH * 0.1));
 
-        rightContent.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.5);
-        rightContent.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.5);
-        rightContent.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.5);
+        rightContent.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.43);
+        rightContent.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.43);
+        rightContent.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.43);
 
-        VBox rightPanel = new VBox(rightContent, readyButton);
+        VBox rightPanel = new VBox(rightContent);
         rightPanel.getStyleClass().add("right-panel");
 
         rightPanel.setMinWidth(ScreenManager.SCREEN_WIDTH / 2);
@@ -305,9 +312,26 @@ public class MatchView extends Page {
 
         HBox matchContent = new HBox(leftPanel, rightPanel);
 
-        mainContent = new VBox();
-        mainContent.getChildren().addAll(topBar, matchContent);
+        HBox buttonContainer = new HBox(20);
+        buttonContainer.setAlignment(Pos.CENTER);
+        buttonContainer.setPadding(new Insets(12, 36, 12, 36));
+        
+        double buttonWidth = (ScreenManager.SCREEN_WIDTH - 72 - 20) / 2;
+        
+        leaveMatchButton.setPrefWidth(buttonWidth);
+        leaveMatchButton.setMaxWidth(buttonWidth);
+        leaveMatchButton.setMinWidth(buttonWidth);
+        
+        readyButton.setPrefWidth(buttonWidth);
+        readyButton.setMaxWidth(buttonWidth);
+        readyButton.setMinWidth(buttonWidth);
+        
+        buttonContainer.getChildren().addAll(leaveMatchButton, readyButton);
 
+        mainContent = new VBox();
+        mainContent.getChildren().addAll(topBar, matchContent, buttonContainer);
+
+        VBox.setVgrow(matchContent, Priority.ALWAYS);
         VBox.setVgrow(mainContent, Priority.ALWAYS);
         StackPane.setMargin(mainContent, new Insets(0, 0, ScreenManager.SCREEN_HEIGHT * 0.35, 0));
         root.getChildren().add(mainContent);
