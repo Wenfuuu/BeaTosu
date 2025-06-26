@@ -2,7 +2,6 @@ package beat.osu.client.helper;
 
 import beat.osu.client.controller.SpectateController;
 import beat.osu.client.enums.GameEventType;
-import beat.osu.client.enums.HealthRecover;
 import beat.osu.client.enums.HitResult;
 import beat.osu.client.events.game.*;
 import beat.osu.client.factory.HitObjectFactory;
@@ -371,6 +370,8 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
                 firstSpectateEvent = false;
                 BgmManager.getInstance().getCurrentPlayer().seek(Duration.millis(event.getCurrentTime()));
                 BgmManager.getInstance().playGameBgm();
+                // clear all hit objects that has hit time before the first event
+                hitObjects.removeIf(hitObject -> hitObject.getHitTime() < event.getCurrentTime());
             }
 
             Set<KeyCode> currentKeys = inputManager.getPressedKeys();
