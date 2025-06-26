@@ -315,8 +315,12 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         if (pressedEsc) {
             if (gameState == GameState.PLAYING || gameState == GameState.BREAK_PERIOD) {
                 pauseGame();
+                // notify to listeners that spectate is paused
+
             } else if (gameState == GameState.PAUSED) {
-                resumeGame(); // Use a separate resume method
+                resumeGame();
+                // notify to listeners that spectate is resumed
+
             }
             previousKeys.clear();
             previousKeys.addAll(currentKeys);

@@ -5,6 +5,7 @@ import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.game.SpectateDto;
 import beat.osu.shared.dto.game.events.SpectateEvent;
+import beat.osu.shared.dto.game.events.SpectateStatusEvent;
 import beat.osu.shared.dto.game.requests.SendSpectateEventRequest;
 import beat.osu.shared.dto.game.requests.StartSpectateRequest;
 import beat.osu.shared.dto.game.requests.StopSpectateRequest;
@@ -81,6 +82,12 @@ public class SpectateController {
         });
     }
 
+    // notify spectators pause
+
+
+    // notify spectators resume
+
+
     public CompletableFuture<Result<SendSpectateEventResponse>> sendSpectateEvent(SpectateEvent event) {
         SendSpectateEventRequest requestData = new SendSpectateEventRequest(event);
         RequestMessage request = new RequestMessage(MessageType.SPECTATE, MessageAction.SEND_SPECTATE_EVENT, requestData);
@@ -112,6 +119,10 @@ public class SpectateController {
             if (message.getPayload() instanceof SpectateEvent) {
                 SpectateEvent event = (SpectateEvent) message.getPayload();
                 notifyReplayEvent(event);
+            }
+        } else if (message.getType() == RealtimeMessageType.SPECTATE_STATUS_CHANGE) {
+            if (message.getPayload() instanceof SpectateStatusEvent) {
+
             }
         }
     }

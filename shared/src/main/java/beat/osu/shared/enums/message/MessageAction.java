@@ -45,5 +45,6 @@ public enum MessageAction implements Serializable {
     // Spectate actions
     START_SPECTATE,
     SEND_SPECTATE_EVENT,
-    STOP_SPECTATE
+    STOP_SPECTATE,
+    CHANGE_SPECTATE_STATUS,
 }

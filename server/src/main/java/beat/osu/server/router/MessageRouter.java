@@ -19,6 +19,7 @@ import beat.osu.shared.dto.chat.requests.JoinChannelRequest;
 import beat.osu.shared.dto.chat.requests.LeaveChannelRequest;
 import beat.osu.shared.dto.chat.requests.SendChannelMessageRequest;
 import beat.osu.shared.dto.chat.requests.SendPrivateChatMessageRequest;
+import beat.osu.shared.dto.game.requests.NotifySpectateStatusRequest;
 import beat.osu.shared.dto.game.requests.SendSpectateEventRequest;
 import beat.osu.shared.dto.game.requests.StartSpectateRequest;
 import beat.osu.shared.dto.match.requests.CreateMatchRequest;
@@ -181,6 +182,8 @@ public class MessageRouter {
                 return spectateService.sendSpectateEvent((SendSpectateEventRequest) request.getPayload(), clientId);
             case STOP_SPECTATE:
                 return spectateService.stopSpectating(clientId);
+            case CHANGE_SPECTATE_STATUS:
+                return spectateService.notifySpectatorsStatusChange((NotifySpectateStatusRequest) request.getPayload(), clientId);
             default:
                 return Result.failure(Error.validation("Unknown spectate action: " + request.getAction()));
         }
