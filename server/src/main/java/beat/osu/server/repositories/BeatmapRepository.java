@@ -1,14 +1,13 @@
 package beat.osu.server.repositories;
 
-import beat.osu.server.database.Connect;
-import beat.osu.server.entities.Beatmap;
-import beat.osu.server.entities.BeatmapSet;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
+import beat.osu.server.database.Connect;
+import beat.osu.server.entities.Beatmap;
 
 public class BeatmapRepository {
     private final Connection conn;
@@ -43,6 +42,32 @@ public class BeatmapRepository {
             throw new RuntimeException(e);
         }
         return beatmaps;
+    }
+
+    public Beatmap getBeatmapById(int id) {
+        String query = "SELECT * FROM beatmaps WHERE id = ?;";
+        try {
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery();
+            if (rs.next()) {
+                return new Beatmap(
+                        rs.getInt("id"),
+                        rs.getInt("beatmap_set_id"),
+                        rs.getString("version"),
+                        rs.getDouble("hp_drain_rate"),
+                        rs.getDouble("circle_size"),
+                        rs.getDouble("overall_difficulty"),
+                        rs.getDouble("approach_rate"),
+                        rs.getDouble("slider_multiplier"),
+                        rs.getDouble("slider_tick_rate"),
+                        rs.getDouble("star_rating")
+                );
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 
     public void insertBeatmap(

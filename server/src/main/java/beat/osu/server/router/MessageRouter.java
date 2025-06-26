@@ -13,6 +13,7 @@ import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.auth.requests.LoginRequest;
 import beat.osu.shared.dto.auth.requests.RegisterRequest;
+import beat.osu.shared.dto.beatmap.requests.GetBeatmapByIdRequest;
 import beat.osu.shared.dto.beatmap.requests.InsertBeatmapRequest;
 import beat.osu.shared.dto.beatmap.requests.InsertBeatmapSetRequest;
 import beat.osu.shared.dto.chat.requests.JoinChannelRequest;
@@ -98,6 +99,8 @@ public class MessageRouter {
         switch (request.getAction()) {
             case GET_ALL_BEATMAPS:
                 return beatmapService.getAllBeatmaps();
+            case GET_BEATMAP_BY_ID:
+                return beatmapService.getBeatmapById((GetBeatmapByIdRequest) request.getPayload());
             case INSERT_BEATMAP:
                 return beatmapService.insertBeatmap((InsertBeatmapRequest) request.getPayload());
             case INSERT_BEATMAP_SET:

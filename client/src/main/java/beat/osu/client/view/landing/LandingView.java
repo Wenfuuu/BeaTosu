@@ -33,6 +33,7 @@ import beat.osu.client.view.shared.jukebox.modals.PlaylistModal;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.beatmap.BeatmapDto;
 import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
+import beat.osu.shared.dto.beatmap.responses.GetBeatmapByIdResponse;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.ParallelTransition;
@@ -268,51 +269,47 @@ public class LandingView extends Page {
         }
 
         try {
-            Result<GetAllBeatmapsResponse> result = beatmapController.getAllBeatmaps().get();
+            Result<GetBeatmapByIdResponse> result = beatmapController.getBeatmapById(id).get();
 
             if (result.isSuccess()) {
-                for (BeatmapDto beatmapDto : result.getValue().getBeatmaps()) {
-                    if (beatmapDto.getId() != id) {
-                        continue;
-                    }
+                BeatmapDto beatmapDto = result.getValue().getBeatmap();
 
-                    String expectedDirName = String.format("%d", beatmapDto.getBeatmapSetId());
+                String expectedDirName = String.format("%d", beatmapDto.getBeatmapSetId());
 
-                    for (String dir : validBeatmapDirs) {
-                        System.out.println("Found directory: " + dir);
-                    }
-
-                    System.out.println("Expected dir name: " + expectedDirName);
-
-                    if (!validBeatmapDirs.contains(expectedDirName)) {
-                        return null;
-                    }
-
-                    BeatmapSet beatmapSet = new BeatmapSet(
-                            beatmapDto.getBeatmapSetDto().getId(),
-                            beatmapDto.getBeatmapSetDto().getTitle(),
-                            beatmapDto.getBeatmapSetDto().getArtist(),
-                            beatmapDto.getBeatmapSetDto().getCreator(),
-                            beatmapDto.getBeatmapSetDto().getLength(),
-                            beatmapDto.getBeatmapSetDto().getBpm()
-                    );
-
-                    return new Beatmap(
-                            beatmapDto.getId(),
-                            beatmapDto.getBeatmapSetDto().getId(),
-                            beatmapDto.getVersion(),
-                            beatmapDto.getHpDrainRate(),
-                            beatmapDto.getCircleSize(),
-                            beatmapDto.getOverallDifficulty(),
-                            beatmapDto.getApproachRate(),
-                            beatmapDto.getSliderMultiplier(),
-                            beatmapDto.getSliderTickRate(),
-                            beatmapDto.getStarRating(),
-                            beatmapSet
-                    );
+                for (String dir : validBeatmapDirs) {
+                    System.out.println("Found directory: " + dir);
                 }
 
-                System.err.println("Beatmap with ID " + id + " not found in response.");
+                System.out.println("Expected dir name: " + expectedDirName);
+
+                if (!validBeatmapDirs.contains(expectedDirName)) {
+                    System.out.println("Beatmap directory not found in temp directory: " + expectedDirName);
+                    return null;
+                }
+
+                BeatmapSet beatmapSet = new BeatmapSet(
+                        beatmapDto.getBeatmapSetDto().getId(),
+                        beatmapDto.getBeatmapSetDto().getTitle(),
+                        beatmapDto.getBeatmapSetDto().getArtist(),
+                        beatmapDto.getBeatmapSetDto().getCreator(),
+                        beatmapDto.getBeatmapSetDto().getLength(),
+                        beatmapDto.getBeatmapSetDto().getBpm()
+                );
+
+                return new Beatmap(
+                        beatmapDto.getId(),
+                        beatmapDto.getBeatmapSetDto().getId(),
+                        beatmapDto.getVersion(),
+                        beatmapDto.getHpDrainRate(),
+                        beatmapDto.getCircleSize(),
+                        beatmapDto.getOverallDifficulty(),
+                        beatmapDto.getApproachRate(),
+                        beatmapDto.getSliderMultiplier(),
+                        beatmapDto.getSliderTickRate(),
+                        beatmapDto.getStarRating(),
+                        beatmapSet
+                );
+
             } else {
                 System.err.println("Failed to fetch beatmaps: " + result.getError().getMessage());
             }

@@ -12,9 +12,11 @@ import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.beatmap.BeatmapDto;
 import beat.osu.shared.dto.beatmap.BeatmapSetDto;
+import beat.osu.shared.dto.beatmap.requests.GetBeatmapByIdRequest;
 import beat.osu.shared.dto.beatmap.requests.InsertBeatmapRequest;
 import beat.osu.shared.dto.beatmap.requests.InsertBeatmapSetRequest;
 import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
+import beat.osu.shared.dto.beatmap.responses.GetBeatmapByIdResponse;
 import beat.osu.shared.dto.beatmap.responses.InsertBeatmapResponse;
 import beat.osu.shared.dto.beatmap.responses.InsertBeatmapSetResponse;
 import lombok.AllArgsConstructor;
@@ -130,6 +132,53 @@ public class BeatmapService {
             String message = "Beatmap inserted successfully with ID: " + request.getId();
 
             return Result.success(new InsertBeatmapResponse(message));
+        } catch (RuntimeException e) {
+            return Result.failure(Error.internal("Database error: " + e.getMessage()));
+        }
+    }
+
+    public Result<GetBeatmapByIdResponse> getBeatmapById(GetBeatmapByIdRequest request) {
+        if (request == null) {
+            return Result.failure(Error.badRequest("Beatmap ID request data is missing"));
+        }
+
+        try {
+            Beatmap beatmap = beatmapRepository.getBeatmapById(request.getId());
+            
+            if (beatmap == null) {
+                return Result.failure(Error.notFound("Beatmap not found for ID: " + request.getId()));
+            }
+
+            BeatmapSet beatmapSet = beatmapSetRepository.getBeatmapSetById(beatmap.getBeatmapSetId());
+            
+            if (beatmapSet == null) {
+                return Result.failure(Error.notFound("Beatmap set not found for ID: " + beatmap.getBeatmapSetId()));
+            }
+
+            BeatmapSetDto beatmapSetDto = new BeatmapSetDto(
+                    beatmapSet.getId(),
+                    beatmapSet.getTitle(),
+                    beatmapSet.getArtist(),
+                    beatmapSet.getCreator(),
+                    beatmapSet.getLength(),
+                    beatmapSet.getBpm()
+            );
+
+            BeatmapDto beatmapDto = new BeatmapDto(
+                    beatmap.getId(),
+                    beatmap.getBeatmapSetId(),
+                    beatmap.getVersion(),
+                    beatmap.getHpDrainRate(),
+                    beatmap.getCircleSize(),
+                    beatmap.getOverallDifficulty(),
+                    beatmap.getApproachRate(),
+                    beatmap.getSliderMultiplier(),
+                    beatmap.getSliderTickRate(),
+                    beatmap.getStarRating(),
+                    beatmapSetDto
+            );
+
+            return Result.success(new GetBeatmapByIdResponse(beatmapDto));
         } catch (RuntimeException e) {
             return Result.failure(Error.internal("Database error: " + e.getMessage()));
         }
