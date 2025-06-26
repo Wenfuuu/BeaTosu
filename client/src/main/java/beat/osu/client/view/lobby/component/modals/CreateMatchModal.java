@@ -82,15 +82,9 @@ public class CreateMatchModal extends VBox {
         maxPlayersLabel.getStyleClass().add("max-players-label");
 
         maxPlayersComboBox = new ComboBox<>();
-        maxPlayersComboBox.getItems().add("2 players");
-        maxPlayersComboBox.getItems().add("3 players");
-        maxPlayersComboBox.getItems().add("4 players");
-        maxPlayersComboBox.getItems().add("5 players");
-        maxPlayersComboBox.getItems().add("6 players");
-        maxPlayersComboBox.getItems().add("7 players");
-        maxPlayersComboBox.getItems().add("8 players");
-        maxPlayersComboBox.getItems().add("16 players");
-        maxPlayersComboBox.setValue("4 players");
+        maxPlayersComboBox.getItems().addAll("2 players", "3 players", "4 players",
+                "5 players", "6 players", "7 players",
+                "8 players", "16 players");
 
         maxPlayersComboBox.getStyleClass().add("dark-combo-box");
 
@@ -182,7 +176,7 @@ public class CreateMatchModal extends VBox {
     public void show() {
         gameTextField.clear();
         passwordField.clear();
-        maxPlayersComboBox.getSelectionModel().clearSelection();
+        maxPlayersComboBox.getSelectionModel().selectFirst();
         passwordCheckBox.setSelected(false);
 
         String username = AuthManager.getUser().getUsername();

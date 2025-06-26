@@ -85,7 +85,7 @@ public class MatchView extends Page {
     private Label gameNameLabel;
     private Button changePasswordButton;
     private TextField gameNameTextField;
-    private Label beatmapNameLabel;
+    private Label beatmapLabel;
     private Button changeBeatmapButton;
     private BeatmapCard beatmapCard;
     private Label winConditionLabel;
@@ -228,7 +228,9 @@ public class MatchView extends Page {
         );
 
         matchSlotPanel = new MatchSlotPanel(maxPlayerCount, matchPlayers);
-        matchSlotPanel.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.46);
+        matchSlotPanel.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.5);
+        matchSlotPanel.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.5);
+        matchSlotPanel.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.5);
 
         leaveMatchButton = new Button("Leave Match");
         leaveMatchButton.getStyleClass().add("leave-match-button");
@@ -241,35 +243,62 @@ public class MatchView extends Page {
         leftPanel.setMaxWidth(ScreenManager.SCREEN_WIDTH / 2);
         leftPanel.setPrefWidth(ScreenManager.SCREEN_WIDTH / 2);
 
-
         gameNameLabel = new Label("Game Name");
         gameNameLabel.getStyleClass().add("game-name-label");
 
-        changePasswordButton = new Button("Change Password");
+        changePasswordButton = new Button("Change Password...");
         changePasswordButton.getStyleClass().add("change-password-button");
+
+        HBox gameBox = new HBox(40);
+        gameBox.getChildren().addAll(gameNameLabel, changePasswordButton);
+        gameBox.setAlignment(Pos.CENTER_LEFT);
 
         gameNameTextField = new TextField(matchName);
         gameNameTextField.getStyleClass().add("game-name-text-field");
+        VBox.setMargin(gameNameTextField, new Insets(16, 20, 0, 0));
 
-        beatmapNameLabel = new Label("Beatmap");
-        beatmapNameLabel.getStyleClass().add("beatmap-label");
+        beatmapLabel = new Label("Beatmap");
+        beatmapLabel.getStyleClass().add("beatmap-label");
 
         changeBeatmapButton = new Button("Change...");
         changeBeatmapButton.getStyleClass().add("change-beatmap-button");
 
-        winConditionLabel = new Label("Win Condition");
+        HBox beatmapBox = new HBox(36);
+        beatmapBox.getChildren().addAll(beatmapLabel, changeBeatmapButton);
+        beatmapBox.setAlignment(Pos.CENTER_LEFT);
+        VBox.setMargin(beatmapBox, new Insets(40, 0, 20, 0));
+
+        winConditionLabel = new Label("Win Condition:");
+        winConditionLabel.getStyleClass().add("win-condition-label");
+
         winConditionComboBox = new ComboBox<>();
-        winConditionComboBox.getStyleClass().add("win-condition-combo");
+        winConditionComboBox.getStyleClass().add("dark-combo-box");
         winConditionComboBox.getItems().addAll("score", "accuracy", "combo");
+        winConditionComboBox.getSelectionModel().selectFirst();
+
+        HBox winConditionBox = new HBox(20);
+        winConditionBox.getChildren().addAll(winConditionLabel, winConditionComboBox);
+        winConditionBox.setAlignment(Pos.CENTER_RIGHT);
+        VBox.setMargin(winConditionBox, new Insets(20, 40, 0, 0));
 
         readyButton = new Button("Ready");
         readyButton.getStyleClass().add("ready-button");
+        readyButton.setMaxWidth(Double.MAX_VALUE);
+        VBox.setMargin(readyButton, new Insets(16, 36, 0, 36));
 
         Beatmap beatmap = fetchBeatmapById(5103482);
         BeatmapCard card = BeatmapCard.available(beatmap);
-        VBox.setMargin(card, new Insets(16, 0, 0, 0));
 
-        VBox rightPanel = new VBox(card);
+        VBox rightContent = new VBox(gameBox, gameNameTextField, beatmapBox, card, winConditionBox);
+        rightContent.setPadding(new Insets(24, 0, 10, ScreenManager.SCREEN_WIDTH * 0.1));
+
+        rightContent.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.5);
+        rightContent.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.5);
+        rightContent.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.5);
+
+        VBox rightPanel = new VBox(rightContent, readyButton);
+        rightPanel.getStyleClass().add("right-panel");
+
         rightPanel.setMinWidth(ScreenManager.SCREEN_WIDTH / 2);
         rightPanel.setMaxWidth(ScreenManager.SCREEN_WIDTH / 2);
         rightPanel.setPrefWidth(ScreenManager.SCREEN_WIDTH / 2);

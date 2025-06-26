@@ -1,21 +1,153 @@
-.leave-match-button {
+.leave-match-button, .ready-button {
     -fx-padding: 4px 20px 6px 20px;
     -fx-text-fill: white;
     -fx-font-family: 'Aller';
     -fx-font-size: 40px;
     -fx-border-radius: 4px;
     -fx-alignment: center;
-    -fx-background-color: linear-gradient(to bottom, #B87824, #D68C29);
 }
 
-.leave-match-button .text {
+.leave-match-button .text, .ready-button .text {
     -fx-effect: dropshadow(one-pass-box, black, 1, 0, 1, 1),
     dropshadow(one-pass-box, black, 1, 0, -1, 1),
     dropshadow(one-pass-box, black, 1, 0, 1, -1),
     dropshadow(one-pass-box, black, 1, 0, -1, -1);
 }
 
-.left-panel, .right-panel {
-    -fx-padding: 12 0 10 0;
+.leave-match-button {
+    -fx-background-color: linear-gradient(to bottom, #B87824, #D68C29);
+}
+
+.ready-button {
+    -fx-background-color: linear-gradient(to bottom, #4064ae, #5177CF);
+}
+
+.left-panel {
+    -fx-padding: 0 0 10 0;
     -fx-alignment: center;
+}
+
+.game-name-label, .beatmap-label, .win-condition-label {
+    -fx-text-fill: white;
+    -fx-font-family: "Aller Bold";
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.5), 1, 0, 1, 1),
+    dropshadow(one-pass-box, rgba(0, 0, 0, 0.5), 1, 0, -1, 1),
+    dropshadow(one-pass-box, rgba(0, 0, 0, 0.5), 1, 0, 1, -1),
+    dropshadow(one-pass-box, rgba(0, 0, 0, 0.5), 1, 0, -1, -1);
+}
+
+.game-name-label, .beatmap-label {
+    -fx-font-size: 32px;
+}
+
+.win-condition-label {
+    -fx-font-size: 24px;
+}
+
+.change-password-button, .change-beatmap-button {
+    -fx-padding: 0px 24px 3px 24px;
+    -fx-text-fill: white;
+    -fx-font-family: 'Aller Light';
+    -fx-font-size: 26px;
+    -fx-border-radius: 2px;
+    -fx-background-radius: 2px;
+    -fx-alignment: center;
+    -fx-background-color: linear-gradient(to bottom, #77A31B, #85B81F);
+}
+
+.change-password-button .text, .change-beatmap-button .text {
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.5), 1, 0, 1, 1),
+    dropshadow(one-pass-box, rgba(0, 0, 0, 0.5), 1, 0, -1, 1),
+    dropshadow(one-pass-box, rgba(0, 0, 0, 0.5), 1, 0, 1, -1),
+    dropshadow(one-pass-box, rgba(0, 0, 0, 0.5), 1, 0, -1, -1);
+}
+
+.game-name-text-field {
+    -fx-font-family: 'Aller Bold';
+    -fx-background-color: rgba(0, 0, 0, 0.2);
+    -fx-text-fill: white;
+    -fx-font-size: 24px;
+    -fx-border-color: rgba(255, 255, 255, 0.8);
+    -fx-border-width: 3px;
+    -fx-padding: 1px 2px;
+}
+
+.game-name-text-field:focused {
+    -fx-border-color: white;
+}
+
+
+
+
+.dark-combo-box {
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-text-fill: white;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-font-size: 22px;
+    -fx-pref-width: 200px;
+    -fx-popup-offset: 0 16;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+}
+
+.dark-combo-box .text-field {
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+    -fx-background-color: transparent;
+}
+
+.dark-combo-box .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.dark-combo-box .text {
+    -fx-font-family: "Aller";
+    -fx-font-size: 22px;
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 0 0;
+}
+
+.dark-combo-box .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+
+.dark-combo-box .arrow {
+    -fx-background-color: white;
+}
+
+.dark-combo-box .list-view {
+    -fx-background-color: rgba(0, 0, 0, 0.7);
+    -fx-border-color: transparent;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 1;
+}
+
+.dark-combo-box .list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-family: "Aller Light";
+    -fx-font-size: 14px;
+    -fx-padding: 2 0 2 16;
+}
+
+.dark-combo-box .list-view .list-cell:hover {
+    -fx-background-color: #BC0E75;
+}
+
+.dark-combo-box .list-view .viewport {
+    -fx-background-color: transparent;
+}
+
+.dark-combo-box .list-view .scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.dark-combo-box .list-view .scroll-pane .viewport {
+    -fx-background-color: transparent;
 }
