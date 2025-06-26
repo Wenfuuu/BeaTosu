@@ -127,7 +127,7 @@ public class SpectateController {
 
                 Result<?> result = (Result<?>) response;
                 if (result.isSuccess()) {
-                    return Result.success(null);
+                    return Result.success((NotifyExitResponse) result.getValue());
                 } else {
                     return Result.failure(result.getError());
                 }
@@ -175,6 +175,7 @@ public class SpectateController {
                 notifySpectateStatusEvent(event);
             }
         } else if (message.getType() == RealtimeMessageType.PLAYER_EXIT_GAME) {
+            System.out.println("Player exited game notification received");
             if (message.getPayload() instanceof String) {
                 String exitMessage = (String) message.getPayload();
                 notifyPlayerExited(exitMessage);

@@ -128,7 +128,6 @@ public class GameView extends Page implements GameEventListener {
 
         pauseOverlay.getLeaveButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
-            gm.removeGameSession();
             gm.notifySpectatorsPlayerExited();
             ViewManager.getInstance().showHomeView();
         });

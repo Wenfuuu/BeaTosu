@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class GameManager implements GameEventPublisher, HitObjectListener {
@@ -135,13 +136,13 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         });
     }
 
-    public void removeGameSession() {
+    private void removeGameSession() {
         System.out.println("Removing game session");
         UserDto user = AuthManager.getUser();
         if (user == null) {
             return;
         }
-        
+
         sessionController.removePlayingBeatmapSession(user.getId()).thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Session removed successfully: " + response.getValue().getMessage());
@@ -153,7 +154,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     public void startGame() {
-        if (gameState == GameState.PLAYING) return;
+        if (gameState == GameState.PLAYING)
+            return;
 
         gameState = GameState.PLAYING;
         bgmStarted = false;
@@ -206,11 +208,11 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
     private void pauseGame() {
         System.out.println("pausing game");
-//        for (ReplayEvent event : replayEvents) {
-//            System.out.println("ReplayEventOsu(time_delta=" + event.getTimeDelta() +
-//                    ", x=" + event.getX() + ", y=" + event.getY() +
-//                    ", keys=" + event.getKeyMask() + ")");
-//        }
+        // for (ReplayEvent event : replayEvents) {
+        // System.out.println("ReplayEventOsu(time_delta=" + event.getTimeDelta() +
+        // ", x=" + event.getX() + ", y=" + event.getY() +
+        // ", keys=" + event.getKeyMask() + ")");
+        // }
 
         pauseStartNanos = System.nanoTime();
         gameState = GameState.PAUSED;
@@ -231,7 +233,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     public void resumeGame() {
-        if (gameState != GameState.PAUSED) return;
+        if (gameState != GameState.PAUSED)
+            return;
 
         // Calculate pause duration
         if (pauseStartNanos != -1) {
@@ -240,7 +243,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         }
 
         gameState = GameState.PLAYING;
-        if (bgmStarted) BgmManager.getInstance().resumeBgm();
+        if (bgmStarted)
+            BgmManager.getInstance().resumeBgm();
         // add countdown later
         resumeAllAnimations();
         notifyListeners(new GameEvent(GameEventType.GAME_RESUMED, null));
@@ -258,7 +262,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     public void stopGame() {
-        removeGameSession();
         System.out.println("all hit objects processed, stopping game");
         gameState = GameState.COMPLETED;
         gameLoop.stop();
@@ -271,7 +274,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 misses, grade, now)));
 
         UserDto user = AuthManager.getUser();
-        if(user == null) return;
+        if (user == null)
+            return;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String formatted = now.format(formatter);
         String osrFileName = String.format("%s-%s-%s.osr",
@@ -282,18 +286,20 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             throw new RuntimeException(e);
         }
 
+        // Notify spectators (this will also remove session after notification
+        // completes)
         notifySpectatorsPlayerExited();
 
         scoreController.insertScore(beatmap.getBeatmapId(), user.getId(), score,
                 highestCombo, accuracy, perfectHits, gekiHits, greatHits, greatKatuHits,
                 goodHits, misses, grade, now).thenApply(response -> {
-            if (response.isSuccess()) {
-                System.out.println("Score inserted successfully: " + response.getValue().getMessage());
-            } else {
-                System.err.println("Failed to insert score: " + response.getError().getMessage());
-            }
-            return null;
-        });
+                    if (response.isSuccess()) {
+                        System.out.println("Score inserted successfully: " + response.getValue().getMessage());
+                    } else {
+                        System.err.println("Failed to insert score: " + response.getError().getMessage());
+                    }
+                    return null;
+                });
     }
 
     public void notifySpectatorsPlayerExited() {
@@ -301,15 +307,21 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         spectateController.notifySpectatorsPlayerExited().thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Player exit event sent successfully: " + response.getValue().getMessage());
+                // Remove session after notification is complete
+                removeGameSession();
             } else {
                 System.err.println("Failed to send player exit event: " + response.getError().getMessage());
             }
+
             return null;
         });
     }
 
     private void failGame() {
-        removeGameSession();
+        // Notify spectators (this will also remove session after notification
+        // completes)
+        notifySpectatorsPlayerExited();
+
         System.out.println("Game failed, stopping game");
         gameState = GameState.FAILED;
         gameLoop.stop();
@@ -321,7 +333,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         Set<KeyCode> currentKeys = inputManager.getPressedKeys();
 
         // store game information for replay
-//        System.out.println("Current game time: " + elapsedMillis + " ms");
+        // System.out.println("Current game time: " + elapsedMillis + " ms");
         // Store replay event data
         storeReplayEvent(elapsedMillis, currentKeys);
 
@@ -396,7 +408,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                     }
                 }
 
-                if (hitObject instanceof HitSpinner) break; // Don't handle misses for spinners
+                if (hitObject instanceof HitSpinner)
+                    break; // Don't handle misses for spinners
 
                 // Check for miss (object passed its time window)
                 if (elapsedMillis > hitObject.getHitTime() + getHitWindow()) {
@@ -449,10 +462,12 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         }
 
         // Create and store replay event
-        ReplayEvent replayEvent = new ReplayEvent(timeDelta, currentMouseX, currentMouseY, keyMask, paneWidth, paneHeight);
+        ReplayEvent replayEvent = new ReplayEvent(timeDelta, currentMouseX, currentMouseY, keyMask, paneWidth,
+                paneHeight);
         replayEvents.add(replayEvent);
 
-        if(AuthManager.isAuthenticated()) sendSpectateEvent(elapsedMillis, replayEvent);
+        if (AuthManager.isAuthenticated())
+            sendSpectateEvent(elapsedMillis, replayEvent);
 
         // Update last event time for next delta calculation
         lastReplayEventTime = elapsedMillis;
@@ -543,7 +558,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private void handleHit(HitObject hitObject, long timingError) {
         HitResult hitResult = HitResult.fromTimingError(timingError, beatmap.getOverallDifficulty());
 
-        if (hitObject instanceof HitCircle) hitObject.setVisible(false);
+        if (hitObject instanceof HitCircle)
+            hitObject.setVisible(false);
         if (hitObject.isNewCombo()) {
             perfectCombo = true;
             imperfectOrMissed = false;
@@ -564,14 +580,17 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         hitObject.setHit(true);
         hitObject.playHitEffect();
 
-        if (!(hitObject instanceof HitCircle)) return;
+        if (!(hitObject instanceof HitCircle))
+            return;
         // play sfx
         for (String sfx : hitObject.getSfxFilenames()) {
             SfxManager.playSfx(sfx);
         }
         // Determine hit result based on timing
-        if (hitResult == HitResult.MISS) notifyMiss(hitObject);
-        else notifyHit(hitObject, hitResult);
+        if (hitResult == HitResult.MISS)
+            notifyMiss(hitObject);
+        else
+            notifyHit(hitObject, hitResult);
     }
 
     private HealthRecover getHealthRecover(HitObject hitObject, HitResult hitResult) {
@@ -646,7 +665,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void handleMiss(HitObject hitObject) {
-        if (hitObject instanceof HitSpinner) return;
+        if (hitObject instanceof HitSpinner)
+            return;
         notifyMiss(hitObject);
     }
 
@@ -679,7 +699,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         // Check for game over (health reaches 0)
         if (health <= 0) {
             System.out.println("hp reached 0, stopping game");
-//            failGame();
+            // failGame();
         }
     }
 

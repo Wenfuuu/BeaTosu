@@ -3,11 +3,13 @@ package beat.osu.shared.models;
 import beat.osu.shared.enums.message.MessageAction;
 import beat.osu.shared.enums.message.MessageType;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.UUID;
 
 @Data
+@NoArgsConstructor
 public class RequestMessage implements Serializable {
     private String requestId;
     private MessageType type;
