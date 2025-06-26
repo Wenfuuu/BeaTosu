@@ -217,6 +217,17 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         BgmManager.getInstance().pauseBgm();
         pauseAllAnimations();
         notifyListeners(new GameEvent(GameEventType.GAME_PAUSED, null));
+
+        // notify to listeners that spectate is paused
+        SpectateStatusEvent event = new SpectateStatusEvent(true);
+        spectateController.notifySpectatorsStatusChange(event).thenApply(response -> {
+            if (response.isSuccess()) {
+                System.out.println("Spectate status event sent successfully: " + response.getValue().getMessage());
+            } else {
+                System.err.println("Failed to send spectate status event: " + response.getError().getMessage());
+            }
+            return null;
+        });
     }
 
     public void resumeGame() {
@@ -233,6 +244,17 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         // add countdown later
         resumeAllAnimations();
         notifyListeners(new GameEvent(GameEventType.GAME_RESUMED, null));
+
+        // notify to listeners that spectate is resumed
+        SpectateStatusEvent event = new SpectateStatusEvent(false);
+        spectateController.notifySpectatorsStatusChange(event).thenApply(response -> {
+            if (response.isSuccess()) {
+                System.out.println("Spectate status event sent successfully: " + response.getValue().getMessage());
+            } else {
+                System.err.println("Failed to send spectate status event: " + response.getError().getMessage());
+            }
+            return null;
+        });
     }
 
     public void stopGame() {
@@ -316,28 +338,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         if (pressedEsc) {
             if (gameState == GameState.PLAYING || gameState == GameState.BREAK_PERIOD) {
                 pauseGame();
-                // notify to listeners that spectate is paused
-                SpectateStatusEvent event = new SpectateStatusEvent(true);
-                spectateController.notifySpectatorsStatusChange(event).thenApply(response -> {
-                    if (response.isSuccess()) {
-                        System.out.println("Spectate status event sent successfully: " + response.getValue().getMessage());
-                    } else {
-                        System.err.println("Failed to send spectate status event: " + response.getError().getMessage());
-                    }
-                    return null;
-                });
             } else if (gameState == GameState.PAUSED) {
                 resumeGame();
-                // notify to listeners that spectate is resumed
-                SpectateStatusEvent event = new SpectateStatusEvent(false);
-                spectateController.notifySpectatorsStatusChange(event).thenApply(response -> {
-                    if (response.isSuccess()) {
-                        System.out.println("Spectate status event sent successfully: " + response.getValue().getMessage());
-                    } else {
-                        System.err.println("Failed to send spectate status event: " + response.getError().getMessage());
-                    }
-                    return null;
-                });
             }
             previousKeys.clear();
             previousKeys.addAll(currentKeys);

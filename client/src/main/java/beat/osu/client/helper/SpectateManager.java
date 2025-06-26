@@ -143,21 +143,6 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
             notifyHit(hitObject, hitResult);
     }
 
-    private double getModMultiplier() {
-        return 1.0;
-    }
-
-    private double calculateScoreFactor(HitResult hitResult) {
-        if (hitResult != HitResult.PERFECT && hitResult != HitResult.GREAT && hitResult != HitResult.GOOD) {
-            return 1.0;
-        }
-
-        double comboMultiplier = Math.max(masterComboNumber - 1, 0);
-        int difficultyMultiplier = beatmap.getDifficultyMultiplier(hitObjects, OsuParser.getBreakPeriodsList());
-        double modMultiplier = getModMultiplier();
-        return 1.0 + (comboMultiplier * difficultyMultiplier * modMultiplier / 25.0);
-    }
-
     private void notifyHit(HitObject hitObject, HitResult hitResult) {
         // Notify observers
         notifyListeners(new GameEvent(GameEventType.HIT_OBJECT_HIT,
@@ -460,8 +445,14 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
 
     private void updateSpectateStatus(SpectateStatusEvent event) {
         System.out.println("Received spectate status event, spectate pause status: " + event.isPaused());
-        if (event.isPaused()) pauseAllAnimations();
-        else resumeAllAnimations();
+        if (event.isPaused()) {
+            pauseAllAnimations();
+            notifyListeners(new GameEvent(GameEventType.SPECTATE_PAUSED, null));
+        }
+        else {
+            resumeAllAnimations();
+            notifyListeners(new GameEvent(GameEventType.SPECTATE_RESUMED, null));
+        }
     }
 
     private void setupUserCallbacks() {

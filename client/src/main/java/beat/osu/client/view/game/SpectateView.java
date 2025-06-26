@@ -10,6 +10,7 @@ import beat.osu.client.interfaces.game.GameEventListener;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.HitObject;
 import beat.osu.client.view.game.component.GameUI;
+import beat.osu.client.view.game.component.SpectatePauseOverlay;
 import beat.osu.client.view.shared.common.Page;
 import beat.osu.shared.dto.game.SpectateDto;
 import beat.osu.shared.dto.game.events.SpectateEvent;
@@ -18,6 +19,7 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -42,6 +44,7 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
     private StackPane root;
     private Pane spectatePane;
     private GameUI uiPane;
+    private SpectatePauseOverlay spectatePauseOverlay;
 
     private final SpectateManager sm;
     private final SpectateController spectateController;
@@ -104,13 +107,14 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
         }
 
         uiPane = new GameUI();
+        spectatePauseOverlay = new SpectatePauseOverlay();
         cursorImage = new ImageView(new Image(Objects.requireNonNull(Main.class
                 .getResource("/assets/images/cursor.png")).toExternalForm(),
                 32, 32, true, true));
 
         createSpectatePane();
 
-        root.getChildren().addAll(spectatePane, uiPane);
+        root.getChildren().addAll(spectatePane, uiPane, spectatePauseOverlay);
     }
 
     private void createSpectatePane() {
@@ -124,11 +128,26 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
     }
 
     private void handleEvent() {
+//        scene.setOnKeyPressed(e -> {
+//            if (e.getCode() == KeyCode.ESCAPE && spectatePauseOverlay.isVisible()) {
+//                System.out.println("Escape pressed on scene while pause overlay is visible, stopping spectate");
+//                Platform.runLater(() -> {
+//                    sm.stopSpectate();
+//                });
+//            }
+//        });
 
+//        scene.setOnKeyPressed(e -> {
+//            System.out.println("pressing key " + e.getCode());
+//            inputManager.getPressedKeys().add(e.getCode());
+//            if (inputManager.getPressedKeys().contains(KeyCode.ESCAPE) && spectatePauseOverlay.isVisible()) {
+//                System.out.println("Escape pressed on input manager while pause overlay is visible, stopping spectate");
+//                Platform.runLater(sm::stopSpectate);
+//            }
+//        });
     }
 
-    private void showHitImage(HitObject hitObject, HitResult hitResult,
-                              boolean perfectCombo, boolean imperfectOrMissed) {
+    private void showHitImage(HitObject hitObject, HitResult hitResult, boolean perfectCombo, boolean imperfectOrMissed) {
         String imagePath = "";
         switch (hitResult) {
             case PERFECT:
@@ -534,11 +553,12 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
                     uiPane.updateInputOverlay(inputData.isKey1Pressed(), inputData.isKey2Pressed());
                 }
                 break;
-            case REPLAY_STARTED:
-                System.out.println("Replay started");
+            case SPECTATE_PAUSED:
+                spectatePauseOverlay.setVisible(true);
                 break;
-            case REPLAY_ENDED:
-                ViewManager.getInstance().showHomeView();
+            case SPECTATE_RESUMED:
+                System.out.println("Spectate resumed, hiding pause overlay");
+                spectatePauseOverlay.setVisible(false);
                 break;
             case CURSOR_MOVED:
                 System.out.println("Cursor moved");
