@@ -22,6 +22,7 @@ import beat.osu.shared.dto.match.events.HostChangedEvent;
 import beat.osu.shared.dto.match.events.HostLeftEvent;
 import beat.osu.shared.dto.match.events.MatchCreatedEvent;
 import beat.osu.shared.dto.match.events.MatchEndedEvent;
+import beat.osu.shared.dto.match.events.MatchNameUpdatedEvent;
 import beat.osu.shared.dto.match.events.MatchPasswordUpdatedEvent;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
 import beat.osu.shared.dto.match.events.MatchStartedEvent;
@@ -37,6 +38,7 @@ import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
 import beat.osu.shared.dto.match.requests.SendMatchScoreEventRequest;
 import beat.osu.shared.dto.match.requests.StartMatchRequest;
 import beat.osu.shared.dto.match.requests.TransferHostRequest;
+import beat.osu.shared.dto.match.requests.UpdateMatchNameRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchPasswordRequest;
 import beat.osu.shared.dto.match.responses.ChangeMatchSlotResponse;
 import beat.osu.shared.dto.match.responses.CreateMatchResponse;
@@ -47,6 +49,7 @@ import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
 import beat.osu.shared.dto.match.responses.SendMatchScoreEventResponse;
 import beat.osu.shared.dto.match.responses.StartMatchResponse;
 import beat.osu.shared.dto.match.responses.TransferHostResponse;
+import beat.osu.shared.dto.match.responses.UpdateMatchNameResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchPasswordResponse;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.PlayerRole;
@@ -525,6 +528,44 @@ public class MatchService {
         if (response.isSuccess()) {
             MatchPasswordUpdatedEvent event = new MatchPasswordUpdatedEvent(matchId);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_PASSWORD_UPDATED, clientId, event);
+            RealtimeMessageHandler.broadcastToAll(realtimeMessage);
+        }
+
+        return response;
+    }
+
+    public Result<UpdateMatchNameResponse> updateMatchName(UpdateMatchNameRequest request, String clientId) {
+        int matchId = request.getMatchId();
+        String newName = request.getNewName();
+
+        Match match = matches.get(matchId);
+        if (match == null) {
+            return Result.failure(Error.notFound("Match not found"));
+        }
+
+        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
+        if (userId == null) {
+            return Result.failure(Error.unauthorized("User not authenticated"));
+        }
+
+        MatchPlayer player = findPlayerInMatch(matchId, userId);
+        if (player == null || !player.getRole().equals(PlayerRole.HOST)) {
+            return Result.failure(Error.unauthorized("Only the host can update the match name"));
+        }
+
+        if (newName == null || newName.trim().isEmpty()) {
+            return Result.failure(Error.validation("Match name cannot be empty"));
+        }
+
+        String oldName = match.getName();
+        match.setName(newName.trim());
+
+        String message = "Match name updated from '" + oldName + "' to '" + newName.trim() + "'";
+        Result<UpdateMatchNameResponse> response = Result.success(new UpdateMatchNameResponse(message));
+
+        if (response.isSuccess()) {
+            MatchNameUpdatedEvent event = new MatchNameUpdatedEvent(matchId, newName.trim());
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_NAME_UPDATED, clientId, event);
             RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
 

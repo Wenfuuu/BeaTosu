@@ -31,6 +31,7 @@ import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
 import beat.osu.shared.dto.match.requests.SendMatchScoreEventRequest;
 import beat.osu.shared.dto.match.requests.StartMatchRequest;
 import beat.osu.shared.dto.match.requests.TransferHostRequest;
+import beat.osu.shared.dto.match.requests.UpdateMatchNameRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchPasswordRequest;
 import beat.osu.shared.dto.score.requests.GetScoreRequest;
 import beat.osu.shared.dto.score.requests.InsertScoreRequest;
@@ -174,6 +175,8 @@ public class MessageRouter {
                 return matchService.changeMatchSlot((ChangeMatchSlotRequest) request.getPayload(), clientId);
             case UPDATE_MATCH_PASSWORD:
                 return matchService.updateMatchPassword((UpdateMatchPasswordRequest) request.getPayload(), clientId);
+            case UPDATE_MATCH_NAME:
+                return matchService.updateMatchName((UpdateMatchNameRequest) request.getPayload(), clientId);
             default:
                 return Result.failure(Error.validation("Unknown match action: " + request.getAction()));
         }

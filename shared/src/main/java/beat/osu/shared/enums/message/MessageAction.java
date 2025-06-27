@@ -40,6 +40,7 @@ public enum MessageAction implements Serializable {
     TRANSFER_HOST,
     CHANGE_MATCH_SLOT,
     UPDATE_MATCH_PASSWORD,
+    UPDATE_MATCH_NAME,
     START_MATCH,
     SEND_MATCH_SCORE_EVENT,
 
