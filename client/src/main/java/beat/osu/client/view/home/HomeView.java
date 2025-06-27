@@ -130,6 +130,9 @@ public class HomeView extends Page {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        scores = fetchScores(beatmapContent.getSelectedBeatmap());
+        scoreContent.populateScores(scores);
+
         scene.setRoot(root);
         BgmManager.getInstance().playPreviewBgm(true);
         BackgroundManager.setGameBackground(scene);
