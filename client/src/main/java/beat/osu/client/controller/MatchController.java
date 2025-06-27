@@ -204,6 +204,26 @@ public class MatchController {
         });
     }
 
+    public CompletableFuture<Result<KickPlayerResponse>> kickPlayerFromMatch(int matchId, int userId) {
+        KickPlayerRequest requestData = new KickPlayerRequest(matchId, userId);
+        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.KICK_PLAYER, requestData);
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendRequest(request).get();
+
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((KickPlayerResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
+    }
+
     public CompletableFuture<Result<StartMatchResponse>> startMatch(int matchId) {
         StartMatchRequest requestData = new StartMatchRequest(matchId);
         RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.START_MATCH, requestData);

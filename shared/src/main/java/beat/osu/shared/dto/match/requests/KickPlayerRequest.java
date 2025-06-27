@@ -11,5 +11,5 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class KickPlayerRequest implements Serializable {
     private int matchId;
-    private int playerId;
+    private int userId;
 }

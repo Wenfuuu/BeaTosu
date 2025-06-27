@@ -240,7 +240,7 @@ public class MatchService {
 
     public Result<KickPlayerResponse> kickPlayer(KickPlayerRequest request, String clientId) {
         int matchId = request.getMatchId();
-        int playerToKickId = request.getPlayerId();
+        int playerToKickId = request.getUserId();
 
         Match match = matches.get(matchId);
         if (match == null) {
@@ -257,7 +257,8 @@ public class MatchService {
             return Result.failure(Error.unauthorized("Only the host can kick players"));
         }
 
-        if (!isUserInMatch(matchId, playerToKickId)) {
+        MatchPlayer playerToKick = findPlayerInMatch(matchId, playerToKickId);
+        if (playerToKick == null) {
             return Result.failure(Error.validation("Player is not in this match"));
         }
 
