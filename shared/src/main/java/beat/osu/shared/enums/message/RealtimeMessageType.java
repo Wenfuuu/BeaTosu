@@ -18,6 +18,8 @@ public enum RealtimeMessageType implements Serializable {
     USER_JOINED_MATCH,
     USER_LEFT_MATCH,
     PLAYER_KICKED_FROM_MATCH,
+    HOST_CHANGED,
+    MATCH_ENDED,
 
     SYSTEM_NOTIFICATION,
 

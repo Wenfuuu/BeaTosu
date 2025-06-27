@@ -18,7 +18,9 @@ import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
+import beat.osu.shared.dto.match.events.HostChangedEvent;
 import beat.osu.shared.dto.match.events.MatchCreatedEvent;
+import beat.osu.shared.dto.match.events.MatchEndedEvent;
 import beat.osu.shared.dto.match.events.PlayerKickedEvent;
 import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
 import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
@@ -229,13 +231,13 @@ public class MatchService {
 
         String message = "Successfully left match: " + match.getName();
 
-        if ("host".equals(playerRole)) {
-            handleHostLeaving(matchId);  // transfer host role
+        if (playerRole.equals(PlayerRole.HOST)) {
+            handleHostLeaving(matchId, userId);
         }
 
-        if (matchPlayers.get(matchId).isEmpty()) {
-            removeMatch(matchId);
-        }
+//        if (matchPlayers.get(matchId).isEmpty()) {
+//            removeMatch(matchId);
+//        }
 
         Result<LeaveMatchResponse> response = Result.success(new LeaveMatchResponse(message));
 
@@ -423,15 +425,25 @@ public class MatchService {
         return -1;
     }
 
-    private void handleHostLeaving(int matchId) {
+    private void handleHostLeaving(int matchId, int previousHostUserId) {
         Set<MatchPlayer> players = matchPlayers.get(matchId);
         if (players != null && !players.isEmpty()) {
             MatchPlayer newHost = players.iterator().next();
             newHost.setRole(PlayerRole.HOST);
+
+            HostChangedEvent event = new HostChangedEvent(matchId, newHost.getUserId(), previousHostUserId);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.HOST_CHANGED, "SYSTEM", event);
+            RealtimeMessageHandler.broadcastToAll(realtimeMessage);
+        } else {
+            removeMatch(matchId);
         }
     }
 
     private void removeMatch(int matchId) {
+        MatchEndedEvent event = new MatchEndedEvent(matchId);
+        RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_ENDED, "SYSTEM", event);
+        RealtimeMessageHandler.broadcastToAll(realtimeMessage);
+        
         matches.remove(matchId);
         matchPlayers.remove(matchId);
     }
@@ -473,7 +485,7 @@ public class MatchService {
                     removePlayerFromMatch(matchId, userId);
                     
                     if (wasHost) {
-                        handleHostLeaving(matchId);
+                        handleHostLeaving(matchId, userId);
                     }
                     
                     if (players.isEmpty()) {
