@@ -36,6 +36,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private final Beatmap beatmap;
     @Getter
     private final ArrayList<HitObject> hitObjects;
+    private boolean isMultiplayer = false;
     private AnimationTimer gameLoop;
     private long startTimeNanos = -1;
     private long pauseStartNanos = -1;
@@ -763,11 +764,12 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         hitObjects.add(newHitObject);
     }
 
-    public GameManager(Beatmap beatmap, InputManager inputManager, double paneWidth, double paneHeight) {
+    public GameManager(Beatmap beatmap, InputManager inputManager, double paneWidth, double paneHeight, boolean isMultiplayer) {
         this.beatmap = beatmap;
         this.inputManager = inputManager;
         this.paneWidth = paneWidth;
         this.paneHeight = paneHeight;
+        this.isMultiplayer = isMultiplayer;
         this.hitObjects = new ArrayList<>();
         this.scoreController = new ScoreController();
         this.sessionController = new SessionController();

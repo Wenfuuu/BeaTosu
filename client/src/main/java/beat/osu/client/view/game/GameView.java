@@ -66,9 +66,9 @@ public class GameView extends Page implements GameEventListener {
 
         this.beatmap = selectedBeatmap;
         this.circleSize = selectedBeatmap.getCircleSize();
-        this.gm = new GameManager(selectedBeatmap, inputManager, root.getWidth(), root.getHeight());
-        this.gm.addListener(this);
         this.isMultiplayer = isMultiplayer;
+        this.gm = new GameManager(selectedBeatmap, inputManager, root.getWidth(), root.getHeight(), isMultiplayer);
+        this.gm.addListener(this);
 
         ChangeListener<Number> resizeListener = (obs, oldVal, newVal) -> updateLayout();
         root.widthProperty().addListener(resizeListener);
