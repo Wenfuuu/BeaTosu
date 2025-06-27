@@ -1,6 +1,7 @@
 package beat.osu.client.helper;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 import beat.osu.client.controller.*;
 import beat.osu.client.model.Beatmap;
@@ -11,10 +12,13 @@ import beat.osu.client.view.landing.LandingView;
 import beat.osu.client.view.lobby.LobbyView;
 import beat.osu.client.view.game.ReplayView;
 import beat.osu.client.view.match.MatchView;
+import beat.osu.client.view.shared.common.Toast;
 import beat.osu.client.view.upload.UploadPage;
 import beat.osu.client.events.game.ReplayEvent;
+import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.game.SpectateDto;
 import beat.osu.shared.dto.match.MatchDto;
+import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
 import javafx.stage.Stage;
 
 public class ViewManager {
@@ -35,6 +39,8 @@ public class ViewManager {
     private MatchController matchController;
 
     private static volatile ViewManager instance;
+
+    private MatchDto currentMatchDto;
 
     public static ViewManager getInstance() {
         if (instance == null) {
@@ -77,7 +83,9 @@ public class ViewManager {
     }
 
     public void showMatchView(MatchDto matchDto) {
-        MatchView matchView = new MatchView(primaryStage, matchDto, connectedUsersController, chatController, matchController, sessionController, beatmapController);
+        this.currentMatchDto = matchDto; // Store the match
+        MatchView matchView = new MatchView(primaryStage, matchDto, connectedUsersController, chatController,
+                matchController, sessionController, beatmapController);
         matchView.onShow();
         sceneManager.transitionToPage(matchView);
     }
@@ -100,6 +108,24 @@ public class ViewManager {
     public void showUploadPage() {
         UploadPage uploadPage = new UploadPage(primaryStage);
         sceneManager.transitionToPage(uploadPage);
+    }
+
+    public void leaveCurrentMatch() {
+        if (currentMatchDto != null) {
+            try {
+                Result<LeaveMatchResponse> response = matchController.leaveMatch(currentMatchDto.getId()).get();
+                if (response.isSuccess()) {
+                    currentMatchDto = null;
+                    showLobbyView();
+                } else {
+                    Toast.error("Failed to leave match: " + response.getError().getMessage()).show();
+                }
+            } catch (InterruptedException | ExecutionException ex) {
+                throw new RuntimeException(ex);
+            }
+        } else {
+            showLobbyView();
+        }
     }
 
     private void initializeControllers() {
