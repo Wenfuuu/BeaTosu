@@ -25,6 +25,7 @@ import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.view.match.component.cards.BeatmapCard;
 import beat.osu.client.view.match.component.layout.TopBar;
+import beat.osu.client.view.match.component.modals.HostActionsModal;
 import beat.osu.client.view.match.component.panels.MatchSlotPanel;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
@@ -99,6 +100,8 @@ public class MatchView extends Page {
     private TopBar topBar;
     private VBox mainContent;
     private VBox banchoPanelsContainer;
+
+    private HostActionsModal hostActionsModal;
 
     // left panel components
     private MatchSlotPanel matchSlotPanel;
@@ -194,6 +197,8 @@ public class MatchView extends Page {
             viewUserModal.show();
         });
 
+        hostActionsModal = new HostActionsModal();
+
         selectChannelModal.setChatPanel(chatPanel);
         selectChannelModal.setOnlineUsersPanel(onlineUsersPanel);
 
@@ -246,6 +251,14 @@ public class MatchView extends Page {
         matchSlotPanel.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.43);
         matchSlotPanel.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.43);
         matchSlotPanel.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.43);
+
+        if (isHost) {
+            matchSlotPanel.setSlotCardClickCallback(card -> {
+                if (card.getUser() != null) {
+                    hostActionsModal.show(card.getUser().getUsername());
+                }
+            });
+        }
 
         leaveMatchButton = new Button("Leave Match");
         leaveMatchButton.getStyleClass().add("leave-match-button");
@@ -354,6 +367,9 @@ public class MatchView extends Page {
 
         root.getChildren().add(viewUserModal);
         StackPane.setAlignment(viewUserModal, Pos.CENTER);
+
+        root.getChildren().add(hostActionsModal);
+        StackPane.setAlignment(hostActionsModal, Pos.CENTER);
         
         updateUIBasedOnRole();
     }
