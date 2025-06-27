@@ -76,7 +76,6 @@ public class MatchView extends Page {
 
     private List<MatchPlayerDto> players;
 
-
     private final ConnectedUsersController connectedUsersController;
     private final ChatController chatController;
     private final MatchController matchController;
