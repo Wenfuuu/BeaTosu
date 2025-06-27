@@ -4,7 +4,10 @@ import beat.osu.client.controller.MatchController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.ViewManager;
 import beat.osu.client.view.shared.common.Toast;
+import beat.osu.shared.common.Result;
+import beat.osu.shared.dto.match.responses.CreateMatchResponse;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -15,6 +18,7 @@ import javafx.util.Duration;
 import lombok.Getter;
 
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 public class CreateMatchModal extends VBox {
 
@@ -157,17 +161,18 @@ public class CreateMatchModal extends VBox {
                 return;
             }
 
-            matchController.createMatch(gameName, password, maxPlayers).thenAccept(result -> {
-                if (result.isSuccess()) {
-                    Toast.success("Game created successfully!");
-                    hide();
+            try {
+                Result<CreateMatchResponse> response = matchController.createMatch(gameName, password, maxPlayers).get();
+                if (response.isSuccess()) {
+                    CreateMatchResponse joinResponse = response.getValue();
+                    Toast.success("Successfully joined lobby: " + joinResponse.getMessage()).show();
+                    ViewManager.getInstance().showMatchView(joinResponse.getMatch());
                 } else {
-                    Toast.error("Error creating game: " + result.getError().getMessage());
+                    Toast.error("Failed to join match: " + response.getError().getMessage()).show();
                 }
-            }).exceptionally(throwable -> {
-                Toast.error("Network error: " + throwable.getMessage());
-                return null;
-            });
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
             hide();
         });
     }

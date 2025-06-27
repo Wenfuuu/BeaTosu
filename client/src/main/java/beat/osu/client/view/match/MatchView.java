@@ -12,11 +12,7 @@ import beat.osu.client.controller.ChatController;
 import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.controller.MatchController;
 import beat.osu.client.controller.SessionController;
-import beat.osu.client.helper.AuthManager;
-import beat.osu.client.helper.BackgroundManager;
-import beat.osu.client.helper.CssManager;
-import beat.osu.client.helper.ResourceManager;
-import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.*;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.view.match.component.cards.BeatmapCard;
@@ -122,6 +118,7 @@ public class MatchView extends Page {
         this.players = matchDto.getPlayers();
 
         setupView();
+        handleEvent();
     }
 
     @Override
@@ -365,6 +362,10 @@ public class MatchView extends Page {
                 banchoButtons.getOnlineUsersButton().setOnlineUsersShownIcon();
                 hideMainContent();
             }
+        });
+
+        leaveMatchButton.setOnMouseClicked(e -> {
+            ViewManager.getInstance().showLobbyView();
         });
     }
 
