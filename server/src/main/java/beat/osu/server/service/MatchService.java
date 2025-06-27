@@ -482,7 +482,7 @@ public class MatchService {
         if (response.isSuccess()) {
             SlotChangedEvent event = new SlotChangedEvent(matchId, userId, oldSlotIndex, newSlotIndex);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.SLOT_CHANGED, clientId, event);
-            broadcastMessageToMatchPlayers(clientId, matchId, realtimeMessage);
+            RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
 
         return response;

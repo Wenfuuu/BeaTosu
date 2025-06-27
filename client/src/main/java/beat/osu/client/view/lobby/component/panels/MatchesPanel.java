@@ -16,6 +16,7 @@ import beat.osu.shared.dto.match.events.HostLeftEvent;
 import beat.osu.shared.dto.match.events.MatchCreatedEvent;
 import beat.osu.shared.dto.match.events.MatchEndedEvent;
 import beat.osu.shared.dto.match.events.PlayerKickedEvent;
+import beat.osu.shared.dto.match.events.SlotChangedEvent;
 import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
 import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
 import javafx.animation.FadeTransition;
@@ -140,6 +141,7 @@ public class MatchesPanel extends VBox {
         matchController.addMatchEndedCallback(this::onMatchEnded);
         matchController.addHostChangedCallback(this::onHostChanged);
         matchController.addHostLeftCallback(this::onHostLeft);
+        matchController.addSlotChangedCallback(this::onSlotChanged);
     }
     
     private void onMatchCreated(MatchCreatedEvent event) {
@@ -191,6 +193,15 @@ public class MatchesPanel extends VBox {
             MatchCard matchCard = matchCardMap.get(event.getMatchId());
             if (matchCard != null) {
                 matchCard.hostLeft(event.getPreviousHostUserId(), event.getNewHostUserId());
+            }
+        });
+    }
+    
+    private void onSlotChanged(SlotChangedEvent event) {
+        Platform.runLater(() -> {
+            MatchCard matchCard = matchCardMap.get(event.getMatchId());
+            if (matchCard != null) {
+                matchCard.movePlayerToSlot(event.getUserId(), event.getOldSlotIndex(), event.getNewSlotIndex());
             }
         });
     }

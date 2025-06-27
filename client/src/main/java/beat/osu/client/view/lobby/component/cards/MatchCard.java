@@ -436,4 +436,50 @@ public class MatchCard extends HBox {
         refreshPlayerCardsDisplay();
         updatePlayerCount(players.size());
     }
+
+    public void movePlayerToSlot(int userId, int oldSlotIndex, int newSlotIndex) {
+        if (players == null) {
+            return;
+        }
+        
+        MatchPlayerDto playerToMove = null;
+        for (MatchPlayerDto player : players) {
+            if (player.getUserId() == userId) {
+                playerToMove = player;
+                break;
+            }
+        }
+        
+        if (playerToMove == null) {
+            System.err.println("Player with ID " + userId + " not found for slot move in match card");
+            return;
+        }
+        
+        playerToMove.setMatchSlotIndex(newSlotIndex);
+        
+        if (playerToMove.getRole() == PlayerRole.HOST) {
+            return;
+        }
+        
+        MatchPlayerCard emptyCard = new MatchPlayerCard(
+                0, matchId, null, null, 0, null, null, false);
+        playerCards.put(oldSlotIndex, emptyCard);
+        
+        boolean isNewSlotHost = isHostSlot(newSlotIndex);
+        if (!isNewSlotHost) {
+            MatchPlayerCard playerCard = new MatchPlayerCard(
+                playerToMove.getId(), playerToMove.getMatchId(), playerToMove.getUserId(),
+                playerToMove.getUser().getUsername(), playerToMove.getUser().getRank(),
+                LocaleManager.getCountryName(playerToMove.getUser().getCountryCode()),
+                playerToMove.getUser().getProfilePicture(), false);
+            playerCards.put(newSlotIndex, playerCard);
+        } else {
+            MatchPlayerCard emptyHostSlotCard = new MatchPlayerCard(
+                    0, matchId, null, null, 0, null, null, false);
+            playerCards.put(newSlotIndex, emptyHostSlotCard);
+        }
+        
+        refreshPlayerCardsDisplay();
+        refreshPlayerCardsDisplay();
+    }
 }
