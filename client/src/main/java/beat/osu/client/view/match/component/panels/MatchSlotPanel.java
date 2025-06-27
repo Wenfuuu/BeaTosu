@@ -284,4 +284,9 @@ public class MatchSlotPanel extends VBox {
             card.setSlotCardClickCallback(callback);
         }
     }
+
+    public boolean isUserHost(int userId) {
+        return players.stream()
+                .anyMatch(player -> player.getUserId() == userId && player.getRole() == PlayerRole.HOST);
+    }
 }

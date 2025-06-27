@@ -49,6 +49,7 @@ import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
 import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
 import beat.osu.shared.dto.match.responses.KickPlayerResponse;
 import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
+import beat.osu.shared.dto.match.responses.TransferHostResponse;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.match.PlayerStatus;
@@ -435,16 +436,20 @@ public class MatchView extends Page {
         hostActionsModal.getTransferHostButton().setOnMouseClicked(e -> {
             MatchPlayerDto selectedPlayer = selectedPlayerForHostAction;
             if (selectedPlayer != null) {
-//                matchController.transferHost(matchId, selectedPlayer.getUserId()).thenApply(response -> {
-//                    if (response.isSuccess()) {
-//                        Toast.success("Host transferred to " + selectedPlayer.getUsername()).show();
-//                    } else {
-//                        Toast.error("Failed to transfer host: " + response.getError().getMessage()).show();
-//                    }
-//                    return null;
-//                });
+                try {
+                    Result<TransferHostResponse> result = matchController.transferHost(matchId, selectedPlayer.getUserId()).get();
+                    TransferHostResponse transferHostResponse = result.getValue();
+                    if (result.isSuccess()) {
+                        hostActionsModal.hide();
+                        Toast.success(transferHostResponse.getMessage()).show();
+                    } else {
+                        Toast.error("Failed to kick player: " + result.getError().getMessage()).show();
+                    }
+                } catch (InterruptedException | ExecutionException ex) {
+                    throw new RuntimeException(ex);
+                }
             } else {
-                Toast.error("No player selected for host transfer.").show();
+                Toast.error("No player selected for kicking.").show();
             }
         });
 
@@ -667,14 +672,12 @@ public class MatchView extends Page {
         changePasswordButton.setVisible(isHost);
         changeBeatmapButton.setVisible(isHost);
         winConditionComboBox.setDisable(!isHost);
-        winConditionComboBox.setOpacity(1.0); 
+        winConditionComboBox.setOpacity(1.0);
     }
 
     private void updateHostStatus() {
         int currentUserId = AuthManager.getUser().getId();
-        this.isHost = this.players.stream()
-                .anyMatch(player -> player.getUserId() == currentUserId && player.getRole() == PlayerRole.HOST);
-        
+        this.isHost = matchSlotPanel.isUserHost(currentUserId);
         updateUIBasedOnRole();
     }
 }

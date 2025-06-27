@@ -18,9 +18,30 @@ import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
-import beat.osu.shared.dto.match.events.*;
-import beat.osu.shared.dto.match.requests.*;
-import beat.osu.shared.dto.match.responses.*;
+import beat.osu.shared.dto.match.events.HostChangedEvent;
+import beat.osu.shared.dto.match.events.HostLeftEvent;
+import beat.osu.shared.dto.match.events.MatchCreatedEvent;
+import beat.osu.shared.dto.match.events.MatchEndedEvent;
+import beat.osu.shared.dto.match.events.MatchScoreEvent;
+import beat.osu.shared.dto.match.events.MatchStartedEvent;
+import beat.osu.shared.dto.match.events.PlayerKickedEvent;
+import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
+import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
+import beat.osu.shared.dto.match.requests.CreateMatchRequest;
+import beat.osu.shared.dto.match.requests.JoinMatchRequest;
+import beat.osu.shared.dto.match.requests.KickPlayerRequest;
+import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
+import beat.osu.shared.dto.match.requests.SendMatchScoreEventRequest;
+import beat.osu.shared.dto.match.requests.StartMatchRequest;
+import beat.osu.shared.dto.match.requests.TransferHostRequest;
+import beat.osu.shared.dto.match.responses.CreateMatchResponse;
+import beat.osu.shared.dto.match.responses.GetAllMatchesResponse;
+import beat.osu.shared.dto.match.responses.JoinMatchResponse;
+import beat.osu.shared.dto.match.responses.KickPlayerResponse;
+import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
+import beat.osu.shared.dto.match.responses.SendMatchScoreEventResponse;
+import beat.osu.shared.dto.match.responses.StartMatchResponse;
+import beat.osu.shared.dto.match.responses.TransferHostResponse;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.match.PlayerStatus;
@@ -302,17 +323,25 @@ public class MatchService {
             return Result.failure(Error.unauthorized("Only the host can transfer host role"));
         }
 
+        if (currentUserId.equals(newHostUserId)) {
+            return Result.failure(Error.validation("You cannot transfer host to yourself"));
+        }
+
         MatchPlayer newHostPlayer = findPlayerInMatch(matchId, newHostUserId);
         if (newHostPlayer == null) {
             return Result.failure(Error.validation("New host player is not in this match"));
         }
 
-        currentPlayer.setRole(PlayerRole.PLAYER);
+        if (newHostPlayer.getRole().equals(PlayerRole.HOST)) {
+            return Result.failure(Error.validation("Player is already the host"));
+        }
+
         newHostPlayer.setRole(PlayerRole.HOST);
+        currentPlayer.setRole(PlayerRole.PLAYER);
 
         Result<TransferHostResponse> response = Result.success(new TransferHostResponse("Host transferred to user id " + newHostPlayer.getUserId()));
         if (response.isSuccess()) {
-            HostChangedEvent event = new HostChangedEvent(matchId, currentUserId, newHostUserId);
+            HostChangedEvent event = new HostChangedEvent(matchId, newHostUserId, currentUserId);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.HOST_CHANGED, clientId, event);
             RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
