@@ -18,21 +18,9 @@ import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
-import beat.osu.shared.dto.match.events.HostLeftEvent;
-import beat.osu.shared.dto.match.events.MatchCreatedEvent;
-import beat.osu.shared.dto.match.events.MatchEndedEvent;
-import beat.osu.shared.dto.match.events.PlayerKickedEvent;
-import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
-import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
-import beat.osu.shared.dto.match.requests.CreateMatchRequest;
-import beat.osu.shared.dto.match.requests.JoinMatchRequest;
-import beat.osu.shared.dto.match.requests.KickPlayerRequest;
-import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
-import beat.osu.shared.dto.match.responses.CreateMatchResponse;
-import beat.osu.shared.dto.match.responses.GetAllMatchesResponse;
-import beat.osu.shared.dto.match.responses.JoinMatchResponse;
-import beat.osu.shared.dto.match.responses.KickPlayerResponse;
-import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
+import beat.osu.shared.dto.match.events.*;
+import beat.osu.shared.dto.match.requests.*;
+import beat.osu.shared.dto.match.responses.*;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.match.PlayerStatus;
@@ -292,6 +280,68 @@ public class MatchService {
             if (kickedPlayerClientId != null) {
                 RealtimeMessageHandler.sendToClient(realtimeMessage, kickedPlayerClientId);
             }
+        }
+
+        return response;
+    }
+
+    public Result<StartMatchResponse> startMatch(StartMatchRequest request, String clientId) {
+        int matchId = request.getMatchId();
+
+        Match match = matches.get(matchId);
+        if (match == null) {
+            return Result.failure(Error.notFound("Match not found"));
+        }
+
+        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
+        if (userId == null) {
+            return Result.failure(Error.unauthorized("User not authenticated"));
+        }
+
+        MatchPlayer player = findPlayerInMatch(matchId, userId);
+        if (player == null || !player.getRole().equals(PlayerRole.HOST)) {
+            return Result.failure(Error.unauthorized("Only the host can start the match"));
+        }
+
+        if (match.isInProgress()) {
+            return Result.failure(Error.validation("Match is already in progress"));
+        }
+
+        // Check if there's a beatmap selected
+        if (match.getBeatmapId() <= 0) {
+            return Result.failure(Error.validation("No beatmap selected for this match"));
+        }
+
+        Set<MatchPlayer> players = matchPlayers.get(matchId);
+        if (players == null || players.size() < 2) {
+            return Result.failure(Error.validation("At least 2 players are required to start the match"));
+        }
+
+        // Check if all players are ready (optional - you can remove this if not needed)
+//        long readyPlayersCount = players.stream()
+//                .filter(p -> p.getStatus().equals(PlayerStatus.READY))
+//                .count();
+//
+//        if (readyPlayersCount < players.size()) {
+//            return Result.failure(Error.validation("All players must be ready before starting the match"));
+//        }
+
+        match.setInProgress(true);
+
+        // Set all players to PLAYING status
+        for (MatchPlayer matchPlayer : players) {
+            matchPlayer.setStatus(PlayerStatus.PLAYING);
+        }
+
+        MatchDto matchDto = convertToMatchDto(match);
+        String message = "Match started: " + match.getName();
+        Result<StartMatchResponse> response = Result.success(new StartMatchResponse(matchDto, message));
+
+        if (response.isSuccess()) {
+            MatchStartedEvent event = new MatchStartedEvent(matchId, matchDto);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_STARTED, clientId, event);
+
+            broadcastMessageToMatchPlayers(clientId, matchId, realtimeMessage);
         }
 
         return response;
