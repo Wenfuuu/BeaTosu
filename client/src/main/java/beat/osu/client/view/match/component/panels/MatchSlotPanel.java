@@ -96,4 +96,103 @@ public class MatchSlotPanel extends VBox {
             System.err.println("CSS file not found!");
         }
     }
+
+    public void addPlayer(MatchPlayerDto player) {
+        System.out.println("Adding player: " + player);
+
+        if (player == null) {
+            return;
+        }
+
+        players.add(player);
+
+        MatchSlotCard newCard = new MatchSlotCard(
+                player.getId(),
+                player.getMatchId(),
+                player.getUser(),
+                player.getRole(),
+                player.getStatus(),
+                player.getMatchSlotIndex()
+        );
+
+        MatchSlotCard oldCard = matchSlotCardsMap.get(player.getMatchSlotIndex());
+        if (oldCard != null) {
+            slotsContainer.getChildren().remove(oldCard);
+
+            int position = player.getMatchSlotIndex();
+            if (position < slotsContainer.getChildren().size()) {
+                slotsContainer.getChildren().add(position, newCard);
+            } else {
+                slotsContainer.getChildren().add(newCard);
+            }
+
+            matchSlotCardsMap.put(player.getMatchSlotIndex(), newCard);
+        }
+
+        updatePlayerCountLabel();
+    }
+
+    public void removePlayer(int userId) {
+        MatchPlayerDto playerToRemove = null;
+        for (MatchPlayerDto player : players) {
+            if (player.getUser().getId() == userId) {
+                playerToRemove = player;
+                break;
+            }
+        }
+
+        if (playerToRemove != null) {
+            players.remove(playerToRemove);
+
+            MatchSlotCard emptyCard = new MatchSlotCard(
+                    -1,
+                    -1,
+                    null,
+                    PlayerRole.PLAYER,
+                    PlayerStatus.NOT_READY,
+                    playerToRemove.getMatchSlotIndex()
+            );
+
+            MatchSlotCard oldCard = matchSlotCardsMap.get(playerToRemove.getMatchSlotIndex());
+            if (oldCard != null) {
+                slotsContainer.getChildren().remove(oldCard);
+
+                int position = playerToRemove.getMatchSlotIndex();
+                if (position < slotsContainer.getChildren().size()) {
+                    slotsContainer.getChildren().add(position, emptyCard);
+                } else {
+                    slotsContainer.getChildren().add(emptyCard);
+                }
+
+                matchSlotCardsMap.put(playerToRemove.getMatchSlotIndex(), emptyCard);
+            }
+
+            updatePlayerCountLabel();
+        }
+    }
+
+    public void updatePlayer(MatchPlayerDto updatedPlayer) {
+        if (updatedPlayer == null) {
+            return;
+        }
+
+        for (int i = 0; i < players.size(); i++) {
+            MatchPlayerDto player = players.get(i);
+            if (player.getId() == updatedPlayer.getId()) {
+                players.set(i, updatedPlayer);
+                break;
+            }
+        }
+
+        MatchSlotCard card = matchSlotCardsMap.get(updatedPlayer.getMatchSlotIndex());
+        if (card != null) {
+            card.updateCard(updatedPlayer.getUser(), updatedPlayer.getRole(), updatedPlayer.getStatus());
+        }
+    }
+
+    private void updatePlayerCountLabel() {
+        if (currentPlayersLabel != null) {
+            currentPlayersLabel.setText("Current Players (" + players.size() + "/" + maxPlayerCount + ")");
+        }
+    }
 }
