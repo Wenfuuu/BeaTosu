@@ -18,9 +18,24 @@ import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
-import beat.osu.shared.dto.match.events.*;
-import beat.osu.shared.dto.match.requests.*;
-import beat.osu.shared.dto.match.responses.*;
+import beat.osu.shared.dto.match.events.HostLeftEvent;
+import beat.osu.shared.dto.match.events.MatchCreatedEvent;
+import beat.osu.shared.dto.match.events.MatchEndedEvent;
+import beat.osu.shared.dto.match.events.MatchStartedEvent;
+import beat.osu.shared.dto.match.events.PlayerKickedEvent;
+import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
+import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
+import beat.osu.shared.dto.match.requests.CreateMatchRequest;
+import beat.osu.shared.dto.match.requests.JoinMatchRequest;
+import beat.osu.shared.dto.match.requests.KickPlayerRequest;
+import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
+import beat.osu.shared.dto.match.requests.StartMatchRequest;
+import beat.osu.shared.dto.match.responses.CreateMatchResponse;
+import beat.osu.shared.dto.match.responses.GetAllMatchesResponse;
+import beat.osu.shared.dto.match.responses.JoinMatchResponse;
+import beat.osu.shared.dto.match.responses.KickPlayerResponse;
+import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
+import beat.osu.shared.dto.match.responses.StartMatchResponse;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.match.PlayerStatus;
@@ -31,7 +46,7 @@ public class MatchService {
 
     private final Map<Integer, Match> matches = new ConcurrentHashMap<>();
     private final Map<Integer, Set<MatchPlayer>> matchPlayers = new ConcurrentHashMap<>(); // matchId -> players
-    private final Map<Integer, Set<Integer>> userMatches = new ConcurrentHashMap<>(); // userId -> matchIds
+    private final Map<Integer, Integer> userToMatch = new ConcurrentHashMap<>(); // userId -> matchId (since user can only be in one match)
 
     private final SessionService sessionService;
     private final UserService userService;
@@ -47,9 +62,12 @@ public class MatchService {
     }
 
     private boolean isUserInMatch(int matchId, int userId) {
-        Set<MatchPlayer> players = matchPlayers.get(matchId);
-        if (players == null) return false;
-        return players.stream().anyMatch(player -> player.getUserId() == userId);
+        Integer userCurrentMatch = userToMatch.get(userId);
+        return userCurrentMatch != null && userCurrentMatch == matchId;
+    }
+
+    private boolean isUserInAnyMatch(int userId) {
+        return userToMatch.containsKey(userId);
     }
 
     private MatchPlayer findPlayerInMatch(int matchId, int userId) {
@@ -66,6 +84,7 @@ public class MatchService {
         if (players != null) {
             players.removeIf(player -> player.getUserId() == userId);
         }
+        userToMatch.remove(userId);
     }
 
     public Result<GetAllMatchesResponse> getAllMatches(String clientId) {
@@ -94,8 +113,7 @@ public class MatchService {
             return Result.failure(Error.validation("Max player count must be between 2 and 16"));
         }
 
-        Set<Integer> userMatchIds = getUserMatches(userId);
-        if (!userMatchIds.isEmpty()) {
+        if (isUserInAnyMatch(userId)) {
             return Result.failure(Error.validation("You are already in a match"));
         }
 
@@ -116,7 +134,7 @@ public class MatchService {
         int hostPlayerId = matchPlayerIdGenerator.getAndIncrement();
         MatchPlayer hostPlayer = new MatchPlayer(hostPlayerId, matchId, userId, PlayerRole.HOST, PlayerStatus.READY, 0);
         matchPlayers.get(matchId).add(hostPlayer);
-        userMatches.computeIfAbsent(userId, k -> ConcurrentHashMap.newKeySet()).add(matchId);
+        userToMatch.put(userId, matchId);
 
         MatchDto matchDto = convertToMatchDto(match);
         String message = "Match created successfully: " + match.getName();
@@ -144,8 +162,7 @@ public class MatchService {
             return Result.failure(Error.unauthorized("User not authenticated"));
         }
 
-        Set<Integer> userMatchIds = getUserMatches(userId);
-        if (!userMatchIds.isEmpty()) {
+        if (isUserInAnyMatch(userId)) {
             return Result.failure(Error.validation("You are already in a match"));
         }
 
@@ -174,7 +191,7 @@ public class MatchService {
         int newPlayerId = matchPlayerIdGenerator.getAndIncrement();
         MatchPlayer newPlayer = new MatchPlayer(newPlayerId, matchId, userId, PlayerRole.PLAYER, PlayerStatus.NOT_READY, availableSlot);
         matchPlayers.get(matchId).add(newPlayer);
-        userMatches.computeIfAbsent(userId, k -> ConcurrentHashMap.newKeySet()).add(matchId);
+        userToMatch.put(userId, matchId);
 
         MatchDto matchDto = convertToMatchDto(match);
         String message = "Successfully joined match: " + match.getName();
@@ -212,10 +229,6 @@ public class MatchService {
         PlayerRole playerRole = player != null ? player.getRole() : PlayerRole.PLAYER;
 
         removePlayerFromMatch(matchId, userId);
-        Set<Integer> userMatchSet = userMatches.get(userId);
-        if (userMatchSet != null) {
-            userMatchSet.remove(matchId);
-        }
 
         String message = "Successfully left match: " + match.getName();
 
@@ -225,6 +238,11 @@ public class MatchService {
             UserLeftMatchEvent event = new UserLeftMatchEvent(matchId, userId);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_LEFT_MATCH, clientId, event);
             RealtimeMessageHandler.broadcastToAll(realtimeMessage);
+            
+            Set<MatchPlayer> remainingPlayers = matchPlayers.get(matchId);
+            if (remainingPlayers == null || remainingPlayers.isEmpty()) {
+                removeMatch(matchId);
+            }
         }
 
         Result<LeaveMatchResponse> response = Result.success(new LeaveMatchResponse(message));
@@ -260,10 +278,6 @@ public class MatchService {
         }
 
         removePlayerFromMatch(matchId, playerToKickId);
-        Set<Integer> userMatchSet = userMatches.get(playerToKickId);
-        if (userMatchSet != null) {
-            userMatchSet.remove(matchId);
-        }
 
         User kickedUser = userService.findUserById(playerToKickId);
         String kickedUserName = kickedUser != null ? kickedUser.getUsername() : "Unknown";
@@ -484,6 +498,13 @@ public class MatchService {
     }
 
     private void removeMatch(int matchId) {
+        Set<MatchPlayer> players = matchPlayers.get(matchId);
+        if (players != null) {
+            for (MatchPlayer player : players) {
+                userToMatch.remove(player.getUserId());
+            }
+        }
+        
         MatchEndedEvent event = new MatchEndedEvent(matchId);
         RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_ENDED, "SYSTEM", event);
         RealtimeMessageHandler.broadcastToAll(realtimeMessage);
@@ -513,26 +534,25 @@ public class MatchService {
         return playerIds;
     }
 
-    public Set<Integer> getUserMatches(int userId) {
-        return new HashSet<>(userMatches.getOrDefault(userId, Collections.emptySet()));
+    public Integer getCurrentMatchForUser(int userId) {
+        return userToMatch.get(userId);
     }
 
     public void removeUserFromAllMatches(int userId) {
-        Set<Integer> userMatchSet = userMatches.remove(userId);
-        if (userMatchSet != null) {
-            for (int matchId : userMatchSet) {
-                Set<MatchPlayer> players = matchPlayers.get(matchId);
-                if (players != null) {
-                    MatchPlayer userPlayer = findPlayerInMatch(matchId, userId);
-                    boolean wasHost = userPlayer != null && PlayerRole.HOST.equals(userPlayer.getRole());
-                    
-                    removePlayerFromMatch(matchId, userId);
-                    
-                    if (wasHost) {
-                        handleHostLeaving(matchId, userId);
-                    }
-                    
-                    if (players.isEmpty()) {
+        Integer matchId = userToMatch.get(userId);
+        if (matchId != null) {
+            Set<MatchPlayer> players = matchPlayers.get(matchId);
+            if (players != null) {
+                MatchPlayer userPlayer = findPlayerInMatch(matchId, userId);
+                boolean wasHost = userPlayer != null && PlayerRole.HOST.equals(userPlayer.getRole());
+                
+                removePlayerFromMatch(matchId, userId);
+                
+                if (wasHost) {
+                    handleHostLeaving(matchId, userId);
+                } else {
+                    Set<MatchPlayer> remainingPlayers = matchPlayers.get(matchId);
+                    if (remainingPlayers == null || remainingPlayers.isEmpty()) {
                         removeMatch(matchId);
                     }
                 }
