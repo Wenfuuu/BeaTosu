@@ -460,6 +460,30 @@ public class MatchView extends Page {
             }
         });
 
+        hostActionsModal.getUserOptionsButton().setOnMouseClicked(e -> {
+            MatchPlayerDto selectedPlayer = selectedPlayerForHostAction;
+            if (selectedPlayer != null) {
+                UserCard userCard = new UserCard(
+                        selectedPlayer.getUserId(),
+                        selectedPlayer.getUser().getUsername(),
+                        selectedPlayer.getUser().getCountryCode(),
+                        selectedPlayer.getUser().getProfilePicture(),
+                        selectedPlayer.getUser().getPerformance(),
+                        selectedPlayer.getUser().getAccuracy(),
+                        selectedPlayer.getUser().getPlayCount(),
+                        selectedPlayer.getUser().getLevel(),
+                        selectedPlayer.getUser().getRank(),
+                        selectedPlayer.getUser().isSupporter(),
+                        UserCardBehavior.STATIC
+                );
+                viewUserModal.updateUserCard(userCard);
+                hostActionsModal.hide();
+                viewUserModal.show();
+            } else {
+                Toast.error("No player selected for user options.").show();
+            }
+        });
+
         setupMatchCallbacks();
     }
 
@@ -670,7 +694,25 @@ public class MatchView extends Page {
                 }
             });
         } else {
-            matchSlotPanel.setSlotCardClickCallback(null);
+            matchSlotPanel.setSlotCardClickCallback(card -> {
+                if (card.getUser() != null) {
+                    UserCard modalUserCard = new UserCard(
+                            card.getUser().getId(),
+                            card.getUser().getUsername(),
+                            card.getUser().getCountryCode(),
+                            card.getUser().getProfilePicture(),
+                            card.getUser().getPerformance(),
+                            card.getUser().getAccuracy(),
+                            card.getUser().getPlayCount(),
+                            card.getUser().getLevel(),
+                            card.getUser().getRank(),
+                            card.getUser().isSupporter(),
+                            UserCardBehavior.STATIC
+                    );
+                    viewUserModal.updateUserCard(modalUserCard);
+                    viewUserModal.show();
+                }
+            });
         }
     }
 
