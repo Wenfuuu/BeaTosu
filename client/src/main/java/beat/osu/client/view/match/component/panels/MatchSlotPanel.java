@@ -98,8 +98,6 @@ public class MatchSlotPanel extends VBox {
     }
 
     public void addPlayer(MatchPlayerDto player) {
-        System.out.println("Adding player: " + player);
-
         if (player == null) {
             return;
         }
