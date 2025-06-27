@@ -489,10 +489,6 @@ public class MatchService {
     private void handleHostLeaving(int matchId, int previousHostUserId) {
         Set<MatchPlayer> players = matchPlayers.get(matchId);
         
-        UserLeftMatchEvent userLeftEvent = new UserLeftMatchEvent(matchId, previousHostUserId);
-        RealtimeMessage userLeftMessage = new RealtimeMessage(RealtimeMessageType.USER_LEFT_MATCH, "SYSTEM", userLeftEvent);
-        RealtimeMessageHandler.broadcastToAll(userLeftMessage);
-        
         if (players != null && !players.isEmpty()) {
             MatchPlayer newHost = players.iterator().next();
             newHost.setRole(PlayerRole.HOST);
