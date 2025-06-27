@@ -256,19 +256,7 @@ public class MatchView extends Page {
         matchSlotPanel.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.43);
         matchSlotPanel.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.43);
 
-        if (isHost) {
-            matchSlotPanel.setSlotCardClickCallback(card -> {
-                if (card.getUser() != null) {
-                    MatchPlayerDto selected = players.stream()
-                        .filter(p -> p.getUser().getId() == card.getUser().getId())
-                        .findFirst()
-                        .orElse(null);
-                    selectedPlayerForHostAction = selected;
-                    assert selected != null;
-                    hostActionsModal.show(selected.getUser().getUsername());
-                }
-            });
-        }
+        updateSlotCardCallback();
 
         leaveMatchButton = new Button("Leave Match");
         leaveMatchButton.getStyleClass().add("leave-match-button");
@@ -667,6 +655,25 @@ public class MatchView extends Page {
         );
     }
 
+    private void updateSlotCardCallback() {
+        if (isHost) {
+            matchSlotPanel.setSlotCardClickCallback(card -> {
+                if (card.getUser() != null) {
+                    MatchPlayerDto selected = players.stream()
+                        .filter(p -> p.getUser().getId() == card.getUser().getId())
+                        .findFirst()
+                        .orElse(null);
+                    selectedPlayerForHostAction = selected;
+                    if (selected != null && selected.getRole().equals(PlayerRole.PLAYER)) {
+                        hostActionsModal.show(selected.getUser().getUsername());
+                    }
+                }
+            });
+        } else {
+            matchSlotPanel.setSlotCardClickCallback(null);
+        }
+    }
+
     private void updateUIBasedOnRole() {
         topBar.updateSubtitle(isHost);
         changePasswordButton.setVisible(isHost);
@@ -679,5 +686,6 @@ public class MatchView extends Page {
         int currentUserId = AuthManager.getUser().getId();
         this.isHost = matchSlotPanel.isUserHost(currentUserId);
         updateUIBasedOnRole();
+        updateSlotCardCallback();
     }
 }
