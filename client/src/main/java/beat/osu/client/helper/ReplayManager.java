@@ -256,6 +256,8 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
             // Check for key state changes
             boolean key1Pressed = (event.getKeyMask() & 1) != 0; // Bit 0 for key 1
             boolean key2Pressed = (event.getKeyMask() & 2) != 0; // Bit 1 for key 2
+            notifyListeners(new GameEvent(GameEventType.INPUT_OVERLAY_CHANGED,
+                    new InputOverlayEvent(key1Pressed, key2Pressed)));
 
             // Detect key press events (transition from not pressed to pressed)
             if (key1Pressed && !wasKey1Pressed) {

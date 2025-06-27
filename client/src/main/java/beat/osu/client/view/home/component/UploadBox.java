@@ -205,7 +205,6 @@ public class UploadBox extends VBox {
 
             @Override
             protected void succeeded() {
-                dropText.setText("Uploaded " + files.size() + " file(s)");
                 if (onUploadCompleteCallback != null) {
                     onUploadCompleteCallback.run();
                 }
@@ -217,7 +216,6 @@ public class UploadBox extends VBox {
             }
         };
 
-        // progressBar.progressProperty().bind(uploadTask.progressProperty());
         new Thread(uploadTask).start();
     }
 }
