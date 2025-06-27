@@ -286,15 +286,14 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             throw new RuntimeException(e);
         }
 
-        // Notify spectators (this will also remove session after notification
-        // completes)
-        notifySpectatorsPlayerExited();
-
         scoreController.insertScore(beatmap.getBeatmapId(), user.getId(), score,
                 highestCombo, accuracy, perfectHits, gekiHits, greatHits, greatKatuHits,
                 goodHits, misses, grade, now).thenApply(response -> {
                     if (response.isSuccess()) {
                         System.out.println("Score inserted successfully: " + response.getValue().getMessage());
+                        // Notify spectators (this will also remove session after notification
+                        // completes)
+                        notifySpectatorsPlayerExited();
                     } else {
                         System.err.println("Failed to insert score: " + response.getError().getMessage());
                     }
@@ -387,12 +386,15 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             keyPressed = true;
         }
 
+        boolean keyHolded = currentKeys.contains(InputManager.getKeybind1()) ||
+                currentKeys.contains(InputManager.getKeybind2());
+
         Iterator<HitObject> iterator = hitObjects.iterator();
         while (iterator.hasNext()) {
             HitObject hitObject = iterator.next();
             hitObject.update(elapsedMillis);
             if (hitObject instanceof HitSpinner) {
-                ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
+                if(keyHolded) ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
             } else if (hitObject instanceof HitSlider) {
                 ((HitSlider) hitObject).updateSlider(currentMouseX, currentMouseY);
             }
