@@ -36,6 +36,7 @@ public class HitSpinner extends HitObject{
 
     private double lastMouseAngle = 0;
     private boolean mousePressed = false;
+    private boolean firstActive = true;
 
     private double TARGET_SPINS;
     private final double ROTATION_SPEED = 1;
@@ -96,39 +97,39 @@ public class HitSpinner extends HitObject{
     }
 
     private void handleEvent() {
-        group.setOnMousePressed(event -> {
-            if (isActive) {
-                mousePressed = true;
-                double deltaX = event.getX();
-                double deltaY = event.getY();
-                lastMouseAngle = Math.atan2(deltaY, deltaX);
-//                startSpinning();
-            }
-        });
-
-        group.setOnMouseDragged(event -> {
-            if (mousePressed && isActive) {
-                double deltaX = event.getX();
-                double deltaY = event.getY();
-                double currentMouseAngle = Math.atan2(deltaY, deltaX);
-                double angleDiff = currentMouseAngle - lastMouseAngle;
-
-                if (angleDiff > Math.PI) {
-                    angleDiff -= 2 * Math.PI;
-                } else if (angleDiff < -Math.PI) {
-                    angleDiff += 2 * Math.PI;
-                }
-                double degreesRotated = Math.toDegrees(Math.abs(angleDiff));
-                addRotation(degreesRotated);
-
-                lastMouseAngle = currentMouseAngle;
-            }
-        });
-
-        group.setOnMouseReleased(event -> {
-            mousePressed = false;
-//            stopSpinning();
-        });
+//        group.setOnMousePressed(event -> {
+//            if (isActive) {
+//                mousePressed = true;
+//                double deltaX = event.getX();
+//                double deltaY = event.getY();
+//                lastMouseAngle = Math.atan2(deltaY, deltaX);
+////                startSpinning();
+//            }
+//        });
+//
+//        group.setOnMouseDragged(event -> {
+//            if (mousePressed && isActive) {
+//                double deltaX = event.getX();
+//                double deltaY = event.getY();
+//                double currentMouseAngle = Math.atan2(deltaY, deltaX);
+//                double angleDiff = currentMouseAngle - lastMouseAngle;
+//
+//                if (angleDiff > Math.PI) {
+//                    angleDiff -= 2 * Math.PI;
+//                } else if (angleDiff < -Math.PI) {
+//                    angleDiff += 2 * Math.PI;
+//                }
+//                double degreesRotated = Math.toDegrees(Math.abs(angleDiff));
+//                addRotation(degreesRotated);
+//
+//                lastMouseAngle = currentMouseAngle;
+//            }
+//        });
+//
+//        group.setOnMouseReleased(event -> {
+//            mousePressed = false;
+////            stopSpinning();
+//        });
     }
 
     @Override
@@ -171,10 +172,15 @@ public class HitSpinner extends HitObject{
 
     public void updateSpinner(double mouseX, double mouseY) {
         if(isHit() && isActive) {
-             double relativeX = mouseX - group.getLayoutX();
-             double relativeY = mouseY - group.getLayoutY();
+            double relativeX = mouseX - group.getLayoutX();
+            double relativeY = mouseY - group.getLayoutY();
 
             double currentMouseAngle = Math.atan2(relativeY, relativeX);
+            if(firstActive) {
+                lastMouseAngle = currentMouseAngle;
+                firstActive = false;
+            }
+
             double angleDiff = currentMouseAngle - lastMouseAngle;
 
             // Normalize angle difference
