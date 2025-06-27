@@ -14,7 +14,13 @@ import beat.osu.client.controller.ChatController;
 import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.controller.MatchController;
 import beat.osu.client.controller.SessionController;
-import beat.osu.client.helper.*;
+import beat.osu.client.helper.AuthManager;
+import beat.osu.client.helper.BackgroundManager;
+import beat.osu.client.helper.BgmManager;
+import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ResourceManager;
+import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.ViewManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.view.match.component.cards.BeatmapCard;
@@ -34,6 +40,8 @@ import beat.osu.shared.dto.beatmap.BeatmapDto;
 import beat.osu.shared.dto.beatmap.responses.GetBeatmapByIdResponse;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
+import beat.osu.shared.dto.match.events.HostChangedEvent;
+import beat.osu.shared.dto.match.events.HostLeftEvent;
 import beat.osu.shared.dto.match.events.MatchStartedEvent;
 import beat.osu.shared.dto.match.events.PlayerKickedEvent;
 import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
@@ -407,6 +415,8 @@ public class MatchView extends Page {
         matchController.addUserLeftMatchCallback(this::onUserLeftMatch);
         matchController.addPlayerKickedCallback(this::onPlayerKicked);
         matchController.addMatchStartedCallback(this::onMatchStarted);
+        matchController.addHostChangedCallback(this::onHostChanged);
+        matchController.addHostLeftCallback(this::onHostLeft);
     }
 
     private void onUserJoinedMatch(UserJoinedMatchEvent event) {
@@ -435,10 +445,27 @@ public class MatchView extends Page {
 
     private void onMatchStarted(MatchStartedEvent event) {
         if (event.getMatchId() == this.matchId) {
-            // redirect to the game view
             Platform.runLater(() -> {
                 BgmManager.getInstance().stopBgm();
                 ViewManager.getInstance().showGameView(beatmap);
+            });
+        }
+    }
+
+    private void onHostChanged(HostChangedEvent event) {
+        if (event.getMatchId() == this.matchId) {
+            Platform.runLater(() -> {
+                matchSlotPanel.updateHost(event.getNewHostUserId(), event.getPreviousHostUserId());
+                updateHostStatus();
+            });
+        }
+    }
+
+    private void onHostLeft(HostLeftEvent event) {
+        if (event.getMatchId() == this.matchId) {
+            Platform.runLater(() -> {
+                matchSlotPanel.hostLeft(event.getPreviousHostUserId(), event.getNewHostUserId());
+                updateHostStatus();
             });
         }
     }

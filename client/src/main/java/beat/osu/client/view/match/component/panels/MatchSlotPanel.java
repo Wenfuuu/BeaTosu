@@ -195,4 +195,84 @@ public class MatchSlotPanel extends VBox {
             currentPlayersLabel.setText("Current Players (" + players.size() + "/" + maxPlayerCount + ")");
         }
     }
+
+    public void updateHost(int newHostUserId, int previousHostUserId) {
+        if (players == null) {
+            return;
+        }
+
+        for (MatchPlayerDto player : players) {
+            if (player.getUserId() == newHostUserId) {
+                player.setRole(PlayerRole.HOST);
+            } else if (player.getUserId() == previousHostUserId) {
+                player.setRole(PlayerRole.PLAYER);
+            }
+        }
+
+        for (MatchPlayerDto player : players) {
+            MatchSlotCard card = matchSlotCardsMap.get(player.getMatchSlotIndex());
+            if (card != null) {
+                card.updateCard(player.getUser(), player.getRole(), player.getStatus());
+            }
+        }
+    }
+
+    public void hostLeft(int previousHostUserId, int newHostUserId) {
+        if (players == null) {
+            return;
+        }
+
+        MatchPlayerDto hostToRemove = null;
+        for (MatchPlayerDto player : players) {
+            if (player.getUserId() == previousHostUserId) {
+                hostToRemove = player;
+                break;
+            }
+        }
+
+        if (hostToRemove != null) {
+            players.remove(hostToRemove);
+
+            MatchSlotCard emptyCard = new MatchSlotCard(
+                    -1,
+                    -1,
+                    null,
+                    PlayerRole.PLAYER,
+                    PlayerStatus.NOT_READY,
+                    hostToRemove.getMatchSlotIndex()
+            );
+
+            MatchSlotCard oldCard = matchSlotCardsMap.get(hostToRemove.getMatchSlotIndex());
+            if (oldCard != null) {
+                slotsContainer.getChildren().remove(oldCard);
+
+                int position = hostToRemove.getMatchSlotIndex();
+                if (position < slotsContainer.getChildren().size()) {
+                    slotsContainer.getChildren().add(position, emptyCard);
+                } else {
+                    slotsContainer.getChildren().add(emptyCard);
+                }
+
+                matchSlotCardsMap.put(hostToRemove.getMatchSlotIndex(), emptyCard);
+            }
+        }
+
+        for (MatchPlayerDto player : players) {
+            if (player.getUserId() == newHostUserId) {
+                player.setRole(PlayerRole.HOST);
+                MatchSlotCard card = matchSlotCardsMap.get(player.getMatchSlotIndex());
+                if (card != null) {
+                    card.updateCard(player.getUser(), player.getRole(), player.getStatus());
+                }
+            } else {
+                player.setRole(PlayerRole.PLAYER);
+                MatchSlotCard card = matchSlotCardsMap.get(player.getMatchSlotIndex());
+                if (card != null) {
+                    card.updateCard(player.getUser(), player.getRole(), player.getStatus());
+                }
+            }
+        }
+
+        updatePlayerCountLabel();
+    }
 }
