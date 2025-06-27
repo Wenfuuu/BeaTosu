@@ -27,6 +27,7 @@ public class MatchSlotPanel extends VBox {
     private VBox slotsContainer;
     private ScrollPane slotsScrollPane;
     private Map<Integer, MatchSlotCard> matchSlotCardsMap;
+    private MatchSlotCard.SlotCardClickCallback slotCardClickCallback;
 
     public MatchSlotPanel(int maxPlayerCount, List<MatchPlayerDto> players) {
         this.maxPlayerCount = maxPlayerCount;
@@ -112,6 +113,9 @@ public class MatchSlotPanel extends VBox {
                 player.getStatus(),
                 player.getMatchSlotIndex()
         );
+        if (slotCardClickCallback != null) {
+            newCard.setSlotCardClickCallback(slotCardClickCallback);
+        }
 
         MatchSlotCard oldCard = matchSlotCardsMap.get(player.getMatchSlotIndex());
         if (oldCard != null) {
@@ -272,5 +276,12 @@ public class MatchSlotPanel extends VBox {
         }
 
         updatePlayerCountLabel();
+    }
+
+    public void setSlotCardClickCallback(MatchSlotCard.SlotCardClickCallback callback) {
+        this.slotCardClickCallback = callback;
+        for (MatchSlotCard card : matchSlotCardsMap.values()) {
+            card.setSlotCardClickCallback(callback);
+        }
     }
 }

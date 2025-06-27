@@ -32,6 +32,7 @@ public class HostActionsModal extends VBox {
         initializeComponents();
         setLayout();
         loadStyles();
+        handleEvent();
 
         this.setVisible(false);
     }
@@ -39,7 +40,7 @@ public class HostActionsModal extends VBox {
     private void initializeComponents() {
         this.getStyleClass().add("root");
 
-        titleLabel = new Label("Joining this game requires a password...");
+        titleLabel = new Label("What would you like to do with this user?");
         titleLabel.getStyleClass().add("title-label");
 
         transferHostButton = new Button("1. Transfer Host Privileges");
@@ -65,18 +66,24 @@ public class HostActionsModal extends VBox {
 
     private void setLayout() {
         this.getChildren().addAll(titleLabel, buttonsContainer);
-        VBox.setMargin(buttonsContainer, new Insets(92, 0, 0, 0));
+        VBox.setMargin(buttonsContainer, new Insets(ScreenManager.SCREEN_HEIGHT * 0.1, 0, 0, 0));
     }
 
     private void loadStyles() {
         try {
-            URL cssUrl = CssManager.getLobbyCssURL("HostActionsModal.css");
+            URL cssUrl = CssManager.getMatchCssURL("HostActionsModal.css");
             if (cssUrl != null) {
                 this.getStylesheets().add(cssUrl.toExternalForm());
             }
         } catch (Exception e) {
             System.err.println("Could not load JoinMatchModal CSS: " + e.getMessage());
         }
+    }
+
+    private void handleEvent() {
+        cancelButton.setOnAction(e -> {
+            hide();
+        });
     }
 
     public void hide() {
@@ -90,7 +97,9 @@ public class HostActionsModal extends VBox {
         fadeOut.play();
     }
 
-    public void show() {
+    public void show(String username) {
+        titleLabel.setText("What would you like to do with " + username + "?");
+
         this.setVisible(true);
 
         FadeTransition fadeIn = new FadeTransition(Duration.millis(300), this);

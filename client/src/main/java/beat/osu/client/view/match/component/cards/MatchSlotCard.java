@@ -19,12 +19,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import lombok.Getter;
+import lombok.Setter;
 
 public class MatchSlotCard extends HBox {
 
     private int matchPlayerId;
     private int matchId;
 
+    @Getter
     private UserDto user;
 
     private PlayerRole role;
@@ -42,6 +45,14 @@ public class MatchSlotCard extends HBox {
     private VBox separator;
     private Label usernameLabel;
     private Label rankLabel;
+
+    @FunctionalInterface
+    public interface SlotCardClickCallback {
+        void onSlotCardClicked(MatchSlotCard card);
+    }
+
+    @Setter
+    private SlotCardClickCallback slotCardClickCallback;
 
     public MatchSlotCard(int matchPlayerId, int matchId, UserDto user, PlayerRole role, PlayerStatus status, int matchSlotIndex) {
         this.matchPlayerId = matchPlayerId;
@@ -82,6 +93,7 @@ public class MatchSlotCard extends HBox {
         rankLabel.getStyleClass().add("rank-label");
 
         setupHoverPopup();
+        setupCallbacks();
     }
 
     private void setupLayout() {
@@ -144,6 +156,14 @@ public class MatchSlotCard extends HBox {
         playerTooltip.setHideDelay(Duration.millis(100));
 
         Tooltip.install(this, playerTooltip);
+    }
+
+    private void setupCallbacks() {
+        this.setOnMouseClicked(event -> {
+            if (user != null && slotCardClickCallback != null) {
+                slotCardClickCallback.onSlotCardClicked(this);
+            }
+        });
     }
 
     public void updateCard(UserDto user, PlayerRole role, PlayerStatus status) {
