@@ -1,0 +1,56 @@
+.root {
+    -fx-background-color: rgba(0, 0, 0, 0.8);
+    -fx-padding: 4px;
+}
+
+.title-label {
+    -fx-font-family: "Aller Light";
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(one-pass-box, black, 1, 0, 1, 1),
+    dropshadow(one-pass-box, black, 1, 0, -1, 1),
+    dropshadow(one-pass-box, black, 1, 0, 1, -1),
+    dropshadow(one-pass-box, black, 1, 0, -1, -1);
+}
+
+.title-label {
+    -fx-font-size: 48px;
+    -fx-padding: 0;
+}
+
+.main-button {
+    -fx-padding: 6px 20px 6px 20px;
+    -fx-text-fill: white;
+    -fx-font-family: 'Aller';
+    -fx-font-size: 52px;
+    -fx-border-radius: 5;
+    -fx-alignment: center;
+}
+
+.main-button .text {
+    -fx-effect: dropshadow(one-pass-box, black, 1, 0, 1, 1),
+    dropshadow(one-pass-box, black, 1, 0, -1, 1),
+    dropshadow(one-pass-box, black, 1, 0, 1, -1),
+    dropshadow(one-pass-box, black, 1, 0, -1, -1);
+}
+
+.transfer-host-button {
+    -fx-background-color: linear-gradient(to bottom, #76A21A, #83B51D);
+}
+
+.kick-player-button {
+    -fx-background-color: linear-gradient(to bottom, #C70000, #E90000);
+}
+
+.user-options-button {
+    -fx-background-color: linear-gradient(to bottom, #224E7F, #265990);
+}
+
+.cancel-button {
+    -fx-background-color: linear-gradient(to bottom, #5E5E5D, #6A6A6B);
+}
+
+.buttons-container {
+    -fx-alignment: center;
+    -fx-spacing: 36;
+    -fx-vgrow: always;
+}
