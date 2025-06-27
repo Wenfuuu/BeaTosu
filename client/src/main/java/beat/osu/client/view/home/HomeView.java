@@ -2,6 +2,7 @@ package beat.osu.client.view.home;
 
 import beat.osu.client.controller.BeatmapController;
 import beat.osu.client.controller.ScoreController;
+import beat.osu.client.events.game.ReplayEvent;
 import beat.osu.client.helper.*;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
@@ -9,6 +10,7 @@ import beat.osu.client.utils.OsuParser;
 import beat.osu.client.utils.ReplayUtils;
 import beat.osu.client.view.home.component.*;
 import beat.osu.client.view.shared.common.Page;
+import beat.osu.client.view.shared.common.Toast;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
 import beat.osu.shared.dto.score.ScoreDto;
@@ -286,11 +288,20 @@ public class HomeView extends Page {
                     formatted.replace("/", "-").replace(":", "-"));
 
             try {
+                ArrayList<ReplayEvent> replayEvents = ReplayUtils.loadReplay(osrFileName);
+                if (replayEvents.isEmpty()) {
+                    Toast.error("Replay file is empty").show();
+                    return;
+                }
                 scoreOverlay.setVisible(false);
                 showTransition.play();
-                ViewManager.getInstance().showReplayView(beatmap, ReplayUtils.loadReplay(osrFileName));
+                ViewManager.getInstance().showReplayView(beatmap, replayEvents);
             } catch (IOException ex) {
-                throw new RuntimeException(ex);
+                if (ex.getMessage().contains("Replay file not found")) {
+                    Toast.error("Replay file not found").show();
+                } else {
+                    Toast.error("Error loading replay: " + ex.getMessage()).show();
+                }
             }
         });
 
