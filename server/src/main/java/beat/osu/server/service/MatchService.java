@@ -18,24 +18,9 @@ import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
-import beat.osu.shared.dto.match.events.HostLeftEvent;
-import beat.osu.shared.dto.match.events.MatchCreatedEvent;
-import beat.osu.shared.dto.match.events.MatchEndedEvent;
-import beat.osu.shared.dto.match.events.MatchStartedEvent;
-import beat.osu.shared.dto.match.events.PlayerKickedEvent;
-import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
-import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
-import beat.osu.shared.dto.match.requests.CreateMatchRequest;
-import beat.osu.shared.dto.match.requests.JoinMatchRequest;
-import beat.osu.shared.dto.match.requests.KickPlayerRequest;
-import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
-import beat.osu.shared.dto.match.requests.StartMatchRequest;
-import beat.osu.shared.dto.match.responses.CreateMatchResponse;
-import beat.osu.shared.dto.match.responses.GetAllMatchesResponse;
-import beat.osu.shared.dto.match.responses.JoinMatchResponse;
-import beat.osu.shared.dto.match.responses.KickPlayerResponse;
-import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
-import beat.osu.shared.dto.match.responses.StartMatchResponse;
+import beat.osu.shared.dto.match.events.*;
+import beat.osu.shared.dto.match.requests.*;
+import beat.osu.shared.dto.match.responses.*;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.match.PlayerStatus;
@@ -362,6 +347,26 @@ public class MatchService {
         }
 
         return response;
+    }
+
+    public Result<SendMatchScoreEventResponse> sendMatchScoreEvent(SendMatchScoreEventRequest request, String clientId) {
+        MatchScoreEvent event = request.getMatchScoreEvent();
+        int matchId = event.getMatchId();
+        Match match = matches.get(matchId);
+
+        if (match == null) {
+            return Result.failure(Error.notFound("Match not found"));
+        }
+
+        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
+        if (userId == null) {
+            return Result.failure(Error.unauthorized("User not authenticated"));
+        }
+
+        RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_SCORE_EVENT, clientId, event);
+        broadcastMessageToMatchPlayers(clientId, matchId, realtimeMessage);
+
+        return Result.success(new SendMatchScoreEventResponse("Match score event sent successfully"));
     }
 
     private MatchDto convertToMatchDto(Match match) {

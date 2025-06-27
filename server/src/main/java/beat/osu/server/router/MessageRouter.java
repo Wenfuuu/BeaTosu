@@ -158,6 +158,8 @@ public class MessageRouter {
                 return matchService.kickPlayer((KickPlayerRequest) request.getPayload(), clientId);
             case START_MATCH:
                 return matchService.startMatch((StartMatchRequest) request.getPayload(), clientId);
+            case SEND_MATCH_SCORE_EVENT:
+                return matchService.sendMatchScoreEvent((SendMatchScoreEventRequest) request.getPayload(), clientId);
             default:
                 return Result.failure(Error.validation("Unknown match action: " + request.getAction()));
         }

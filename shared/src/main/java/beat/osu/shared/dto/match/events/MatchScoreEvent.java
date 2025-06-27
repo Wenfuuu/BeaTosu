@@ -9,6 +9,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 public class MatchScoreEvent implements Serializable {
+    private int matchId;
     private int score;
     private int combo;
     private UserDto user;
