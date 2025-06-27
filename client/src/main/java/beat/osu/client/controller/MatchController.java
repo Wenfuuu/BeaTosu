@@ -14,27 +14,43 @@ import beat.osu.shared.dto.match.events.HostChangedEvent;
 import beat.osu.shared.dto.match.events.HostLeftEvent;
 import beat.osu.shared.dto.match.events.MatchCreatedEvent;
 import beat.osu.shared.dto.match.events.MatchEndedEvent;
+import beat.osu.shared.dto.match.events.MatchPasswordUpdatedEvent;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
 import beat.osu.shared.dto.match.events.MatchStartedEvent;
 import beat.osu.shared.dto.match.events.PlayerKickedEvent;
 import beat.osu.shared.dto.match.events.SlotChangedEvent;
 import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
 import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
-import beat.osu.shared.dto.match.requests.*;
-import beat.osu.shared.dto.match.responses.*;
+import beat.osu.shared.dto.match.requests.ChangeMatchSlotRequest;
+import beat.osu.shared.dto.match.requests.CreateMatchRequest;
+import beat.osu.shared.dto.match.requests.JoinMatchRequest;
+import beat.osu.shared.dto.match.requests.KickPlayerRequest;
+import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
+import beat.osu.shared.dto.match.requests.SendMatchScoreEventRequest;
+import beat.osu.shared.dto.match.requests.StartMatchRequest;
+import beat.osu.shared.dto.match.requests.TransferHostRequest;
+import beat.osu.shared.dto.match.requests.UpdateMatchPasswordRequest;
+import beat.osu.shared.dto.match.responses.ChangeMatchSlotResponse;
+import beat.osu.shared.dto.match.responses.CreateMatchResponse;
+import beat.osu.shared.dto.match.responses.GetAllMatchesResponse;
+import beat.osu.shared.dto.match.responses.JoinMatchResponse;
+import beat.osu.shared.dto.match.responses.KickPlayerResponse;
+import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
+import beat.osu.shared.dto.match.responses.SendMatchScoreEventResponse;
+import beat.osu.shared.dto.match.responses.StartMatchResponse;
+import beat.osu.shared.dto.match.responses.TransferHostResponse;
+import beat.osu.shared.dto.match.responses.UpdateMatchPasswordResponse;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.message.MessageAction;
 import beat.osu.shared.enums.message.MessageType;
 import beat.osu.shared.enums.message.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
 import beat.osu.shared.models.RequestMessage;
-import lombok.Getter;
 
 public class MatchController {
 
     private final ClientService clientService;
 
-    @Getter
     private List<MatchDto> matches = new ArrayList<>();
 
     private final List<Consumer<MatchCreatedEvent>> matchCreatedCallbacks = new ArrayList<>();
@@ -47,11 +63,16 @@ public class MatchController {
     private final List<Consumer<MatchStartedEvent>> matchStartedCallbacks = new ArrayList<>();
     private final List<Consumer<MatchScoreEvent>> matchScoreCallbacks = new ArrayList<>();
     private final List<Consumer<SlotChangedEvent>> slotChangedCallbacks = new ArrayList<>();
+    private final List<Consumer<MatchPasswordUpdatedEvent>> matchPasswordUpdatedCallbacks = new ArrayList<>();
 
     public MatchController() {
         this.clientService = ClientService.getInstance();
-        requestMatches();
         setupRealtimeHandler();
+        requestMatches();
+    }
+
+    public List<MatchDto> getMatches() {
+        return matches;
     }
 
     public void addMatchCreatedCallback(Consumer<MatchCreatedEvent> callback) {
@@ -94,6 +115,10 @@ public class MatchController {
         matchScoreCallbacks.add(callback);
     }
 
+    public void addMatchPasswordUpdatedCallback(Consumer<MatchPasswordUpdatedEvent> callback) {
+        matchPasswordUpdatedCallbacks.add(callback);
+    }
+
     public void removeMatchCreatedCallback(Consumer<MatchCreatedEvent> callback) {
         matchCreatedCallbacks.remove(callback);
     }
@@ -132,6 +157,10 @@ public class MatchController {
 
     public void removeMatchScoreCallback(Consumer<MatchScoreEvent> callback) {
         matchScoreCallbacks.remove(callback);
+    }
+
+    public void removeMatchPasswordUpdatedCallback(Consumer<MatchPasswordUpdatedEvent> callback) {
+        matchPasswordUpdatedCallbacks.remove(callback);
     }
 
     private void setupRealtimeHandler() {
@@ -321,6 +350,26 @@ public class MatchController {
         });
     }
 
+    public CompletableFuture<Result<UpdateMatchPasswordResponse>> updateMatchPassword(int matchId, String newPassword) {
+        UpdateMatchPasswordRequest requestData = new UpdateMatchPasswordRequest(matchId, newPassword);
+        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.UPDATE_MATCH_PASSWORD, requestData);
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendRequest(request).get();
+
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((UpdateMatchPasswordResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
+    }
+
     private void handleRealtimeMessage(RealtimeMessage message) {
         if (message.getType() == RealtimeMessageType.MATCH_CREATED) {
             if (message.getPayload() instanceof MatchCreatedEvent) {
@@ -379,6 +428,11 @@ public class MatchController {
                 SlotChangedEvent event = (SlotChangedEvent) message.getPayload();
                 updatePlayerSlot(event.getMatchId(), event.getUserId(), event.getNewSlotIndex());
                 notifySlotChanged(event);
+            }
+        } else if (message.getType() == RealtimeMessageType.MATCH_PASSWORD_UPDATED) {
+            if (message.getPayload() instanceof MatchPasswordUpdatedEvent) {
+                MatchPasswordUpdatedEvent event = (MatchPasswordUpdatedEvent) message.getPayload();
+                notifyMatchPasswordUpdated(event);
             }
         } else if (message.getType() == RealtimeMessageType.MATCH_COMPLETED) {
 
@@ -555,6 +609,16 @@ public class MatchController {
                 callback.accept(event);
             } catch (Exception e) {
                 System.err.println("Error in slot changed callback: " + e.getMessage());
+            }
+        }
+    }
+
+    private void notifyMatchPasswordUpdated(MatchPasswordUpdatedEvent event) {
+        for (Consumer<MatchPasswordUpdatedEvent> callback : matchPasswordUpdatedCallbacks) {
+            try {
+                callback.accept(event);
+            } catch (Exception e) {
+                System.err.println("Error in match password updated callback: " + e.getMessage());
             }
         }
     }

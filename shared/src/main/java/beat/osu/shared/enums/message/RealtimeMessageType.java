@@ -22,6 +22,7 @@ public enum RealtimeMessageType implements Serializable {
     HOST_LEFT,
     MATCH_ENDED,
     SLOT_CHANGED,
+    MATCH_PASSWORD_UPDATED,
     MATCH_SCORE_EVENT,
     MATCH_STARTED,
     MATCH_COMPLETED,

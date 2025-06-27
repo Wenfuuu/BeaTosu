@@ -22,6 +22,7 @@ import beat.osu.shared.dto.match.events.HostChangedEvent;
 import beat.osu.shared.dto.match.events.HostLeftEvent;
 import beat.osu.shared.dto.match.events.MatchCreatedEvent;
 import beat.osu.shared.dto.match.events.MatchEndedEvent;
+import beat.osu.shared.dto.match.events.MatchPasswordUpdatedEvent;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
 import beat.osu.shared.dto.match.events.MatchStartedEvent;
 import beat.osu.shared.dto.match.events.PlayerKickedEvent;
@@ -36,6 +37,7 @@ import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
 import beat.osu.shared.dto.match.requests.SendMatchScoreEventRequest;
 import beat.osu.shared.dto.match.requests.StartMatchRequest;
 import beat.osu.shared.dto.match.requests.TransferHostRequest;
+import beat.osu.shared.dto.match.requests.UpdateMatchPasswordRequest;
 import beat.osu.shared.dto.match.responses.ChangeMatchSlotResponse;
 import beat.osu.shared.dto.match.responses.CreateMatchResponse;
 import beat.osu.shared.dto.match.responses.GetAllMatchesResponse;
@@ -45,6 +47,7 @@ import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
 import beat.osu.shared.dto.match.responses.SendMatchScoreEventResponse;
 import beat.osu.shared.dto.match.responses.StartMatchResponse;
 import beat.osu.shared.dto.match.responses.TransferHostResponse;
+import beat.osu.shared.dto.match.responses.UpdateMatchPasswordResponse;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.match.PlayerStatus;
@@ -482,6 +485,46 @@ public class MatchService {
         if (response.isSuccess()) {
             SlotChangedEvent event = new SlotChangedEvent(matchId, userId, oldSlotIndex, newSlotIndex);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.SLOT_CHANGED, clientId, event);
+            RealtimeMessageHandler.broadcastToAll(realtimeMessage);
+        }
+
+        return response;
+    }
+
+    public Result<UpdateMatchPasswordResponse> updateMatchPassword(UpdateMatchPasswordRequest request, String clientId) {
+        int matchId = request.getMatchId();
+        String newPassword = request.getNewPassword();
+
+        Match match = matches.get(matchId);
+        if (match == null) {
+            return Result.failure(Error.notFound("Match not found"));
+        }
+
+        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
+        if (userId == null) {
+            return Result.failure(Error.unauthorized("User not authenticated"));
+        }
+
+        MatchPlayer player = findPlayerInMatch(matchId, userId);
+        if (player == null || !player.getRole().equals(PlayerRole.HOST)) {
+            return Result.failure(Error.unauthorized("Only the host can update the match password"));
+        }
+
+        if (newPassword != null && newPassword.length() > 50) {
+            return Result.failure(Error.validation("Password cannot be longer than 50 characters"));
+        }
+
+        if (newPassword != null && newPassword.trim().isEmpty()) {
+            return Result.failure(Error.validation("Password cannot be empty. Use null to remove password"));
+        }
+
+        match.setPassword(newPassword);
+        
+        Result<UpdateMatchPasswordResponse> response = Result.success(new UpdateMatchPasswordResponse("Successfully updated match password!"));
+
+        if (response.isSuccess()) {
+            MatchPasswordUpdatedEvent event = new MatchPasswordUpdatedEvent(matchId);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_PASSWORD_UPDATED, clientId, event);
             RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
 
