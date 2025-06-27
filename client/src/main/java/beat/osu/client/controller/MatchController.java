@@ -10,13 +10,7 @@ import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
-import beat.osu.shared.dto.match.events.HostChangedEvent;
-import beat.osu.shared.dto.match.events.HostLeftEvent;
-import beat.osu.shared.dto.match.events.MatchCreatedEvent;
-import beat.osu.shared.dto.match.events.MatchEndedEvent;
-import beat.osu.shared.dto.match.events.PlayerKickedEvent;
-import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
-import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
+import beat.osu.shared.dto.match.events.*;
 import beat.osu.shared.dto.match.requests.CreateMatchRequest;
 import beat.osu.shared.dto.match.requests.JoinMatchRequest;
 import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
@@ -46,6 +40,7 @@ public class MatchController {
     private final List<Consumer<PlayerKickedEvent>> playerKickedCallbacks = new ArrayList<>();
     private final List<Consumer<HostChangedEvent>> hostChangedCallbacks = new ArrayList<>();
     private final List<Consumer<HostLeftEvent>> hostLeftCallbacks = new ArrayList<>();
+    private final List<Consumer<MatchStartedEvent>> matchStartedCallbacks = new ArrayList<>();
 
     public MatchController() {
         this.clientService = ClientService.getInstance();
@@ -81,6 +76,10 @@ public class MatchController {
         hostLeftCallbacks.add(callback);
     }
 
+    public void addMatchStartedCallback(Consumer<MatchStartedEvent> callback) {
+        matchStartedCallbacks.add(callback);
+    }
+
     public void removeMatchCreatedCallback(Consumer<MatchCreatedEvent> callback) {
         matchCreatedCallbacks.remove(callback);
     }
@@ -103,6 +102,10 @@ public class MatchController {
 
     public void removeHostChangedCallback(Consumer<HostChangedEvent> callback) {
         hostChangedCallbacks.remove(callback);
+    }
+
+    public void removeHostLeftCallback(Consumer<HostLeftEvent> callback) {
+        hostLeftCallbacks.remove(callback);
     }
 
     private void setupRealtimeHandler() {
@@ -235,6 +238,15 @@ public class MatchController {
                 handleHostLeft(event.getMatchId(), event.getPreviousHostUserId(), event.getNewHostUserId());
                 notifyHostLeft(event);
             }
+        } else if (message.getType() == RealtimeMessageType.MATCH_SCORE_EVENT) {
+
+        } else if (message.getType() == RealtimeMessageType.MATCH_STARTED) {
+            if (message.getPayload() instanceof MatchStartedEvent) {
+                MatchStartedEvent event = (MatchStartedEvent) message.getPayload();
+                notifyMatchStarted(event);
+            }
+        } else if (message.getType() == RealtimeMessageType.MATCH_COMPLETED) {
+
         }
     }
 
@@ -362,6 +374,16 @@ public class MatchController {
                 callback.accept(event);
             } catch (Exception e) {
                 System.err.println("Error in host left callback: " + e.getMessage());
+            }
+        }
+    }
+
+    private void notifyMatchStarted(MatchStartedEvent event) {
+        for (Consumer<MatchStartedEvent> callback : matchStartedCallbacks) {
+            try {
+                callback.accept(event);
+            } catch (Exception e) {
+                System.err.println("Error in match started callback: " + e.getMessage());
             }
         }
     }
