@@ -278,11 +278,43 @@ public class MatchService {
             PlayerKickedEvent event = new PlayerKickedEvent(matchId, playerToKickId);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.PLAYER_KICKED_FROM_MATCH, clientId, event);
             RealtimeMessageHandler.broadcastToAll(realtimeMessage);
+        }
 
-            String kickedPlayerClientId = sessionService.getClientIdByUserId(playerToKickId);
-            if (kickedPlayerClientId != null) {
-                RealtimeMessageHandler.sendToClient(realtimeMessage, kickedPlayerClientId);
-            }
+        return response;
+    }
+
+    public Result<TransferHostResponse> transferHost(TransferHostRequest request, String clientId) {
+        int matchId = request.getMatchId();
+        int newHostUserId = request.getNewHostUserId();
+
+        Match match = matches.get(matchId);
+        if (match == null) {
+            return Result.failure(Error.notFound("Match not found"));
+        }
+
+        Integer currentUserId = (Integer) sessionService.getSessionValue(clientId, "userId");
+        if (currentUserId == null) {
+            return Result.failure(Error.unauthorized("User not authenticated"));
+        }
+
+        MatchPlayer currentPlayer = findPlayerInMatch(matchId, currentUserId);
+        if (currentPlayer == null || !currentPlayer.getRole().equals(PlayerRole.HOST)) {
+            return Result.failure(Error.unauthorized("Only the host can transfer host role"));
+        }
+
+        MatchPlayer newHostPlayer = findPlayerInMatch(matchId, newHostUserId);
+        if (newHostPlayer == null) {
+            return Result.failure(Error.validation("New host player is not in this match"));
+        }
+
+        currentPlayer.setRole(PlayerRole.PLAYER);
+        newHostPlayer.setRole(PlayerRole.HOST);
+
+        Result<TransferHostResponse> response = Result.success(new TransferHostResponse("Host transferred to user id " + newHostPlayer.getUserId()));
+        if (response.isSuccess()) {
+            HostChangedEvent event = new HostChangedEvent(matchId, currentUserId, newHostUserId);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.HOST_CHANGED, clientId, event);
+            RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
 
         return response;
@@ -331,7 +363,6 @@ public class MatchService {
 
         match.setInProgress(true);
 
-        // Set all players to PLAYING status
         for (MatchPlayer matchPlayer : players) {
             matchPlayer.setStatus(PlayerStatus.PLAYING);
         }
