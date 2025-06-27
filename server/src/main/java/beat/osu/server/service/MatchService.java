@@ -195,7 +195,7 @@ public class MatchService {
         if (response.isSuccess()) {
             UserJoinedMatchEvent event = new UserJoinedMatchEvent(match.getId(), matchPlayerDto);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_JOINED_MATCH, clientId, event);
-            broadcastMessageToMatchPlayers(clientId, matchId, realtimeMessage);
+            RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
 
         return response;
@@ -242,7 +242,7 @@ public class MatchService {
         if (response.isSuccess()) {
             UserLeftMatchEvent event = new UserLeftMatchEvent(matchId, userId);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_LEFT_MATCH, clientId, event);
-            broadcastMessageToMatchPlayers(clientId, matchId, realtimeMessage);
+            RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
 
         return response;
@@ -290,7 +290,7 @@ public class MatchService {
         if (response.isSuccess()) {
             PlayerKickedEvent event = new PlayerKickedEvent(matchId, playerToKickId);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.PLAYER_KICKED_FROM_MATCH, clientId, event);
-            broadcastMessageToMatchPlayers(clientId, matchId, realtimeMessage);
+            RealtimeMessageHandler.broadcastToAll(realtimeMessage);
 
             String kickedPlayerClientId = sessionService.getClientIdByUserId(playerToKickId);
             if (kickedPlayerClientId != null) {
