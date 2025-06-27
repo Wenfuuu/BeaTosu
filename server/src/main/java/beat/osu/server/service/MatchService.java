@@ -81,9 +81,11 @@ public class MatchService {
 
     private void removePlayerFromMatch(int matchId, int userId) {
         Set<MatchPlayer> players = matchPlayers.get(matchId);
+        
         if (players != null) {
             players.removeIf(player -> player.getUserId() == userId);
         }
+        
         userToMatch.remove(userId);
     }
 
@@ -166,15 +168,16 @@ public class MatchService {
             return Result.failure(Error.validation("You are already in a match"));
         }
 
+        if (isUserInMatch(matchId, userId)) {
+            return Result.failure(Error.validation("You are already in this match"));
+        }
+
         if (matchPlayers.get(matchId).size() >= match.getMaxPlayerCount()) {
             return Result.failure(Error.validation("Match is full"));
         }
 
         if (match.getPassword() != null && !match.getPassword().isEmpty()) {
             if (request.getPassword() == null || !request.getPassword().equals(match.getPassword())) {
-                System.out.println("Input password: " + request.getPassword());
-                System.out.println("Real password: " + match.getPassword());
-
                 return Result.failure(Error.validation("Invalid password"));
             }
         }
@@ -485,13 +488,18 @@ public class MatchService {
 
     private void handleHostLeaving(int matchId, int previousHostUserId) {
         Set<MatchPlayer> players = matchPlayers.get(matchId);
+        
+        UserLeftMatchEvent userLeftEvent = new UserLeftMatchEvent(matchId, previousHostUserId);
+        RealtimeMessage userLeftMessage = new RealtimeMessage(RealtimeMessageType.USER_LEFT_MATCH, "SYSTEM", userLeftEvent);
+        RealtimeMessageHandler.broadcastToAll(userLeftMessage);
+        
         if (players != null && !players.isEmpty()) {
             MatchPlayer newHost = players.iterator().next();
             newHost.setRole(PlayerRole.HOST);
 
-            HostLeftEvent event = new HostLeftEvent(matchId, previousHostUserId, newHost.getUserId());
-            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.HOST_LEFT, "SYSTEM", event);
-            RealtimeMessageHandler.broadcastToAll(realtimeMessage);
+            HostLeftEvent hostLeftEvent = new HostLeftEvent(matchId, previousHostUserId, newHost.getUserId());
+            RealtimeMessage hostLeftMessage = new RealtimeMessage(RealtimeMessageType.HOST_LEFT, "SYSTEM", hostLeftEvent);
+            RealtimeMessageHandler.broadcastToAll(hostLeftMessage);
         } else {
             removeMatch(matchId);
         }
