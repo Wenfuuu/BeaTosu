@@ -232,6 +232,36 @@ public class MatchCard extends HBox {
         updatePlayerCount(players.size());
     }
 
+    public void removePlayer(int userId) {
+        if (players == null) {
+            return;
+        }
+        
+        MatchPlayerDto playerToRemove = null;
+        int slotIndexToRemove = -1;
+        
+        for (MatchPlayerDto player : players) {
+            if (player.getUserId() == userId) {
+                playerToRemove = player;
+                slotIndexToRemove = player.getMatchSlotIndex();
+                break;
+            }
+        }
+        
+        if (playerToRemove != null) {
+            players.remove(playerToRemove);
+            
+            if (slotIndexToRemove > 0 && slotIndexToRemove < maxPlayerCount) {
+                MatchPlayerCard emptyCard = new MatchPlayerCard(
+                        0, matchId, null, null, 0, null, null, false);
+                playerCards.put(slotIndexToRemove, emptyCard);
+            }
+            
+            refreshPlayerCardsDisplay();
+            updatePlayerCount(players.size());
+        }
+    }
+
     private void refreshPlayerCardsDisplay() {
         VBox matchData = (VBox) rightContainer.getChildren().get(1);
         HBox matchPlayerCardsContainer = (HBox) matchData.getChildren().get(2);
