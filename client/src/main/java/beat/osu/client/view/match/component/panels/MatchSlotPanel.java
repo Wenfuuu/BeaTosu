@@ -84,7 +84,12 @@ public class MatchSlotPanel extends VBox {
     }
 
     private void setLayout() {
-        slotsContainer.getChildren().addAll(matchSlotCardsMap.values());
+        for (int i = 0; i < maxPlayerCount; i++) {
+            MatchSlotCard card = matchSlotCardsMap.get(i);
+            if (card != null) {
+                slotsContainer.getChildren().add(card);
+            }
+        }
 
         this.getChildren().addAll(currentPlayersLabel, slotsScrollPane);
     }
@@ -119,15 +124,10 @@ public class MatchSlotPanel extends VBox {
 
         MatchSlotCard oldCard = matchSlotCardsMap.get(player.getMatchSlotIndex());
         if (oldCard != null) {
-            slotsContainer.getChildren().remove(oldCard);
-
-            int position = player.getMatchSlotIndex();
-            if (position < slotsContainer.getChildren().size()) {
-                slotsContainer.getChildren().add(position, newCard);
-            } else {
-                slotsContainer.getChildren().add(newCard);
+            int cardIndex = slotsContainer.getChildren().indexOf(oldCard);
+            if (cardIndex >= 0) {
+                slotsContainer.getChildren().set(cardIndex, newCard);
             }
-
             matchSlotCardsMap.put(player.getMatchSlotIndex(), newCard);
         }
 
@@ -154,18 +154,16 @@ public class MatchSlotPanel extends VBox {
                     PlayerStatus.NOT_READY,
                     playerToRemove.getMatchSlotIndex()
             );
+            if (slotCardClickCallback != null) {
+                emptyCard.setSlotCardClickCallback(slotCardClickCallback);
+            }
 
             MatchSlotCard oldCard = matchSlotCardsMap.get(playerToRemove.getMatchSlotIndex());
             if (oldCard != null) {
-                slotsContainer.getChildren().remove(oldCard);
-
-                int position = playerToRemove.getMatchSlotIndex();
-                if (position < slotsContainer.getChildren().size()) {
-                    slotsContainer.getChildren().add(position, emptyCard);
-                } else {
-                    slotsContainer.getChildren().add(emptyCard);
+                int cardIndex = slotsContainer.getChildren().indexOf(oldCard);
+                if (cardIndex >= 0) {
+                    slotsContainer.getChildren().set(cardIndex, emptyCard);
                 }
-
                 matchSlotCardsMap.put(playerToRemove.getMatchSlotIndex(), emptyCard);
             }
 
@@ -288,5 +286,71 @@ public class MatchSlotPanel extends VBox {
     public boolean isUserHost(int userId) {
         return players.stream()
                 .anyMatch(player -> player.getUserId() == userId && player.getRole() == PlayerRole.HOST);
+    }
+
+    public boolean isSlotEmpty(int slotIndex) {
+        MatchSlotCard card = matchSlotCardsMap.get(slotIndex);
+        return card != null && card.getUser() == null;
+    }
+
+    public void movePlayerToSlot(int userId, int oldSlotIndex, int newSlotIndex) {
+        MatchPlayerDto playerToMove = null;
+        for (MatchPlayerDto player : players) {
+            if (player.getUserId() == userId) {
+                playerToMove = player;
+                break;
+            }
+        }
+
+        if (playerToMove == null) {
+            System.err.println("Player with ID " + userId + " not found for slot move");
+            return;
+        }
+
+        playerToMove.setMatchSlotIndex(newSlotIndex);
+
+        MatchSlotCard newCard = new MatchSlotCard(
+                playerToMove.getId(),
+                playerToMove.getMatchId(),
+                playerToMove.getUser(),
+                playerToMove.getRole(),
+                playerToMove.getStatus(),
+                newSlotIndex
+        );
+        if (slotCardClickCallback != null) {
+            newCard.setSlotCardClickCallback(slotCardClickCallback);
+        }
+
+        MatchSlotCard emptyCard = new MatchSlotCard(
+                -1,
+                -1,
+                null,
+                PlayerRole.PLAYER,
+                PlayerStatus.NOT_READY,
+                oldSlotIndex
+        );
+        if (slotCardClickCallback != null) {
+            emptyCard.setSlotCardClickCallback(slotCardClickCallback);
+        }
+
+        MatchSlotCard oldCardAtNewSlot = matchSlotCardsMap.get(newSlotIndex);
+        MatchSlotCard oldCardAtOldSlot = matchSlotCardsMap.get(oldSlotIndex);
+        
+        if (oldCardAtNewSlot != null) {
+            int newSlotCardIndex = slotsContainer.getChildren().indexOf(oldCardAtNewSlot);
+            if (newSlotCardIndex >= 0) {
+                slotsContainer.getChildren().set(newSlotCardIndex, newCard);
+            }
+        }
+        
+        if (oldCardAtOldSlot != null) {
+            int oldSlotCardIndex = slotsContainer.getChildren().indexOf(oldCardAtOldSlot);
+            if (oldSlotCardIndex >= 0) {
+                slotsContainer.getChildren().set(oldSlotCardIndex, emptyCard);
+            }
+        }
+
+        matchSlotCardsMap.put(newSlotIndex, newCard);
+        matchSlotCardsMap.put(oldSlotIndex, emptyCard);
     }
 }

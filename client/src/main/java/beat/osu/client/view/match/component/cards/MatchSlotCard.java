@@ -33,6 +33,7 @@ public class MatchSlotCard extends HBox {
     private PlayerRole role;
     private PlayerStatus status;
 
+    @Getter
     private int matchSlotIndex;
 
     private boolean isLocked;
@@ -160,7 +161,7 @@ public class MatchSlotCard extends HBox {
 
     private void setupCallbacks() {
         this.setOnMouseClicked(event -> {
-            if (user != null && slotCardClickCallback != null) {
+            if (slotCardClickCallback != null) {
                 slotCardClickCallback.onSlotCardClicked(this);
             }
         });
@@ -219,5 +220,13 @@ public class MatchSlotCard extends HBox {
     private void refreshTooltip() {
         Tooltip.uninstall(this, null);
         setupHoverPopup();
+    }
+
+    public int getMatchSlotIndex() {
+        return matchSlotIndex;
+    }
+
+    public void setSlotCardClickCallback(SlotCardClickCallback callback) {
+        this.slotCardClickCallback = callback;
     }
 }

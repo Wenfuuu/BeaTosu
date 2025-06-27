@@ -45,8 +45,10 @@ import beat.osu.shared.dto.match.events.HostChangedEvent;
 import beat.osu.shared.dto.match.events.HostLeftEvent;
 import beat.osu.shared.dto.match.events.MatchStartedEvent;
 import beat.osu.shared.dto.match.events.PlayerKickedEvent;
+import beat.osu.shared.dto.match.events.SlotChangedEvent;
 import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
 import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
+import beat.osu.shared.dto.match.responses.ChangeMatchSlotResponse;
 import beat.osu.shared.dto.match.responses.KickPlayerResponse;
 import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
 import beat.osu.shared.dto.match.responses.TransferHostResponse;
@@ -494,6 +496,7 @@ public class MatchView extends Page {
         matchController.addMatchStartedCallback(this::onMatchStarted);
         matchController.addHostChangedCallback(this::onHostChanged);
         matchController.addHostLeftCallback(this::onHostLeft);
+        matchController.addSlotChangedCallback(this::onSlotChanged);
     }
 
     private void onUserJoinedMatch(UserJoinedMatchEvent event) {
@@ -548,6 +551,14 @@ public class MatchView extends Page {
             Platform.runLater(() -> {
                 matchSlotPanel.hostLeft(event.getPreviousHostUserId(), event.getNewHostUserId());
                 updateHostStatus();
+            });
+        }
+    }
+
+    private void onSlotChanged(SlotChangedEvent event) {
+        if (event.getMatchId() == this.matchId) {
+            Platform.runLater(() -> {
+                matchSlotPanel.movePlayerToSlot(event.getUserId(), event.getOldSlotIndex(), event.getNewSlotIndex());
             });
         }
     }
@@ -691,11 +702,18 @@ public class MatchView extends Page {
                     if (selected != null && selected.getRole().equals(PlayerRole.PLAYER)) {
                         hostActionsModal.show(selected.getUser().getUsername());
                     }
+                } else {
+                    handleSlotChange(card.getMatchSlotIndex());
                 }
             });
         } else {
             matchSlotPanel.setSlotCardClickCallback(card -> {
                 if (card.getUser() != null) {
+                    int currentUserId = AuthManager.getUser().getId();
+                    if (card.getUser().getId() == currentUserId) {
+                        return;
+                    }
+                    
                     UserCard modalUserCard = new UserCard(
                             card.getUser().getId(),
                             card.getUser().getUsername(),
@@ -711,8 +729,47 @@ public class MatchView extends Page {
                     );
                     viewUserModal.updateUserCard(modalUserCard);
                     viewUserModal.show();
+                } else {
+                    handleSlotChange(card.getMatchSlotIndex());
                 }
             });
+        }
+    }
+
+    private void handleSlotChange(int targetSlotIndex) {
+        int currentUserId = AuthManager.getUser().getId();
+        
+        MatchPlayerDto currentPlayer = players.stream()
+                .filter(p -> p.getUserId() == currentUserId)
+                .findFirst()
+                .orElse(null);
+                
+        if (currentPlayer == null) {
+            Toast.error("You are not in this match").show();
+            return;
+        }
+        
+        int currentSlotIndex = currentPlayer.getMatchSlotIndex();
+        
+        if (currentSlotIndex == targetSlotIndex) {
+            Toast.error("You are already in that slot").show();
+            return;
+        }
+        
+        if (!matchSlotPanel.isSlotEmpty(targetSlotIndex)) {
+            Toast.error("That slot is already occupied").show();
+            return;
+        }
+
+        try {
+            Result<ChangeMatchSlotResponse> result = matchController.changeMatchSlot(matchId, targetSlotIndex).get();
+            if (result.isSuccess()) {
+                Toast.success(result.getValue().getMessage()).show();
+            } else {
+                Toast.error("Failed to change slot: " + result.getError().getMessage()).show();
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
     }
 

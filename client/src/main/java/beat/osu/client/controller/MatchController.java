@@ -10,10 +10,18 @@ import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
-import beat.osu.shared.dto.match.events.*;
+import beat.osu.shared.dto.match.events.HostChangedEvent;
+import beat.osu.shared.dto.match.events.HostLeftEvent;
+import beat.osu.shared.dto.match.events.MatchCreatedEvent;
+import beat.osu.shared.dto.match.events.MatchEndedEvent;
+import beat.osu.shared.dto.match.events.MatchScoreEvent;
+import beat.osu.shared.dto.match.events.MatchStartedEvent;
+import beat.osu.shared.dto.match.events.PlayerKickedEvent;
+import beat.osu.shared.dto.match.events.SlotChangedEvent;
+import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
+import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
 import beat.osu.shared.dto.match.requests.*;
 import beat.osu.shared.dto.match.responses.*;
-import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.message.MessageAction;
 import beat.osu.shared.enums.message.MessageType;
@@ -38,6 +46,7 @@ public class MatchController {
     private final List<Consumer<HostLeftEvent>> hostLeftCallbacks = new ArrayList<>();
     private final List<Consumer<MatchStartedEvent>> matchStartedCallbacks = new ArrayList<>();
     private final List<Consumer<MatchScoreEvent>> matchScoreCallbacks = new ArrayList<>();
+    private final List<Consumer<SlotChangedEvent>> slotChangedCallbacks = new ArrayList<>();
 
     public MatchController() {
         this.clientService = ClientService.getInstance();
@@ -71,6 +80,10 @@ public class MatchController {
 
     public void addHostLeftCallback(Consumer<HostLeftEvent> callback) {
         hostLeftCallbacks.add(callback);
+    }
+
+    public void addSlotChangedCallback(Consumer<SlotChangedEvent> callback) {
+        slotChangedCallbacks.add(callback);
     }
 
     public void addMatchStartedCallback(Consumer<MatchStartedEvent> callback) {
@@ -107,6 +120,10 @@ public class MatchController {
 
     public void removeHostLeftCallback(Consumer<HostLeftEvent> callback) {
         hostLeftCallbacks.remove(callback);
+    }
+
+    public void removeSlotChangedCallback(Consumer<SlotChangedEvent> callback) {
+        slotChangedCallbacks.remove(callback);
     }
 
     public void removeMatchStartedCallback(Consumer<MatchStartedEvent> callback) {
@@ -244,6 +261,26 @@ public class MatchController {
         });
     }
 
+    public CompletableFuture<Result<ChangeMatchSlotResponse>> changeMatchSlot(int matchId, int newSlotIndex) {
+        ChangeMatchSlotRequest requestData = new ChangeMatchSlotRequest(matchId, newSlotIndex);
+        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.CHANGE_MATCH_SLOT, requestData);
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendRequest(request).get();
+
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((ChangeMatchSlotResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
+    }
+
     public CompletableFuture<Result<StartMatchResponse>> startMatch(int matchId) {
         StartMatchRequest requestData = new StartMatchRequest(matchId);
         RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.START_MATCH, requestData);
@@ -336,6 +373,12 @@ public class MatchController {
             if (message.getPayload() instanceof MatchStartedEvent) {
                 MatchStartedEvent event = (MatchStartedEvent) message.getPayload();
                 notifyMatchStarted(event);
+            }
+        } else if (message.getType() == RealtimeMessageType.SLOT_CHANGED) {
+            if (message.getPayload() instanceof SlotChangedEvent) {
+                SlotChangedEvent event = (SlotChangedEvent) message.getPayload();
+                updatePlayerSlot(event.getMatchId(), event.getUserId(), event.getNewSlotIndex());
+                notifySlotChanged(event);
             }
         } else if (message.getType() == RealtimeMessageType.MATCH_COMPLETED) {
 
@@ -460,6 +503,22 @@ public class MatchController {
         System.err.println("Match with ID " + matchId + " not found to handle host left.");
     }
 
+    private void updatePlayerSlot(int matchId, int userId, int newSlotIndex) {
+        for (MatchDto match : matches) {
+            if (match.getId() == matchId) {
+                for (MatchPlayerDto player : match.getPlayers()) {
+                    if (player.getUserId() == userId) {
+                        player.setMatchSlotIndex(newSlotIndex);
+                        return;
+                    }
+                }
+                System.err.println("Player with ID " + userId + " not found in match " + matchId + " to update slot.");
+                return;
+            }
+        }
+        System.err.println("Match with ID " + matchId + " not found to update player slot.");
+    }
+
     private void notifyHostLeft(HostLeftEvent event) {
         for (Consumer<HostLeftEvent> callback : hostLeftCallbacks) {
             try {
@@ -486,6 +545,16 @@ public class MatchController {
                 callback.accept(event);
             } catch (Exception e) {
                 System.err.println("Error in match score event callback: " + e.getMessage());
+            }
+        }
+    }
+
+    private void notifySlotChanged(SlotChangedEvent event) {
+        for (Consumer<SlotChangedEvent> callback : slotChangedCallbacks) {
+            try {
+                callback.accept(event);
+            } catch (Exception e) {
+                System.err.println("Error in slot changed callback: " + e.getMessage());
             }
         }
     }
