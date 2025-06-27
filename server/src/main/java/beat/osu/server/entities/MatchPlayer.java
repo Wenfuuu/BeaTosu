@@ -18,7 +18,7 @@ public class MatchPlayer {
     private int matchId;
     private int userId;
     private PlayerRole role;          // "host", "player"
-    private PlayerStatus status;      // "no_map", "ready", "not_ready", "playing"
+    private PlayerStatus status;      // "no_map", "ready", "not_ready", "playing", "finished"
     private int slotIndex;            // 0-15
 
     @Override
