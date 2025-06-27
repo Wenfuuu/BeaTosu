@@ -272,7 +272,7 @@ public class HomeView extends Page {
             if (selectedBeatmap != null) {
                 BgmManager.getInstance().stopBgm();
                 // new GameView(stage, selectedBeatmap);
-                ViewManager.getInstance().showGameView(selectedBeatmap);
+                ViewManager.getInstance().showGameView(selectedBeatmap, false);
             }
         });
 

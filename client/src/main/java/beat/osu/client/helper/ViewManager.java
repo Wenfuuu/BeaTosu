@@ -82,8 +82,8 @@ public class ViewManager {
         sceneManager.transitionToPage(matchView);
     }
 
-    public void showGameView(Beatmap beatmap) {
-        GameView gameView = new GameView(primaryStage, beatmap);
+    public void showGameView(Beatmap beatmap, boolean isMultiplayer) {
+        GameView gameView = new GameView(primaryStage, beatmap, isMultiplayer);
         sceneManager.transitionToPage(gameView);
     }
 

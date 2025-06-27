@@ -54,12 +54,13 @@ public class GameView extends Page implements GameEventListener {
 
     private final Beatmap beatmap;
     private final GameManager gm;
+    private boolean isMultiplayer = false;
 
     // additional spins
     private Image[] digitImages;
     private ArrayList<Animation> animationList;
 
-    public GameView(Stage stage, Beatmap selectedBeatmap) {
+    public GameView(Stage stage, Beatmap selectedBeatmap, boolean isMultiplayer) {
         super(stage);
         setupView();
 
@@ -67,6 +68,7 @@ public class GameView extends Page implements GameEventListener {
         this.circleSize = selectedBeatmap.getCircleSize();
         this.gm = new GameManager(selectedBeatmap, inputManager, root.getWidth(), root.getHeight());
         this.gm.addListener(this);
+        this.isMultiplayer = isMultiplayer;
 
         ChangeListener<Number> resizeListener = (obs, oldVal, newVal) -> updateLayout();
         root.widthProperty().addListener(resizeListener);
@@ -127,7 +129,7 @@ public class GameView extends Page implements GameEventListener {
 
         pauseOverlay.getRetryButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
-            ViewManager.getInstance().showGameView(beatmap);
+            ViewManager.getInstance().showGameView(beatmap, isMultiplayer);
         });
 
         pauseOverlay.getLeaveButton().setOnMouseClicked(e -> {
@@ -137,7 +139,7 @@ public class GameView extends Page implements GameEventListener {
         });
 
         resultOverlay.getRetryButton().setOnMouseClicked(e -> {
-            ViewManager.getInstance().showGameView(beatmap);
+            ViewManager.getInstance().showGameView(beatmap, isMultiplayer);
         });
 
         resultOverlay.getReplayButton().setOnMouseClicked(e -> {
@@ -150,7 +152,7 @@ public class GameView extends Page implements GameEventListener {
 
         failOverlay.getRetryButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
-            ViewManager.getInstance().showGameView(beatmap);
+            ViewManager.getInstance().showGameView(beatmap, isMultiplayer);
         });
 
         failOverlay.getLeaveButton().setOnMouseClicked(e -> {

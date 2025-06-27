@@ -70,6 +70,7 @@ public class MatchView extends Page {
 
     private StackPane root;
 
+    private MatchDto matchDto;
     private Integer matchId;
     private String matchName;
     private String matchPassword;
@@ -130,6 +131,7 @@ public class MatchView extends Page {
         this.sessionController = sessionController;
         this.beatmapController = beatmapController;
 
+        this.matchDto = matchDto;
         this.matchId = matchDto.getId();
         this.matchName = matchDto.getName();
         this.matchPassword = matchDto.getPassword();
@@ -447,7 +449,7 @@ public class MatchView extends Page {
         if (event.getMatchId() == this.matchId) {
             Platform.runLater(() -> {
                 BgmManager.getInstance().stopBgm();
-                ViewManager.getInstance().showGameView(beatmap);
+                ViewManager.getInstance().showGameView(beatmap, true);
             });
         }
     }
