@@ -11,6 +11,7 @@ import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.LocaleManager;
 import beat.osu.shared.dto.match.MatchPlayerDto;
+import beat.osu.shared.enums.match.PlayerRole;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -96,7 +97,7 @@ public class MatchCard extends HBox {
         rightContainer = new HBox();
         rightContainer.getStyleClass().add("right-container");
 
-        updateHostCard();
+        initializeHostCard();
 
         matchNameLabel = new Label();
         matchNameLabel.setText(matchName);
@@ -108,15 +109,18 @@ public class MatchCard extends HBox {
 
         playerCards = new HashMap<>();
 
-        for (int i = 1; i < maxPlayerCount; i++) {
+        for (int i = 0; i < maxPlayerCount; i++) {
             MatchPlayerCard emptyCard = new MatchPlayerCard(
                     0, matchId, null, null, 0, null, null, false);
             playerCards.put(i, emptyCard);
         }
 
-        for (int i = 1; i < players.size(); i++) {
-            MatchPlayerDto player = players.get(i);
+        for (MatchPlayerDto player : players) {
             if (player == null) {
+                continue;
+            }
+            
+            if (player.getRole() == PlayerRole.HOST) {
                 continue;
             }
 
@@ -126,6 +130,27 @@ public class MatchCard extends HBox {
                     LocaleManager.getCountryName(player.getUser().getCountryCode()),
                     player.getUser().getProfilePicture(), false);
             playerCards.put(player.getMatchSlotIndex(), playerCard);
+        }
+    }
+
+    private void initializeHostCard() {
+        MatchPlayerDto host = null;
+        for (MatchPlayerDto player : players) {
+            if (player.getRole() == PlayerRole.HOST) {
+                host = player;
+                break;
+            }
+        }
+        
+        if (host != null) {
+            String countryName = LocaleManager.getCountryName(host.getUser().getCountryCode());
+            hostCard = new MatchPlayerCard(
+                    host.getId(), host.getMatchId(), host.getUserId(), host.getUser().getUsername(),
+                    host.getUser().getRank(), countryName, host.getUser().getProfilePicture(), true
+            );
+        } else {
+            hostCard = new MatchPlayerCard(
+                    0, matchId, null, null, 0, null, null, true);
         }
     }
 
@@ -142,8 +167,13 @@ public class MatchCard extends HBox {
         HBox matchPlayerCardsContainer = new HBox();
         matchPlayerCardsContainer.getStyleClass().add("match-player-cards-container");
 
-        for (int i = 1; i < maxPlayerCount; i++) {
+        for (int i = 0; i < maxPlayerCount; i++) {
             MatchPlayerCard playerCard = playerCards.get(i);
+            
+            if (playerCard != null && isHostSlot(i)) {
+                continue;
+            }
+            
             matchPlayerCardsContainer.getChildren().add(playerCard);
         }
 
@@ -184,13 +214,31 @@ public class MatchCard extends HBox {
     }
 
     private void updateHostCard() {
-        MatchPlayerDto host = players.get(0);
-        String countryName = LocaleManager.getCountryName(host.getUser().getCountryCode());
+        MatchPlayerDto host = null;
+        
+        for (MatchPlayerDto player : players) {
+            if (player.getRole() == PlayerRole.HOST) {
+                host = player;
+                break;
+            }
+        }
+        
+        if (host != null) {
+            String countryName = LocaleManager.getCountryName(host.getUser().getCountryCode());
 
-        hostCard = new MatchPlayerCard(
-                host.getId(), host.getMatchId(), host.getUserId(), host.getUser().getUsername(),
-                host.getUser().getRank(), countryName, host.getUser().getProfilePicture(), true
-        );
+            MatchPlayerCard newHostCard = new MatchPlayerCard(
+                    host.getId(), host.getMatchId(), host.getUserId(), host.getUser().getUsername(),
+                    host.getUser().getRank(), countryName, host.getUser().getProfilePicture(), true
+            );
+            
+            if (!rightContainer.getChildren().isEmpty()) {
+                rightContainer.getChildren().set(0, newHostCard);
+                hostCard = newHostCard;
+            } else {
+                rightContainer.getChildren().add(0, newHostCard);
+                hostCard = newHostCard;
+            }
+        }
     }
 
     public int getPlayerCount() {
@@ -214,21 +262,19 @@ public class MatchCard extends HBox {
         
         players.add(player);
 
-        for (int i = 1; i < maxPlayerCount; i++) {
-            MatchPlayerCard existingCard = playerCards.get(i);
-            if (existingCard != null && existingCard.getUserId() == null) {
-                MatchPlayerCard playerCard = new MatchPlayerCard(
-                    player.getId(), player.getMatchId(), player.getUserId(),
-                    player.getUser().getUsername(), player.getUser().getRank(),
-                    LocaleManager.getCountryName(player.getUser().getCountryCode()),
-                    player.getUser().getProfilePicture(), false);
-                playerCards.put(player.getMatchSlotIndex(), playerCard);
-                
-                refreshPlayerCardsDisplay();
-                break;
-            }
+        if (player.getRole() == PlayerRole.HOST) {
+            updateHostCard();
+        } else {
+            MatchPlayerCard playerCard = new MatchPlayerCard(
+                player.getId(), player.getMatchId(), player.getUserId(),
+                player.getUser().getUsername(), player.getUser().getRank(),
+                LocaleManager.getCountryName(player.getUser().getCountryCode()),
+                player.getUser().getProfilePicture(), false);
+            
+            playerCards.put(player.getMatchSlotIndex(), playerCard);
         }
         
+        refreshPlayerCardsDisplay();
         updatePlayerCount(players.size());
     }
 
@@ -268,7 +314,7 @@ public class MatchCard extends HBox {
         
         matchPlayerCardsContainer.getChildren().clear();
         
-        for (int i = 1; i < maxPlayerCount; i++) {
+        for (int i = 0; i < maxPlayerCount; i++) {
             MatchPlayerCard playerCard = playerCards.get(i);
             matchPlayerCardsContainer.getChildren().add(playerCard);
         }
@@ -282,5 +328,69 @@ public class MatchCard extends HBox {
 
     private String formatRank(int rank) {
         return String.format("%,d", rank);
+    }
+
+    private boolean isHostSlot(int slotIndex) {
+        for (MatchPlayerDto player : players) {
+            if (player.getMatchSlotIndex() == slotIndex && 
+                player.getRole() == beat.osu.shared.enums.match.PlayerRole.HOST) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void updateHost(int newHostUserId, int previousHostUserId) {
+        if (players == null) {
+            return;
+        }
+        
+        for (MatchPlayerDto player : players) {
+            if (player.getUserId() == newHostUserId) {
+                player.setRole(PlayerRole.HOST);
+            } else if (player.getUserId() == previousHostUserId) {
+                player.setRole(PlayerRole.PLAYER);
+            }
+        }
+        
+        updateHostCard();
+        
+        if (previousHostUserId != newHostUserId) {
+            MatchPlayerDto previousHost = null;
+            for (MatchPlayerDto player : players) {
+                if (player.getUserId() == previousHostUserId) {
+                    previousHost = player;
+                    break;
+                }
+            }
+            
+            if (previousHost != null) {
+                MatchPlayerCard playerCard = new MatchPlayerCard(
+                    previousHost.getId(), previousHost.getMatchId(), previousHost.getUserId(),
+                    previousHost.getUser().getUsername(), previousHost.getUser().getRank(),
+                    LocaleManager.getCountryName(previousHost.getUser().getCountryCode()),
+                    previousHost.getUser().getProfilePicture(), false);
+                
+                playerCards.put(previousHost.getMatchSlotIndex(), playerCard);
+            }
+            
+            int newHostSlotIndex = findPlayerSlotIndex(newHostUserId);
+            if (newHostSlotIndex != -1) {
+                MatchPlayerCard emptyCard = new MatchPlayerCard(
+                        0, matchId, null, null, 0, null, null, false);
+                playerCards.put(newHostSlotIndex, emptyCard);
+            }
+        }
+        
+        refreshPlayerCardsDisplay();
+    }
+    
+    private int findPlayerSlotIndex(int userId) {
+        for (MatchPlayerDto player : players) {
+            if (player.getUserId() == userId) {
+                return player.getMatchSlotIndex();
+            }
+        }
+        return -1;
     }
 }

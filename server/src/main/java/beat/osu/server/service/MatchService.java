@@ -235,10 +235,6 @@ public class MatchService {
             handleHostLeaving(matchId, userId);
         }
 
-//        if (matchPlayers.get(matchId).isEmpty()) {
-//            removeMatch(matchId);
-//        }
-
         Result<LeaveMatchResponse> response = Result.success(new LeaveMatchResponse(message));
 
         if (response.isSuccess()) {
