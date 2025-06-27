@@ -16,9 +16,11 @@ import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
 import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
 import beat.osu.shared.dto.match.requests.CreateMatchRequest;
 import beat.osu.shared.dto.match.requests.JoinMatchRequest;
+import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
 import beat.osu.shared.dto.match.responses.CreateMatchResponse;
 import beat.osu.shared.dto.match.responses.GetAllMatchesResponse;
 import beat.osu.shared.dto.match.responses.JoinMatchResponse;
+import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
 import beat.osu.shared.enums.message.MessageAction;
 import beat.osu.shared.enums.message.MessageType;
 import beat.osu.shared.enums.message.RealtimeMessageType;
@@ -134,6 +136,26 @@ public class MatchController {
                 Result<?> result = (Result<?>) response;
                 if (result.isSuccess()) {
                     return Result.success((JoinMatchResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
+    }
+
+    public CompletableFuture<Result<LeaveMatchResponse>> leaveMatch(int matchId) {
+        LeaveMatchRequest requestData = new LeaveMatchRequest(matchId);
+        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.LEAVE_MATCH, requestData);
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendRequest(request).get();
+
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((LeaveMatchResponse) result.getValue());
                 } else {
                     return Result.failure(result.getError());
                 }

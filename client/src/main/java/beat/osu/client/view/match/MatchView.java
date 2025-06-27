@@ -3,6 +3,7 @@ package beat.osu.client.view.match;
 import java.io.File;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 import beat.osu.client.controller.BeatmapController;
 import beat.osu.client.controller.ChatController;
@@ -34,6 +35,8 @@ import beat.osu.shared.dto.beatmap.BeatmapDto;
 import beat.osu.shared.dto.beatmap.responses.GetBeatmapByIdResponse;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
+import beat.osu.shared.dto.match.responses.CreateMatchResponse;
+import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.match.PlayerStatus;
@@ -355,9 +358,19 @@ public class MatchView extends Page {
         });
 
         leaveMatchButton.setOnMouseClicked(e -> {
-            ViewManager.getInstance().showLobbyView();
+            try {
+                Result<LeaveMatchResponse> response = matchController.leaveMatch(matchId).get();
+                if (response.isSuccess()) {
+                    LeaveMatchResponse leaveMatchResponse = response.getValue();
+                    Toast.success("Successfully left match: " + leaveMatchResponse.getMessage()).show();
+                    ViewManager.getInstance().showLobbyView();
+                } else {
+                    Toast.error("Failed to leave match: " + response.getError().getMessage()).show();
+                }
+            } catch (InterruptedException | ExecutionException ex) {
+                throw new RuntimeException(ex);
+            }
         });
-
         setupMatchCallbacks();
     }
 
