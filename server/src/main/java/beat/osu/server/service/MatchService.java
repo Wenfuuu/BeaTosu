@@ -25,8 +25,10 @@ import beat.osu.shared.dto.match.events.MatchEndedEvent;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
 import beat.osu.shared.dto.match.events.MatchStartedEvent;
 import beat.osu.shared.dto.match.events.PlayerKickedEvent;
+import beat.osu.shared.dto.match.events.SlotChangedEvent;
 import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
 import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
+import beat.osu.shared.dto.match.requests.ChangeMatchSlotRequest;
 import beat.osu.shared.dto.match.requests.CreateMatchRequest;
 import beat.osu.shared.dto.match.requests.JoinMatchRequest;
 import beat.osu.shared.dto.match.requests.KickPlayerRequest;
@@ -34,6 +36,7 @@ import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
 import beat.osu.shared.dto.match.requests.SendMatchScoreEventRequest;
 import beat.osu.shared.dto.match.requests.StartMatchRequest;
 import beat.osu.shared.dto.match.requests.TransferHostRequest;
+import beat.osu.shared.dto.match.responses.ChangeMatchSlotResponse;
 import beat.osu.shared.dto.match.responses.CreateMatchResponse;
 import beat.osu.shared.dto.match.responses.GetAllMatchesResponse;
 import beat.osu.shared.dto.match.responses.JoinMatchResponse;
@@ -428,6 +431,61 @@ public class MatchService {
         broadcastMessageToMatchPlayers(clientId, matchId, realtimeMessage);
 
         return Result.success(new SendMatchScoreEventResponse("Match score event sent successfully"));
+    }
+
+    public Result<ChangeMatchSlotResponse> changeMatchSlot(ChangeMatchSlotRequest request, String clientId) {
+        int matchId = request.getMatchId();
+        int newSlotIndex = request.getNewSlotIndex();
+
+        Match match = matches.get(matchId);
+        if (match == null) {
+            return Result.failure(Error.notFound("Match not found"));
+        }
+
+        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
+        if (userId == null) {
+            return Result.failure(Error.unauthorized("User not authenticated"));
+        }
+
+        if (!isUserInMatch(matchId, userId)) {
+            return Result.failure(Error.validation("You are not in this match"));
+        }
+
+        MatchPlayer player = findPlayerInMatch(matchId, userId);
+        if (player == null) {
+            return Result.failure(Error.validation("Player not found in match"));
+        }
+
+        if (newSlotIndex < 0 || newSlotIndex >= match.getMaxPlayerCount()) {
+            return Result.failure(Error.validation("Invalid slot index"));
+        }
+
+        Set<MatchPlayer> players = matchPlayers.get(matchId);
+        boolean slotOccupied = players.stream()
+                .anyMatch(p -> p.getSlotIndex() == newSlotIndex && p.getUserId() != userId);
+        
+        if (slotOccupied) {
+            return Result.failure(Error.validation("Target slot is already occupied"));
+        }
+
+        int oldSlotIndex = player.getSlotIndex();
+        
+        if (oldSlotIndex == newSlotIndex) {
+            return Result.failure(Error.validation("You are already in that slot"));
+        }
+
+        player.setSlotIndex(newSlotIndex);
+
+        String message = "Successfully changed to slot " + (newSlotIndex + 1);
+        Result<ChangeMatchSlotResponse> response = Result.success(new ChangeMatchSlotResponse(message));
+
+        if (response.isSuccess()) {
+            SlotChangedEvent event = new SlotChangedEvent(matchId, userId, oldSlotIndex, newSlotIndex);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.SLOT_CHANGED, clientId, event);
+            broadcastMessageToMatchPlayers(clientId, matchId, realtimeMessage);
+        }
+
+        return response;
     }
 
     private MatchDto convertToMatchDto(Match match) {
