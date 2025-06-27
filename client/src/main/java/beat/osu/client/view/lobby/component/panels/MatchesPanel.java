@@ -12,6 +12,7 @@ import beat.osu.client.view.lobby.component.cards.MatchCard;
 import beat.osu.client.view.lobby.component.ui.MatchFilters;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.events.MatchCreatedEvent;
+import beat.osu.shared.dto.match.events.MatchEndedEvent;
 import beat.osu.shared.dto.match.events.PlayerKickedEvent;
 import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
 import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
@@ -134,6 +135,7 @@ public class MatchesPanel extends VBox {
         matchController.addUserJoinedMatchCallback(this::onUserJoinedMatch);
         matchController.addUserLeftMatchCallback(this::onUserLeftMatch);
         matchController.addPlayerKickedCallback(this::onPlayerKicked);
+        matchController.addMatchEndedCallback(this::onMatchEnded);
     }
     
     private void onMatchCreated(MatchCreatedEvent event) {
@@ -162,6 +164,12 @@ public class MatchesPanel extends VBox {
             if (matchCard != null) {
                 matchCard.updatePlayerCount(matchCard.getPlayerCount() - 1);
             }
+        });
+    }
+    
+    private void onMatchEnded(MatchEndedEvent event) {
+        Platform.runLater(() -> {
+            removeMatch(event.getMatchId());
         });
     }
     
