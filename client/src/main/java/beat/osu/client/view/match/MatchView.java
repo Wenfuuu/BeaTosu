@@ -14,12 +14,7 @@ import beat.osu.client.controller.ChatController;
 import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.controller.MatchController;
 import beat.osu.client.controller.SessionController;
-import beat.osu.client.helper.AuthManager;
-import beat.osu.client.helper.BackgroundManager;
-import beat.osu.client.helper.CssManager;
-import beat.osu.client.helper.ResourceManager;
-import beat.osu.client.helper.ScreenManager;
-import beat.osu.client.helper.ViewManager;
+import beat.osu.client.helper.*;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.view.match.component.cards.BeatmapCard;
@@ -394,7 +389,14 @@ public class MatchView extends Page {
         });
 
         readyButton.setOnMouseClicked(e -> {
-
+            matchController.startMatch(matchId).thenApply(response -> {
+                if (response.isSuccess()) {
+                    System.out.println("Successfully start match: " + response.getValue().getMessage());
+                } else {
+                    System.err.println("Failed to start match: " + response.getError().getMessage());
+                }
+                return null;
+            });
         });
 
         setupMatchCallbacks();
@@ -434,7 +436,10 @@ public class MatchView extends Page {
     private void onMatchStarted(MatchStartedEvent event) {
         if (event.getMatchId() == this.matchId) {
             // redirect to the game view
-            ViewManager.getInstance().showGameView(beatmap);
+            Platform.runLater(() -> {
+                BgmManager.getInstance().stopBgm();
+                ViewManager.getInstance().showGameView(beatmap);
+            });
         }
     }
 
