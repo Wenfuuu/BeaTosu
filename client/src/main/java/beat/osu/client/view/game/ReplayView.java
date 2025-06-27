@@ -49,6 +49,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
     private final ReplayManager rm;
 
     private Image[] digitImages;
+    private ArrayList<Animation> animationList;
     private ImageView cursorImage;
     private double currentMasterScaleFactor = 1.0;
     private double currentViewportTopLeftX = 0.0;
@@ -93,6 +94,8 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
             digitImages[i] = new Image(Objects.requireNonNull(Main.class
                     .getResource("/assets/images/score-" + i + ".png")).toExternalForm());
         }
+
+        animationList = new ArrayList<>();
 
         uiPane = new GameUI();
         pauseOverlay = new PauseOverlay();
@@ -266,7 +269,14 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
         fullAnimation.setOnFinished(e -> finalAnimation.play());
 
         // Remove the container when animation completes
-        finalAnimation.setOnFinished(e -> replayPane.getChildren().remove(spinScoreContainer));
+        finalAnimation.setOnFinished(e -> {
+            replayPane.getChildren().remove(spinScoreContainer);
+            animationList.remove(fullAnimation);
+            animationList.remove(finalAnimation);
+        });
+
+        animationList.add(fullAnimation);
+        animationList.add(finalAnimation);
 
         fullAnimation.play();
     }
@@ -306,7 +316,13 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
                 fadeOut);
 
         // Remove the image when animation completes
-        fullAnimation.setOnFinished(e -> replayPane.getChildren().remove(hitImageView));
+        fullAnimation.setOnFinished(e -> {
+            replayPane.getChildren().remove(hitImageView);
+            animationList.remove(fullAnimation);
+        });
+
+        // Add to animation list BEFORE starting
+        animationList.add(fullAnimation);
         fullAnimation.play();
     }
 
@@ -369,7 +385,13 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
                 fadeOut);
 
         // Remove the image when animation completes
-        fullAnimation.setOnFinished(e -> replayPane.getChildren().remove(hitImageView));
+        fullAnimation.setOnFinished(e -> {
+            replayPane.getChildren().remove(hitImageView);
+            animationList.remove(fullAnimation);
+        });
+
+        // Add to animation list BEFORE starting
+        animationList.add(fullAnimation);
         fullAnimation.play();
     }
 
@@ -485,6 +507,27 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
         handleGameEvent(event);
     }
 
+    private void pauseAllAnimations() {
+        ArrayList<Animation> animationsCopy = new ArrayList<>(animationList);
+        for (Animation animation : animationsCopy) {
+            if (animation.getStatus() == Animation.Status.RUNNING) {
+                animation.pause();
+            }
+        }
+    }
+
+    private void resumeAllAnimations() {
+        ArrayList<Animation> animationsCopy = new ArrayList<>(animationList);
+        for (Animation animation : animationsCopy) {
+            if (animation.getStatus() == Animation.Status.PAUSED) {
+                animation.play();
+            }
+        }
+
+        // Clean up completed animations
+        animationList.removeIf(animation -> animation.getStatus() == Animation.Status.STOPPED);
+    }
+
     private void handleGameEvent(GameEvent event) {
         switch (event.getType()) {
             case ACCURACY_CHANGED:
@@ -553,10 +596,12 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
                 break;
             case REPLAY_PAUSED:
                 System.out.println("Replay paused");
+                pauseAllAnimations();
                 pauseOverlay.setVisible(true);
                 break;
             case REPLAY_RESUMED:
                 System.out.println("Replay resumed");
+                resumeAllAnimations();
                 pauseOverlay.setVisible(false);
                 break;
             case REPLAY_ENDED:
