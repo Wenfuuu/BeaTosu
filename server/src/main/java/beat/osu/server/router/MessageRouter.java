@@ -23,10 +23,7 @@ import beat.osu.shared.dto.chat.requests.SendPrivateChatMessageRequest;
 import beat.osu.shared.dto.game.requests.NotifySpectateStatusRequest;
 import beat.osu.shared.dto.game.requests.SendSpectateEventRequest;
 import beat.osu.shared.dto.game.requests.StartSpectateRequest;
-import beat.osu.shared.dto.match.requests.CreateMatchRequest;
-import beat.osu.shared.dto.match.requests.JoinMatchRequest;
-import beat.osu.shared.dto.match.requests.KickPlayerRequest;
-import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
+import beat.osu.shared.dto.match.requests.*;
 import beat.osu.shared.dto.score.requests.GetScoreRequest;
 import beat.osu.shared.dto.score.requests.InsertScoreRequest;
 import beat.osu.shared.dto.session.requests.CreateSessionDataRequest;
@@ -159,6 +156,8 @@ public class MessageRouter {
                 return matchService.leaveMatch((LeaveMatchRequest) request.getPayload(), clientId);
             case KICK_PLAYER:
                 return matchService.kickPlayer((KickPlayerRequest) request.getPayload(), clientId);
+            case START_MATCH:
+                return matchService.startMatch((StartMatchRequest) request.getPayload(), clientId);
             default:
                 return Result.failure(Error.validation("Unknown match action: " + request.getAction()));
         }

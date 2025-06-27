@@ -39,6 +39,10 @@ import beat.osu.shared.dto.beatmap.BeatmapDto;
 import beat.osu.shared.dto.beatmap.responses.GetBeatmapByIdResponse;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
+import beat.osu.shared.dto.match.events.MatchStartedEvent;
+import beat.osu.shared.dto.match.events.PlayerKickedEvent;
+import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
+import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
 import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.PlayerRole;
@@ -71,6 +75,7 @@ public class MatchView extends Page {
 
     private int beatmapId;
     private String beatmapName;
+    private Beatmap beatmap;
 
     private String winCondition;
 
@@ -294,7 +299,7 @@ public class MatchView extends Page {
         readyButton = new Button("Ready");
         readyButton.getStyleClass().add("ready-button");
 
-        Beatmap beatmap = fetchBeatmapById(5103482);
+        beatmap = fetchBeatmapById(5103482);
         BeatmapCard card = BeatmapCard.available(beatmap);
 
         VBox rightContent = new VBox(gameBox, gameNameTextField, beatmapBox, card, winConditionBox);
@@ -387,6 +392,11 @@ public class MatchView extends Page {
                 throw new RuntimeException(ex);
             }
         });
+
+        readyButton.setOnMouseClicked(e -> {
+
+        });
+
         setupMatchCallbacks();
     }
 
@@ -394,9 +404,10 @@ public class MatchView extends Page {
         matchController.addUserJoinedMatchCallback(this::onUserJoinedMatch);
         matchController.addUserLeftMatchCallback(this::onUserLeftMatch);
         matchController.addPlayerKickedCallback(this::onPlayerKicked);
+        matchController.addMatchStartedCallback(this::onMatchStarted);
     }
 
-    private void onUserJoinedMatch(beat.osu.shared.dto.match.events.UserJoinedMatchEvent event) {
+    private void onUserJoinedMatch(UserJoinedMatchEvent event) {
         if (event.getMatchId() == this.matchId) {
             Platform.runLater(() -> {
                 matchSlotPanel.addPlayer(event.getMatchPlayer());
@@ -404,7 +415,7 @@ public class MatchView extends Page {
         }
     }
 
-    private void onUserLeftMatch(beat.osu.shared.dto.match.events.UserLeftMatchEvent event) {
+    private void onUserLeftMatch(UserLeftMatchEvent event) {
         if (event.getMatchId() == this.matchId) {
             Platform.runLater(() -> {
                 matchSlotPanel.removePlayer(event.getUserId());
@@ -412,11 +423,18 @@ public class MatchView extends Page {
         }
     }
 
-    private void onPlayerKicked(beat.osu.shared.dto.match.events.PlayerKickedEvent event) {
+    private void onPlayerKicked(PlayerKickedEvent event) {
         if (event.getMatchId() == this.matchId) {
             Platform.runLater(() -> {
                 matchSlotPanel.removePlayer(event.getKickedUserId());
             });
+        }
+    }
+
+    private void onMatchStarted(MatchStartedEvent event) {
+        if (event.getMatchId() == this.matchId) {
+            // redirect to the game view
+            ViewManager.getInstance().showGameView(beatmap);
         }
     }
 
