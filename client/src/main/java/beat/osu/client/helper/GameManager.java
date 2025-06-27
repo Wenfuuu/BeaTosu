@@ -1,5 +1,6 @@
 package beat.osu.client.helper;
 
+import beat.osu.client.controller.MatchController;
 import beat.osu.client.controller.ScoreController;
 import beat.osu.client.controller.SessionController;
 import beat.osu.client.controller.SpectateController;
@@ -36,7 +37,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private final Beatmap beatmap;
     @Getter
     private final ArrayList<HitObject> hitObjects;
-    private boolean isMultiplayer = false;
+    private boolean isMultiplayer;
     private AnimationTimer gameLoop;
     private long startTimeNanos = -1;
     private long pauseStartNanos = -1;
@@ -49,6 +50,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private final ScoreController scoreController;
     private final SessionController sessionController;
     private final SpectateController spectateController;
+    private final MatchController matchController;
 
     private final Set<KeyCode> previousKeys = new HashSet<>();
     private double currentMouseX;
@@ -327,9 +329,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private void updateGame(long elapsedMillis) {
         Set<KeyCode> currentKeys = inputManager.getPressedKeys();
 
-        // store game information for replay
-        // System.out.println("Current game time: " + elapsedMillis + " ms");
-        // Store replay event data
         storeReplayEvent(elapsedMillis, currentKeys);
 
         boolean pressedEsc = currentKeys.contains(KeyCode.ESCAPE) &&
@@ -464,8 +463,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 paneHeight);
         replayEvents.add(replayEvent);
 
-        if (AuthManager.isAuthenticated())
-            sendSpectateEvent(elapsedMillis, replayEvent);
+        if (AuthManager.isAuthenticated()) sendSpectateEvent(elapsedMillis, replayEvent);
 
         // Update last event time for next delta calculation
         lastReplayEventTime = elapsedMillis;
@@ -478,6 +476,10 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         spectateController.sendSpectateEvent(event).thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Spectate event sent successfully: " + response.getValue().getMessage());
+                if (isMultiplayer) {
+                    // send real time score to other players
+
+                }
             } else {
                 System.err.println("Failed to send spectate event: " + response.getError().getMessage());
             }
@@ -774,8 +776,14 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         this.scoreController = new ScoreController();
         this.sessionController = new SessionController();
         this.spectateController = new SpectateController();
+        this.matchController = new MatchController();
 
         processBeatmap();
+        setupMatchCallbacks();
+    }
+
+    private void setupMatchCallbacks() {
+
     }
 
     @Override

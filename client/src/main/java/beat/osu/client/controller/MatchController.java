@@ -39,6 +39,7 @@ public class MatchController {
     private final List<Consumer<HostChangedEvent>> hostChangedCallbacks = new ArrayList<>();
     private final List<Consumer<HostLeftEvent>> hostLeftCallbacks = new ArrayList<>();
     private final List<Consumer<MatchStartedEvent>> matchStartedCallbacks = new ArrayList<>();
+    private final List<Consumer<MatchScoreEvent>> matchScoreCallbacks = new ArrayList<>();
 
     public MatchController() {
         this.clientService = ClientService.getInstance();
@@ -78,6 +79,10 @@ public class MatchController {
         matchStartedCallbacks.add(callback);
     }
 
+    public void addMatchScoreCallback(Consumer<MatchScoreEvent> callback) {
+        matchScoreCallbacks.add(callback);
+    }
+
     public void removeMatchCreatedCallback(Consumer<MatchCreatedEvent> callback) {
         matchCreatedCallbacks.remove(callback);
     }
@@ -104,6 +109,14 @@ public class MatchController {
 
     public void removeHostLeftCallback(Consumer<HostLeftEvent> callback) {
         hostLeftCallbacks.remove(callback);
+    }
+
+    public void removeMatchStartedCallback(Consumer<MatchStartedEvent> callback) {
+        matchStartedCallbacks.remove(callback);
+    }
+
+    public void removeMatchScoreCallback(Consumer<MatchScoreEvent> callback) {
+        matchScoreCallbacks.remove(callback);
     }
 
     private void setupRealtimeHandler() {
@@ -257,7 +270,10 @@ public class MatchController {
                 notifyHostLeft(event);
             }
         } else if (message.getType() == RealtimeMessageType.MATCH_SCORE_EVENT) {
-
+            if (message.getPayload() instanceof MatchScoreEvent) {
+                MatchScoreEvent event = (MatchScoreEvent) message.getPayload();
+                notifyMatchScoreEvent(event);
+            }
         } else if (message.getType() == RealtimeMessageType.MATCH_STARTED) {
             if (message.getPayload() instanceof MatchStartedEvent) {
                 MatchStartedEvent event = (MatchStartedEvent) message.getPayload();
@@ -402,6 +418,16 @@ public class MatchController {
                 callback.accept(event);
             } catch (Exception e) {
                 System.err.println("Error in match started callback: " + e.getMessage());
+            }
+        }
+    }
+
+    private void notifyMatchScoreEvent(MatchScoreEvent event) {
+        for (Consumer<MatchScoreEvent> callback : matchScoreCallbacks) {
+            try {
+                callback.accept(event);
+            } catch (Exception e) {
+                System.err.println("Error in match score event callback: " + e.getMessage());
             }
         }
     }

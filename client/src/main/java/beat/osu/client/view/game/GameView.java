@@ -54,7 +54,7 @@ public class GameView extends Page implements GameEventListener {
 
     private final Beatmap beatmap;
     private final GameManager gm;
-    private boolean isMultiplayer = false;
+    private boolean isMultiplayer;
 
     // additional spins
     private Image[] digitImages;
@@ -129,7 +129,7 @@ public class GameView extends Page implements GameEventListener {
 
         pauseOverlay.getRetryButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
-            ViewManager.getInstance().showGameView(beatmap, isMultiplayer);
+            ViewManager.getInstance().showGameView(beatmap, false);
         });
 
         pauseOverlay.getLeaveButton().setOnMouseClicked(e -> {
@@ -139,7 +139,7 @@ public class GameView extends Page implements GameEventListener {
         });
 
         resultOverlay.getRetryButton().setOnMouseClicked(e -> {
-            ViewManager.getInstance().showGameView(beatmap, isMultiplayer);
+            ViewManager.getInstance().showGameView(beatmap, false);
         });
 
         resultOverlay.getReplayButton().setOnMouseClicked(e -> {
@@ -152,7 +152,7 @@ public class GameView extends Page implements GameEventListener {
 
         failOverlay.getRetryButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
-            ViewManager.getInstance().showGameView(beatmap, isMultiplayer);
+            ViewManager.getInstance().showGameView(beatmap, false);
         });
 
         failOverlay.getLeaveButton().setOnMouseClicked(e -> {
