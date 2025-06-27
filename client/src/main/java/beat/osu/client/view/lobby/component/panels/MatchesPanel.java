@@ -166,7 +166,7 @@ public class MatchesPanel extends VBox {
         Platform.runLater(() -> {
             MatchCard matchCard = matchCardMap.get(event.getMatchId());
             if (matchCard != null) {
-                matchCard.updatePlayerCount(matchCard.getPlayerCount() - 1);
+                matchCard.removePlayer(event.getKickedUserId());
             }
         });
     }

@@ -47,6 +47,7 @@ import beat.osu.shared.dto.match.events.MatchStartedEvent;
 import beat.osu.shared.dto.match.events.PlayerKickedEvent;
 import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
 import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
+import beat.osu.shared.dto.match.responses.KickPlayerResponse;
 import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.PlayerRole;
@@ -120,6 +121,8 @@ public class MatchView extends Page {
     private Button readyButton;
 
     private boolean isHost;
+
+    private MatchPlayerDto selectedPlayerForHostAction;
 
     public MatchView(Stage stage, MatchDto matchDto, ConnectedUsersController connectedUsersController, ChatController chatController,
                      MatchController matchController, SessionController sessionController, BeatmapController beatmapController) {
@@ -255,7 +258,13 @@ public class MatchView extends Page {
         if (isHost) {
             matchSlotPanel.setSlotCardClickCallback(card -> {
                 if (card.getUser() != null) {
-                    hostActionsModal.show(card.getUser().getUsername());
+                    MatchPlayerDto selected = players.stream()
+                        .filter(p -> p.getUser().getId() == card.getUser().getId())
+                        .findFirst()
+                        .orElse(null);
+                    selectedPlayerForHostAction = selected;
+                    assert selected != null;
+                    hostActionsModal.show(selected.getUser().getUsername());
                 }
             });
         }
@@ -423,6 +432,41 @@ public class MatchView extends Page {
             });
         });
 
+        hostActionsModal.getTransferHostButton().setOnMouseClicked(e -> {
+            MatchPlayerDto selectedPlayer = selectedPlayerForHostAction;
+            if (selectedPlayer != null) {
+//                matchController.transferHost(matchId, selectedPlayer.getUserId()).thenApply(response -> {
+//                    if (response.isSuccess()) {
+//                        Toast.success("Host transferred to " + selectedPlayer.getUsername()).show();
+//                    } else {
+//                        Toast.error("Failed to transfer host: " + response.getError().getMessage()).show();
+//                    }
+//                    return null;
+//                });
+            } else {
+                Toast.error("No player selected for host transfer.").show();
+            }
+        });
+
+        hostActionsModal.getKickPlayerButton().setOnMouseClicked(e -> {
+            MatchPlayerDto selectedPlayer = selectedPlayerForHostAction;
+            if (selectedPlayer != null) {
+                try {
+                    Result<KickPlayerResponse> result = matchController.kickPlayerFromMatch(matchId, selectedPlayer.getUserId()).get();
+                    if (result.isSuccess()) {
+                        hostActionsModal.hide();
+                        Toast.success("Player " + selectedPlayer.getUser().getUsername() + " has been kicked.").show();
+                    } else {
+                        Toast.error("Failed to kick player: " + result.getError().getMessage()).show();
+                    }
+                } catch (InterruptedException | ExecutionException ex) {
+                    throw new RuntimeException(ex);
+                }
+            } else {
+                Toast.error("No player selected for kicking.").show();
+            }
+        });
+
         setupMatchCallbacks();
     }
 
@@ -455,6 +499,11 @@ public class MatchView extends Page {
         if (event.getMatchId() == this.matchId) {
             Platform.runLater(() -> {
                 matchSlotPanel.removePlayer(event.getKickedUserId());
+
+                if (event.getKickedUserId() == AuthManager.getUser().getId()) {
+                    ViewManager.getInstance().showLobbyView();
+                    Toast.error("You have been kicked from the match.").show();
+                }
             });
         }
     }
