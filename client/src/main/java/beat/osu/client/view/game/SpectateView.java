@@ -28,6 +28,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class SpectateView extends Page implements GameEventListener, CoordinateConverter {
@@ -50,6 +51,7 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
     private final SpectateController spectateController;
 
     private Image[] digitImages;
+    private ArrayList<Animation> animationList;
     private ImageView cursorImage;
     private double currentMasterScaleFactor = 1.0;
     private double currentViewportTopLeftX = 0.0;
@@ -96,6 +98,8 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
 
     private void updateSpectateStatus(SpectateStatusEvent event) {
         spectatePauseOverlay.setVisible(event.isPaused());
+        if (event.isPaused()) pauseAllAnimations();
+        else resumeAllAnimations();
     }
 
     private void onPlayerExited(String message) {
@@ -116,6 +120,8 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
             digitImages[i] = new Image(Objects.requireNonNull(Main.class
                     .getResource("/assets/images/score-" + i + ".png")).toExternalForm());
         }
+
+        animationList = new ArrayList<>();
 
         uiPane = new GameUI();
         spectatePauseOverlay = new SpectatePauseOverlay();
@@ -271,7 +277,14 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
         fullAnimation.setOnFinished(e -> finalAnimation.play());
 
         // Remove the container when animation completes
-        finalAnimation.setOnFinished(e -> spectatePane.getChildren().remove(spinScoreContainer));
+        finalAnimation.setOnFinished(e -> {
+            spectatePane.getChildren().remove(spinScoreContainer);
+            animationList.remove(fullAnimation);
+            animationList.remove(finalAnimation);
+        });
+
+        animationList.add(fullAnimation);
+        animationList.add(finalAnimation);
 
         fullAnimation.play();
     }
@@ -311,7 +324,13 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
                 fadeOut);
 
         // Remove the image when animation completes
-        fullAnimation.setOnFinished(e -> spectatePane.getChildren().remove(hitImageView));
+        fullAnimation.setOnFinished(e -> {
+            spectatePane.getChildren().remove(hitImageView);
+            animationList.remove(fullAnimation);
+        });
+
+        // Add to animation list BEFORE starting
+        animationList.add(fullAnimation);
         fullAnimation.play();
     }
 
@@ -374,7 +393,13 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
                 fadeOut);
 
         // Remove the image when animation completes
-        fullAnimation.setOnFinished(e -> spectatePane.getChildren().remove(hitImageView));
+        fullAnimation.setOnFinished(e -> {
+            spectatePane.getChildren().remove(hitImageView);
+            animationList.remove(fullAnimation);
+        });
+
+        // Add to animation list BEFORE starting
+        animationList.add(fullAnimation);
         fullAnimation.play();
     }
 
@@ -452,6 +477,27 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
             inputOverlayPanel.setLayoutX(paneWidth - 100);
             inputOverlayPanel.setLayoutY(paneHeight * 0.5 - inputOverlayPanel.getHeight() / 2);
         }
+    }
+
+    private void pauseAllAnimations() {
+        ArrayList<Animation> animationsCopy = new ArrayList<>(animationList);
+        for (Animation animation : animationsCopy) {
+            if (animation.getStatus() == Animation.Status.RUNNING) {
+                animation.pause();
+            }
+        }
+    }
+
+    private void resumeAllAnimations() {
+        ArrayList<Animation> animationsCopy = new ArrayList<>(animationList);
+        for (Animation animation : animationsCopy) {
+            if (animation.getStatus() == Animation.Status.PAUSED) {
+                animation.play();
+            }
+        }
+
+        // Clean up completed animations
+        animationList.removeIf(animation -> animation.getStatus() == Animation.Status.STOPPED);
     }
 
     @Override
