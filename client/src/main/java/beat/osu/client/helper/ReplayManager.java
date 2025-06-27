@@ -47,6 +47,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     private long accumulatedReplayTime = -2000;
     private boolean wasKey1Pressed = false;
     private boolean wasKey2Pressed = false;
+    private boolean keyHolded = false;
 
     private int masterComboNumber = 0;
     private int currentComboNumberInSet = 0;
@@ -188,14 +189,14 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
         }
 
         boolean keyPressed = processReplayEvents(elapsedMillis);
-        System.out.println("key pressed: " + keyPressed);
+//        System.out.println("key pressed: " + keyPressed);
 
         Iterator<HitObject> iterator = hitObjects.iterator();
         while (iterator.hasNext()) {
             HitObject hitObject = iterator.next();
             hitObject.update(elapsedMillis);
             if (hitObject instanceof HitSpinner) {
-                ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
+                if(keyHolded) ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
             } else if (hitObject instanceof HitSlider) {
                 ((HitSlider) hitObject).updateSlider(currentMouseX, currentMouseY);
             }
@@ -256,6 +257,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
             // Check for key state changes
             boolean key1Pressed = (event.getKeyMask() & 1) != 0; // Bit 0 for key 1
             boolean key2Pressed = (event.getKeyMask() & 2) != 0; // Bit 1 for key 2
+            keyHolded = key1Pressed || key2Pressed;
             notifyListeners(new GameEvent(GameEventType.INPUT_OVERLAY_CHANGED,
                     new InputOverlayEvent(key1Pressed, key2Pressed)));
 

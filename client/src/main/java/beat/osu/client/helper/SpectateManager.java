@@ -45,6 +45,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     // Replay event processing fields
     private boolean wasKey1Pressed = false;
     private boolean wasKey2Pressed = false;
+    private boolean keyHolded = false;
 
     private int masterComboNumber = 0;
     private int currentComboNumberInSet = 0;
@@ -401,7 +402,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
                 HitObject hitObject = iterator.next();
                 hitObject.update(elapsedMillis);
                 if (hitObject instanceof HitSpinner) {
-                    ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
+                    if(keyHolded) ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
                 } else if (hitObject instanceof HitSlider) {
                     ((HitSlider) hitObject).updateSlider(currentMouseX, currentMouseY);
                 }
@@ -443,6 +444,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
         updateMousePosition(event.getX(), event.getY());
         boolean key1Pressed = (event.getKeyMask() & 1) != 0; // Bit 0 for key 1
         boolean key2Pressed = (event.getKeyMask() & 2) != 0; // Bit 1 for key 2
+        keyHolded = key1Pressed || key2Pressed;
         notifyListeners(new GameEvent(GameEventType.INPUT_OVERLAY_CHANGED,
                 new InputOverlayEvent(key1Pressed, key2Pressed)));
 
