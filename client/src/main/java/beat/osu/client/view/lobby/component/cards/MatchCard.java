@@ -297,7 +297,7 @@ public class MatchCard extends HBox {
         if (playerToRemove != null) {
             players.remove(playerToRemove);
             
-            if (slotIndexToRemove > 0 && slotIndexToRemove < maxPlayerCount) {
+            if (slotIndexToRemove >= 0 && slotIndexToRemove < maxPlayerCount) {
                 MatchPlayerCard emptyCard = new MatchPlayerCard(
                         0, matchId, null, null, 0, null, null, false);
                 playerCards.put(slotIndexToRemove, emptyCard);
@@ -392,5 +392,33 @@ public class MatchCard extends HBox {
             }
         }
         return -1;
+    }
+    
+    public void hostLeft(int previousHostUserId, int newHostUserId) {
+        if (players == null) {
+            return;
+        }
+        
+        players.removeIf(player -> player.getUserId() == previousHostUserId);
+        
+        int newHostSlotIndex = -1;
+        for (MatchPlayerDto player : players) {
+            if (player.getUserId() == newHostUserId) {
+                newHostSlotIndex = player.getMatchSlotIndex();
+                player.setRole(PlayerRole.HOST);
+            } else {
+                player.setRole(PlayerRole.PLAYER);
+            }
+        }
+        
+        if (newHostSlotIndex != -1) {
+            MatchPlayerCard emptyCard = new MatchPlayerCard(
+                    0, matchId, null, null, 0, null, null, false);
+            playerCards.put(newHostSlotIndex, emptyCard);
+        }
+        
+        updateHostCard();
+        refreshPlayerCardsDisplay();
+        updatePlayerCount(players.size());
     }
 }

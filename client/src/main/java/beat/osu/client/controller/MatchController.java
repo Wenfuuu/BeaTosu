@@ -11,6 +11,7 @@ import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
 import beat.osu.shared.dto.match.events.HostChangedEvent;
+import beat.osu.shared.dto.match.events.HostLeftEvent;
 import beat.osu.shared.dto.match.events.MatchCreatedEvent;
 import beat.osu.shared.dto.match.events.MatchEndedEvent;
 import beat.osu.shared.dto.match.events.PlayerKickedEvent;
@@ -44,6 +45,7 @@ public class MatchController {
     private final List<Consumer<UserLeftMatchEvent>> userLeftMatchCallbacks = new ArrayList<>();
     private final List<Consumer<PlayerKickedEvent>> playerKickedCallbacks = new ArrayList<>();
     private final List<Consumer<HostChangedEvent>> hostChangedCallbacks = new ArrayList<>();
+    private final List<Consumer<HostLeftEvent>> hostLeftCallbacks = new ArrayList<>();
 
     public MatchController() {
         this.clientService = ClientService.getInstance();
@@ -73,6 +75,10 @@ public class MatchController {
 
     public void addHostChangedCallback(Consumer<HostChangedEvent> callback) {
         hostChangedCallbacks.add(callback);
+    }
+
+    public void addHostLeftCallback(Consumer<HostLeftEvent> callback) {
+        hostLeftCallbacks.add(callback);
     }
 
     public void removeMatchCreatedCallback(Consumer<MatchCreatedEvent> callback) {
@@ -223,6 +229,12 @@ public class MatchController {
                 updateMatchHost(event.getMatchId(), event.getNewHostUserId());
                 notifyHostChanged(event);
             }
+        } else if (message.getType() == RealtimeMessageType.HOST_LEFT) {
+            if (message.getPayload() instanceof HostLeftEvent) {
+                HostLeftEvent event = (HostLeftEvent) message.getPayload();
+                handleHostLeft(event.getMatchId(), event.getPreviousHostUserId(), event.getNewHostUserId());
+                notifyHostLeft(event);
+            }
         }
     }
 
@@ -324,5 +336,33 @@ public class MatchController {
             }
         }
         System.err.println("Match with ID " + matchId + " not found to update host.");
+    }
+
+    private void handleHostLeft(int matchId, int previousHostUserId, int newHostUserId) {
+        for (MatchDto match : matches) {
+            if (match.getId() == matchId) {
+                match.getPlayers().removeIf(p -> p.getUserId() == previousHostUserId);
+                
+                for (MatchPlayerDto player : match.getPlayers()) {
+                    if (player.getUserId() == newHostUserId) {
+                        player.setRole(PlayerRole.HOST);
+                    } else {
+                        player.setRole(PlayerRole.PLAYER);
+                    }
+                }
+                return;
+            }
+        }
+        System.err.println("Match with ID " + matchId + " not found to handle host left.");
+    }
+
+    private void notifyHostLeft(HostLeftEvent event) {
+        for (Consumer<HostLeftEvent> callback : hostLeftCallbacks) {
+            try {
+                callback.accept(event);
+            } catch (Exception e) {
+                System.err.println("Error in host left callback: " + e.getMessage());
+            }
+        }
     }
 }

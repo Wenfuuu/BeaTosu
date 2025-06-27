@@ -18,7 +18,7 @@ import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
-import beat.osu.shared.dto.match.events.HostChangedEvent;
+import beat.osu.shared.dto.match.events.HostLeftEvent;
 import beat.osu.shared.dto.match.events.MatchCreatedEvent;
 import beat.osu.shared.dto.match.events.MatchEndedEvent;
 import beat.osu.shared.dto.match.events.PlayerKickedEvent;
@@ -233,15 +233,13 @@ public class MatchService {
 
         if (playerRole.equals(PlayerRole.HOST)) {
             handleHostLeaving(matchId, userId);
-        }
-
-        Result<LeaveMatchResponse> response = Result.success(new LeaveMatchResponse(message));
-
-        if (response.isSuccess()) {
+        } else {
             UserLeftMatchEvent event = new UserLeftMatchEvent(matchId, userId);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_LEFT_MATCH, clientId, event);
             RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
+
+        Result<LeaveMatchResponse> response = Result.success(new LeaveMatchResponse(message));
 
         return response;
     }
@@ -427,8 +425,8 @@ public class MatchService {
             MatchPlayer newHost = players.iterator().next();
             newHost.setRole(PlayerRole.HOST);
 
-            HostChangedEvent event = new HostChangedEvent(matchId, newHost.getUserId(), previousHostUserId);
-            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.HOST_CHANGED, "SYSTEM", event);
+            HostLeftEvent event = new HostLeftEvent(matchId, previousHostUserId, newHost.getUserId());
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.HOST_LEFT, "SYSTEM", event);
             RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         } else {
             removeMatch(matchId);
