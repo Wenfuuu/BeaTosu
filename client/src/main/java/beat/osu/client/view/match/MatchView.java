@@ -25,6 +25,7 @@ import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.view.match.component.cards.BeatmapCard;
 import beat.osu.client.view.match.component.layout.TopBar;
+import beat.osu.client.view.match.component.modals.ChangePasswordModal;
 import beat.osu.client.view.match.component.modals.HostActionsModal;
 import beat.osu.client.view.match.component.panels.MatchSlotPanel;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
@@ -48,10 +49,7 @@ import beat.osu.shared.dto.match.events.PlayerKickedEvent;
 import beat.osu.shared.dto.match.events.SlotChangedEvent;
 import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
 import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
-import beat.osu.shared.dto.match.responses.ChangeMatchSlotResponse;
-import beat.osu.shared.dto.match.responses.KickPlayerResponse;
-import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
-import beat.osu.shared.dto.match.responses.TransferHostResponse;
+import beat.osu.shared.dto.match.responses.*;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.match.PlayerStatus;
@@ -106,6 +104,7 @@ public class MatchView extends Page {
     private VBox banchoPanelsContainer;
 
     private HostActionsModal hostActionsModal;
+    private ChangePasswordModal changePasswordModal;
 
     // left panel components
     private MatchSlotPanel matchSlotPanel;
@@ -204,6 +203,7 @@ public class MatchView extends Page {
         });
 
         hostActionsModal = new HostActionsModal();
+        changePasswordModal = new ChangePasswordModal();
 
         selectChannelModal.setChatPanel(chatPanel);
         selectChannelModal.setOnlineUsersPanel(onlineUsersPanel);
@@ -370,6 +370,9 @@ public class MatchView extends Page {
 
         root.getChildren().add(hostActionsModal);
         StackPane.setAlignment(hostActionsModal, Pos.CENTER);
+
+        root.getChildren().add(changePasswordModal);
+        StackPane.setAlignment(changePasswordModal, Pos.CENTER);
         
         updateUIBasedOnRole();
     }
@@ -483,6 +486,31 @@ public class MatchView extends Page {
                 viewUserModal.show();
             } else {
                 Toast.error("No player selected for user options.").show();
+            }
+        });
+
+        changePasswordButton.setOnMouseClicked(e -> {
+            changePasswordModal.show();
+        });
+
+        changePasswordModal.getConfirmButton().setOnMouseClicked(e -> {
+            try {
+                String newPassword = changePasswordModal.getPassword();
+                if (newPassword == null || newPassword.isEmpty()) {
+                    Toast.error("Password cannot be empty.").show();
+                    return;
+                }
+
+                Result<UpdateMatchPasswordResponse> result = matchController.updateMatchPassword(matchId, newPassword).get();
+
+                if (result.isSuccess()) {
+                    changePasswordModal.hide();
+                    Toast.success(result.getValue().getMessage()).show();
+                } else {
+                    Toast.error("Failed to update match password: " + result.getError().getMessage()).show();
+                }
+            } catch (InterruptedException | ExecutionException ex) {
+                throw new RuntimeException(ex);
             }
         });
 
