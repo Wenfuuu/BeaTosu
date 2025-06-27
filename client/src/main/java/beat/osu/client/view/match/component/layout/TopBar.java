@@ -67,4 +67,12 @@ public class TopBar extends StackPane {
             System.err.println("Css file not found!");
         }
     }
+
+    public void updateSubtitle(boolean isHost) {
+        if (isHost) {
+            subTitleLabel.setText("You are the host!");
+        } else {
+            subTitleLabel.setText("You are a player.");
+        }
+    }
 }

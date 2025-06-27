@@ -2,7 +2,11 @@ package beat.osu.client.view.match;
 
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import beat.osu.client.controller.BeatmapController;
@@ -35,7 +39,6 @@ import beat.osu.shared.dto.beatmap.BeatmapDto;
 import beat.osu.shared.dto.beatmap.responses.GetBeatmapByIdResponse;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
-import beat.osu.shared.dto.match.responses.CreateMatchResponse;
 import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.PlayerRole;
@@ -106,9 +109,13 @@ public class MatchView extends Page {
 
     private Button readyButton;
 
+    private boolean isHost;
+
     public MatchView(Stage stage, MatchDto matchDto, ConnectedUsersController connectedUsersController, ChatController chatController,
                      MatchController matchController, SessionController sessionController, BeatmapController beatmapController) {
         super(stage);
+
+        int currentUserId = AuthManager.getUser().getId();
 
         this.connectedUsersController = connectedUsersController;
         this.chatController = chatController;
@@ -125,6 +132,9 @@ public class MatchView extends Page {
         this.beatmapName = matchDto.getBeatmapName();
         this.winCondition = matchDto.getWinCondition();
         this.players = new ArrayList<>(matchDto.getPlayers());
+
+        this.isHost = this.players.stream()
+                .anyMatch(player -> player.getUserId() == currentUserId && player.getRole() == PlayerRole.HOST);
 
         setupView();
         handleEvent();
@@ -244,6 +254,7 @@ public class MatchView extends Page {
 
         changePasswordButton = new Button("Change Password...");
         changePasswordButton.getStyleClass().add("change-password-button");
+        changePasswordButton.setVisible(false);
 
         HBox gameBox = new HBox(40);
         gameBox.getChildren().addAll(gameNameLabel, changePasswordButton);
@@ -251,6 +262,7 @@ public class MatchView extends Page {
 
         gameNameTextField = new TextField(matchName);
         gameNameTextField.getStyleClass().add("game-name-text-field");
+        gameNameTextField.setEditable(false);
         VBox.setMargin(gameNameTextField, new Insets(16, 20, 0, 0));
 
         beatmapLabel = new Label("Beatmap");
@@ -258,6 +270,7 @@ public class MatchView extends Page {
 
         changeBeatmapButton = new Button("Change...");
         changeBeatmapButton.getStyleClass().add("change-beatmap-button");
+        changeBeatmapButton.setVisible(false);
 
         HBox beatmapBox = new HBox(36);
         beatmapBox.getChildren().addAll(beatmapLabel, changeBeatmapButton);
@@ -271,6 +284,8 @@ public class MatchView extends Page {
         winConditionComboBox.getStyleClass().add("dark-combo-box");
         winConditionComboBox.getItems().addAll("score", "accuracy", "combo");
         winConditionComboBox.getSelectionModel().selectFirst();
+        winConditionComboBox.setDisable(true);
+        winConditionComboBox.setOpacity(1.0); 
 
         HBox winConditionBox = new HBox(20);
         winConditionBox.getChildren().addAll(winConditionLabel, winConditionComboBox);
@@ -332,6 +347,8 @@ public class MatchView extends Page {
 
         root.getChildren().add(viewUserModal);
         StackPane.setAlignment(viewUserModal, Pos.CENTER);
+        
+        updateUIBasedOnRole();
     }
 
     @Override
@@ -529,5 +546,21 @@ public class MatchView extends Page {
                 status,
                 slotIndex
         );
+    }
+
+    private void updateUIBasedOnRole() {
+        topBar.updateSubtitle(isHost);
+        changePasswordButton.setVisible(isHost);
+        changeBeatmapButton.setVisible(isHost);
+        winConditionComboBox.setDisable(!isHost);
+        winConditionComboBox.setOpacity(1.0); 
+    }
+
+    private void updateHostStatus() {
+        int currentUserId = AuthManager.getUser().getId();
+        this.isHost = this.players.stream()
+                .anyMatch(player -> player.getUserId() == currentUserId && player.getRole() == PlayerRole.HOST);
+        
+        updateUIBasedOnRole();
     }
 }
