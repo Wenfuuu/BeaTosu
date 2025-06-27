@@ -441,7 +441,7 @@ public class MatchService {
         if (players != null) {
             for (MatchPlayer player : players) {
                 String playerClientId = sessionService.getClientIdByUserId(player.getUserId());
-                if (playerClientId != null && !playerClientId.equals(clientId)) {
+                if (playerClientId != null) {
                     RealtimeMessageHandler.sendToClient(realtimeMessage, playerClientId);
                 }
             }

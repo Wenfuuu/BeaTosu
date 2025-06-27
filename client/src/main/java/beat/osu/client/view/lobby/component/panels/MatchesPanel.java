@@ -143,9 +143,7 @@ public class MatchesPanel extends VBox {
     private void onUserJoinedMatch(UserJoinedMatchEvent event) {
         Platform.runLater(() -> {
             MatchCard matchCard = matchCardMap.get(event.getMatchId());
-            if (matchCard != null) {
-                matchCard.updatePlayerCount(matchCard.getPlayerCount() + 1);
-            }
+            matchCard.addPlayer(event.getMatchPlayer());
         });
     }
     

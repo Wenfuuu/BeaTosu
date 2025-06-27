@@ -1,6 +1,7 @@
 package beat.osu.client.view.lobby.component.cards;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,7 @@ public class MatchCard extends HBox {
         this.lowestRank = lowestRank;
         this.highestRank = highestRank;
         this.winCondition = winCondition;
-        this.players = players;
+        this.players = players != null ? new ArrayList<>(players) : new ArrayList<>();
 
         initializeComponents();
         setupLayout();
@@ -109,7 +110,7 @@ public class MatchCard extends HBox {
 
         for (int i = 1; i < maxPlayerCount; i++) {
             MatchPlayerCard emptyCard = new MatchPlayerCard(
-                    0, matchId, 0, null, 0, null, null, false);
+                    0, matchId, null, null, 0, null, null, false);
             playerCards.put(i, emptyCard);
         }
 
@@ -203,6 +204,49 @@ public class MatchCard extends HBox {
     public void updatePlayerCount(int newPlayerCount) {
         if (playerCountLabel != null) {
             playerCountLabel.setText(newPlayerCount + " / " + maxPlayerCount);
+        }
+    }
+
+    public void addPlayer(MatchPlayerDto player) {
+        if (players == null) {
+            return;
+        }
+        
+        players.add(player);
+
+        for (int i = 1; i < maxPlayerCount; i++) {
+            MatchPlayerCard existingCard = playerCards.get(i);
+            if (existingCard != null && existingCard.getUserId() == null) {
+                MatchPlayerCard playerCard = new MatchPlayerCard(
+                    player.getId(), player.getMatchId(), player.getUserId(),
+                    player.getUser().getUsername(), player.getUser().getRank(),
+                    LocaleManager.getCountryName(player.getUser().getCountryCode()),
+                    player.getUser().getProfilePicture(), false);
+                playerCards.put(player.getMatchSlotIndex(), playerCard);
+                
+                refreshPlayerCardsDisplay();
+                break;
+            }
+        }
+        
+        updatePlayerCount(players.size());
+    }
+
+    private void refreshPlayerCardsDisplay() {
+        VBox matchData = (VBox) rightContainer.getChildren().get(1);
+        HBox matchPlayerCardsContainer = (HBox) matchData.getChildren().get(2);
+        
+        matchPlayerCardsContainer.getChildren().clear();
+        
+        for (int i = 1; i < maxPlayerCount; i++) {
+            MatchPlayerCard playerCard = playerCards.get(i);
+            matchPlayerCardsContainer.getChildren().add(playerCard);
+        }
+
+        for (int i = maxPlayerCount; i < 16; i++) {
+            VBox inactiveCard = new VBox();
+            inactiveCard.getStyleClass().add("inactive-card");
+            matchPlayerCardsContainer.getChildren().add(inactiveCard);
         }
     }
 

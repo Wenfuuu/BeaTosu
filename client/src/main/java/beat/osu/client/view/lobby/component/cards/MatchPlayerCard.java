@@ -18,6 +18,7 @@ public class MatchPlayerCard extends VBox {
     private Integer matchPlayerId;
     private Integer matchId;
 
+    @Getter
     private Integer userId;
     @Getter
     private String username;
