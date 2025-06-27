@@ -25,6 +25,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class GameView extends Page implements GameEventListener {
@@ -56,6 +57,7 @@ public class GameView extends Page implements GameEventListener {
 
     // additional spins
     private Image[] digitImages;
+    private ArrayList<Animation> animationList;
 
     public GameView(Stage stage, Beatmap selectedBeatmap) {
         super(stage);
@@ -92,6 +94,8 @@ public class GameView extends Page implements GameEventListener {
             digitImages[i] = new Image(Objects.requireNonNull(Main.class
                     .getResource("/assets/images/score-" + i + ".png")).toExternalForm());
         }
+
+        animationList = new ArrayList<>();
 
         uiPane = new GameUI();
         pauseOverlay = new PauseOverlay();
@@ -289,7 +293,14 @@ public class GameView extends Page implements GameEventListener {
         fullAnimation.setOnFinished(e -> finalAnimation.play());
 
         // Remove the container when animation completes
-        finalAnimation.setOnFinished(e -> gamePane.getChildren().remove(spinScoreContainer));
+        finalAnimation.setOnFinished(e -> {
+            gamePane.getChildren().remove(spinScoreContainer);
+            animationList.remove(fullAnimation);
+            animationList.remove(finalAnimation);
+        });
+
+        animationList.add(fullAnimation);
+        animationList.add(finalAnimation);
 
         fullAnimation.play();
     }
@@ -329,11 +340,20 @@ public class GameView extends Page implements GameEventListener {
                 fadeOut);
 
         // Remove the image when animation completes
-        fullAnimation.setOnFinished(e -> gamePane.getChildren().remove(hitImageView));
+        fullAnimation.setOnFinished(e -> {
+            gamePane.getChildren().remove(hitImageView);
+            animationList.remove(fullAnimation);
+        });
+
+        // Add to animation list BEFORE starting
+        animationList.add(fullAnimation);
         fullAnimation.play();
     }
 
     private void showMissImage(HitObject hitObject) {
+        // Don't start new animations if game is paused
+//        if (gameIsPaused) return;
+
         Image hitImage = new Image(Objects.requireNonNull(Main.class
                 .getResource("/assets/images/hit0.png")).toExternalForm());
         ImageView hitImageView = new ImageView(hitImage);
@@ -392,7 +412,13 @@ public class GameView extends Page implements GameEventListener {
                 fadeOut);
 
         // Remove the image when animation completes
-        fullAnimation.setOnFinished(e -> gamePane.getChildren().remove(hitImageView));
+        fullAnimation.setOnFinished(e -> {
+            gamePane.getChildren().remove(hitImageView);
+            animationList.remove(fullAnimation);
+        });
+
+        // Add to animation list BEFORE starting
+        animationList.add(fullAnimation);
         fullAnimation.play();
     }
 
@@ -516,8 +542,28 @@ public class GameView extends Page implements GameEventListener {
 
     @Override
     public void update(GameEvent event) {
-//        Platform.runLater(() -> handleGameEvent(event));
         handleGameEvent(event);
+    }
+
+    private void pauseAllAnimations() {
+        ArrayList<Animation> animationsCopy = new ArrayList<>(animationList);
+        for (Animation animation : animationsCopy) {
+            if (animation.getStatus() == Animation.Status.RUNNING) {
+                animation.pause();
+            }
+        }
+    }
+
+    private void resumeAllAnimations() {
+        ArrayList<Animation> animationsCopy = new ArrayList<>(animationList);
+        for (Animation animation : animationsCopy) {
+            if (animation.getStatus() == Animation.Status.PAUSED) {
+                animation.play();
+            }
+        }
+
+        // Clean up completed animations
+        animationList.removeIf(animation -> animation.getStatus() == Animation.Status.STOPPED);
     }
 
     private void handleGameEvent(GameEvent event) {
@@ -584,14 +630,17 @@ public class GameView extends Page implements GameEventListener {
                 }
                 break;
             case GAME_STARTED:
-                System.out.println("show countdown here");
+                System.out.println("resuming all animation");
+                resumeAllAnimations();
                 break;
             case GAME_PAUSED:
                 System.out.println("pausing game, show pause menu here");
+                pauseAllAnimations();
                 pauseOverlay.setVisible(true);
                 break;
             case GAME_RESUMED:
                 System.out.println("resuming game, hide pause menu here");
+                resumeAllAnimations();
                 pauseOverlay.setVisible(false);
                 break;
             case GAME_ENDED:

@@ -152,7 +152,8 @@ public class HomeView extends Page {
                 ArrayList<ScoreDto> scoreDtos = result.getValue().getScores();
                 if (scoreDtos != null && !scoreDtos.isEmpty()) {
                     scores = scoreDtos;
-                    System.out.println("Fetched " + scores.size() + " scores for beatmap ID: " + beatmap.getBeatmapId());
+                    System.out
+                            .println("Fetched " + scores.size() + " scores for beatmap ID: " + beatmap.getBeatmapId());
                 } else {
                     System.out.println("No scores found for beatmap ID: " + beatmap.getBeatmapId());
                 }
@@ -171,7 +172,7 @@ public class HomeView extends Page {
         File tempDir = ResourceManager.getTempDirectory();
         Set<String> validBeatmapDirs = new HashSet<>();
 
-        if(tempDir.exists() && tempDir.isDirectory()) {
+        if (tempDir.exists() && tempDir.isDirectory()) {
             for (File file : Objects.requireNonNull(tempDir.listFiles())) {
                 if (file.isDirectory()) {
                     validBeatmapDirs.add(file.getName());
@@ -200,8 +201,7 @@ public class HomeView extends Page {
                             beatmapDto.getBeatmapSetDto().getArtist(),
                             beatmapDto.getBeatmapSetDto().getCreator(),
                             beatmapDto.getBeatmapSetDto().getLength(),
-                            beatmapDto.getBeatmapSetDto().getBpm()
-                    );
+                            beatmapDto.getBeatmapSetDto().getBpm());
 
                     Beatmap beatmap = new Beatmap(
                             beatmapDto.getId(),
@@ -214,8 +214,7 @@ public class HomeView extends Page {
                             beatmapDto.getSliderMultiplier(),
                             beatmapDto.getSliderTickRate(),
                             beatmapDto.getStarRating(),
-                            beatmapSet
-                    );
+                            beatmapSet);
 
                     beatmaps.add(beatmap);
                 });
@@ -242,10 +241,10 @@ public class HomeView extends Page {
 
         scores = fetchScores(beatmap);
         scoreContent.populateScores(scores);
-//         sfx testing purpose
-//        for (String data: OsuParser.getHitObjects()) {
-//            HitObjectFactory.createHitObject(data, beatmap, 1, 1);
-//        }
+        // sfx testing purpose
+        // for (String data: OsuParser.getHitObjects()) {
+        // HitObjectFactory.createHitObject(data, beatmap, 1, 1);
+        // }
     }
 
     private void onScoreSelected(ScoreDto score) {
@@ -267,7 +266,7 @@ public class HomeView extends Page {
             Beatmap selectedBeatmap = beatmapContent.getSelectedBeatmap();
             if (selectedBeatmap != null) {
                 BgmManager.getInstance().stopBgm();
-//                new GameView(stage, selectedBeatmap);
+                // new GameView(stage, selectedBeatmap);
                 ViewManager.getInstance().showGameView(selectedBeatmap);
             }
         });

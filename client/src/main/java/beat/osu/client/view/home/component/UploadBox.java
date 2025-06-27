@@ -106,7 +106,8 @@ public class UploadBox extends VBox {
                     String filename = file.getName().replaceAll("\\s*\\[no video\\]", "");
                     Path destPath = new File(beatmapDir, filename).toPath();
 
-                    if(!filename.endsWith(".osz")) continue;
+                    if (!filename.endsWith(".osz"))
+                        continue;
                     try {
                         Files.copy(file.toPath(), destPath, StandardCopyOption.REPLACE_EXISTING);
                         System.out.println("Copied: " + filename);
@@ -114,14 +115,14 @@ public class UploadBox extends VBox {
                         String[] tempStr = filename.split(" ");
                         String beatmapSetId = tempStr[0];
 
-                        //extract .osz and store in temp folder
+                        // extract .osz and store in temp folder
                         File tempDir = ResourceManager.getTempDirectory();
                         File outputDir = new File(tempDir, beatmapSetId);
 
                         System.out.println("extracting beatmap set id: " + beatmapSetId);
                         OszExtractor.extractOsz(new File(beatmapDir, filename), outputDir);
-                        //parse all .osu file in temp folder & insert db
-                        File []files = outputDir.listFiles();
+                        // parse all .osu file in temp folder & insert db
+                        File[] files = outputDir.listFiles();
                         File detectedAudioFile = null;
 
                         if (files != null) {
@@ -134,10 +135,11 @@ public class UploadBox extends VBox {
                             }
                         }
 
-                        if(detectedAudioFile != null) {
+                        if (detectedAudioFile != null) {
                             File renamedAudioFile = new File(outputDir, "audio.mp3");
                             try {
-                                Files.move(detectedAudioFile.toPath(), renamedAudioFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                                Files.move(detectedAudioFile.toPath(), renamedAudioFile.toPath(),
+                                        StandardCopyOption.REPLACE_EXISTING);
                             } catch (IOException e) {
                                 System.out.println("Failed to rename audio file.");
                                 e.printStackTrace();
@@ -146,8 +148,9 @@ public class UploadBox extends VBox {
 
                         CountDownLatch latch = new CountDownLatch(1);
                         // Store the duration in an array to access it from the lambda
-                        final double[] audioDuration = {0.0};
-//                        File songFile = new File("./src/main/resources/temp/" + beatmapSetId + "/audio.mp3");
+                        final double[] audioDuration = { 0.0 };
+                        // File songFile = new File("./src/main/resources/temp/" + beatmapSetId +
+                        // "/audio.mp3");
                         File songFile = new File(outputDir, "audio.mp3");
                         Media song = new Media(songFile.toURI().toString());
                         MediaPlayer player = new MediaPlayer(song);
@@ -165,10 +168,10 @@ public class UploadBox extends VBox {
                         int seconds = (int) audioDuration[0] % 60;
                         String timeString = String.format("%02d:%02d", minutes, seconds);
 
-                        if(files != null) {
+                        if (files != null) {
                             boolean insertSet = false;
-                            for(File f: files) {
-                                if(f.getName().endsWith(".osu")) {
+                            for (File f : files) {
+                                if (f.getName().endsWith(".osu")) {
                                     try {
                                         OsuParser.parseOsuFile(f);
 
@@ -214,7 +217,7 @@ public class UploadBox extends VBox {
             }
         };
 
-//        progressBar.progressProperty().bind(uploadTask.progressProperty());
+        // progressBar.progressProperty().bind(uploadTask.progressProperty());
         new Thread(uploadTask).start();
     }
 }
