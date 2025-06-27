@@ -37,6 +37,7 @@ public enum MessageAction implements Serializable {
     JOIN_MATCH,
     LEAVE_MATCH,
     KICK_PLAYER,
+    TRANSFER_HOST,
     START_MATCH,
     SEND_MATCH_SCORE_EVENT,
 

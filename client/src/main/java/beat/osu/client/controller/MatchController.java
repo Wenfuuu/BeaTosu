@@ -224,6 +224,26 @@ public class MatchController {
         });
     }
 
+    public CompletableFuture<Result<TransferHostResponse>> transferHost(int matchId, int newHostUserId) {
+        TransferHostRequest requestData = new TransferHostRequest(matchId, newHostUserId);
+        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.TRANSFER_HOST, requestData);
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendRequest(request).get();
+
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((TransferHostResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
+    }
+
     public CompletableFuture<Result<StartMatchResponse>> startMatch(int matchId) {
         StartMatchRequest requestData = new StartMatchRequest(matchId);
         RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.START_MATCH, requestData);

@@ -156,6 +156,8 @@ public class MessageRouter {
                 return matchService.leaveMatch((LeaveMatchRequest) request.getPayload(), clientId);
             case KICK_PLAYER:
                 return matchService.kickPlayer((KickPlayerRequest) request.getPayload(), clientId);
+            case TRANSFER_HOST:
+                return matchService.transferHost((TransferHostRequest) request.getPayload(), clientId);
             case START_MATCH:
                 return matchService.startMatch((StartMatchRequest) request.getPayload(), clientId);
             case SEND_MATCH_SCORE_EVENT:
