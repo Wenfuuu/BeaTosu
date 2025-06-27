@@ -121,6 +121,9 @@ public class MatchCard extends HBox {
             }
             
             if (player.getRole() == PlayerRole.HOST) {
+                MatchPlayerCard emptyCard = new MatchPlayerCard(
+                        0, matchId, null, null, 0, null, null, false);
+                playerCards.put(player.getMatchSlotIndex(), emptyCard);
                 continue;
             }
 
@@ -170,7 +173,7 @@ public class MatchCard extends HBox {
         for (int i = 0; i < maxPlayerCount; i++) {
             MatchPlayerCard playerCard = playerCards.get(i);
             
-            if (playerCard != null && isHostSlot(i)) {
+            if (isHostSlot(i)) {
                 continue;
             }
             
@@ -316,10 +319,22 @@ public class MatchCard extends HBox {
         
         for (int i = 0; i < maxPlayerCount; i++) {
             MatchPlayerCard playerCard = playerCards.get(i);
+            
+            if (isHostSlot(i)) {
+                continue;
+            }
+            
             matchPlayerCardsContainer.getChildren().add(playerCard);
         }
 
-        for (int i = maxPlayerCount; i < 16; i++) {
+        int occupiedSlots = 0;
+        for (int i = 0; i < maxPlayerCount; i++) {
+            if (!isHostSlot(i)) {
+                occupiedSlots++;
+            }
+        }
+        
+        for (int i = occupiedSlots; i < 16; i++) {
             VBox inactiveCard = new VBox();
             inactiveCard.getStyleClass().add("inactive-card");
             matchPlayerCardsContainer.getChildren().add(inactiveCard);
