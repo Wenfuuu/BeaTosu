@@ -2,17 +2,21 @@ package beat.osu.client.connection;
 
 import beat.osu.shared.models.RequestMessage;
 import beat.osu.shared.models.ResponseMessage;
-import lombok.AllArgsConstructor;
 
 import java.io.ObjectOutputStream;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-@AllArgsConstructor
 public class RequestResponseHandler {
     private final ObjectOutputStream oos;
+    private final Object writeLock;
     private final ConcurrentHashMap<String, CompletableFuture<Object>> pendingRequests = new ConcurrentHashMap<>();
+
+    public RequestResponseHandler(ObjectOutputStream oos, Object writeLock) {
+        this.oos = oos;
+        this.writeLock = writeLock;
+    }
 
     public CompletableFuture<Object> sendRequest(RequestMessage request) {
         String requestId = UUID.randomUUID().toString();
@@ -22,8 +26,10 @@ public class RequestResponseHandler {
         pendingRequests.put(requestId, future);
 
         try {
-            oos.writeObject(request);
-            oos.flush();
+            synchronized (writeLock) {
+                oos.writeObject(request);
+                oos.flush();
+            }
         } catch (Exception e) {
             pendingRequests.remove(requestId);
             future.completeExceptionally(e);

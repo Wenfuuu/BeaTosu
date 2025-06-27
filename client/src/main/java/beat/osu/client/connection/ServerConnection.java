@@ -8,11 +8,13 @@ import java.net.Socket;
 import java.util.concurrent.CompletableFuture;
 
 import beat.osu.client.config.ConfigurationManager;
+import beat.osu.client.view.shared.common.Toast;
 import beat.osu.shared.enums.message.MessageAction;
 import beat.osu.shared.enums.message.MessageType;
 import beat.osu.shared.models.RealtimeMessage;
 import beat.osu.shared.models.RequestMessage;
 import beat.osu.shared.models.ResponseMessage;
+import javafx.application.Platform;
 import lombok.Getter;
 
 public class ServerConnection {
@@ -23,6 +25,9 @@ public class ServerConnection {
     private ObjectInputStream ois;
     private Thread readerThread;
     private boolean connected = false;
+
+    // Synchronization object for thread-safe writing to ObjectOutputStream
+    private final Object writeLock = new Object();
 
     @Getter
     private RequestResponseHandler requestHandler;
@@ -39,8 +44,8 @@ public class ServerConnection {
             oos = new ObjectOutputStream(socket.getOutputStream());
             ois = new ObjectInputStream(socket.getInputStream());
 
-            requestHandler = new RequestResponseHandler(oos);
-            realtimeHandler = new RealtimeMessageHandler(oos);
+            requestHandler = new RequestResponseHandler(oos, writeLock);
+            realtimeHandler = new RealtimeMessageHandler(oos, writeLock);
 
             connected = true;
             startReaderThread();
@@ -63,6 +68,9 @@ public class ServerConnection {
             } catch (Exception e) {
                 if (connected) {
                     System.out.println("Connection lost: " + e.getMessage());
+                    Platform.runLater(() -> {
+                        Toast.error("Connection lost: " + e.getMessage()).show();
+                    });
                     disconnect();
                 }
             }
@@ -103,20 +111,22 @@ public class ServerConnection {
             if (readerThread != null) {
                 readerThread.interrupt();
             }
-            
+
             if (oos != null && socket != null && !socket.isClosed()) {
                 try {
-                    RequestMessage disconnectMsg = new RequestMessage(
-                            MessageType.SYSTEM, MessageAction.DISCONNECT, null);
-                    oos.writeObject(disconnectMsg);
-                    oos.flush();
-                    
+                    synchronized (writeLock) {
+                        RequestMessage disconnectMsg = new RequestMessage(
+                                MessageType.SYSTEM, MessageAction.DISCONNECT, null);
+                        oos.writeObject(disconnectMsg);
+                        oos.flush();
+                    }
+
                     Thread.sleep(100);
                 } catch (Exception e) {
                     System.out.println("Note: Could not send disconnect message: " + e.getMessage());
                 }
             }
-            
+
             if (oos != null) oos.close();
             if (ois != null) ois.close();
             if (socket != null) socket.close();

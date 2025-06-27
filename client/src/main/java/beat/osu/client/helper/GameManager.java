@@ -19,6 +19,7 @@ import beat.osu.client.utils.ReplayUtils;
 import beat.osu.client.events.game.ReplayEvent;
 import beat.osu.shared.dto.game.events.SpectateEvent;
 import beat.osu.shared.dto.game.events.SpectateStatusEvent;
+import beat.osu.shared.dto.match.events.MatchScoreEvent;
 import beat.osu.shared.dto.user.UserDto;
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
@@ -478,10 +479,25 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 System.out.println("Spectate event sent successfully: " + response.getValue().getMessage());
                 if (isMultiplayer) {
                     // send real time score to other players
-
+                    sendMatchScoreEvent();
                 }
             } else {
                 System.err.println("Failed to send spectate event: " + response.getError().getMessage());
+            }
+            return null;
+        });
+    }
+
+    private void sendMatchScoreEvent() {
+        if(!isMultiplayer) return;
+        System.out.println("Sending match score event");
+        MatchScoreEvent event = new MatchScoreEvent(ViewManager.getInstance().getCurrentMatchDto().getId(),
+                score, masterComboNumber, AuthManager.getUser());
+        matchController.sendMatchScoreEvent(event).thenApply(response -> {
+            if (response.isSuccess()) {
+                System.out.println("Match score event sent successfully: " + response.getValue().getMessage());
+            } else {
+                System.err.println("Failed to send match score event: " + response.getError().getMessage());
             }
             return null;
         });
@@ -783,7 +799,12 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void setupMatchCallbacks() {
+        matchController.addMatchScoreCallback(this::updateMatchScoreEvent);
+    }
 
+    private void updateMatchScoreEvent(MatchScoreEvent event) {
+        System.out.println("Received match score, user: " + event.getUser().getUsername() +
+                ", score: " + event.getScore() + ", combo: " + event.getCombo());
     }
 
     @Override

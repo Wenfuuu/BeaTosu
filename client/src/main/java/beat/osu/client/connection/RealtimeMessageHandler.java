@@ -1,16 +1,20 @@
 package beat.osu.client.connection;
 
 import beat.osu.shared.models.RealtimeMessage;
-import lombok.AllArgsConstructor;
 
 import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@AllArgsConstructor
 public class RealtimeMessageHandler {
     private final ObjectOutputStream oos;
+    private final Object writeLock;
     private final List<RealtimeMessageCallback> callbacks = new CopyOnWriteArrayList<>();
+
+    public RealtimeMessageHandler(ObjectOutputStream oos, Object writeLock) {
+        this.oos = oos;
+        this.writeLock = writeLock;
+    }
 
     public interface RealtimeMessageCallback {
         void onRealtimeMessage(RealtimeMessage message);
@@ -26,8 +30,10 @@ public class RealtimeMessageHandler {
 
     public void sendRealtimeMessage(RealtimeMessage message) {
         try {
-            oos.writeObject(message);
-            oos.flush();
+            synchronized (writeLock) {
+                oos.writeObject(message);
+                oos.flush();
+            }
         } catch (Exception e) {
             System.err.println("Error sending realtime message: " + e.getMessage());
         }
