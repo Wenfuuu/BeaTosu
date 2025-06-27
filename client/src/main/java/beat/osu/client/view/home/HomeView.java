@@ -286,7 +286,7 @@ public class HomeView extends Page {
                     formatted.replace("/", "-").replace(":", "-"));
 
             try {
-                scoreOverlay.getHideTransition().play();
+                scoreOverlay.setVisible(false);
                 showTransition.play();
                 ViewManager.getInstance().showReplayView(beatmap, ReplayUtils.loadReplay(osrFileName));
             } catch (IOException ex) {
