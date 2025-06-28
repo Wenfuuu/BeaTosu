@@ -26,6 +26,7 @@ import beat.osu.shared.dto.match.events.MatchNameUpdatedEvent;
 import beat.osu.shared.dto.match.events.MatchPasswordUpdatedEvent;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
 import beat.osu.shared.dto.match.events.MatchStartedEvent;
+import beat.osu.shared.dto.match.events.MatchWinConditionUpdatedEvent;
 import beat.osu.shared.dto.match.events.PlayerKickedEvent;
 import beat.osu.shared.dto.match.events.SlotChangedEvent;
 import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
@@ -40,6 +41,7 @@ import beat.osu.shared.dto.match.requests.StartMatchRequest;
 import beat.osu.shared.dto.match.requests.TransferHostRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchNameRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchPasswordRequest;
+import beat.osu.shared.dto.match.requests.UpdateMatchWinConditionRequest;
 import beat.osu.shared.dto.match.responses.ChangeMatchSlotResponse;
 import beat.osu.shared.dto.match.responses.CreateMatchResponse;
 import beat.osu.shared.dto.match.responses.GetAllMatchesResponse;
@@ -51,6 +53,7 @@ import beat.osu.shared.dto.match.responses.StartMatchResponse;
 import beat.osu.shared.dto.match.responses.TransferHostResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchNameResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchPasswordResponse;
+import beat.osu.shared.dto.match.responses.UpdateMatchWinConditionResponse;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.MatchWinCondition;
 import beat.osu.shared.enums.match.PlayerRole;
@@ -567,6 +570,44 @@ public class MatchService {
         if (response.isSuccess()) {
             MatchNameUpdatedEvent event = new MatchNameUpdatedEvent(matchId, newName.trim());
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_NAME_UPDATED, clientId, event);
+            RealtimeMessageHandler.broadcastToAll(realtimeMessage);
+        }
+
+        return response;
+    }
+
+    public Result<UpdateMatchWinConditionResponse> updateMatchWinCondition(UpdateMatchWinConditionRequest request, String clientId) {
+        int matchId = request.getMatchId();
+        MatchWinCondition newWinCondition = request.getNewWinCondition();
+
+        Match match = matches.get(matchId);
+        if (match == null) {
+            return Result.failure(Error.notFound("Match not found"));
+        }
+
+        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
+        if (userId == null) {
+            return Result.failure(Error.unauthorized("User not authenticated"));
+        }
+
+        MatchPlayer player = findPlayerInMatch(matchId, userId);
+        if (player == null || !player.getRole().equals(PlayerRole.HOST)) {
+            return Result.failure(Error.unauthorized("Only the host can update the match win condition"));
+        }
+
+        if (newWinCondition == null) {
+            return Result.failure(Error.validation("Win condition cannot be null"));
+        }
+
+        MatchWinCondition oldWinCondition = match.getWinCondition();
+        match.setWinCondition(newWinCondition);
+
+        String message = "Match win condition updated from '" + oldWinCondition.getDisplayName() + "' to '" + newWinCondition.getDisplayName() + "'";
+        Result<UpdateMatchWinConditionResponse> response = Result.success(new UpdateMatchWinConditionResponse(message));
+
+        if (response.isSuccess()) {
+            MatchWinConditionUpdatedEvent event = new MatchWinConditionUpdatedEvent(matchId, newWinCondition);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_WIN_CONDITION_UPDATED, clientId, event);
             RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
 

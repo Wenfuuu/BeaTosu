@@ -24,6 +24,7 @@ public enum RealtimeMessageType implements Serializable {
     SLOT_CHANGED,
     MATCH_PASSWORD_UPDATED,
     MATCH_NAME_UPDATED,
+    MATCH_WIN_CONDITION_UPDATED,
     MATCH_SCORE_EVENT,
     MATCH_STARTED,
     MATCH_COMPLETED,

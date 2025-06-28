@@ -18,6 +18,7 @@ import beat.osu.shared.dto.match.events.MatchNameUpdatedEvent;
 import beat.osu.shared.dto.match.events.MatchPasswordUpdatedEvent;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
 import beat.osu.shared.dto.match.events.MatchStartedEvent;
+import beat.osu.shared.dto.match.events.MatchWinConditionUpdatedEvent;
 import beat.osu.shared.dto.match.events.PlayerKickedEvent;
 import beat.osu.shared.dto.match.events.SlotChangedEvent;
 import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
@@ -32,6 +33,7 @@ import beat.osu.shared.dto.match.requests.StartMatchRequest;
 import beat.osu.shared.dto.match.requests.TransferHostRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchNameRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchPasswordRequest;
+import beat.osu.shared.dto.match.requests.UpdateMatchWinConditionRequest;
 import beat.osu.shared.dto.match.responses.ChangeMatchSlotResponse;
 import beat.osu.shared.dto.match.responses.CreateMatchResponse;
 import beat.osu.shared.dto.match.responses.GetAllMatchesResponse;
@@ -43,6 +45,7 @@ import beat.osu.shared.dto.match.responses.StartMatchResponse;
 import beat.osu.shared.dto.match.responses.TransferHostResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchNameResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchPasswordResponse;
+import beat.osu.shared.dto.match.responses.UpdateMatchWinConditionResponse;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.message.MessageAction;
 import beat.osu.shared.enums.message.MessageType;
@@ -68,6 +71,7 @@ public class MatchController {
     private final List<Consumer<SlotChangedEvent>> slotChangedCallbacks = new ArrayList<>();
     private final List<Consumer<MatchPasswordUpdatedEvent>> matchPasswordUpdatedCallbacks = new ArrayList<>();
     private final List<Consumer<MatchNameUpdatedEvent>> matchNameUpdatedCallbacks = new ArrayList<>();
+    private final List<Consumer<MatchWinConditionUpdatedEvent>> matchWinConditionUpdatedCallbacks = new ArrayList<>();
 
     public MatchController() {
         this.clientService = ClientService.getInstance();
@@ -127,6 +131,10 @@ public class MatchController {
         matchNameUpdatedCallbacks.add(callback);
     }
 
+    public void addMatchWinConditionUpdatedCallback(Consumer<MatchWinConditionUpdatedEvent> callback) {
+        matchWinConditionUpdatedCallbacks.add(callback);
+    }
+
     public void removeMatchCreatedCallback(Consumer<MatchCreatedEvent> callback) {
         matchCreatedCallbacks.remove(callback);
     }
@@ -173,6 +181,10 @@ public class MatchController {
 
     public void removeMatchNameUpdatedCallback(Consumer<MatchNameUpdatedEvent> callback) {
         matchNameUpdatedCallbacks.remove(callback);
+    }
+
+    public void removeMatchWinConditionUpdatedCallback(Consumer<MatchWinConditionUpdatedEvent> callback) {
+        matchWinConditionUpdatedCallbacks.remove(callback);
     }
 
     private void setupRealtimeHandler() {
@@ -402,6 +414,26 @@ public class MatchController {
         });
     }
 
+    public CompletableFuture<Result<UpdateMatchWinConditionResponse>> updateMatchWinCondition(int matchId, beat.osu.shared.enums.match.MatchWinCondition newWinCondition) {
+        UpdateMatchWinConditionRequest requestData = new UpdateMatchWinConditionRequest(matchId, newWinCondition);
+        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.UPDATE_MATCH_WIN_CONDITION, requestData);
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendRequest(request).get();
+
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((UpdateMatchWinConditionResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
+    }
+
     private void handleRealtimeMessage(RealtimeMessage message) {
         if (message.getType() == RealtimeMessageType.MATCH_CREATED) {
             if (message.getPayload() instanceof MatchCreatedEvent) {
@@ -468,9 +500,11 @@ public class MatchController {
             }
         } else if (message.getType() == RealtimeMessageType.MATCH_NAME_UPDATED) {
             if (message.getPayload() instanceof MatchNameUpdatedEvent) {
-                MatchNameUpdatedEvent event = (MatchNameUpdatedEvent) message.getPayload();
-                updateMatchNameInList(event.getMatchId(), event.getNewName());
-                notifyMatchNameUpdated(event);
+                notifyMatchNameUpdated((MatchNameUpdatedEvent) message.getPayload());
+            }
+        } else if (message.getType() == RealtimeMessageType.MATCH_WIN_CONDITION_UPDATED) {
+            if (message.getPayload() instanceof MatchWinConditionUpdatedEvent) {
+                notifyMatchWinConditionUpdated((MatchWinConditionUpdatedEvent) message.getPayload());
             }
         } else if (message.getType() == RealtimeMessageType.MATCH_COMPLETED) {
 
@@ -621,6 +655,16 @@ public class MatchController {
         System.err.println("Match with ID " + matchId + " not found to update name.");
     }
 
+    private void updateMatchWinConditionInList(int matchId, beat.osu.shared.enums.match.MatchWinCondition newWinCondition) {
+        for (MatchDto match : matches) {
+            if (match.getId() == matchId) {
+                match.setWinCondition(newWinCondition);
+                return;
+            }
+        }
+        System.err.println("Match with ID " + matchId + " not found to update win condition.");
+    }
+
     private void notifyHostLeft(HostLeftEvent event) {
         for (Consumer<HostLeftEvent> callback : hostLeftCallbacks) {
             try {
@@ -677,6 +721,17 @@ public class MatchController {
                 callback.accept(event);
             } catch (Exception e) {
                 System.err.println("Error in match name updated callback: " + e.getMessage());
+            }
+        }
+    }
+
+    private void notifyMatchWinConditionUpdated(MatchWinConditionUpdatedEvent event) {
+        updateMatchWinConditionInList(event.getMatchId(), event.getNewWinCondition());
+        for (Consumer<MatchWinConditionUpdatedEvent> callback : matchWinConditionUpdatedCallbacks) {
+            try {
+                callback.accept(event);
+            } catch (Exception e) {
+                System.err.println("Error in match win condition updated callback: " + e.getMessage());
             }
         }
     }
