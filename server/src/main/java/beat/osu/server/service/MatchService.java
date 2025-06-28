@@ -434,8 +434,18 @@ public class MatchService {
         Set<MatchPlayer> players = matchPlayers.get(matchId);
         boolean allFinished = players.stream()
                 .allMatch(p -> p.getStatus() == PlayerStatus.FINISHED);
+        if (allFinished) sendMatchCompletedEvent(matchId, clientId);
 
         return Result.success(new PlayerFinishedEventResponse("Player finished match successfully"));
+    }
+
+    private void sendMatchCompletedEvent(int matchId, String clientId) {
+        Match match = matches.get(matchId);
+        if (match == null) return;
+
+        MatchCompletedEvent event = new MatchCompletedEvent("Match completed, showing results for match ID: " + matchId);
+        RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_COMPLETED, clientId, event);
+        broadcastMessageToMatchPlayers(clientId, matchId, realtimeMessage);
     }
 
     public Result<ChangeMatchSlotResponse> changeMatchSlot(ChangeMatchSlotRequest request, String clientId) {

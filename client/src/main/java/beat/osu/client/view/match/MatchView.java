@@ -453,7 +453,6 @@ public class MatchView extends Page {
                 }
             });
 
-
 //            matchController.startMatch(matchId).thenApply(response -> {
 //                if (response.isSuccess()) {
 //                    System.out.println("Successfully start match: " + response.getValue().getMessage());
