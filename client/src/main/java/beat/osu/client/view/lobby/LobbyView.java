@@ -227,6 +227,7 @@ public class LobbyView extends Page {
             PlaylistManager.getInstance().playRandomSong();
         }
 
+        BgmManager.getInstance().changePlaybackMode(PlaybackMode.PLAYLIST);
         setInputManager();
         playlistModal.setInputManager(inputManager);
 

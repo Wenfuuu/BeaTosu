@@ -10,6 +10,7 @@ import beat.osu.client.controller.ChatController;
 import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.controller.MatchController;
 import beat.osu.client.controller.SessionController;
+import beat.osu.client.enums.PlaybackMode;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.BgmManager;
@@ -421,6 +422,7 @@ public class MatchView extends Page {
         chatPanel.setVisible(true);
         
         updateBlueButtonState();
+        BgmManager.getInstance().changePlaybackMode(PlaybackMode.PREVIEW);
     }
 
     public void handleEvent() {
