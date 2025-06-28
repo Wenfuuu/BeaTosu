@@ -42,20 +42,8 @@ import beat.osu.shared.dto.beatmap.BeatmapDto;
 import beat.osu.shared.dto.beatmap.responses.GetBeatmapByIdResponse;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
-import beat.osu.shared.dto.match.events.HostChangedEvent;
-import beat.osu.shared.dto.match.events.HostLeftEvent;
-import beat.osu.shared.dto.match.events.MatchNameUpdatedEvent;
-import beat.osu.shared.dto.match.events.MatchStartedEvent;
-import beat.osu.shared.dto.match.events.PlayerKickedEvent;
-import beat.osu.shared.dto.match.events.SlotChangedEvent;
-import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
-import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
-import beat.osu.shared.dto.match.responses.ChangeMatchSlotResponse;
-import beat.osu.shared.dto.match.responses.KickPlayerResponse;
-import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
-import beat.osu.shared.dto.match.responses.TransferHostResponse;
-import beat.osu.shared.dto.match.responses.UpdateMatchNameResponse;
-import beat.osu.shared.dto.match.responses.UpdateMatchPasswordResponse;
+import beat.osu.shared.dto.match.events.*;
+import beat.osu.shared.dto.match.responses.*;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.MatchWinCondition;
 import beat.osu.shared.enums.match.PlayerRole;
@@ -538,6 +526,7 @@ public class MatchView extends Page {
         matchController.addHostLeftCallback(this::onHostLeft);
         matchController.addSlotChangedCallback(this::onSlotChanged);
         matchController.addMatchNameUpdatedCallback(this::onMatchNameUpdated);
+        matchController.addMatchWinConditionUpdatedCallback(this::onMathWinConditionUpdated);
     }
 
     private void onUserJoinedMatch(UserJoinedMatchEvent event) {
@@ -610,6 +599,17 @@ public class MatchView extends Page {
                 if (!isHost) {
                     matchName = event.getNewName();
                     gameNameTextField.setText(matchName);
+                }
+            });
+        }
+    }
+
+    private void onMathWinConditionUpdated(MatchWinConditionUpdatedEvent event) {
+        if (event.getMatchId() == this.matchId) {
+            Platform.runLater(() -> {
+                if (!isHost) {
+                    winCondition = event.getNewWinCondition();
+                    winConditionComboBox.getSelectionModel().select(winCondition.getDisplayName());
                 }
             });
         }
@@ -855,12 +855,31 @@ public class MatchView extends Page {
                 changeGameNameTransition.pause();
                 changeGameNameTransition.play();
             });
+
+            winConditionComboBox.setOnAction(e -> {
+                System.out.println("Win condition changed to: " + winConditionComboBox.getValue());
+                try {
+                    MatchWinCondition newWinCondition = MatchWinCondition.fromString(winConditionComboBox.getValue());
+                    Result<UpdateMatchWinConditionResponse> result = matchController.updateMatchWinCondition(matchId, newWinCondition).get();
+
+                    if (result.isSuccess()) {
+                        System.out.println(result.getValue().getMessage());
+                    } else {
+                        Toast.error("Failed to update match win condition: " + result.getError().getMessage()).show();
+                    }
+                } catch (InterruptedException | ExecutionException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
         } else {
             changeGameNameTransition.setOnFinished(null);
+
             gameNameTextField.textProperty().removeListener((obs, oldVal, newVal) -> {
                 changeGameNameTransition.pause();
                 changeGameNameTransition.play();
             });
+
+            winConditionComboBox.setOnAction(null);
         }
     }
 
