@@ -8,6 +8,7 @@ import java.util.Set;
 
 import beat.osu.client.Main;
 import beat.osu.client.controller.*;
+import beat.osu.client.enums.PlaybackMode;
 import beat.osu.client.helper.*;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
@@ -505,6 +506,7 @@ public class LandingView extends Page {
         scene.setRoot(root);
         setInputManager();
         playlistModal.setInputManager(inputManager);
+        BgmManager.getInstance().changePlaybackMode(PlaybackMode.PLAYLIST);
     }
 
     public void handleEvent() {

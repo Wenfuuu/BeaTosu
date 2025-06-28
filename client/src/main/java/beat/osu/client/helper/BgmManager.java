@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import beat.osu.client.enums.PlaybackMode;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.model.Song;
@@ -15,9 +16,11 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
+@NoArgsConstructor
 public class BgmManager {
     private static volatile BgmManager instance;
 
@@ -27,20 +30,8 @@ public class BgmManager {
 
     @Setter
     private double BGM_VOLUME = 0.2;
-    @Setter
-    private boolean autoProgressionEnabled = true;
-
-    private enum PlaybackMode {
-        PREVIEW,
-        PLAYLIST,
-        DEFAULT
-    }
 
     private PlaybackMode currentPlaybackMode = PlaybackMode.DEFAULT;
-
-    private BgmManager() {
-
-    }
 
     public static BgmManager getInstance() {
         if (instance == null) {
@@ -51,6 +42,13 @@ public class BgmManager {
             }
         }
         return instance;
+    }
+
+    public void changePlaybackMode(PlaybackMode mode) {
+        this.currentPlaybackMode = mode;
+        if (currentPlayer != null) {
+            setupEndOfMediaBehavior();
+        }
     }
 
     private String computeFileHash(File file) {
@@ -93,7 +91,6 @@ public class BgmManager {
 
     public void playPreviewBgm(boolean fromAnotherPage) {
         System.out.println("calling playPreviewBgm, fromAnotherPage: " + fromAnotherPage);
-        BgmManager.getInstance().disableAutoProgression();
         
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
         File tempDir = ResourceManager.getTempDirectory();
@@ -244,14 +241,12 @@ public class BgmManager {
                 break;
                 
             case PLAYLIST:
-                if (autoProgressionEnabled) {
-                    currentPlayer.setOnEndOfMedia(() -> {
-                        PlaylistManager.getInstance().playNextSong();
-                    });
-                }
-                break;
-                
+
             case DEFAULT:
+                currentPlayer.setOnEndOfMedia(() -> {
+                    PlaylistManager.getInstance().playNextSong();
+                });
+                break;
             default:
                 currentPlayer.setOnEndOfMedia(null);
                 break;
@@ -282,13 +277,5 @@ public class BgmManager {
         if (currentPlayer != null) {
             currentPlayer.setVolume(volume);
         }
-    }
-
-    public void enableAutoProgression() {
-        this.autoProgressionEnabled = true;
-    }
-
-    public void disableAutoProgression() {
-        this.autoProgressionEnabled = false;
     }
 }
