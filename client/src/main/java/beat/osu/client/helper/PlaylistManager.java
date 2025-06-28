@@ -2,6 +2,7 @@ package beat.osu.client.helper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import beat.osu.client.events.song.SongChangeEvent;
@@ -168,6 +169,20 @@ public class PlaylistManager implements SongEventPublisher {
         } else {
             System.err.println("No previous song available in playlist");
         }
+    }
+
+    public void playRandomSong() {
+        List<Song> playlist = getCurrentPlaylist();
+        if (playlist.isEmpty()) {
+            System.err.println("No songs available in playlist");
+            return;
+        }
+        
+        Random random = new Random();
+        int randomIndex = random.nextInt(playlist.size());
+        Song randomSong = playlist.get(randomIndex);
+        
+        playSong(randomSong);
     }
 
     public void playSong(Song song) {
