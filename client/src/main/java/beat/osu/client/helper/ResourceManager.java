@@ -1,7 +1,14 @@
 package beat.osu.client.helper;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.Random;
+
+import beat.osu.client.model.Song;
+import beat.osu.client.utils.OsuParser;
 
 public class ResourceManager {
 
@@ -51,6 +58,43 @@ public class ResourceManager {
     public static boolean beatmapSetDirectoryExists(int beatmapSetId) {
         File dir = new File(getTempDirectory(), String.valueOf(beatmapSetId));
         return dir.exists() && dir.isDirectory();
+    }
+
+    public static int getRandomBeatmapFromCurrentlyPlayingSong() {
+        Song currentSong = PlaylistManager.getInstance().getCurrentSong();
+
+        File tempDirectory = ResourceManager.getTempDirectory();
+        File[] beatmapSetDirectories = Objects.requireNonNull(tempDirectory.listFiles());
+
+        ArrayList<File> beatmapFiles = new ArrayList<>();
+
+        for (File beatmapSetDirectory : beatmapSetDirectories) {
+            if (beatmapSetDirectory.getName().equals(String.valueOf(currentSong.getId()))) {
+                if (beatmapSetDirectory.isDirectory()) {
+                    File[] beatmapSetFiles = Objects.requireNonNull(beatmapSetDirectory.listFiles());
+
+                    for (File beatmapFile : beatmapSetFiles) {
+                        if (beatmapFile.getName().endsWith(".osu")) {
+                            beatmapFiles.add(beatmapFile);
+                        }
+                    }
+                }
+            }
+        }
+
+        Random random = new Random();
+        File selectedBeatmapFile = beatmapFiles.get(random.nextInt(beatmapFiles.size()));
+
+        int selectedBeatmapId;
+
+        try {
+            OsuParser.parseOsuFile(selectedBeatmapFile);
+            selectedBeatmapId = OsuParser.getBeatmapId();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return selectedBeatmapId;
     }
 
     public static InputStream getResourceAsStream(String path) {

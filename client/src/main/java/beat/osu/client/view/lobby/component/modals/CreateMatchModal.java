@@ -1,10 +1,7 @@
 package beat.osu.client.view.lobby.component.modals;
 
 import beat.osu.client.controller.MatchController;
-import beat.osu.client.helper.AuthManager;
-import beat.osu.client.helper.CssManager;
-import beat.osu.client.helper.ScreenManager;
-import beat.osu.client.helper.ViewManager;
+import beat.osu.client.helper.*;
 import beat.osu.client.view.shared.common.Toast;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.match.responses.CreateMatchResponse;
@@ -161,8 +158,10 @@ public class CreateMatchModal extends VBox {
                 return;
             }
 
+            int beatmapId = ResourceManager.getRandomBeatmapFromCurrentlyPlayingSong();
+
             try {
-                Result<CreateMatchResponse> response = matchController.createMatch(gameName, password, maxPlayers).get();
+                Result<CreateMatchResponse> response = matchController.createMatch(gameName, password, maxPlayers, beatmapId).get();
                 if (response.isSuccess()) {
                     CreateMatchResponse joinResponse = response.getValue();
                     Toast.success("Successfully joined lobby: " + joinResponse.getMessage()).show();

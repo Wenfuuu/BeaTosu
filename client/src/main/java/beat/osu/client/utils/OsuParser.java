@@ -1,12 +1,5 @@
 package beat.osu.client.utils;
 
-import beat.osu.client.controller.BeatmapController;
-import beat.osu.client.helper.ResourceManager;
-import beat.osu.client.model.Beatmap;
-import beat.osu.client.model.BreakPeriod;
-import beat.osu.client.model.TimingPoint;
-import lombok.Getter;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -14,6 +7,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import beat.osu.client.controller.BeatmapController;
+import beat.osu.client.helper.ResourceManager;
+import beat.osu.client.model.Beatmap;
+import beat.osu.client.model.BreakPeriod;
+import beat.osu.client.model.TimingPoint;
+import lombok.Getter;
 
 public class OsuParser {
     private static BeatmapController beatmapController = new BeatmapController();
@@ -253,9 +253,13 @@ public class OsuParser {
         }
     }
 
-//    public static String getBeatmapSetBgFile() {
-//
-//    }
+    public static int getBeatmapId() {
+        String beatmapIdStr = metadata.get("BeatmapID");
+        if (beatmapIdStr != null && !beatmapIdStr.isEmpty()) {
+            return Integer.parseInt(beatmapIdStr);
+        }
+        return -1;
+    }
 
     public static String getBgFile() {
         if(bgFileName.isBlank()) {

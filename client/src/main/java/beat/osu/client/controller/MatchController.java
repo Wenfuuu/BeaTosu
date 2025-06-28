@@ -252,8 +252,8 @@ public class MatchController {
         }
     }
 
-    public CompletableFuture<Result<CreateMatchResponse>> createMatch(String gameName, String password, int maxPlayers) {
-         CreateMatchRequest requestData =  new CreateMatchRequest(gameName, password, maxPlayers);
+    public CompletableFuture<Result<CreateMatchResponse>> createMatch(String gameName, String password, int maxPlayers, int beatmapId) {
+         CreateMatchRequest requestData =  new CreateMatchRequest(gameName, password, maxPlayers, beatmapId);
          RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.CREATE_MATCH, requestData);
 
          return CompletableFuture.supplyAsync(() -> {

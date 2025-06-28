@@ -13,4 +13,5 @@ public class CreateMatchRequest implements Serializable {
     private String name;
     private String password;
     private int maxPlayerCount;
+    private int beatmapId;
 }

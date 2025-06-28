@@ -155,7 +155,7 @@ public class MatchService {
                 request.getPassword(),
                 false,
                 request.getMaxPlayerCount(),
-                2222443,
+                request.getBeatmapId(),
                 MatchWinCondition.SCORE
         );
 
