@@ -3,6 +3,7 @@ package beat.osu.shared.dto.match;
 import java.io.Serializable;
 import java.util.List;
 
+import beat.osu.shared.enums.match.MatchWinCondition;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,7 +24,7 @@ public class MatchDto implements Serializable {
     private int lowestRank;
     private int highestRank;
 
-    private String winCondition;
+    private MatchWinCondition winCondition;
 
     private List<MatchPlayerDto> players;
 }

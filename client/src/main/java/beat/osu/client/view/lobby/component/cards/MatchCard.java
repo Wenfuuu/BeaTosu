@@ -11,6 +11,7 @@ import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.LocaleManager;
 import beat.osu.shared.dto.match.MatchPlayerDto;
+import beat.osu.shared.enums.match.MatchWinCondition;
 import beat.osu.shared.enums.match.PlayerRole;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -35,7 +36,7 @@ public class MatchCard extends HBox {
     private int lowestRank;
     private int highestRank;
 
-    private String winCondition;
+    private MatchWinCondition winCondition;
 
     private List<MatchPlayerDto> players;
 
@@ -54,7 +55,7 @@ public class MatchCard extends HBox {
 
     public MatchCard(Integer matchId, String matchName, String matchPassword, boolean inProgress,
                         int maxPlayerCount, int beatmapId, String beatmapName,
-                        int lowestRank, int highestRank, String winCondition,
+                        int lowestRank, int highestRank, MatchWinCondition winCondition,
                         List<MatchPlayerDto> players) {
         this.matchId = matchId;
         this.matchName = matchName;

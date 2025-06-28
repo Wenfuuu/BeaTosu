@@ -52,6 +52,7 @@ import beat.osu.shared.dto.match.responses.TransferHostResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchNameResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchPasswordResponse;
 import beat.osu.shared.dto.user.UserDto;
+import beat.osu.shared.enums.match.MatchWinCondition;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.match.PlayerStatus;
 import beat.osu.shared.enums.message.RealtimeMessageType;
@@ -142,7 +143,7 @@ public class MatchService {
                 false,
                 request.getMaxPlayerCount(),
                 5103482,
-                "score"
+                MatchWinCondition.SCORE
         );
 
         matches.put(matchId, match);

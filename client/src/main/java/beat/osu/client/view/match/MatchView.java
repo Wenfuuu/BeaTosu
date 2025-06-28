@@ -42,9 +42,22 @@ import beat.osu.shared.dto.beatmap.BeatmapDto;
 import beat.osu.shared.dto.beatmap.responses.GetBeatmapByIdResponse;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
-import beat.osu.shared.dto.match.events.*;
-import beat.osu.shared.dto.match.responses.*;
+import beat.osu.shared.dto.match.events.HostChangedEvent;
+import beat.osu.shared.dto.match.events.HostLeftEvent;
+import beat.osu.shared.dto.match.events.MatchNameUpdatedEvent;
+import beat.osu.shared.dto.match.events.MatchStartedEvent;
+import beat.osu.shared.dto.match.events.PlayerKickedEvent;
+import beat.osu.shared.dto.match.events.SlotChangedEvent;
+import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
+import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
+import beat.osu.shared.dto.match.responses.ChangeMatchSlotResponse;
+import beat.osu.shared.dto.match.responses.KickPlayerResponse;
+import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
+import beat.osu.shared.dto.match.responses.TransferHostResponse;
+import beat.osu.shared.dto.match.responses.UpdateMatchNameResponse;
+import beat.osu.shared.dto.match.responses.UpdateMatchPasswordResponse;
 import beat.osu.shared.dto.user.UserDto;
+import beat.osu.shared.enums.match.MatchWinCondition;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.match.PlayerStatus;
 import javafx.animation.FadeTransition;
@@ -78,7 +91,7 @@ public class MatchView extends Page {
     private String beatmapName;
     private Beatmap beatmap;
 
-    private String winCondition;
+    private MatchWinCondition winCondition;
 
     private List<MatchPlayerDto> players;
 
@@ -300,8 +313,8 @@ public class MatchView extends Page {
 
         winConditionComboBox = new ComboBox<>();
         winConditionComboBox.getStyleClass().add("dark-combo-box");
-        winConditionComboBox.getItems().addAll("score", "accuracy", "combo");
-        winConditionComboBox.getSelectionModel().selectFirst();
+        winConditionComboBox.getItems().addAll(MatchWinCondition.getAllDisplayNames());
+        winConditionComboBox.getSelectionModel().select(winCondition.getDisplayName());
         winConditionComboBox.setDisable(true);
         winConditionComboBox.setOpacity(1.0); 
 

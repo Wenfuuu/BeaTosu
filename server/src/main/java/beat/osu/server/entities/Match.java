@@ -1,5 +1,6 @@
 package beat.osu.server.entities;
 
+import beat.osu.shared.enums.match.MatchWinCondition;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,5 +15,5 @@ public class Match {
     private boolean inProgress;
     private int maxPlayerCount;
     private int beatmapId;
-    private String winCondition;
+    private MatchWinCondition winCondition;
 }
