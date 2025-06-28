@@ -482,4 +482,11 @@ public class MatchCard extends HBox {
         refreshPlayerCardsDisplay();
         refreshPlayerCardsDisplay();
     }
+
+    public void updateMatchName(String newName) {
+        if (newName != null && !newName.trim().isEmpty()) {
+            this.matchName = newName;
+            matchNameLabel.setText(newName);
+        }
+    }
 }

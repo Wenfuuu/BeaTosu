@@ -11,14 +11,7 @@ import beat.osu.client.helper.CssManager;
 import beat.osu.client.view.lobby.component.cards.MatchCard;
 import beat.osu.client.view.lobby.component.ui.MatchFilters;
 import beat.osu.shared.dto.match.MatchDto;
-import beat.osu.shared.dto.match.events.HostChangedEvent;
-import beat.osu.shared.dto.match.events.HostLeftEvent;
-import beat.osu.shared.dto.match.events.MatchCreatedEvent;
-import beat.osu.shared.dto.match.events.MatchEndedEvent;
-import beat.osu.shared.dto.match.events.PlayerKickedEvent;
-import beat.osu.shared.dto.match.events.SlotChangedEvent;
-import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
-import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
+import beat.osu.shared.dto.match.events.*;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -142,6 +135,7 @@ public class MatchesPanel extends VBox {
         matchController.addHostChangedCallback(this::onHostChanged);
         matchController.addHostLeftCallback(this::onHostLeft);
         matchController.addSlotChangedCallback(this::onSlotChanged);
+        matchController.addMatchNameUpdatedCallback(this::onMatchNameUpdated);
     }
     
     private void onMatchCreated(MatchCreatedEvent event) {
@@ -202,6 +196,15 @@ public class MatchesPanel extends VBox {
             MatchCard matchCard = matchCardMap.get(event.getMatchId());
             if (matchCard != null) {
                 matchCard.movePlayerToSlot(event.getUserId(), event.getOldSlotIndex(), event.getNewSlotIndex());
+            }
+        });
+    }
+
+    private void onMatchNameUpdated(MatchNameUpdatedEvent event) {
+        Platform.runLater(() -> {
+            MatchCard matchCard = matchCardMap.get(event.getMatchId());
+            if (matchCard != null) {
+                matchCard.updateMatchName(event.getNewName());
             }
         });
     }
