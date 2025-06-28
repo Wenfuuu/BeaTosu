@@ -21,4 +21,5 @@ public enum GameEventType {
     CURSOR_MOVED,
     SPECTATE_EXIT,
     MATCH_SCORE_CHANGED,
+    MATCH_COMPLETED,
 }

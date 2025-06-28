@@ -46,6 +46,7 @@ import beat.osu.shared.dto.match.responses.TransferHostResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchNameResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchPasswordResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchWinConditionResponse;
+import beat.osu.shared.enums.match.MatchWinCondition;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.message.MessageAction;
 import beat.osu.shared.enums.message.MessageType;
@@ -414,7 +415,7 @@ public class MatchController {
         });
     }
 
-    public CompletableFuture<Result<UpdateMatchWinConditionResponse>> updateMatchWinCondition(int matchId, beat.osu.shared.enums.match.MatchWinCondition newWinCondition) {
+    public CompletableFuture<Result<UpdateMatchWinConditionResponse>> updateMatchWinCondition(int matchId, MatchWinCondition newWinCondition) {
         UpdateMatchWinConditionRequest requestData = new UpdateMatchWinConditionRequest(matchId, newWinCondition);
         RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.UPDATE_MATCH_WIN_CONDITION, requestData);
 
@@ -507,6 +508,7 @@ public class MatchController {
                 notifyMatchWinConditionUpdated((MatchWinConditionUpdatedEvent) message.getPayload());
             }
         } else if (message.getType() == RealtimeMessageType.MATCH_COMPLETED) {
+            // redirect player to match results page
 
         }
     }
