@@ -162,8 +162,8 @@ public class MatchView extends Page {
         this.matchPassword = matchDto.getPassword();
         this.inProgress = matchDto.isInProgress();
         this.maxPlayerCount = matchDto.getMaxPlayerCount();
-        this.beatmapId = matchDto.getBeatmapId();
-        this.beatmapName = matchDto.getBeatmapName();
+        this.beatmapId = matchDto.getBeatmap().getId();
+        this.beatmapName = matchDto.getBeatmap().getBeatmapSetDto().getTitle();
         this.winCondition = matchDto.getWinCondition();
 
         setupView();
@@ -334,7 +334,7 @@ public class MatchView extends Page {
         blueButton = new Button("Ready");
         blueButton.getStyleClass().add("ready-button");
 
-        beatmap = fetchBeatmapById(matchDto.getBeatmapId());
+        beatmap = fetchBeatmapById(matchDto.getBeatmap().getId());
         BeatmapCard card = BeatmapCard.available(beatmap);
 
         VBox rightContent = new VBox(gameBox, gameNameTextField, beatmapBox, card, winConditionBox);

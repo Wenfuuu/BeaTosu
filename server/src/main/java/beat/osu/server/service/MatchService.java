@@ -9,10 +9,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import beat.osu.server.entities.BeatmapSet;
-import beat.osu.server.entities.Match;
-import beat.osu.server.entities.MatchPlayer;
-import beat.osu.server.entities.User;
+import beat.osu.server.entities.*;
 import beat.osu.server.handler.RealtimeMessageHandler;
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
@@ -791,13 +788,15 @@ public class MatchService {
             }
         }
 
-        String beatmapName = "No beatmap selected";
-        if (match.getBeatmapId() > 0) {
-            BeatmapSet beatmapSet = beatmapService.getBeatmapSetById(match.getBeatmapId());
-            if (beatmapSet != null) {
-                beatmapName = beatmapSet.getTitle();
-            }
+        int beatmapId = match.getBeatmapId();
+        GetBeatmapByIdRequest getBeatmapByIdRequest = new GetBeatmapByIdRequest(beatmapId);
+        Result<GetBeatmapByIdResponse> beatmapResult = beatmapService.getBeatmapById(getBeatmapByIdRequest);
+
+        if (!beatmapResult.isSuccess()) {
+            return null;
         }
+
+        BeatmapDto beatmap = beatmapResult.getValue().getBeatmap();
 
         int lowestRank = 0;
         int highestRank = 0;
@@ -816,8 +815,7 @@ public class MatchService {
                 match.getPassword(),
                 match.isInProgress(),
                 match.getMaxPlayerCount(),
-                match.getBeatmapId(),
-                beatmapName,
+                beatmap,
                 lowestRank,
                 highestRank,
                 match.getWinCondition(),

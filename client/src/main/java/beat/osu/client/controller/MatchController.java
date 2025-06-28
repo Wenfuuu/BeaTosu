@@ -771,15 +771,14 @@ public class MatchController {
     private void updateMatchBeatmapInList(int matchId, BeatmapDto newBeatmapDto) {
         for (MatchDto match : matches) {
             if (match.getId() == matchId) {
-                match.setBeatmapId(newBeatmapDto.getId());
-                match.setBeatmapName(newBeatmapDto.getBeatmapSetDto().getTitle());
+                match.setBeatmap(newBeatmapDto);
                 return;
             }
         }
         System.err.println("Match with ID " + matchId + " not found to update beatmap.");
     }
 
-    private void updateMatchWinConditionInList(int matchId, beat.osu.shared.enums.match.MatchWinCondition newWinCondition) {
+    private void updateMatchWinConditionInList(int matchId, MatchWinCondition newWinCondition) {
         for (MatchDto match : matches) {
             if (match.getId() == matchId) {
                 match.setWinCondition(newWinCondition);
