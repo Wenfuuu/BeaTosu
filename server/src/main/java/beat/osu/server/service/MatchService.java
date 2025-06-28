@@ -112,7 +112,7 @@ public class MatchService {
                 request.getPassword(),
                 false,
                 request.getMaxPlayerCount(),
-                5103482,
+                2222443,
                 MatchWinCondition.SCORE
         );
 

@@ -663,8 +663,7 @@ public class GameView extends Page implements GameEventListener {
 
                 uiPane.getHideTransition().play();
                 uiPane.getHideTransition().setOnFinished(e -> {
-                    resultOverlay.setVisible(true);
-                    resultOverlay.getShowTransition().play();
+
                 });
                 break;
             case GAME_STARTED:

@@ -326,7 +326,7 @@ public class MatchView extends Page {
         readyButton = new Button("Ready");
         readyButton.getStyleClass().add("ready-button");
 
-        beatmap = fetchBeatmapById(5103482);
+        beatmap = fetchBeatmapById(matchDto.getBeatmapId());
         BeatmapCard card = BeatmapCard.available(beatmap);
 
         VBox rightContent = new VBox(gameBox, gameNameTextField, beatmapBox, card, winConditionBox);
