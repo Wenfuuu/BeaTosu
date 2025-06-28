@@ -12,11 +12,10 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
-import lombok.Setter;
 
+import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 public class ScoreItem extends HBox {
 
@@ -24,7 +23,7 @@ public class ScoreItem extends HBox {
     private final ScoreDto score;
 
     private final ImageView gradeSymbol;
-    private final ImageView profilePicture;
+    private final ImageView profileImageView;
 
     private void updateGrade(String grade) {
         String gradeImagePath;
@@ -45,10 +44,10 @@ public class ScoreItem extends HBox {
         gradeSymbol.setPreserveRatio(true);
 
         String profileImagePath = "/assets/images/avatar-guest.png";
-        profilePicture = new ImageView(
+        profileImageView = new ImageView(
                 new Image(Objects.requireNonNull(Main.class.getResource(profileImagePath)).toExternalForm()));
-        profilePicture.setFitHeight(50);
-        profilePicture.setPreserveRatio(true);
+        profileImageView.setFitHeight(50);
+        profileImageView.setFitWidth(50);
 
         Label usernameLabel = new Label(score.getUsername());
         usernameLabel.getStyleClass().add("score-username");
@@ -68,9 +67,10 @@ public class ScoreItem extends HBox {
         accuracyLabel.getStyleClass().add("score-accuracy");
         accuracyLabel.setAlignment(Pos.CENTER_RIGHT);
 
-        this.getChildren().addAll(profilePicture, gradeSymbol, scoreInfo, spacer, accuracyLabel);
+        this.getChildren().addAll(profileImageView, gradeSymbol, scoreInfo, spacer, accuracyLabel);
 
         setupUI();
+        updateProfilePicture(score.getProfilePicture());
         loadStyles();
     }
 
@@ -81,7 +81,7 @@ public class ScoreItem extends HBox {
         this.setPrefHeight(70);
 
         // Add margin classes for better spacing
-        profilePicture.getStyleClass().add("score-profile-picture");
+        profileImageView.getStyleClass().add("score-profile-picture");
         gradeSymbol.getStyleClass().add("score-grade-symbol");
     }
 
@@ -91,6 +91,32 @@ public class ScoreItem extends HBox {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {
             System.err.println("CSS file not found!");
+        }
+    }
+
+    private void updateProfilePicture(byte[] profile) {
+        if (profile != null && profile.length > 0) {
+            try {
+                ByteArrayInputStream bis = new ByteArrayInputStream(profile);
+                Image userImage = new Image(bis);
+                profileImageView.setImage(userImage);
+            } catch (Exception e) {
+                System.err.println("Could not load user profile picture: " + e.getMessage());
+                setDefaultProfilePicture();
+            }
+        } else {
+            setDefaultProfilePicture();
+        }
+    }
+
+    private void setDefaultProfilePicture() {
+        try {
+            Image defaultImage = new Image(Objects.requireNonNull(
+                    Main.class.getResource("/assets/images/avatar-guest.png")).toExternalForm());
+            profileImageView.setImage(defaultImage);
+        } catch (Exception e) {
+            System.err.println("Could not load default avatar: " + e.getMessage());
+            profileImageView.setImage(null);
         }
     }
 }
