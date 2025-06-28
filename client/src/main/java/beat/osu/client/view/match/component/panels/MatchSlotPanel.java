@@ -1,6 +1,7 @@
 package beat.osu.client.view.match.component.panels;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -368,5 +369,42 @@ public class MatchSlotPanel extends VBox {
                 break;
             }
         }
+    }
+
+    // Getter methods for MatchView to query player data
+    public List<MatchPlayerDto> getPlayers() {
+        return new ArrayList<>(players); // Return a copy to prevent external modification
+    }
+
+    public MatchPlayerDto getPlayerByUserId(int userId) {
+        return players.stream()
+                .filter(player -> player.getUserId() == userId)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public boolean isUserInMatch(int userId) {
+        return players.stream()
+                .anyMatch(player -> player.getUserId() == userId);
+    }
+
+    public PlayerStatus getPlayerStatus(int userId) {
+        return players.stream()
+                .filter(player -> player.getUserId() == userId)
+                .findFirst()
+                .map(MatchPlayerDto::getStatus)
+                .orElse(PlayerStatus.NOT_READY);
+    }
+
+    public PlayerRole getPlayerRole(int userId) {
+        return players.stream()
+                .filter(player -> player.getUserId() == userId)
+                .findFirst()
+                .map(MatchPlayerDto::getRole)
+                .orElse(PlayerRole.PLAYER);
+    }
+
+    public int getPlayerCount() {
+        return players.size();
     }
 }

@@ -4,7 +4,6 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -96,8 +95,6 @@ public class MatchView extends Page {
 
     private MatchWinCondition winCondition;
 
-    private List<MatchPlayerDto> players;
-
     private final ConnectedUsersController connectedUsersController;
     private final ChatController chatController;
     private final MatchController matchController;
@@ -137,6 +134,7 @@ public class MatchView extends Page {
     private boolean isHost;
 
     private MatchPlayerDto selectedPlayerForHostAction;
+    private MatchDto matchDto; // Store for initialization
 
     public MatchView(Stage stage, MatchDto matchDto, ConnectedUsersController connectedUsersController, ChatController chatController,
                      MatchController matchController, SessionController sessionController, BeatmapController beatmapController) {
@@ -144,6 +142,7 @@ public class MatchView extends Page {
 
         int currentUserId = AuthManager.getUser().getId();
 
+        this.matchDto = matchDto;
         this.connectedUsersController = connectedUsersController;
         this.chatController = chatController;
         this.matchController = matchController;
@@ -158,10 +157,6 @@ public class MatchView extends Page {
         this.beatmapId = matchDto.getBeatmapId();
         this.beatmapName = matchDto.getBeatmapName();
         this.winCondition = matchDto.getWinCondition();
-        this.players = new ArrayList<>(matchDto.getPlayers());
-
-        this.isHost = this.players.stream()
-                .anyMatch(player -> player.getUserId() == currentUserId && player.getRole() == PlayerRole.HOST);
 
         setupView();
         handleEvent();
@@ -266,11 +261,12 @@ public class MatchView extends Page {
         root.getChildren().add(banchoPanelsContainer);
         StackPane.setAlignment(banchoPanelsContainer, Pos.TOP_CENTER);
 
-        matchSlotPanel = new MatchSlotPanel(maxPlayerCount, this.players);
+        matchSlotPanel = new MatchSlotPanel(maxPlayerCount, new ArrayList<>(matchDto.getPlayers()));
         matchSlotPanel.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.43);
         matchSlotPanel.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.43);
         matchSlotPanel.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.43);
 
+        updateHostStatus();
         updateSlotCardCallback();
 
         leaveMatchButton = new Button("Leave Match");
@@ -575,7 +571,6 @@ public class MatchView extends Page {
         if (event.getMatchId() == this.matchId) {
             Platform.runLater(() -> {
                 matchSlotPanel.addPlayer(event.getMatchPlayer());
-                players.add(event.getMatchPlayer());
                 int currentUserId = AuthManager.getUser().getId();
                 if (event.getMatchPlayer().getUserId() == currentUserId) {
                     updateReadyButtonState();
@@ -588,8 +583,6 @@ public class MatchView extends Page {
         if (event.getMatchId() == this.matchId) {
             Platform.runLater(() -> {
                 matchSlotPanel.removePlayer(event.getUserId());
-                
-                players.removeIf(player -> player.getUserId() == event.getUserId());
             });
         }
     }
@@ -622,6 +615,9 @@ public class MatchView extends Page {
                 matchSlotPanel.updateHost(event.getNewHostUserId(), event.getPreviousHostUserId());
                 updateHostStatus();
                 updateReadyButtonState();
+                updateUIBasedOnRole();
+                updateEventHandlingBasedOnRole();
+                updateSlotCardCallback();
             });
         }
     }
@@ -632,6 +628,9 @@ public class MatchView extends Page {
                 matchSlotPanel.hostLeft(event.getPreviousHostUserId(), event.getNewHostUserId());
                 updateHostStatus();
                 updateReadyButtonState();
+                updateUIBasedOnRole();
+                updateEventHandlingBasedOnRole();
+                updateSlotCardCallback();
             });
         }
     }
@@ -670,7 +669,7 @@ public class MatchView extends Page {
         if (event.getMatchId() == this.matchId) {
             Platform.runLater(() -> {
                 int currentUserId = AuthManager.getUser().getId();
-                for (MatchPlayerDto player : players) {
+                for (MatchPlayerDto player : matchSlotPanel.getPlayers()) {
                     if (player.getUserId() == event.getUserId()) {
                         player.setStatus(event.getNewStatus());
                         break;
@@ -817,10 +816,7 @@ public class MatchView extends Page {
         if (isHost) {
             matchSlotPanel.setSlotCardClickCallback(card -> {
                 if (card.getUser() != null) {
-                    MatchPlayerDto selected = players.stream()
-                        .filter(p -> p.getUser().getId() == card.getUser().getId())
-                        .findFirst()
-                        .orElse(null);
+                    MatchPlayerDto selected = matchSlotPanel.getPlayerByUserId(card.getUser().getId());
                     selectedPlayerForHostAction = selected;
                     if (selected != null && selected.getRole().equals(PlayerRole.PLAYER)) {
                         hostActionsModal.show(selected.getUser().getUsername());
@@ -862,10 +858,7 @@ public class MatchView extends Page {
     private void handleSlotChange(int targetSlotIndex) {
         int currentUserId = AuthManager.getUser().getId();
         
-        MatchPlayerDto currentPlayer = players.stream()
-                .filter(p -> p.getUserId() == currentUserId)
-                .findFirst()
-                .orElse(null);
+        MatchPlayerDto currentPlayer = matchSlotPanel.getPlayerByUserId(currentUserId);
                 
         if (currentPlayer == null) {
             Toast.error("You are not in this match").show();
@@ -956,17 +949,12 @@ public class MatchView extends Page {
 
     private void updateHostStatus() {
         int currentUserId = AuthManager.getUser().getId();
-        this.isHost = this.players.stream()
-                .anyMatch(player -> player.getUserId() == currentUserId && player.getRole() == PlayerRole.HOST);
+        this.isHost = matchSlotPanel.isUserHost(currentUserId);
     }
 
     private PlayerStatus getCurrentUserStatus() {
         int currentUserId = AuthManager.getUser().getId();
-        return players.stream()
-                .filter(player -> player.getUserId() == currentUserId)
-                .findFirst()
-                .map(MatchPlayerDto::getStatus)
-                .orElse(PlayerStatus.NOT_READY);
+        return matchSlotPanel.getPlayerStatus(currentUserId);
     }
 
     private void updateReadyButtonState() {
