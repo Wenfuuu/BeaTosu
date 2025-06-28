@@ -19,8 +19,10 @@ import beat.osu.client.utils.ReplayUtils;
 import beat.osu.client.events.game.ReplayEvent;
 import beat.osu.shared.dto.game.events.SpectateEvent;
 import beat.osu.shared.dto.game.events.SpectateStatusEvent;
+import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.events.MatchCompletedEvent;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
+import beat.osu.shared.dto.match.events.PlayerFinishedEvent;
 import beat.osu.shared.dto.user.UserDto;
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
@@ -164,9 +166,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         sessionController.removePlayingBeatmapSession(user.getId()).thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Session removed successfully: " + response.getValue().getMessage());
-                // notify server that player exit/completed game, that will also send final
-                // match score
-
+                // notify server that player exit/completed game, that will also send final match score
+                sendMatchScoreEvent();
             } else {
                 System.err.println("Failed to remove session: " + response.getError().getMessage());
             }
@@ -294,13 +295,14 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         System.out.println("Game ended with grade: " + grade);
         LocalDateTime now = LocalDateTime.now();
 
-        notifyListeners(new GameEvent(GameEventType.GAME_ENDED, new GameEndEvent(
-                score, highestCombo, accuracy, perfectHits, gekiHits, greatHits, greatKatuHits, goodHits,
-                misses, grade, now)));
+        if (!isMultiplayer) {
+            notifyListeners(new GameEvent(GameEventType.GAME_ENDED, new GameEndEvent(
+                    score, highestCombo, accuracy, perfectHits, gekiHits, greatHits, greatKatuHits, goodHits,
+                    misses, grade, now)));
+        }
 
         UserDto user = AuthManager.getUser();
-        if (user == null)
-            return;
+        if (user == null) return;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String formatted = now.format(formatter);
         String osrFileName = String.format("%s-%s-%s.osr",
@@ -336,14 +338,12 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             } else {
                 System.err.println("Failed to send player exit event: " + response.getError().getMessage());
             }
-
             return null;
         });
     }
 
     private void failGame() {
-        // Notify spectators (this will also remove session after notification
-        // completes)
+        // Notify spectators (this will also remove session after notification completes)
         notifySpectatorsPlayerExited();
 
         System.out.println("Game failed, stopping game");
@@ -528,16 +528,17 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void sendMatchScoreEvent() {
-        if (!isMultiplayer)
-            return;
+        if (!isMultiplayer) return;
 
         try {
             System.out.println("Sending match score event");
-            MatchScoreEvent event = new MatchScoreEvent(ViewManager.getInstance().getCurrentMatchDto().getId(),
+            MatchDto matchDto = ViewManager.getInstance().getCurrentMatchDto();
+            MatchScoreEvent event = new MatchScoreEvent(matchDto.getId(),
                     score, masterComboNumber, AuthManager.getUser());
             matchController.sendMatchScoreEvent(event).thenApply(response -> {
                 if (response.isSuccess()) {
                     System.out.println("Match score event sent successfully: " + response.getValue().getMessage());
+                    if (isMultiplayer && gameState == GameState.COMPLETED) sendPlayerFinishedEvent();
                 } else {
                     System.err.println("Failed to send match score event: " + response.getError().getMessage());
                 }
@@ -548,6 +549,30 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             });
         } catch (Exception e) {
             System.err.println("Error creating match score event: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void sendPlayerFinishedEvent() {
+        if (!isMultiplayer) return;
+
+        try {
+            System.out.println("Sending player finished event");
+            MatchDto matchDto = ViewManager.getInstance().getCurrentMatchDto();
+            PlayerFinishedEvent event = new PlayerFinishedEvent(matchDto.getId(), AuthManager.getUser());
+            matchController.sendPlayerFinishedEvent(event).thenApply(response -> {
+                if (response.isSuccess()) {
+                    System.out.println("Player finished event sent successfully: " + response.getValue().getMessage());
+                } else {
+                    System.err.println("Failed to send player finished event: " + response.getError().getMessage());
+                }
+                return null;
+            }).exceptionally(throwable -> {
+                System.err.println("Exception in sendPlayerFinishedEvent: " + throwable.getMessage());
+                return null;
+            });
+        } catch (Exception e) {
+            System.err.println("Error creating player finished event: " + e.getMessage());
             e.printStackTrace();
         }
     }

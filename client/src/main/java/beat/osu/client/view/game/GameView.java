@@ -660,6 +660,12 @@ public class GameView extends Page implements GameEventListener {
                 break;
             case MATCH_COMPLETED:
                 System.out.println("Match completed event received, showing match results");
+
+                uiPane.getHideTransition().play();
+                uiPane.getHideTransition().setOnFinished(e -> {
+                    resultOverlay.setVisible(true);
+                    resultOverlay.getShowTransition().play();
+                });
                 break;
             case GAME_STARTED:
                 System.out.println("resuming all animation");
@@ -681,7 +687,6 @@ public class GameView extends Page implements GameEventListener {
                 if (gameEndEvent != null) {
                     resultOverlay.updateResult(gameEndEvent, beatmap);
                 }
-                // uiPane.setVisible(false);
                 uiPane.getHideTransition().play();
                 uiPane.getHideTransition().setOnFinished(e -> {
                     resultOverlay.setVisible(true);
