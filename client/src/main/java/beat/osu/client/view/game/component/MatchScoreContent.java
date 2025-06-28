@@ -1,0 +1,66 @@
+package beat.osu.client.view.game.component;
+
+import beat.osu.client.helper.CssManager;
+import beat.osu.shared.dto.match.events.MatchScoreEvent;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.VBox;
+
+import java.net.URL;
+import java.util.ArrayList;
+
+public class MatchScoreContent extends ScrollPane {
+
+    private final VBox scoreListBox;
+
+    public MatchScoreContent(ArrayList<MatchScoreEvent> matchScores) {
+        this.scoreListBox = new VBox();
+        this.getStyleClass().add("match-score-content");
+        this.setFitToWidth(true);
+        this.setHbarPolicy(ScrollBarPolicy.NEVER);
+        this.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
+
+        initializeComponents();
+        setupLayout();
+        loadStyles();
+
+        populateScores(matchScores);
+        handleEvent();
+    }
+
+    private void initializeComponents() {
+        scoreListBox.getStyleClass().add("match-score-list");
+    }
+
+    private void setupLayout() {
+        this.setContent(scoreListBox);
+    }
+
+    private void loadStyles() {
+        URL cssUrl = CssManager.getGameCssURL("MatchScoreContent.css");
+        if (cssUrl != null) {
+            this.getStylesheets().add(cssUrl.toExternalForm());
+        } else {
+            System.err.println("CSS file not found!");
+        }
+    }
+
+    public void populateScores(ArrayList<MatchScoreEvent> matchScores) {
+        scoreListBox.getChildren().clear();
+        for (MatchScoreEvent score : matchScores) {
+            MatchScoreItem scoreItem = new MatchScoreItem(score);
+            scoreListBox.getChildren().add(scoreItem);
+        }
+    }
+
+    private void handleEvent() {
+        scoreListBox.setOnScroll(event -> {
+            double deltaY = event.getDeltaY();
+            double width = getContent().getBoundsInLocal().getWidth();
+            double vvalue = getVvalue();
+
+            setVvalue(vvalue - deltaY / width);
+
+            event.consume();
+        });
+    }
+}

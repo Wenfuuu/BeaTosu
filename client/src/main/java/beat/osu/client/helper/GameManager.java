@@ -869,6 +869,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         if (!found) multiplayerScores.add(event);
         // Sort by score (highest first)
         multiplayerScores.sort((a, b) -> Integer.compare(b.getScore(), a.getScore()));
+        notifyListeners(new GameEvent(GameEventType.MATCH_SCORE_CHANGED, multiplayerScores));
 
         System.out.println("Updated multiplayer scores. Current leaderboard:");
         for (int i = 0; i < multiplayerScores.size(); i++) {

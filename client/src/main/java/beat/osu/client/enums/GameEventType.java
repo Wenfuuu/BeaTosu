@@ -20,4 +20,5 @@ public enum GameEventType {
     REPLAY_ENDED,
     CURSOR_MOVED,
     SPECTATE_EXIT,
+    MATCH_SCORE_CHANGED,
 }

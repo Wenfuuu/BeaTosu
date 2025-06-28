@@ -1,0 +1,43 @@
+.match-score-content {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+    -fx-fit-to-width: true;
+    -fx-fit-to-height: false;
+    -fx-hbar-policy: never;
+    -fx-vbar-policy: as-needed;
+    -fx-border-width: 0;
+}
+
+.match-score-content .viewport {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.match-score-content .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-pref-width: 5;
+    -fx-min-width: 5;
+    -fx-max-width: 5;
+}
+
+.match-score-content .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+
+.match-score-content .scroll-bar:vertical .thumb {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 0;
+}
+
+.match-score-content .scroll-bar:vertical .increment-button,
+.match-score-content .scroll-bar:vertical .decrement-button {
+    -fx-pref-height: 0;
+    -fx-opacity: 0;
+}
+
+.match-score-list {
+    -fx-background-color: transparent;
+    -fx-spacing: 2;
+    -fx-padding: 2;
+}
