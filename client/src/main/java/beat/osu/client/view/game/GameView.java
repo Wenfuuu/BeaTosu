@@ -662,6 +662,7 @@ public class GameView extends Page implements GameEventListener {
                 System.out.println("Match completed event received, showing match results");
 
                 uiPane.getHideTransition().play();
+                matchScoreContent.getHideTransition().play();
                 uiPane.getHideTransition().setOnFinished(e -> {
 
                 });

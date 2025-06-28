@@ -2,8 +2,13 @@ package beat.osu.client.view.game.component;
 
 import beat.osu.client.helper.CssManager;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
+import javafx.animation.FadeTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.SequentialTransition;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
+import lombok.Getter;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -11,6 +16,8 @@ import java.util.ArrayList;
 public class MatchScoreContent extends ScrollPane {
 
     private final VBox scoreListBox;
+    @Getter
+    private SequentialTransition hideTransition;
 
     public MatchScoreContent(ArrayList<MatchScoreEvent> matchScores) {
         this.scoreListBox = new VBox();
@@ -21,10 +28,21 @@ public class MatchScoreContent extends ScrollPane {
 
         initializeComponents();
         setupLayout();
+        setupAnimations();
         loadStyles();
 
         populateScores(matchScores);
         handleEvent();
+    }
+
+    private void setupAnimations() {
+        FadeTransition fadeOutTransition = new FadeTransition(Duration.millis(500), this);
+        fadeOutTransition.setFromValue(1);
+        fadeOutTransition.setToValue(0);
+
+        hideTransition = new SequentialTransition(
+                fadeOutTransition,
+                new PauseTransition(Duration.millis(500)));
     }
 
     private void initializeComponents() {

@@ -4,7 +4,6 @@ import beat.osu.client.helper.CssManager;
 import beat.osu.shared.dto.score.ScoreDto;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import lombok.Setter;
 
