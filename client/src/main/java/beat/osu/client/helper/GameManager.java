@@ -82,6 +82,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private boolean perfectCombo = true;
     private boolean imperfectOrMissed = false;
 
+    int testCount = 0;
+
     public void updateMousePosition(double x, double y) {
         this.currentMouseX = x;
         this.currentMouseY = y;
@@ -150,6 +152,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         sessionController.removePlayingBeatmapSession(user.getId()).thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Session removed successfully: " + response.getValue().getMessage());
+                // notify server that player exit/completed game, that will also send final match score
+
             } else {
                 System.err.println("Failed to remove session: " + response.getError().getMessage());
             }
@@ -471,6 +475,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void sendSpectateEvent(long elapsedMillis, ReplayEvent replayEvent) {
+        testCount++;
+        System.out.println("Sending spectate event, count: " + testCount);
         SpectateEvent event = new SpectateEvent(elapsedMillis, replayEvent.getX(),
                 replayEvent.getY(), replayEvent.getKeyMask(), paneWidth, paneHeight,
                 masterComboNumber, score, accuracy, health);
@@ -479,7 +485,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 System.out.println("Spectate event sent successfully: " + response.getValue().getMessage());
                 if (isMultiplayer) {
                     // send real time score to other players
-                    sendMatchScoreEvent();
+                    if (testCount % 500 == 0) sendMatchScoreEvent();
                 }
             } else {
                 System.err.println("Failed to send spectate event: " + response.getError().getMessage());
@@ -805,6 +811,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private void updateMatchScoreEvent(MatchScoreEvent event) {
         System.out.println("Received match score, user: " + event.getUser().getUsername() +
                 ", score: " + event.getScore() + ", combo: " + event.getCombo());
+        // update all match players with the new score
+
     }
 
     @Override
