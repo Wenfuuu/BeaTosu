@@ -27,4 +27,5 @@ public class ScoreDto implements Serializable {
     private String grade;
     private LocalDateTime date;
     private String username;
+    private byte[] profilePicture;
 }

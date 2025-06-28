@@ -45,7 +45,8 @@ public class ScoreService {
                         score.getMiss(),
                         score.getGrade(),
                         score.getDate(),
-                        user.getUsername());
+                        user.getUsername(),
+                        user.getProfilePicture());
                 scoreDtos.add(scoreDto);
             }
 
