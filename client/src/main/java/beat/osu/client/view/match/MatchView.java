@@ -347,7 +347,9 @@ public class MatchView extends Page {
         blueButton.getStyleClass().add("ready-button");
 
         boolean beatmapExists = ResourceManager.beatmapSetDirectoryExists(beatmap.getBeatmapSetId());
-        beatmapCard = beatmapExists ? BeatmapCard.available(beatmap) : BeatmapCard.noMap(beatmap.getBeatmapSet().getTitle(), beatmap.getBeatmapSet().getArtist());
+        beatmapCard = beatmapExists ? BeatmapCard.available(beatmap) :
+                BeatmapCard.noMap(beatmap.getBeatmapId(), beatmap.getBeatmapSetId(),
+                beatmap.getBeatmapSet().getTitle(), beatmap.getBeatmapSet().getArtist());
 
         rightContent = new VBox(gameBox, gameNameTextField, beatmapBox, beatmapCard, winConditionBox, beatmapIdBox);
         rightContent.setPadding(new Insets(24, 0, 10, ScreenManager.SCREEN_WIDTH * 0.1));
@@ -704,7 +706,8 @@ public class MatchView extends Page {
                 
                 BeatmapCard newBeatmapCard = beatmapExists ?
                     BeatmapCard.available(beatmap) : 
-                    BeatmapCard.noMap(beatmap.getBeatmapSet().getTitle(), beatmap.getBeatmapSet().getArtist());
+                    BeatmapCard.noMap(beatmap.getBeatmapId(), beatmap.getBeatmapSetId(),
+                            beatmap.getBeatmapSet().getTitle(), beatmap.getBeatmapSet().getArtist());
                 
                 int beatmapCardIndex = rightContent.getChildren().indexOf(beatmapCard);
                 if (beatmapCardIndex != -1) {

@@ -9,6 +9,7 @@ import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ResourceManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.UrlManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.view.match.component.enums.BeatmapCardVariant;
@@ -66,10 +67,12 @@ public class BeatmapCard extends StackPane {
         return card;
     }
 
-    public static BeatmapCard noMap(String beatmapName, String artist) {
+    public static BeatmapCard noMap(int beatmapId, int beatmapSetId, String beatmapName, String artist) {
         BeatmapCard card = new BeatmapCard(BeatmapCardVariant.NO_MAP);
         card.getStyleClass().add("no-map-card");
 
+        card.beatmapId = beatmapId;
+        card.beatmapSetId = beatmapSetId;
         card.beatmapName = beatmapName;
         card.artist = artist;
 
@@ -153,6 +156,11 @@ public class BeatmapCard extends StackPane {
         VBox noMapContent = new VBox(0);
         noMapContent.getChildren().addAll(titleLabel, descriptionLabel);
         noMapContent.setPadding(new Insets(3, 0, 0, 20));
+
+        this.setOnMouseClicked(event -> {
+            String url = String.format("https://osu.ppy.sh/beatmapsets/%d#osu/%d", beatmapSetId, beatmapId);
+            UrlManager.openURL(url);
+        });
 
         this.getChildren().add(noMapContent);
     }
