@@ -42,18 +42,13 @@ import beat.osu.shared.dto.beatmap.BeatmapDto;
 import beat.osu.shared.dto.beatmap.responses.GetBeatmapByIdResponse;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
-import beat.osu.shared.dto.match.events.HostChangedEvent;
-import beat.osu.shared.dto.match.events.HostLeftEvent;
-import beat.osu.shared.dto.match.events.MatchStartedEvent;
-import beat.osu.shared.dto.match.events.PlayerKickedEvent;
-import beat.osu.shared.dto.match.events.SlotChangedEvent;
-import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
-import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
+import beat.osu.shared.dto.match.events.*;
 import beat.osu.shared.dto.match.responses.*;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.match.PlayerStatus;
 import javafx.animation.FadeTransition;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -114,6 +109,7 @@ public class MatchView extends Page {
     private Label gameNameLabel;
     private Button changePasswordButton;
     private TextField gameNameTextField;
+    private PauseTransition changeGameNameTransition;
     private Label beatmapLabel;
     private Button changeBeatmapButton;
     private BeatmapCard beatmapCard;
@@ -285,6 +281,8 @@ public class MatchView extends Page {
         gameNameTextField.setEditable(false);
         VBox.setMargin(gameNameTextField, new Insets(16, 20, 0, 0));
 
+        changeGameNameTransition = new PauseTransition(Duration.millis(500));
+
         beatmapLabel = new Label("Beatmap");
         beatmapLabel.getStyleClass().add("beatmap-label");
 
@@ -375,6 +373,7 @@ public class MatchView extends Page {
         StackPane.setAlignment(changePasswordModal, Pos.CENTER);
         
         updateUIBasedOnRole();
+        updateEventHandlingBasedOnRole();
     }
 
     @Override
@@ -525,6 +524,7 @@ public class MatchView extends Page {
         matchController.addHostChangedCallback(this::onHostChanged);
         matchController.addHostLeftCallback(this::onHostLeft);
         matchController.addSlotChangedCallback(this::onSlotChanged);
+        matchController.addMatchNameUpdatedCallback(this::onMatchNameUpdated);
     }
 
     private void onUserJoinedMatch(UserJoinedMatchEvent event) {
@@ -587,6 +587,17 @@ public class MatchView extends Page {
         if (event.getMatchId() == this.matchId) {
             Platform.runLater(() -> {
                 matchSlotPanel.movePlayerToSlot(event.getUserId(), event.getOldSlotIndex(), event.getNewSlotIndex());
+            });
+        }
+    }
+
+    private void onMatchNameUpdated(MatchNameUpdatedEvent event) {
+        if (event.getMatchId() == this.matchId) {
+            Platform.runLater(() -> {
+                if (!isHost) {
+                    matchName = event.getNewName();
+                    gameNameTextField.setText(matchName);
+                }
             });
         }
     }
@@ -803,16 +814,48 @@ public class MatchView extends Page {
 
     private void updateUIBasedOnRole() {
         topBar.updateSubtitle(isHost);
+        gameNameTextField.setEditable(isHost);
         changePasswordButton.setVisible(isHost);
         changeBeatmapButton.setVisible(isHost);
         winConditionComboBox.setDisable(!isHost);
         winConditionComboBox.setOpacity(1.0);
     }
 
+    private void updateEventHandlingBasedOnRole() {
+        if (isHost) {
+            changeGameNameTransition.setOnFinished(e -> {
+                try {
+                    String newGameName = gameNameTextField.getText().trim();
+                    Result<UpdateMatchNameResponse> result = matchController.updateMatchName(matchId, newGameName).get();
+
+                    if (result.isSuccess()) {
+                        System.out.println(result.getValue().getMessage());
+                    } else {
+                        Toast.error("Failed to update match password: " + result.getError().getMessage()).show();
+                    }
+                } catch (InterruptedException | ExecutionException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+
+            gameNameTextField.textProperty().addListener((obs, oldVal, newVal) -> {
+                changeGameNameTransition.pause();
+                changeGameNameTransition.play();
+            });
+        } else {
+            changeGameNameTransition.setOnFinished(null);
+            gameNameTextField.textProperty().removeListener((obs, oldVal, newVal) -> {
+                changeGameNameTransition.pause();
+                changeGameNameTransition.play();
+            });
+        }
+    }
+
     private void updateHostStatus() {
         int currentUserId = AuthManager.getUser().getId();
         this.isHost = matchSlotPanel.isUserHost(currentUserId);
         updateUIBasedOnRole();
+        updateEventHandlingBasedOnRole();
         updateSlotCardCallback();
     }
 }
