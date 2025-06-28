@@ -14,17 +14,21 @@ import beat.osu.shared.dto.match.events.*;
 import beat.osu.shared.dto.match.requests.*;
 import beat.osu.shared.dto.match.responses.*;
 import beat.osu.shared.enums.match.MatchWinCondition;
+import beat.osu.shared.dto.match.responses.UpdatePlayerStatusResponse;
 import beat.osu.shared.enums.match.PlayerRole;
+import beat.osu.shared.enums.match.PlayerStatus;
 import beat.osu.shared.enums.message.MessageAction;
 import beat.osu.shared.enums.message.MessageType;
 import beat.osu.shared.enums.message.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
 import beat.osu.shared.models.RequestMessage;
+import lombok.Getter;
 
 public class MatchController {
 
     private final ClientService clientService;
 
+    @Getter
     private List<MatchDto> matches = new ArrayList<>();
 
     private final List<Consumer<MatchCreatedEvent>> matchCreatedCallbacks = new ArrayList<>();
@@ -40,15 +44,12 @@ public class MatchController {
     private final List<Consumer<MatchPasswordUpdatedEvent>> matchPasswordUpdatedCallbacks = new ArrayList<>();
     private final List<Consumer<MatchNameUpdatedEvent>> matchNameUpdatedCallbacks = new ArrayList<>();
     private final List<Consumer<MatchWinConditionUpdatedEvent>> matchWinConditionUpdatedCallbacks = new ArrayList<>();
+    private final List<Consumer<PlayerStatusUpdatedEvent>> playerStatusUpdatedCallbacks = new ArrayList<>();
 
     public MatchController() {
         this.clientService = ClientService.getInstance();
         setupRealtimeHandler();
         requestMatches();
-    }
-
-    public List<MatchDto> getMatches() {
-        return matches;
     }
 
     public void addMatchCreatedCallback(Consumer<MatchCreatedEvent> callback) {
@@ -103,6 +104,10 @@ public class MatchController {
         matchWinConditionUpdatedCallbacks.add(callback);
     }
 
+    public void addPlayerStatusUpdatedCallback(Consumer<PlayerStatusUpdatedEvent> callback) {
+        playerStatusUpdatedCallbacks.add(callback);
+    }
+
     public void removeMatchCreatedCallback(Consumer<MatchCreatedEvent> callback) {
         matchCreatedCallbacks.remove(callback);
     }
@@ -153,6 +158,10 @@ public class MatchController {
 
     public void removeMatchWinConditionUpdatedCallback(Consumer<MatchWinConditionUpdatedEvent> callback) {
         matchWinConditionUpdatedCallbacks.remove(callback);
+    }
+
+    public void removePlayerStatusUpdatedCallback(Consumer<PlayerStatusUpdatedEvent> callback) {
+        playerStatusUpdatedCallbacks.remove(callback);
     }
 
     private void setupRealtimeHandler() {
@@ -422,6 +431,26 @@ public class MatchController {
         });
     }
 
+    public CompletableFuture<Result<UpdatePlayerStatusResponse>> updatePlayerStatus(int matchId, PlayerStatus newStatus) {
+        UpdatePlayerStatusRequest requestData = new UpdatePlayerStatusRequest(matchId, newStatus);
+        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.UPDATE_PLAYER_STATUS, requestData);
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendRequest(request).get();
+
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((UpdatePlayerStatusResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
+    }
+
     private void handleRealtimeMessage(RealtimeMessage message) {
         if (message.getType() == RealtimeMessageType.MATCH_CREATED) {
             if (message.getPayload() instanceof MatchCreatedEvent) {
@@ -493,6 +522,11 @@ public class MatchController {
         } else if (message.getType() == RealtimeMessageType.MATCH_WIN_CONDITION_UPDATED) {
             if (message.getPayload() instanceof MatchWinConditionUpdatedEvent) {
                 notifyMatchWinConditionUpdated((MatchWinConditionUpdatedEvent) message.getPayload());
+            }
+        } else if (message.getType() == RealtimeMessageType.PLAYER_STATUS_UPDATED) {
+            if (message.getPayload() instanceof PlayerStatusUpdatedEvent) {
+                PlayerStatusUpdatedEvent event = (PlayerStatusUpdatedEvent) message.getPayload();
+                notifyPlayerStatusUpdated(event);
             }
         } else if (message.getType() == RealtimeMessageType.MATCH_COMPLETED) {
             // redirect player to match results page
@@ -721,6 +755,31 @@ public class MatchController {
                 callback.accept(event);
             } catch (Exception e) {
                 System.err.println("Error in match win condition updated callback: " + e.getMessage());
+            }
+        }
+    }
+
+    private void notifyPlayerStatusUpdated(PlayerStatusUpdatedEvent event) {
+        updatePlayerStatusInList(event.getMatchId(), event.getUserId(), event.getNewStatus());
+        for (Consumer<PlayerStatusUpdatedEvent> callback : playerStatusUpdatedCallbacks) {
+            try {
+                callback.accept(event);
+            } catch (Exception e) {
+                System.err.println("Error in player status updated callback: " + e.getMessage());
+            }
+        }
+    }
+
+    private void updatePlayerStatusInList(int matchId, int userId, PlayerStatus newStatus) {
+        for (MatchDto match : matches) {
+            if (match.getId() == matchId) {
+                for (MatchPlayerDto player : match.getPlayers()) {
+                    if (player.getUserId() == userId) {
+                        player.setStatus(newStatus);
+                        return;
+                    }
+                }
+                break;
             }
         }
     }

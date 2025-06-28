@@ -30,6 +30,7 @@ public class MatchSlotCard extends HBox {
     @Getter
     private UserDto user;
 
+    @Getter
     private PlayerRole role;
     private PlayerStatus status;
 

@@ -42,8 +42,23 @@ import beat.osu.shared.dto.beatmap.BeatmapDto;
 import beat.osu.shared.dto.beatmap.responses.GetBeatmapByIdResponse;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
-import beat.osu.shared.dto.match.events.*;
-import beat.osu.shared.dto.match.responses.*;
+import beat.osu.shared.dto.match.events.HostChangedEvent;
+import beat.osu.shared.dto.match.events.HostLeftEvent;
+import beat.osu.shared.dto.match.events.MatchNameUpdatedEvent;
+import beat.osu.shared.dto.match.events.MatchStartedEvent;
+import beat.osu.shared.dto.match.events.MatchWinConditionUpdatedEvent;
+import beat.osu.shared.dto.match.events.PlayerKickedEvent;
+import beat.osu.shared.dto.match.events.PlayerStatusUpdatedEvent;
+import beat.osu.shared.dto.match.events.SlotChangedEvent;
+import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
+import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
+import beat.osu.shared.dto.match.responses.ChangeMatchSlotResponse;
+import beat.osu.shared.dto.match.responses.KickPlayerResponse;
+import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
+import beat.osu.shared.dto.match.responses.TransferHostResponse;
+import beat.osu.shared.dto.match.responses.UpdateMatchNameResponse;
+import beat.osu.shared.dto.match.responses.UpdateMatchPasswordResponse;
+import beat.osu.shared.dto.match.responses.UpdateMatchWinConditionResponse;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.MatchWinCondition;
 import beat.osu.shared.enums.match.PlayerRole;
@@ -150,6 +165,7 @@ public class MatchView extends Page {
 
         setupView();
         handleEvent();
+        updateReadyButtonState();
     }
 
     @Override
@@ -385,6 +401,8 @@ public class MatchView extends Page {
         banchoPanelsContainer.setManaged(true);
         banchoPanelsContainer.setMouseTransparent(false);
         chatPanel.setVisible(true);
+        
+        updateReadyButtonState();
     }
 
     public void handleEvent() {
@@ -416,14 +434,34 @@ public class MatchView extends Page {
         });
 
         readyButton.setOnMouseClicked(e -> {
-            matchController.startMatch(matchId).thenApply(response -> {
-                if (response.isSuccess()) {
-                    System.out.println("Successfully start match: " + response.getValue().getMessage());
+            PlayerStatus currentStatus = getCurrentUserStatus();
+            PlayerStatus targetStatus;
+            
+            if (currentStatus == PlayerStatus.NOT_READY) {
+                targetStatus = PlayerStatus.READY;
+            } else if (currentStatus == PlayerStatus.READY) {
+                targetStatus = PlayerStatus.NOT_READY;
+            } else {
+                return;
+            }
+            
+            matchController.updatePlayerStatus(matchId, targetStatus).thenAccept(result -> {
+                if (result.isSuccess()) {
+                    System.out.println("Successfully updated status to: " + targetStatus);
                 } else {
-                    System.err.println("Failed to start match: " + response.getError().getMessage());
+                    Toast.error("Failed to update status: " + result.getError().getMessage()).show();
                 }
-                return null;
             });
+
+
+//            matchController.startMatch(matchId).thenApply(response -> {
+//                if (response.isSuccess()) {
+//                    System.out.println("Successfully start match: " + response.getValue().getMessage());
+//                } else {
+//                    System.err.println("Failed to start match: " + response.getError().getMessage());
+//                }
+//                return null;
+//            });
         });
 
         hostActionsModal.getTransferHostButton().setOnMouseClicked(e -> {
@@ -527,12 +565,18 @@ public class MatchView extends Page {
         matchController.addSlotChangedCallback(this::onSlotChanged);
         matchController.addMatchNameUpdatedCallback(this::onMatchNameUpdated);
         matchController.addMatchWinConditionUpdatedCallback(this::onMathWinConditionUpdated);
+        matchController.addPlayerStatusUpdatedCallback(this::onPlayerStatusUpdated);
     }
 
     private void onUserJoinedMatch(UserJoinedMatchEvent event) {
         if (event.getMatchId() == this.matchId) {
             Platform.runLater(() -> {
                 matchSlotPanel.addPlayer(event.getMatchPlayer());
+                players.add(event.getMatchPlayer());
+                int currentUserId = AuthManager.getUser().getId();
+                if (event.getMatchPlayer().getUserId() == currentUserId) {
+                    updateReadyButtonState();
+                }
             });
         }
     }
@@ -541,6 +585,8 @@ public class MatchView extends Page {
         if (event.getMatchId() == this.matchId) {
             Platform.runLater(() -> {
                 matchSlotPanel.removePlayer(event.getUserId());
+                
+                players.removeIf(player -> player.getUserId() == event.getUserId());
             });
         }
     }
@@ -610,6 +656,26 @@ public class MatchView extends Page {
                 if (!isHost) {
                     winCondition = event.getNewWinCondition();
                     winConditionComboBox.getSelectionModel().select(winCondition.getDisplayName());
+                }
+            });
+        }
+    }
+
+    private void onPlayerStatusUpdated(PlayerStatusUpdatedEvent event) {
+        if (event.getMatchId() == this.matchId) {
+            Platform.runLater(() -> {
+                int currentUserId = AuthManager.getUser().getId();
+                for (MatchPlayerDto player : players) {
+                    if (player.getUserId() == event.getUserId()) {
+                        player.setStatus(event.getNewStatus());
+                        break;
+                    }
+                }
+                
+                matchSlotPanel.updatePlayerStatus(event.getUserId(), event.getNewStatus());
+                
+                if (event.getUserId() == currentUserId) {
+                    updateReadyButtonState();
                 }
             });
         }
@@ -885,9 +951,40 @@ public class MatchView extends Page {
 
     private void updateHostStatus() {
         int currentUserId = AuthManager.getUser().getId();
-        this.isHost = matchSlotPanel.isUserHost(currentUserId);
-        updateUIBasedOnRole();
-        updateEventHandlingBasedOnRole();
-        updateSlotCardCallback();
+        this.isHost = this.players.stream()
+                .anyMatch(player -> player.getUserId() == currentUserId && player.getRole() == PlayerRole.HOST);
+    }
+
+    private PlayerStatus getCurrentUserStatus() {
+        int currentUserId = AuthManager.getUser().getId();
+        return players.stream()
+                .filter(player -> player.getUserId() == currentUserId)
+                .findFirst()
+                .map(MatchPlayerDto::getStatus)
+                .orElse(PlayerStatus.NOT_READY);
+    }
+
+    private void updateReadyButtonState() {
+        PlayerStatus currentStatus = getCurrentUserStatus();
+        
+        Platform.runLater(() -> {
+            switch (currentStatus) {
+                case NO_MAP:
+                    readyButton.setVisible(false);
+                    break;
+                case NOT_READY:
+                    readyButton.setVisible(true);
+                    readyButton.setText("Ready");
+                    break;
+                case READY:
+                    readyButton.setVisible(true);
+                    readyButton.setText("Not Ready");
+                    break;
+                case PLAYING:
+                case FINISHED:
+                    readyButton.setVisible(false);
+                    break;
+            }
+        });
     }
 }

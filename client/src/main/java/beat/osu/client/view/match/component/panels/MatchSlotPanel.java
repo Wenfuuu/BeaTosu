@@ -353,4 +353,20 @@ public class MatchSlotPanel extends VBox {
         matchSlotCardsMap.put(newSlotIndex, newCard);
         matchSlotCardsMap.put(oldSlotIndex, emptyCard);
     }
+
+    public void updatePlayerStatus(int userId, PlayerStatus newStatus) {
+        for (MatchPlayerDto player : players) {
+            if (player.getUserId() == userId) {
+                player.setStatus(newStatus);
+                break;
+            }
+        }
+
+        for (MatchSlotCard card : matchSlotCardsMap.values()) {
+            if (card.getUser() != null && card.getUser().getId() == userId) {
+                card.updateCard(card.getUser(), card.getRole(), newStatus);
+                break;
+            }
+        }
+    }
 }

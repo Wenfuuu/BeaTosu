@@ -120,7 +120,7 @@ public class MatchService {
         matchPlayers.put(matchId, ConcurrentHashMap.newKeySet());
 
         int hostPlayerId = matchPlayerIdGenerator.getAndIncrement();
-        MatchPlayer hostPlayer = new MatchPlayer(hostPlayerId, matchId, userId, PlayerRole.HOST, PlayerStatus.READY, 0);
+        MatchPlayer hostPlayer = new MatchPlayer(hostPlayerId, matchId, userId, PlayerRole.HOST, PlayerStatus.NOT_READY, 0);
         matchPlayers.get(matchId).add(hostPlayer);
         userToMatch.put(userId, matchId);
 
