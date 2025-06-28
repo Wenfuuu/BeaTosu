@@ -65,9 +65,18 @@ public class ServerConnection {
                 while (connected && (receivedObject = ois.readObject()) != null) {
                     routeIncomingMessage(receivedObject);
                 }
+            } catch (EOFException e) {
+                // Connection closed normally
+                if (connected) {
+                    System.out.println("Server closed connection");
+                    Platform.runLater(() -> {
+                        Toast.error("Server closed connection").show();
+                    });
+                }
             } catch (Exception e) {
                 if (connected) {
-                    System.out.println("Connection lost: " + e.getMessage());
+                    System.err.println("Connection lost: " + e.getMessage());
+                    e.printStackTrace(); // Print full stack trace for debugging
                     Platform.runLater(() -> {
                         Toast.error("Connection lost: " + e.getMessage()).show();
                     });
@@ -75,16 +84,25 @@ public class ServerConnection {
                 }
             }
         });
+        readerThread.setName("ServerConnection-Reader");
+        readerThread.setDaemon(true);
         readerThread.start();
     }
 
     private void routeIncomingMessage(Object message) {
-        if (message instanceof ResponseMessage) {
-            requestHandler.handleResponse((ResponseMessage) message);
-        } else if (message instanceof RealtimeMessage) {
-            realtimeHandler.handleIncomingMessage((RealtimeMessage) message);
-        } else {
-            System.err.println("Unknown message type received: " + message.getClass());
+        try {
+            if (message instanceof ResponseMessage) {
+                requestHandler.handleResponse((ResponseMessage) message);
+            } else if (message instanceof RealtimeMessage) {
+                realtimeHandler.handleIncomingMessage((RealtimeMessage) message);
+            } else {
+                System.err.println("Unknown message type received: " + message.getClass());
+                System.err.println("Message content: " + message.toString());
+            }
+        } catch (Exception e) {
+            System.err.println("Error routing message: " + e.getMessage());
+            e.printStackTrace();
+            // Don't disconnect here, just log the error
         }
     }
 
@@ -127,9 +145,12 @@ public class ServerConnection {
                 }
             }
 
-            if (oos != null) oos.close();
-            if (ois != null) ois.close();
-            if (socket != null) socket.close();
+            if (oos != null)
+                oos.close();
+            if (ois != null)
+                ois.close();
+            if (socket != null)
+                socket.close();
 
             System.out.println("Disconnected from server");
 

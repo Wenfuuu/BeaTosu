@@ -86,6 +86,12 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     @Getter
     private final List<MatchScoreEvent> multiplayerScores = new ArrayList<>();
 
+    // Throttling for network events
+    private long lastSpectateEventSent = 0;
+    private long lastMatchScoreEventSent = 0;
+    private static final long SPECTATE_EVENT_INTERVAL = 50; // Send every 50ms (20 FPS)
+    private static final long MATCH_SCORE_EVENT_INTERVAL = 2000; // Send every 2 seconds
+
     int testCount = 0;
 
     public void updateMousePosition(double x, double y) {
@@ -156,8 +162,9 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         sessionController.removePlayingBeatmapSession(user.getId()).thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Session removed successfully: " + response.getValue().getMessage());
-                // notify server that player exit/completed game, that will also send final match score
-                
+                // notify server that player exit/completed game, that will also send final
+                // match score
+
             } else {
                 System.err.println("Failed to remove session: " + response.getError().getMessage());
             }
@@ -177,7 +184,11 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         // Reset replay data
         replayEvents.clear();
         lastReplayEventTime = -1;
-        
+
+        // Reset throttling variables
+        lastSpectateEventSent = 0;
+        lastMatchScoreEventSent = 0;
+
         // Clear multiplayer scores for new game
         if (isMultiplayer) {
             multiplayerScores.clear();
@@ -403,7 +414,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             HitObject hitObject = iterator.next();
             hitObject.update(elapsedMillis);
             if (hitObject instanceof HitSpinner) {
-                if(keyHolded) ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
+                if (keyHolded) ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
             } else if (hitObject instanceof HitSlider) {
                 ((HitSlider) hitObject).updateSlider(currentMouseX, currentMouseY);
             }
@@ -477,7 +488,13 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 paneHeight);
         replayEvents.add(replayEvent);
 
-        if (AuthManager.isAuthenticated()) sendSpectateEvent(elapsedMillis, replayEvent);
+        if (AuthManager.isAuthenticated()) {
+            // Throttle spectate events to reduce network load
+            if (elapsedMillis - lastSpectateEventSent >= SPECTATE_EVENT_INTERVAL) {
+                sendSpectateEvent(elapsedMillis, replayEvent);
+                lastSpectateEventSent = elapsedMillis;
+            }
+        }
 
         // Update last event time for next delta calculation
         lastReplayEventTime = elapsedMillis;
@@ -492,30 +509,45 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         spectateController.sendSpectateEvent(event).thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Spectate event sent successfully: " + response.getValue().getMessage());
-                if (isMultiplayer) {
-                    // send real time score to other players
-                    if (testCount % 500 == 0) sendMatchScoreEvent();
+
+                // Send match score event with proper throttling
+                if (isMultiplayer && elapsedMillis - lastMatchScoreEventSent >= MATCH_SCORE_EVENT_INTERVAL) {
+                    sendMatchScoreEvent();
+                    lastMatchScoreEventSent = elapsedMillis;
                 }
             } else {
                 System.err.println("Failed to send spectate event: " + response.getError().getMessage());
             }
             return null;
+        }).exceptionally(throwable -> {
+            System.err.println("Exception in sendSpectateEvent: " + throwable.getMessage());
+            return null;
         });
     }
 
     private void sendMatchScoreEvent() {
-        if(!isMultiplayer) return;
-        System.out.println("Sending match score event");
-        MatchScoreEvent event = new MatchScoreEvent(ViewManager.getInstance().getCurrentMatchDto().getId(),
-                score, masterComboNumber, AuthManager.getUser());
-        matchController.sendMatchScoreEvent(event).thenApply(response -> {
-            if (response.isSuccess()) {
-                System.out.println("Match score event sent successfully: " + response.getValue().getMessage());
-            } else {
-                System.err.println("Failed to send match score event: " + response.getError().getMessage());
-            }
-            return null;
-        });
+        if (!isMultiplayer)
+            return;
+
+        try {
+            System.out.println("Sending match score event");
+            MatchScoreEvent event = new MatchScoreEvent(ViewManager.getInstance().getCurrentMatchDto().getId(),
+                    score, masterComboNumber, AuthManager.getUser());
+            matchController.sendMatchScoreEvent(event).thenApply(response -> {
+                if (response.isSuccess()) {
+                    System.out.println("Match score event sent successfully: " + response.getValue().getMessage());
+                } else {
+                    System.err.println("Failed to send match score event: " + response.getError().getMessage());
+                }
+                return null;
+            }).exceptionally(throwable -> {
+                System.err.println("Exception in sendMatchScoreEvent: " + throwable.getMessage());
+                return null;
+            });
+        } catch (Exception e) {
+            System.err.println("Error creating match score event: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private boolean checkHitObjectClick(HitObject hitObject, long elapsedMillis) {
@@ -797,7 +829,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         hitObjects.add(newHitObject);
     }
 
-    public GameManager(Beatmap beatmap, InputManager inputManager, double paneWidth, double paneHeight, boolean isMultiplayer) {
+    public GameManager(Beatmap beatmap, InputManager inputManager, double paneWidth, double paneHeight,
+            boolean isMultiplayer) {
         this.beatmap = beatmap;
         this.inputManager = inputManager;
         this.paneWidth = paneWidth;
@@ -820,7 +853,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private void updateMatchScoreEvent(MatchScoreEvent event) {
         System.out.println("Received match score, user: " + event.getUser().getUsername() +
                 ", score: " + event.getScore() + ", combo: " + event.getCombo());
-        
+
         // Find and update existing score for this user, or add new entry
         boolean found = false;
         for (int i = 0; i < multiplayerScores.size(); i++) {
@@ -831,18 +864,18 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 break;
             }
         }
-        
+
         // If user not found, add new score entry
         if (!found) multiplayerScores.add(event);
         // Sort by score (highest first)
         multiplayerScores.sort((a, b) -> Integer.compare(b.getScore(), a.getScore()));
-        
+
         System.out.println("Updated multiplayer scores. Current leaderboard:");
         for (int i = 0; i < multiplayerScores.size(); i++) {
             MatchScoreEvent score = multiplayerScores.get(i);
-            System.out.println((i + 1) + ". " + score.getUser().getUsername() + 
-                             " - Score: " + score.getScore() + 
-                             " - Combo: " + score.getCombo());
+            System.out.println((i + 1) + ". " + score.getUser().getUsername() +
+                    " - Score: " + score.getScore() +
+                    " - Combo: " + score.getCombo());
         }
     }
 
