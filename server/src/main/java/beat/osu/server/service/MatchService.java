@@ -28,6 +28,7 @@ import beat.osu.shared.dto.match.events.MatchScoreEvent;
 import beat.osu.shared.dto.match.events.MatchStartedEvent;
 import beat.osu.shared.dto.match.events.MatchWinConditionUpdatedEvent;
 import beat.osu.shared.dto.match.events.PlayerKickedEvent;
+import beat.osu.shared.dto.match.events.PlayerStatusUpdatedEvent;
 import beat.osu.shared.dto.match.events.SlotChangedEvent;
 import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
 import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
@@ -42,6 +43,7 @@ import beat.osu.shared.dto.match.requests.TransferHostRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchNameRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchPasswordRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchWinConditionRequest;
+import beat.osu.shared.dto.match.requests.UpdatePlayerStatusRequest;
 import beat.osu.shared.dto.match.responses.ChangeMatchSlotResponse;
 import beat.osu.shared.dto.match.responses.CreateMatchResponse;
 import beat.osu.shared.dto.match.responses.GetAllMatchesResponse;
@@ -54,6 +56,7 @@ import beat.osu.shared.dto.match.responses.TransferHostResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchNameResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchPasswordResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchWinConditionResponse;
+import beat.osu.shared.dto.match.responses.UpdatePlayerStatusResponse;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.MatchWinCondition;
 import beat.osu.shared.enums.match.PlayerRole;
@@ -609,6 +612,53 @@ public class MatchService {
             MatchWinConditionUpdatedEvent event = new MatchWinConditionUpdatedEvent(matchId, newWinCondition);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_WIN_CONDITION_UPDATED, clientId, event);
             RealtimeMessageHandler.broadcastToAll(realtimeMessage);
+        }
+
+        return response;
+    }
+
+    public Result<UpdatePlayerStatusResponse> updatePlayerStatus(UpdatePlayerStatusRequest request, String clientId) {
+        int matchId = request.getMatchId();
+        PlayerStatus newStatus = request.getNewStatus();
+
+        Match match = matches.get(matchId);
+        if (match == null) {
+            return Result.failure(Error.notFound("Match not found"));
+        }
+
+        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
+        if (userId == null) {
+            return Result.failure(Error.unauthorized("User not authenticated"));
+        }
+
+        if (!isUserInMatch(matchId, userId)) {
+            return Result.failure(Error.validation("You are not in this match"));
+        }
+
+        MatchPlayer player = findPlayerInMatch(matchId, userId);
+        if (player == null) {
+            return Result.failure(Error.notFound("Player not found in match"));
+        }
+
+        if (newStatus == null) {
+            return Result.failure(Error.validation("Player status cannot be null"));
+        }
+
+        PlayerStatus oldStatus = player.getStatus();
+        
+        if (oldStatus == newStatus) {
+            return Result.failure(Error.validation("Player status is already " + newStatus.name()));
+        }
+
+        player.setStatus(newStatus);
+
+        String message = "Player status updated to " + newStatus.name();
+        Result<UpdatePlayerStatusResponse> response = Result.success(new UpdatePlayerStatusResponse(message));
+
+        if (response.isSuccess()) {
+            PlayerStatusUpdatedEvent event = new PlayerStatusUpdatedEvent(matchId, userId, newStatus);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.PLAYER_STATUS_UPDATED, clientId, event);
+            broadcastMessageToMatchPlayers(clientId, matchId, realtimeMessage);
         }
 
         return response;
