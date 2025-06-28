@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -81,6 +82,14 @@ import javafx.util.Duration;
 
 public class MatchView extends Page {
 
+    private enum BlueButtonState {
+        HIDDEN,
+        READY,
+        NOT_READY,
+        START_GAME,
+        FORCE_START_GAME
+    }
+
     private StackPane root;
 
     private Integer matchId;
@@ -129,18 +138,17 @@ public class MatchView extends Page {
     private Label winConditionLabel;
     private ComboBox<String> winConditionComboBox;
 
-    private Button readyButton;
+    private Button blueButton;
+    private BlueButtonState currentBlueButtonState = BlueButtonState.HIDDEN;
 
     private boolean isHost;
-
     private MatchPlayerDto selectedPlayerForHostAction;
-    private MatchDto matchDto; // Store for initialization
+
+    private final MatchDto matchDto;
 
     public MatchView(Stage stage, MatchDto matchDto, ConnectedUsersController connectedUsersController, ChatController chatController,
                      MatchController matchController, SessionController sessionController, BeatmapController beatmapController) {
         super(stage);
-
-        int currentUserId = AuthManager.getUser().getId();
 
         this.matchDto = matchDto;
         this.connectedUsersController = connectedUsersController;
@@ -160,7 +168,7 @@ public class MatchView extends Page {
 
         setupView();
         handleEvent();
-        updateReadyButtonState();
+        updateBlueButtonState();
     }
 
     @Override
@@ -323,8 +331,8 @@ public class MatchView extends Page {
         winConditionBox.setAlignment(Pos.CENTER_RIGHT);
         VBox.setMargin(winConditionBox, new Insets(20, 40, 0, 0));
 
-        readyButton = new Button("Ready");
-        readyButton.getStyleClass().add("ready-button");
+        blueButton = new Button("Ready");
+        blueButton.getStyleClass().add("ready-button");
 
         beatmap = fetchBeatmapById(matchDto.getBeatmapId());
         BeatmapCard card = BeatmapCard.available(beatmap);
@@ -355,11 +363,11 @@ public class MatchView extends Page {
         leaveMatchButton.setMaxWidth(buttonWidth);
         leaveMatchButton.setMinWidth(buttonWidth);
         
-        readyButton.setPrefWidth(buttonWidth);
-        readyButton.setMaxWidth(buttonWidth);
-        readyButton.setMinWidth(buttonWidth);
+        blueButton.setPrefWidth(buttonWidth);
+        blueButton.setMaxWidth(buttonWidth);
+        blueButton.setMinWidth(buttonWidth);
         
-        buttonContainer.getChildren().addAll(leaveMatchButton, readyButton);
+        buttonContainer.getChildren().addAll(leaveMatchButton, blueButton);
 
         mainContent = new VBox();
         mainContent.getChildren().addAll(topBar, matchContent, buttonContainer);
@@ -398,7 +406,7 @@ public class MatchView extends Page {
         banchoPanelsContainer.setMouseTransparent(false);
         chatPanel.setVisible(true);
         
-        updateReadyButtonState();
+        updateBlueButtonState();
     }
 
     public void handleEvent() {
@@ -429,8 +437,9 @@ public class MatchView extends Page {
             }
         });
 
-        readyButton.setOnMouseClicked(e -> {
+        blueButton.setOnMouseClicked(e -> {
             PlayerStatus currentStatus = getCurrentUserStatus();
+            BlueButtonState currentState = currentBlueButtonState;
             
             if (currentStatus == PlayerStatus.NOT_READY) {
                 matchController.updatePlayerStatus(matchId, PlayerStatus.READY).thenAccept(result -> {
@@ -442,15 +451,34 @@ public class MatchView extends Page {
                 });
             } else if (currentStatus == PlayerStatus.READY) {
                 if (isHost) {
-                    matchController.startMatch(matchId).thenApply(response -> {
-                        if (response.isSuccess()) {
-                            System.out.println("Successfully start match: " + response.getValue().getMessage());
-                        } else {
-                            System.err.println("Failed to start match: " + response.getError().getMessage());
-                            Toast.error("Failed to start match: " + response.getError().getMessage()).show();
-                        }
-                        return null;
-                    });
+                    switch (currentState) {
+                        case NOT_READY:
+                            matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
+                                if (result.isSuccess()) {
+                                    System.out.println("Successfully updated status to: NOT_READY");
+                                } else {
+                                    Toast.error("Failed to update status: " + result.getError().getMessage()).show();
+                                }
+                            });
+                            break;
+                            
+                        case START_GAME:
+                        case FORCE_START_GAME:
+                            matchController.startMatch(matchId).thenApply(response -> {
+                                if (response.isSuccess()) {
+                                    System.out.println("Successfully start match: " + response.getValue().getMessage());
+                                } else {
+                                    System.err.println("Failed to start match: " + response.getError().getMessage());
+                                    Toast.error("Failed to start match: " + response.getError().getMessage()).show();
+                                }
+                                return null;
+                            });
+                            break;
+                            
+                        default:
+                            System.err.println("Unexpected ready button state for host: " + currentState);
+                            break;
+                    }
                 } else {
                     matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
                         if (result.isSuccess()) {
@@ -571,10 +599,7 @@ public class MatchView extends Page {
         if (event.getMatchId() == this.matchId) {
             Platform.runLater(() -> {
                 matchSlotPanel.addPlayer(event.getMatchPlayer());
-                int currentUserId = AuthManager.getUser().getId();
-                if (event.getMatchPlayer().getUserId() == currentUserId) {
-                    updateReadyButtonState();
-                }
+                updateBlueButtonState();
             });
         }
     }
@@ -583,6 +608,7 @@ public class MatchView extends Page {
         if (event.getMatchId() == this.matchId) {
             Platform.runLater(() -> {
                 matchSlotPanel.removePlayer(event.getUserId());
+                updateBlueButtonState();
             });
         }
     }
@@ -595,6 +621,8 @@ public class MatchView extends Page {
                 if (event.getKickedUserId() == AuthManager.getUser().getId()) {
                     ViewManager.getInstance().showLobbyView();
                     Toast.error("You have been kicked from the match.").show();
+                } else {
+                    updateBlueButtonState();
                 }
             });
         }
@@ -614,7 +642,7 @@ public class MatchView extends Page {
             Platform.runLater(() -> {
                 matchSlotPanel.updateHost(event.getNewHostUserId(), event.getPreviousHostUserId());
                 updateHostStatus();
-                updateReadyButtonState();
+                updateBlueButtonState();
                 updateUIBasedOnRole();
                 updateEventHandlingBasedOnRole();
                 updateSlotCardCallback();
@@ -627,7 +655,7 @@ public class MatchView extends Page {
             Platform.runLater(() -> {
                 matchSlotPanel.hostLeft(event.getPreviousHostUserId(), event.getNewHostUserId());
                 updateHostStatus();
-                updateReadyButtonState();
+                updateBlueButtonState();
                 updateUIBasedOnRole();
                 updateEventHandlingBasedOnRole();
                 updateSlotCardCallback();
@@ -668,19 +696,9 @@ public class MatchView extends Page {
     private void onPlayerStatusUpdated(PlayerStatusUpdatedEvent event) {
         if (event.getMatchId() == this.matchId) {
             Platform.runLater(() -> {
-                int currentUserId = AuthManager.getUser().getId();
-                for (MatchPlayerDto player : matchSlotPanel.getPlayers()) {
-                    if (player.getUserId() == event.getUserId()) {
-                        player.setStatus(event.getNewStatus());
-                        break;
-                    }
-                }
-                
                 matchSlotPanel.updatePlayerStatus(event.getUserId(), event.getNewStatus());
                 
-                if (event.getUserId() == currentUserId) {
-                    updateReadyButtonState();
-                }
+                updateBlueButtonState();
             });
         }
     }
@@ -957,32 +975,93 @@ public class MatchView extends Page {
         return matchSlotPanel.getPlayerStatus(currentUserId);
     }
 
-    private void updateReadyButtonState() {
-        updateHostStatus();
+    private int getReadyPlayersCount() {
+        return (int) matchSlotPanel.getPlayers().stream()
+                .filter(player -> player.getStatus() == PlayerStatus.READY)
+                .count();
+    }
+
+    private int getTotalPlayersCount() {
+        return matchSlotPanel.getPlayerCount();
+    }
+
+    private boolean areAllPlayersReady() {
+        List<MatchPlayerDto> players = matchSlotPanel.getPlayers();
+        return !players.isEmpty() && players.stream()
+                .allMatch(player -> player.getStatus() == PlayerStatus.READY);
+    }
+
+    private BlueButtonState determineBlueButtonState() {
         PlayerStatus currentStatus = getCurrentUserStatus();
         
-        Platform.runLater(() -> {
-            switch (currentStatus) {
-                case NO_MAP:
-                    readyButton.setVisible(false);
-                    break;
-                case NOT_READY:
-                    readyButton.setVisible(true);
-                    readyButton.setText("Ready");
-                    break;
-                case READY:
-                    readyButton.setVisible(true);
-                    if (isHost) {
-                        readyButton.setText("Start Game!");
+        switch (currentStatus) {
+            case NO_MAP:
+            case PLAYING:
+            case FINISHED:
+                return BlueButtonState.HIDDEN;
+                
+            case NOT_READY:
+                return BlueButtonState.READY;
+                
+            case READY:
+                if (isHost) {
+                    int readyCount = getReadyPlayersCount();
+
+                    if (readyCount == 1) {
+                        return BlueButtonState.NOT_READY;
+                    } else if (areAllPlayersReady()) {
+                        return BlueButtonState.START_GAME;
                     } else {
-                        readyButton.setText("Not Ready");
+                        return BlueButtonState.FORCE_START_GAME;
                     }
+                } else {
+                    return BlueButtonState.NOT_READY;
+                }
+                
+            default:
+                return BlueButtonState.HIDDEN;
+        }
+    }
+
+    private void applyBlueButtonState(BlueButtonState state) {
+        Platform.runLater(() -> {
+            switch (state) {
+                case HIDDEN:
+                    blueButton.setVisible(false);
                     break;
-                case PLAYING:
-                case FINISHED:
-                    readyButton.setVisible(false);
+                    
+                case READY:
+                    blueButton.setVisible(true);
+                    blueButton.setText("Ready");
+                    break;
+                    
+                case NOT_READY:
+                    blueButton.setVisible(true);
+                    blueButton.setText("Not Ready");
+                    break;
+                    
+                case START_GAME:
+                    blueButton.setVisible(true);
+                    blueButton.setText("Start Game!");
+                    break;
+                    
+                case FORCE_START_GAME:
+                    blueButton.setVisible(true);
+                    int readyCount = getReadyPlayersCount();
+                    int totalCount = getTotalPlayersCount();
+                    blueButton.setText("Force Start Game! (" + readyCount + "/" + totalCount + ")");
                     break;
             }
         });
+    }
+    
+    private void updateBlueButtonState() {
+        updateHostStatus();
+        BlueButtonState newState = determineBlueButtonState();
+        
+        if (newState != currentBlueButtonState) {
+            currentBlueButtonState = newState;
+            applyBlueButtonState(newState);
+        }
     }
 }
