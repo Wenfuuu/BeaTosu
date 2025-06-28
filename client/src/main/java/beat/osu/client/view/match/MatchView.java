@@ -742,17 +742,9 @@ public class MatchView extends Page {
 
             if (result.isSuccess()) {
                 BeatmapDto beatmapDto = result.getValue().getBeatmap();
-
-                String expectedDirName = String.format("%d", beatmapDto.getBeatmapSetId());
-
-                for (String dir : validBeatmapDirs) {
-                    System.out.println("Found directory: " + dir);
-                }
-
-                System.out.println("Expected dir name: " + expectedDirName);
+                String expectedDirName = String.valueOf(beatmapDto.getBeatmapSetId());
 
                 if (!validBeatmapDirs.contains(expectedDirName)) {
-                    System.out.println("Beatmap directory not found in temp directory: " + expectedDirName);
                     return null;
                 }
 

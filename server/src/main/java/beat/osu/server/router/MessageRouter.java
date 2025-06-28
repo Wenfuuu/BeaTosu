@@ -23,7 +23,20 @@ import beat.osu.shared.dto.chat.requests.SendPrivateChatMessageRequest;
 import beat.osu.shared.dto.game.requests.NotifySpectateStatusRequest;
 import beat.osu.shared.dto.game.requests.SendSpectateEventRequest;
 import beat.osu.shared.dto.game.requests.StartSpectateRequest;
-import beat.osu.shared.dto.match.requests.*;
+import beat.osu.shared.dto.match.requests.ChangeMatchSlotRequest;
+import beat.osu.shared.dto.match.requests.CreateMatchRequest;
+import beat.osu.shared.dto.match.requests.JoinMatchRequest;
+import beat.osu.shared.dto.match.requests.KickPlayerRequest;
+import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
+import beat.osu.shared.dto.match.requests.PlayerFinishedEventRequest;
+import beat.osu.shared.dto.match.requests.SendMatchScoreEventRequest;
+import beat.osu.shared.dto.match.requests.StartMatchRequest;
+import beat.osu.shared.dto.match.requests.TransferHostRequest;
+import beat.osu.shared.dto.match.requests.UpdateMatchBeatmapRequest;
+import beat.osu.shared.dto.match.requests.UpdateMatchNameRequest;
+import beat.osu.shared.dto.match.requests.UpdateMatchPasswordRequest;
+import beat.osu.shared.dto.match.requests.UpdateMatchWinConditionRequest;
+import beat.osu.shared.dto.match.requests.UpdatePlayerStatusRequest;
 import beat.osu.shared.dto.score.requests.GetScoreRequest;
 import beat.osu.shared.dto.score.requests.InsertScoreRequest;
 import beat.osu.shared.dto.session.requests.CreateSessionDataRequest;
@@ -168,6 +181,8 @@ public class MessageRouter {
                 return matchService.updateMatchPassword((UpdateMatchPasswordRequest) request.getPayload(), clientId);
             case UPDATE_MATCH_NAME:
                 return matchService.updateMatchName((UpdateMatchNameRequest) request.getPayload(), clientId);
+            case UPDATE_MATCH_BEATMAP:
+                return matchService.updateMatchBeatmap((UpdateMatchBeatmapRequest) request.getPayload(), clientId);
             case UPDATE_MATCH_WIN_CONDITION:
                 return matchService.updateMatchWinCondition((UpdateMatchWinConditionRequest) request.getPayload(), clientId);
             case UPDATE_PLAYER_STATUS:

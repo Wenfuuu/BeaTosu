@@ -85,7 +85,7 @@ public class ViewManager {
     }
 
     public void showMatchView(MatchDto matchDto) {
-        this.currentMatchDto = matchDto; // Store the match
+        this.currentMatchDto = matchDto;
         MatchView matchView = new MatchView(primaryStage, matchDto, connectedUsersController, chatController,
                 matchController, sessionController, beatmapController);
         matchView.onShow();
