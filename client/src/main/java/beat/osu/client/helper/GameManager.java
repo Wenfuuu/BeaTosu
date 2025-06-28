@@ -145,6 +145,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         sessionController.createPlayingBeatmapSession(user.getId(), beatmap.getBeatmapId()).thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Session created successfully: " + response.getValue().getMessage());
+                if(isMultiplayer) sendMatchScoreEvent();
             } else {
                 System.err.println("Failed to create session: " + response.getError().getMessage());
             }
@@ -229,9 +230,9 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 updateGame(elapsedMillis - gameStartOffset);
             }
         };
-        gameLoop.start();
         // create game session
         createGameSession();
+        gameLoop.start();
     }
 
     private void pauseGame() {
@@ -815,8 +816,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         if (isThisObjectANewCombo) {
             currentComboNumberInSet = 1; // Reset number for this new combo set
-            // Apply combo skip from the *previous* new combo object, or this one if it's
-            // the first.
+            // Apply combo skip from the *previous* new combo object, or this one if it's the first.
             // The comboSetIndex is incremented by 1 + the number of colors to skip.
             currentComboSetIndex = (currentComboSetIndex + 1 + comboSkipCounter) % OsuParser.getColours().size();
             comboSkipCounter = comboSkipFromThisObject; // Store skip for NEXT new combo
@@ -870,14 +870,13 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         // Sort by score (highest first)
         multiplayerScores.sort((a, b) -> Integer.compare(b.getScore(), a.getScore()));
         notifyListeners(new GameEvent(GameEventType.MATCH_SCORE_CHANGED, multiplayerScores));
-
-        System.out.println("Updated multiplayer scores. Current leaderboard:");
-        for (int i = 0; i < multiplayerScores.size(); i++) {
-            MatchScoreEvent score = multiplayerScores.get(i);
-            System.out.println((i + 1) + ". " + score.getUser().getUsername() +
-                    " - Score: " + score.getScore() +
-                    " - Combo: " + score.getCombo());
-        }
+//        System.out.println("Updated multiplayer scores. Current leaderboard:");
+//        for (int i = 0; i < multiplayerScores.size(); i++) {
+//            MatchScoreEvent score = multiplayerScores.get(i);
+//            System.out.println((i + 1) + ". " + score.getUser().getUsername() +
+//                    " - Score: " + score.getScore() +
+//                    " - Combo: " + score.getCombo());
+//        }
     }
 
     @Override
