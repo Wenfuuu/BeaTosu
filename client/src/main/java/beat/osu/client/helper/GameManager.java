@@ -82,6 +82,10 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private boolean perfectCombo = true;
     private boolean imperfectOrMissed = false;
 
+    // Multiplayer score tracking
+    @Getter
+    private final List<MatchScoreEvent> multiplayerScores = new ArrayList<>();
+
     int testCount = 0;
 
     public void updateMousePosition(double x, double y) {
@@ -153,7 +157,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             if (response.isSuccess()) {
                 System.out.println("Session removed successfully: " + response.getValue().getMessage());
                 // notify server that player exit/completed game, that will also send final match score
-
+                
             } else {
                 System.err.println("Failed to remove session: " + response.getError().getMessage());
             }
@@ -173,6 +177,11 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         // Reset replay data
         replayEvents.clear();
         lastReplayEventTime = -1;
+        
+        // Clear multiplayer scores for new game
+        if (isMultiplayer) {
+            multiplayerScores.clear();
+        }
 
         notifyListeners(new GameEvent(GameEventType.GAME_STARTED, null));
 
@@ -811,8 +820,30 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private void updateMatchScoreEvent(MatchScoreEvent event) {
         System.out.println("Received match score, user: " + event.getUser().getUsername() +
                 ", score: " + event.getScore() + ", combo: " + event.getCombo());
-        // update all match players with the new score
-
+        
+        // Find and update existing score for this user, or add new entry
+        boolean found = false;
+        for (int i = 0; i < multiplayerScores.size(); i++) {
+            MatchScoreEvent existingEvent = multiplayerScores.get(i);
+            if (existingEvent.getUser().getId() == event.getUser().getId()) {
+                multiplayerScores.set(i, event);
+                found = true;
+                break;
+            }
+        }
+        
+        // If user not found, add new score entry
+        if (!found) multiplayerScores.add(event);
+        // Sort by score (highest first)
+        multiplayerScores.sort((a, b) -> Integer.compare(b.getScore(), a.getScore()));
+        
+        System.out.println("Updated multiplayer scores. Current leaderboard:");
+        for (int i = 0; i < multiplayerScores.size(); i++) {
+            MatchScoreEvent score = multiplayerScores.get(i);
+            System.out.println((i + 1) + ". " + score.getUser().getUsername() + 
+                             " - Score: " + score.getScore() + 
+                             " - Combo: " + score.getCombo());
+        }
     }
 
     @Override
