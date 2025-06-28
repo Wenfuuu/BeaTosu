@@ -658,6 +658,9 @@ public class GameView extends Page implements GameEventListener {
                     });
                 }
                 break;
+            case MATCH_COMPLETED:
+                System.out.println("Match completed event received, showing match results");
+                break;
             case GAME_STARTED:
                 System.out.println("resuming all animation");
                 resumeAllAnimations();

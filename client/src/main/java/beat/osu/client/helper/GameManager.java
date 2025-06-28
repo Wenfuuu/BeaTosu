@@ -19,6 +19,7 @@ import beat.osu.client.utils.ReplayUtils;
 import beat.osu.client.events.game.ReplayEvent;
 import beat.osu.shared.dto.game.events.SpectateEvent;
 import beat.osu.shared.dto.game.events.SpectateStatusEvent;
+import beat.osu.shared.dto.match.events.MatchCompletedEvent;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
 import beat.osu.shared.dto.user.UserDto;
 import javafx.animation.AnimationTimer;
@@ -848,6 +849,12 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
     private void setupMatchCallbacks() {
         matchController.addMatchScoreCallback(this::updateMatchScoreEvent);
+        matchController.addMatchCompletedCallback(this::onMatchCompletedEvent);
+    }
+
+    private void onMatchCompletedEvent(MatchCompletedEvent event) {
+        System.out.println("Match completed, notifying view");
+        notifyListeners(new GameEvent(GameEventType.MATCH_COMPLETED, null));
     }
 
     private void updateMatchScoreEvent(MatchScoreEvent event) {
