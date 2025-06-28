@@ -18,45 +18,9 @@ import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
-import beat.osu.shared.dto.match.events.HostChangedEvent;
-import beat.osu.shared.dto.match.events.HostLeftEvent;
-import beat.osu.shared.dto.match.events.MatchCreatedEvent;
-import beat.osu.shared.dto.match.events.MatchEndedEvent;
-import beat.osu.shared.dto.match.events.MatchNameUpdatedEvent;
-import beat.osu.shared.dto.match.events.MatchPasswordUpdatedEvent;
-import beat.osu.shared.dto.match.events.MatchScoreEvent;
-import beat.osu.shared.dto.match.events.MatchStartedEvent;
-import beat.osu.shared.dto.match.events.MatchWinConditionUpdatedEvent;
-import beat.osu.shared.dto.match.events.PlayerKickedEvent;
-import beat.osu.shared.dto.match.events.PlayerStatusUpdatedEvent;
-import beat.osu.shared.dto.match.events.SlotChangedEvent;
-import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
-import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
-import beat.osu.shared.dto.match.requests.ChangeMatchSlotRequest;
-import beat.osu.shared.dto.match.requests.CreateMatchRequest;
-import beat.osu.shared.dto.match.requests.JoinMatchRequest;
-import beat.osu.shared.dto.match.requests.KickPlayerRequest;
-import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
-import beat.osu.shared.dto.match.requests.SendMatchScoreEventRequest;
-import beat.osu.shared.dto.match.requests.StartMatchRequest;
-import beat.osu.shared.dto.match.requests.TransferHostRequest;
-import beat.osu.shared.dto.match.requests.UpdateMatchNameRequest;
-import beat.osu.shared.dto.match.requests.UpdateMatchPasswordRequest;
-import beat.osu.shared.dto.match.requests.UpdateMatchWinConditionRequest;
-import beat.osu.shared.dto.match.requests.UpdatePlayerStatusRequest;
-import beat.osu.shared.dto.match.responses.ChangeMatchSlotResponse;
-import beat.osu.shared.dto.match.responses.CreateMatchResponse;
-import beat.osu.shared.dto.match.responses.GetAllMatchesResponse;
-import beat.osu.shared.dto.match.responses.JoinMatchResponse;
-import beat.osu.shared.dto.match.responses.KickPlayerResponse;
-import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
-import beat.osu.shared.dto.match.responses.SendMatchScoreEventResponse;
-import beat.osu.shared.dto.match.responses.StartMatchResponse;
-import beat.osu.shared.dto.match.responses.TransferHostResponse;
-import beat.osu.shared.dto.match.responses.UpdateMatchNameResponse;
-import beat.osu.shared.dto.match.responses.UpdateMatchPasswordResponse;
-import beat.osu.shared.dto.match.responses.UpdateMatchWinConditionResponse;
-import beat.osu.shared.dto.match.responses.UpdatePlayerStatusResponse;
+import beat.osu.shared.dto.match.events.*;
+import beat.osu.shared.dto.match.requests.*;
+import beat.osu.shared.dto.match.responses.*;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.MatchWinCondition;
 import beat.osu.shared.enums.match.PlayerRole;
@@ -444,6 +408,34 @@ public class MatchService {
         broadcastMessageToMatchPlayers(clientId, matchId, realtimeMessage);
 
         return Result.success(new SendMatchScoreEventResponse("Match score event sent successfully"));
+    }
+
+    public Result<PlayerFinishedEventResponse> playerFinishedMatch(PlayerFinishedEventRequest request, String clientId) {
+        PlayerFinishedEvent event = request.getPlayerFinishedEvent();
+        int matchId = event.getMatchId();
+        int userId = event.getUser().getId();
+
+        Match match = matches.get(matchId);
+        if (match == null) {
+            return Result.failure(Error.notFound("Match not found"));
+        }
+
+        if (!isUserInMatch(matchId, userId)) {
+            return Result.failure(Error.validation("You are not in this match"));
+        }
+
+        MatchPlayer player = findPlayerInMatch(matchId, userId);
+        if (player == null) {
+            return Result.failure(Error.validation("Player not found in match"));
+        }
+
+        player.setStatus(PlayerStatus.FINISHED);
+        // check if all players have finished
+        Set<MatchPlayer> players = matchPlayers.get(matchId);
+        boolean allFinished = players.stream()
+                .allMatch(p -> p.getStatus() == PlayerStatus.FINISHED);
+
+        return Result.success(new PlayerFinishedEventResponse("Player finished match successfully"));
     }
 
     public Result<ChangeMatchSlotResponse> changeMatchSlot(ChangeMatchSlotRequest request, String clientId) {
