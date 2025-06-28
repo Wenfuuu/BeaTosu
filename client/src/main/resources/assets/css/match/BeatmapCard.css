@@ -12,8 +12,12 @@
     -fx-background-color: #A9A9A9;
 }
 
-.beatmap-overlay {
+.pink-overlay {
     -fx-background-color: rgba(226, 72, 147, 0.80);
+}
+
+.orange-overlay {
+    -fx-background-color: rgba(247, 161, 1, 0.80);
 }
 
 .changing-map-title, .changing-map-description {

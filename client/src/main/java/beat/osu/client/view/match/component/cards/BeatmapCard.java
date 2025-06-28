@@ -12,6 +12,8 @@ import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.view.match.component.enums.BeatmapCardVariant;
+import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -22,6 +24,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 public class BeatmapCard extends StackPane {
 
@@ -46,6 +49,9 @@ public class BeatmapCard extends StackPane {
     private Label beatmapInfoLabel;
     private Label beatmapVersionLabel;
     private HBox beatmapStarsBox;
+
+    private Region pinkOverlay;
+    private Region orangeOverlay;
 
     private BeatmapCard(BeatmapCardVariant variant) {
         this.variant = variant;
@@ -181,9 +187,14 @@ public class BeatmapCard extends StackPane {
 
         StackPane.setAlignment(beatmapImageView, Pos.CENTER_LEFT);
 
-        Region overlay = new Region();
-        overlay.getStyleClass().add("beatmap-overlay");
-        overlay.setPrefSize(this.getPrefWidth(), this.getPrefHeight());
+        pinkOverlay = new Region();
+        pinkOverlay.getStyleClass().add("pink-overlay");
+        pinkOverlay.setPrefSize(this.getPrefWidth(), this.getPrefHeight());
+
+        orangeOverlay = new Region();
+        orangeOverlay.getStyleClass().add("orange-overlay");
+        orangeOverlay.setPrefSize(this.getPrefWidth(), this.getPrefHeight());
+        orangeOverlay.setOpacity(0.15);
 
         HBox contentContainer = new HBox();
         StackPane.setMargin(contentContainer, new Insets(0, 0, 0, calculatedWidth + 10));
@@ -230,7 +241,10 @@ public class BeatmapCard extends StackPane {
         infoBox.getChildren().addAll(beatmapNameLabel, beatmapInfoLabel, beatmapVersionLabel, beatmapStarsBox);
         contentContainer.getChildren().addAll(gamemodeBox, infoBox);
 
-        this.getChildren().addAll(beatmapImageView, overlay, contentContainer);
+        this.setOnMouseEntered(e -> transitionToOrange());
+        this.setOnMouseExited(e -> transitionToPink());
+
+        this.getChildren().addAll(beatmapImageView, pinkOverlay, orangeOverlay, contentContainer);
     }
 
     private void loadStyles() {
@@ -244,7 +258,7 @@ public class BeatmapCard extends StackPane {
 
     private HBox createStarsBox() {
         HBox starsBox = new HBox(8);
-        double starFontSize = getInfoFontSize() * 0.9; // Slightly smaller than info text
+        double starFontSize = getInfoFontSize() * 0.9;
         for (int i = 0; i < stars; i++) {
             Label star = new Label("★");
             star.setStyle("-fx-font-size: " + starFontSize + "px;");
@@ -258,5 +272,31 @@ public class BeatmapCard extends StackPane {
         File beatmapDir = new File(tempDir, String.valueOf(beatmapSetId));
         File imageFile = new File(beatmapDir, gameBg);
         return imageFile.getAbsolutePath();
+    }
+
+    private void transitionToPink() {
+        FadeTransition pinkFadeIn = new FadeTransition(Duration.millis(200), pinkOverlay);
+        pinkFadeIn.setFromValue(0.15);
+        pinkFadeIn.setToValue(1.0);
+
+        FadeTransition orangeFadeOut = new FadeTransition(Duration.millis(200), orangeOverlay);
+        orangeFadeOut.setFromValue(1.0);
+        orangeFadeOut.setToValue(0.15);
+
+        ParallelTransition parallelTransition = new ParallelTransition(pinkFadeIn, orangeFadeOut);
+        parallelTransition.play();
+    }
+
+    private void transitionToOrange() {
+        FadeTransition pinkFadeOut = new FadeTransition(Duration.millis(200), pinkOverlay);
+        pinkFadeOut.setFromValue(1.0);
+        pinkFadeOut.setToValue(0.15);
+
+        FadeTransition orangeFadeIn = new FadeTransition(Duration.millis(200), orangeOverlay);
+        orangeFadeIn.setFromValue(0.15);
+        orangeFadeIn.setToValue(1.0);
+
+        ParallelTransition parallelTransition = new ParallelTransition(pinkFadeOut, orangeFadeIn);
+        parallelTransition.play();
     }
 }
