@@ -1,10 +1,10 @@
 package beat.osu.server.handler;
 
-import beat.osu.shared.models.RealtimeMessage;
-import beat.osu.shared.enums.message.RealtimeMessageType;
-
 import java.io.ObjectOutputStream;
 import java.util.concurrent.ConcurrentHashMap;
+
+import beat.osu.shared.enums.message.RealtimeMessageType;
+import beat.osu.shared.models.RealtimeMessage;
 
 public class RealtimeMessageHandler {
     private final ObjectOutputStream outputStream;
@@ -40,8 +40,10 @@ public class RealtimeMessageHandler {
         RealtimeMessageHandler targetHandler = activeHandlers.get(targetClientId);
         if (targetHandler != null) {
             try {
-                targetHandler.outputStream.writeObject(message);
-                targetHandler.outputStream.flush();
+                synchronized (targetHandler.outputStream) {
+                    targetHandler.outputStream.writeObject(message);
+                    targetHandler.outputStream.flush();
+                }
             } catch (Exception e) {
                 System.err.println("RealtimeMessageHandler: Error sending to client " + targetClientId + ": " + e.getMessage());
                 activeHandlers.remove(targetClientId);
@@ -77,8 +79,10 @@ public class RealtimeMessageHandler {
 
         for (RealtimeMessageHandler handler : activeHandlers.values()) {
             try {
-                handler.outputStream.writeObject(notification);
-                handler.outputStream.flush();
+                synchronized (handler.outputStream) {
+                    handler.outputStream.writeObject(notification);
+                    handler.outputStream.flush();
+                }
             } catch (Exception e) {
                 System.err.println("RealtimeMessageHandler: Error sending system notification: " + e.getMessage());
             }
