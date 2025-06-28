@@ -191,6 +191,8 @@ public class PlaylistModal extends StackPane implements SongEventListener {
             searchUpdateTimeline.stop();
         }
 
+        playlistManager.clearFilter();
+
         FadeTransition fadeOut = new FadeTransition(Duration.millis(300), this);
         fadeOut.setFromValue(1.0);
         fadeOut.setToValue(0.0);

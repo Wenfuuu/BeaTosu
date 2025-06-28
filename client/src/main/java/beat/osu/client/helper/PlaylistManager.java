@@ -202,6 +202,10 @@ public class PlaylistManager implements SongEventPublisher {
         notifyListeners(new SongChangeEvent(song));
     }
 
+    public boolean isNoSongPlaying() {
+        return currentSong == null;
+    }
+
     @Override
     public void addListener(SongEventListener songEventListener) {
         listeners.add(songEventListener);

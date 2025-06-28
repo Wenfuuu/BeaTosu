@@ -8,12 +8,8 @@ import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.controller.MatchController;
 import beat.osu.client.controller.SessionController;
 import beat.osu.client.controller.SpectateController;
-import beat.osu.client.helper.AuthManager;
-import beat.osu.client.helper.BackgroundManager;
-import beat.osu.client.helper.CssManager;
-import beat.osu.client.helper.PlaylistManager;
-import beat.osu.client.helper.ScreenManager;
-import beat.osu.client.helper.ViewManager;
+import beat.osu.client.enums.PlaybackMode;
+import beat.osu.client.helper.*;
 import beat.osu.client.view.lobby.component.layout.NavigationBar;
 import beat.osu.client.view.lobby.component.layout.TopBar;
 import beat.osu.client.view.lobby.component.modals.CreateMatchModal;
@@ -226,6 +222,11 @@ public class LobbyView extends Page {
     @Override
     public void onShow() {
         scene.setRoot(root);
+
+        if (PlaylistManager.getInstance().isNoSongPlaying()) {
+            PlaylistManager.getInstance().playRandomSong();
+        }
+
         setInputManager();
         playlistModal.setInputManager(inputManager);
 
