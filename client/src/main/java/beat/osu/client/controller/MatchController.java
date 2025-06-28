@@ -40,6 +40,7 @@ public class MatchController {
     private final List<Consumer<HostLeftEvent>> hostLeftCallbacks = new ArrayList<>();
     private final List<Consumer<MatchStartedEvent>> matchStartedCallbacks = new ArrayList<>();
     private final List<Consumer<MatchScoreEvent>> matchScoreCallbacks = new ArrayList<>();
+    private final List<Consumer<MatchCompletedEvent>> matchCompletedCallbacks = new ArrayList<>();
     private final List<Consumer<SlotChangedEvent>> slotChangedCallbacks = new ArrayList<>();
     private final List<Consumer<MatchPasswordUpdatedEvent>> matchPasswordUpdatedCallbacks = new ArrayList<>();
     private final List<Consumer<MatchNameUpdatedEvent>> matchNameUpdatedCallbacks = new ArrayList<>();
@@ -90,6 +91,10 @@ public class MatchController {
 
     public void addMatchScoreCallback(Consumer<MatchScoreEvent> callback) {
         matchScoreCallbacks.add(callback);
+    }
+
+    public void addMatchCompletedCallback(Consumer<MatchCompletedEvent> callback) {
+        matchCompletedCallbacks.add(callback);
     }
 
     public void addMatchPasswordUpdatedCallback(Consumer<MatchPasswordUpdatedEvent> callback) {
@@ -146,6 +151,10 @@ public class MatchController {
 
     public void removeMatchScoreCallback(Consumer<MatchScoreEvent> callback) {
         matchScoreCallbacks.remove(callback);
+    }
+
+    public void removeMatchCompletedCallback(Consumer<MatchCompletedEvent> callback) {
+        matchCompletedCallbacks.remove(callback);
     }
 
     public void removeMatchPasswordUpdatedCallback(Consumer<MatchPasswordUpdatedEvent> callback) {
@@ -530,7 +539,10 @@ public class MatchController {
             }
         } else if (message.getType() == RealtimeMessageType.MATCH_COMPLETED) {
             // redirect player to match results page
-
+            if (message.getPayload() instanceof MatchCompletedEvent) {
+                MatchCompletedEvent event = (MatchCompletedEvent) message.getPayload();
+                notifyMatchCompleted(event);
+            }
         }
     }
 
@@ -714,6 +726,16 @@ public class MatchController {
                 callback.accept(event);
             } catch (Exception e) {
                 System.err.println("Error in match score event callback: " + e.getMessage());
+            }
+        }
+    }
+
+    private void notifyMatchCompleted(MatchCompletedEvent event) {
+        for (Consumer<MatchCompletedEvent> callback : matchCompletedCallbacks) {
+            try {
+                callback.accept(event);
+            } catch (Exception e) {
+                System.err.println("Error in match completed callback: " + e.getMessage());
             }
         }
     }
