@@ -6,7 +6,22 @@
     -fx-min-width: 12px;
     -fx-max-width: 12px;
     -fx-pref-width: 12px;
+}
+
+.separator.no-map {
+    -fx-background-color: #FD4203;
+}
+
+.separator.not-ready {
     -fx-background-color: white;
+}
+
+.separator.ready {
+    -fx-background-color: #9AC93C;
+}
+
+.separator.playing {
+    -fx-background-color: #ADD8E7;
 }
 
 .info-box {
@@ -14,12 +29,20 @@
     -fx-alignment: center;
 }
 
-.info-box.unlocked {
-    -fx-background-color: rgba(139, 195, 43, 0.2);
+.info-box.no-map {
+    -fx-background-color: rgba(253, 66, 3, 0.2);
 }
 
-.info-box.locked {
-    -fx-background-color: rgba(231, 66, 7, 0.4);
+.info-box.not-ready {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+}
+
+.info-box.ready {
+    -fx-background-color: rgba(154, 201, 60, 0.2);
+}
+
+.info-box.playing {
+    -fx-background-color: rgba(173, 216, 231, 0.2);
 }
 
 .username-label, .rank-label {

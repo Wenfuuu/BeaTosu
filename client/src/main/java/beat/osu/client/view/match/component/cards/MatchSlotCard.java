@@ -72,8 +72,6 @@ public class MatchSlotCard extends HBox {
     }
 
     private void initializeComponents() {
-        this.getStyleClass().add("match-slot-card");
-
         slotIcon = new ImageView();
 
         if (role == PlayerRole.HOST) {
@@ -113,11 +111,7 @@ public class MatchSlotCard extends HBox {
         HBox.setHgrow(infoBox, Priority.ALWAYS);
         infoBox.getStyleClass().add("info-box");
 
-        if (isLocked) {
-            infoBox.getStyleClass().add("locked");
-        } else {
-            infoBox.getStyleClass().add("unlocked");
-        }
+        updateColorByState(infoBox);
 
         separator.minHeightProperty().bind(this.heightProperty());
         separator.prefHeightProperty().bind(this.heightProperty());
@@ -125,6 +119,22 @@ public class MatchSlotCard extends HBox {
         HBox.setMargin(separator, new Insets(0, 12, 0, 18));
 
         this.getChildren().addAll(iconContainer, separator, infoBox);
+    }
+
+    private void updateColorByState(HBox infoBox) {
+        if (status == PlayerStatus.NO_MAP) {
+            separator.getStyleClass().add("no-map");
+            infoBox.getStyleClass().add("no-map");
+        } else if (status == PlayerStatus.NOT_READY) {
+            separator.getStyleClass().add("not-ready");
+            infoBox.getStyleClass().add("not-ready");
+        } else if (status == PlayerStatus.READY) {
+            separator.getStyleClass().add("ready");
+            infoBox.getStyleClass().add("ready");
+        } else if (status == PlayerStatus.PLAYING) {
+            separator.getStyleClass().add("playing");
+            infoBox.getStyleClass().add("playing");
+        }
     }
 
     private void loadStyles() {
@@ -184,27 +194,20 @@ public class MatchSlotCard extends HBox {
     }
 
     private void refreshSlotStatus() {
-        this.getStyleClass().removeAll("locked", "unlocked", "host");
-
         if (role == PlayerRole.HOST) {
             slotIcon.setImage(hostIcon);
-            this.getStyleClass().add("host");
         } else if (isLocked) {
             slotIcon.setImage(lockedIcon);
-            this.getStyleClass().add("locked");
         } else {
             slotIcon.setImage(unlockedIcon);
-            this.getStyleClass().add("unlocked");
         }
 
         HBox infoBox = (HBox) this.getChildren().get(2);
-        infoBox.getStyleClass().removeAll("locked", "unlocked");
 
-        if (isLocked) {
-            infoBox.getStyleClass().add("locked");
-        } else {
-            infoBox.getStyleClass().add("unlocked");
-        }
+        separator.getStyleClass().removeAll("no-map", "not-ready", "ready", "playing");
+        infoBox.getStyleClass().removeAll("no-map", "not-ready", "ready", "playing");
+
+        updateColorByState(infoBox);
     }
 
     private void refreshLabels() {
@@ -220,13 +223,5 @@ public class MatchSlotCard extends HBox {
     private void refreshTooltip() {
         Tooltip.uninstall(this, null);
         setupHoverPopup();
-    }
-
-    public int getMatchSlotIndex() {
-        return matchSlotIndex;
-    }
-
-    public void setSlotCardClickCallback(SlotCardClickCallback callback) {
-        this.slotCardClickCallback = callback;
     }
 }
