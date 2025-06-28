@@ -48,6 +48,11 @@ public class ResourceManager {
         return new File(dir, "audio.mp3").getAbsolutePath();
     }
 
+    public static boolean beatmapSetDirectoryExists(int beatmapSetId) {
+        File dir = new File(getTempDirectory(), String.valueOf(beatmapSetId));
+        return dir.exists() && dir.isDirectory();
+    }
+
     public static InputStream getResourceAsStream(String path) {
         return ResourceManager.class.getResourceAsStream("/" + path);
     }

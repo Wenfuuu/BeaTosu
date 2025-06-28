@@ -1,12 +1,8 @@
 package beat.osu.client.view.match;
 
-import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import beat.osu.client.controller.BeatmapController;
@@ -39,11 +35,11 @@ import beat.osu.client.view.shared.common.Page;
 import beat.osu.client.view.shared.common.Toast;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.beatmap.BeatmapDto;
-import beat.osu.shared.dto.beatmap.responses.GetBeatmapByIdResponse;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
 import beat.osu.shared.dto.match.events.HostChangedEvent;
 import beat.osu.shared.dto.match.events.HostLeftEvent;
+import beat.osu.shared.dto.match.events.MatchBeatmapUpdatedEvent;
 import beat.osu.shared.dto.match.events.MatchNameUpdatedEvent;
 import beat.osu.shared.dto.match.events.MatchStartedEvent;
 import beat.osu.shared.dto.match.events.MatchWinConditionUpdatedEvent;
@@ -59,7 +55,6 @@ import beat.osu.shared.dto.match.responses.TransferHostResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchNameResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchPasswordResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchWinConditionResponse;
-import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.MatchWinCondition;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.match.PlayerStatus;
@@ -98,8 +93,6 @@ public class MatchView extends Page {
     private boolean inProgress;
     private int maxPlayerCount;
 
-    private int beatmapId;
-    private String beatmapName;
     private Beatmap beatmap;
 
     private MatchWinCondition winCondition;
@@ -134,7 +127,9 @@ public class MatchView extends Page {
     private PauseTransition changeGameNameTransition;
     private Label beatmapLabel;
     private Button changeBeatmapButton;
+    private Button updateBeatmapButton;
     private BeatmapCard beatmapCard;
+    private VBox rightContent;
     private Label winConditionLabel;
     private ComboBox<String> winConditionComboBox;
 
@@ -162,8 +157,7 @@ public class MatchView extends Page {
         this.matchPassword = matchDto.getPassword();
         this.inProgress = matchDto.isInProgress();
         this.maxPlayerCount = matchDto.getMaxPlayerCount();
-        this.beatmapId = matchDto.getBeatmap().getId();
-        this.beatmapName = matchDto.getBeatmap().getBeatmapSetDto().getTitle();
+        this.beatmap = convertBeatmapDtoToBeatmap(matchDto.getBeatmap());
         this.winCondition = matchDto.getWinCondition();
 
         setupView();
@@ -331,13 +325,31 @@ public class MatchView extends Page {
         winConditionBox.setAlignment(Pos.CENTER_RIGHT);
         VBox.setMargin(winConditionBox, new Insets(20, 40, 0, 0));
 
+
+        // TODO: Remove later after finish testing
+        TextField beatmapIdTextField = new TextField();
+        updateBeatmapButton = new Button("Update Beatmap");
+        HBox beatmapIdBox = new HBox(10);
+        beatmapIdBox.getChildren().addAll(beatmapIdTextField, updateBeatmapButton);
+        updateBeatmapButton.setOnAction(e -> {
+            int beatmapId = Integer.parseInt(beatmapIdTextField.getText());
+            matchController.updateMatchBeatmap(matchId, beatmapId).thenAccept(result -> {
+                if (result.isSuccess()) {
+                    System.out.println("Successfully updated beatmap to ID: " + beatmapId);
+                } else {
+                    Toast.error("Failed to update beatmap: " + result.getError().getMessage()).show();
+                }
+            });
+        });
+
+
         blueButton = new Button("Ready");
         blueButton.getStyleClass().add("ready-button");
 
-        beatmap = fetchBeatmapById(matchDto.getBeatmap().getId());
-        BeatmapCard card = BeatmapCard.available(beatmap);
+        boolean beatmapExists = ResourceManager.beatmapSetDirectoryExists(beatmap.getBeatmapSetId());
+        beatmapCard = beatmapExists ? BeatmapCard.available(beatmap) : BeatmapCard.noMap(beatmap.getBeatmapSet().getTitle(), beatmap.getBeatmapSet().getArtist());
 
-        VBox rightContent = new VBox(gameBox, gameNameTextField, beatmapBox, card, winConditionBox);
+        rightContent = new VBox(gameBox, gameNameTextField, beatmapBox, beatmapCard, winConditionBox, beatmapIdBox);
         rightContent.setPadding(new Insets(24, 0, 10, ScreenManager.SCREEN_WIDTH * 0.1));
 
         rightContent.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.43);
@@ -591,6 +603,7 @@ public class MatchView extends Page {
         matchController.addHostLeftCallback(this::onHostLeft);
         matchController.addSlotChangedCallback(this::onSlotChanged);
         matchController.addMatchNameUpdatedCallback(this::onMatchNameUpdated);
+        matchController.addMatchBeatmapUpdatedCallback(this::onMatchBeatmapUpdated);
         matchController.addMatchWinConditionUpdatedCallback(this::onMathWinConditionUpdated);
         matchController.addPlayerStatusUpdatedCallback(this::onPlayerStatusUpdated);
     }
@@ -682,6 +695,39 @@ public class MatchView extends Page {
         }
     }
 
+    private void onMatchBeatmapUpdated(MatchBeatmapUpdatedEvent event) {
+        if (event.getMatchId() == this.matchId) {
+            Platform.runLater(() -> {
+                beatmap = convertBeatmapDtoToBeatmap(event.getNewBeatmapDto());
+                
+                boolean beatmapExists = ResourceManager.beatmapSetDirectoryExists(beatmap.getBeatmapSetId());
+                
+                BeatmapCard newBeatmapCard = beatmapExists ?
+                    BeatmapCard.available(beatmap) : 
+                    BeatmapCard.noMap(beatmap.getBeatmapSet().getTitle(), beatmap.getBeatmapSet().getArtist());
+                
+                int beatmapCardIndex = rightContent.getChildren().indexOf(beatmapCard);
+                if (beatmapCardIndex != -1) {
+                    rightContent.getChildren().set(beatmapCardIndex, newBeatmapCard);
+                    beatmapCard = newBeatmapCard;
+                }
+                
+                if (!beatmapExists) {
+                    PlayerStatus currentStatus = getCurrentUserStatus();
+                    if (currentStatus != PlayerStatus.NO_MAP) {
+                        matchController.updatePlayerStatus(matchId, PlayerStatus.NO_MAP).thenAccept(result -> {
+                            if (!result.isSuccess()) {
+                                System.err.println("Failed to update player status to NO_MAP: " + result.getError().getMessage());
+                            }
+                        });
+                    }
+                }
+                
+                updateBlueButtonState();
+            });
+        }
+    }
+
     private void onMathWinConditionUpdated(MatchWinConditionUpdatedEvent event) {
         if (event.getMatchId() == this.matchId) {
             Platform.runLater(() -> {
@@ -723,103 +769,6 @@ public class MatchView extends Page {
         });
 
         fadeOut.play();
-    }
-
-    private Beatmap fetchBeatmapById(int id) {
-        File tempDir = ResourceManager.getTempDirectory();
-        Set<String> validBeatmapDirs = new HashSet<>();
-
-        if (tempDir.exists() && tempDir.isDirectory()) {
-            for (File file : Objects.requireNonNull(tempDir.listFiles())) {
-                if (file.isDirectory()) {
-                    validBeatmapDirs.add(file.getName());
-                }
-            }
-        }
-
-        try {
-            Result<GetBeatmapByIdResponse> result = beatmapController.getBeatmapById(id).get();
-
-            if (result.isSuccess()) {
-                BeatmapDto beatmapDto = result.getValue().getBeatmap();
-                String expectedDirName = String.valueOf(beatmapDto.getBeatmapSetId());
-
-                if (!validBeatmapDirs.contains(expectedDirName)) {
-                    return null;
-                }
-
-                BeatmapSet beatmapSet = new BeatmapSet(
-                        beatmapDto.getBeatmapSetDto().getId(),
-                        beatmapDto.getBeatmapSetDto().getTitle(),
-                        beatmapDto.getBeatmapSetDto().getArtist(),
-                        beatmapDto.getBeatmapSetDto().getCreator(),
-                        beatmapDto.getBeatmapSetDto().getLength(),
-                        beatmapDto.getBeatmapSetDto().getBpm()
-                );
-
-                return new Beatmap(
-                        beatmapDto.getId(),
-                        beatmapDto.getBeatmapSetDto().getId(),
-                        beatmapDto.getVersion(),
-                        beatmapDto.getHpDrainRate(),
-                        beatmapDto.getCircleSize(),
-                        beatmapDto.getOverallDifficulty(),
-                        beatmapDto.getApproachRate(),
-                        beatmapDto.getSliderMultiplier(),
-                        beatmapDto.getSliderTickRate(),
-                        beatmapDto.getStarRating(),
-                        beatmapSet
-                );
-
-            } else {
-                System.err.println("Failed to fetch beatmaps: " + result.getError().getMessage());
-            }
-
-            return null;
-        } catch (Exception e) {
-            System.err.println("Error fetching beatmap: " + e.getMessage());
-            return null;
-        }
-    }
-
-    private MatchPlayerDto createMatchPlayer(
-            int slotIndex,
-            int userId,
-            String username,
-            String email,
-            String countryCode,
-            int performance,
-            double accuracy,
-            int playCount,
-            int level,
-            int rank,
-            boolean isSupporter,
-            PlayerRole role,
-            PlayerStatus status
-    ) {
-        UserDto user = new UserDto(
-                userId,
-                username,
-                email,
-                countryCode,
-                null,
-                performance,
-                accuracy,
-                playCount,
-                level,
-                rank,
-                isSupporter
-        );
-
-        return new MatchPlayerDto(
-                userId,
-                matchId,
-                user.getId(),
-                user,
-                role,
-                status,
-                slotIndex
-        );
     }
 
     private void updateSlotCardCallback() {
@@ -1045,6 +994,29 @@ public class MatchView extends Page {
                     break;
             }
         });
+    }
+
+    private Beatmap convertBeatmapDtoToBeatmap(BeatmapDto beatmapDto) {
+        BeatmapSet beatmapSet = new BeatmapSet(
+                beatmapDto.getBeatmapSetDto().getId(),
+                beatmapDto.getBeatmapSetDto().getTitle(),
+                beatmapDto.getBeatmapSetDto().getArtist(),
+                beatmapDto.getBeatmapSetDto().getCreator(),
+                beatmapDto.getBeatmapSetDto().getLength(),
+                beatmapDto.getBeatmapSetDto().getBpm());
+
+        return new Beatmap(
+                beatmapDto.getId(),
+                beatmapDto.getBeatmapSetDto().getId(),
+                beatmapDto.getVersion(),
+                beatmapDto.getHpDrainRate(),
+                beatmapDto.getCircleSize(),
+                beatmapDto.getOverallDifficulty(),
+                beatmapDto.getApproachRate(),
+                beatmapDto.getSliderMultiplier(),
+                beatmapDto.getSliderTickRate(),
+                beatmapDto.getStarRating(),
+                beatmapSet);
     }
     
     private void updateBlueButtonState() {
