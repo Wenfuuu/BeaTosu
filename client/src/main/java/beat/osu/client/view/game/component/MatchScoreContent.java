@@ -15,7 +15,7 @@ public class MatchScoreContent extends ScrollPane {
     public MatchScoreContent(ArrayList<MatchScoreEvent> matchScores) {
         this.scoreListBox = new VBox();
         this.getStyleClass().add("match-score-content");
-        this.setFitToWidth(true);
+        this.setFitToWidth(false);
         this.setHbarPolicy(ScrollBarPolicy.NEVER);
         this.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
 
@@ -45,6 +45,7 @@ public class MatchScoreContent extends ScrollPane {
     }
 
     public void populateScores(ArrayList<MatchScoreEvent> matchScores) {
+        System.out.println("Populating match scores: " + matchScores.size());
         scoreListBox.getChildren().clear();
         for (MatchScoreEvent score : matchScores) {
             MatchScoreItem scoreItem = new MatchScoreItem(score);

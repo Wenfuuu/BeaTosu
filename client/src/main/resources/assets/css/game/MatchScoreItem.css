@@ -2,11 +2,13 @@
     -fx-font-family: 'Aller';
     -fx-background-color: rgba(0, 0, 0, 0.25);
     -fx-background-radius: 0;
-    -fx-padding: 15 20 15 20;
+    -fx-padding: 10 15 10 15;
     -fx-alignment: center-left;
     -fx-border-width: 0;
     -fx-border-radius: 0;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0.0, 0, 2);
+    -fx-pref-width: 260;
+    -fx-max-width: 260;
 }
 
 .score-profile-picture {

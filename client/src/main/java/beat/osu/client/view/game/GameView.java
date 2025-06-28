@@ -7,14 +7,13 @@ import beat.osu.client.helper.*;
 import beat.osu.client.interfaces.game.GameEventListener;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.HitObject;
-import beat.osu.client.view.game.component.FailOverlay;
+import beat.osu.client.view.game.component.*;
 import beat.osu.client.view.shared.common.Page;
-import beat.osu.client.view.game.component.GameUI;
-import beat.osu.client.view.game.component.PauseOverlay;
-import beat.osu.client.view.game.component.ResultOverlay;
+import beat.osu.shared.dto.match.events.MatchScoreEvent;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -51,6 +50,7 @@ public class GameView extends Page implements GameEventListener {
     private PauseOverlay pauseOverlay;
     private ResultOverlay resultOverlay;
     private FailOverlay failOverlay;
+    private MatchScoreContent matchScoreContent;
 
     private final Beatmap beatmap;
     private final GameManager gm;
@@ -103,9 +103,24 @@ public class GameView extends Page implements GameEventListener {
         pauseOverlay = new PauseOverlay();
         resultOverlay = new ResultOverlay();
         failOverlay = new FailOverlay();
+        matchScoreContent = new MatchScoreContent(new ArrayList<>());
+
+        // Set size constraints for the match score content
+        matchScoreContent.setPrefWidth(300);
+        matchScoreContent.setMaxWidth(300);
+        matchScoreContent.setPrefHeight(400);
+        matchScoreContent.setMaxHeight(400);
+        // Only show in multiplayer mode
+        matchScoreContent.setVisible(isMultiplayer);
+
         createGamePane();
 
-        root.getChildren().addAll(gamePane, uiPane, pauseOverlay, resultOverlay, failOverlay);
+        root.getChildren().addAll(gamePane, uiPane, matchScoreContent, pauseOverlay, resultOverlay, failOverlay);
+
+        // Set alignment for matchScoreContent to center-left (only if multiplayer)
+        if (isMultiplayer) {
+            StackPane.setAlignment(matchScoreContent, Pos.CENTER_LEFT);
+        }
     }
 
     private void createGamePane() {
@@ -354,7 +369,7 @@ public class GameView extends Page implements GameEventListener {
 
     private void showMissImage(HitObject hitObject) {
         // Don't start new animations if game is paused
-//        if (gameIsPaused) return;
+        // if (gameIsPaused) return;
 
         Image hitImage = new Image(Objects.requireNonNull(Main.class
                 .getResource("/assets/images/hit0.png")).toExternalForm());
@@ -629,6 +644,18 @@ public class GameView extends Page implements GameEventListener {
                 InputOverlayEvent inputData = event.getData(InputOverlayEvent.class);
                 if (inputData != null) {
                     uiPane.updateInputOverlay(inputData.isKey1Pressed(), inputData.isKey2Pressed());
+                }
+                break;
+            case MATCH_SCORE_CHANGED:
+                System.out.println("Match score changed event received");
+                @SuppressWarnings("unchecked")
+                ArrayList<MatchScoreEvent> matchScoreEvents = (ArrayList<MatchScoreEvent>)
+                        event.getData(ArrayList.class);
+                if (matchScoreEvents != null && isMultiplayer) {
+                    Platform.runLater(() -> {
+                        matchScoreContent.populateScores(matchScoreEvents);
+                        // optional animation later
+                    });
                 }
                 break;
             case GAME_STARTED:

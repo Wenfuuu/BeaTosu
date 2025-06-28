@@ -1,11 +1,12 @@
 .match-score-content {
     -fx-padding: 0;
     -fx-background-color: transparent;
-    -fx-fit-to-width: true;
+    -fx-fit-to-width: false;
     -fx-fit-to-height: false;
     -fx-hbar-policy: never;
     -fx-vbar-policy: as-needed;
     -fx-border-width: 0;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.0, 0, 3);
 }
 
 .match-score-content .viewport {
@@ -39,5 +40,7 @@
 .match-score-list {
     -fx-background-color: transparent;
     -fx-spacing: 2;
-    -fx-padding: 2;
+    -fx-padding: 5;
+    -fx-pref-width: 280; /* Fixed width for the list */
+    -fx-max-width: 280;
 }
