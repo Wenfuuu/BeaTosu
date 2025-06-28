@@ -435,32 +435,36 @@ public class MatchView extends Page {
 
         readyButton.setOnMouseClicked(e -> {
             PlayerStatus currentStatus = getCurrentUserStatus();
-            PlayerStatus targetStatus;
             
             if (currentStatus == PlayerStatus.NOT_READY) {
-                targetStatus = PlayerStatus.READY;
+                matchController.updatePlayerStatus(matchId, PlayerStatus.READY).thenAccept(result -> {
+                    if (result.isSuccess()) {
+                        System.out.println("Successfully updated status to: READY");
+                    } else {
+                        Toast.error("Failed to update status: " + result.getError().getMessage()).show();
+                    }
+                });
             } else if (currentStatus == PlayerStatus.READY) {
-                targetStatus = PlayerStatus.NOT_READY;
-            } else {
-                return;
-            }
-            
-            matchController.updatePlayerStatus(matchId, targetStatus).thenAccept(result -> {
-                if (result.isSuccess()) {
-                    System.out.println("Successfully updated status to: " + targetStatus);
+                if (isHost) {
+                    matchController.startMatch(matchId).thenApply(response -> {
+                        if (response.isSuccess()) {
+                            System.out.println("Successfully start match: " + response.getValue().getMessage());
+                        } else {
+                            System.err.println("Failed to start match: " + response.getError().getMessage());
+                            Toast.error("Failed to start match: " + response.getError().getMessage()).show();
+                        }
+                        return null;
+                    });
                 } else {
-                    Toast.error("Failed to update status: " + result.getError().getMessage()).show();
+                    matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
+                        if (result.isSuccess()) {
+                            System.out.println("Successfully updated status to: NOT_READY");
+                        } else {
+                            Toast.error("Failed to update status: " + result.getError().getMessage()).show();
+                        }
+                    });
                 }
-            });
-
-//            matchController.startMatch(matchId).thenApply(response -> {
-//                if (response.isSuccess()) {
-//                    System.out.println("Successfully start match: " + response.getValue().getMessage());
-//                } else {
-//                    System.err.println("Failed to start match: " + response.getError().getMessage());
-//                }
-//                return null;
-//            });
+            }
         });
 
         hostActionsModal.getTransferHostButton().setOnMouseClicked(e -> {
@@ -617,6 +621,7 @@ public class MatchView extends Page {
             Platform.runLater(() -> {
                 matchSlotPanel.updateHost(event.getNewHostUserId(), event.getPreviousHostUserId());
                 updateHostStatus();
+                updateReadyButtonState();
             });
         }
     }
@@ -626,6 +631,7 @@ public class MatchView extends Page {
             Platform.runLater(() -> {
                 matchSlotPanel.hostLeft(event.getPreviousHostUserId(), event.getNewHostUserId());
                 updateHostStatus();
+                updateReadyButtonState();
             });
         }
     }
@@ -964,6 +970,7 @@ public class MatchView extends Page {
     }
 
     private void updateReadyButtonState() {
+        updateHostStatus();
         PlayerStatus currentStatus = getCurrentUserStatus();
         
         Platform.runLater(() -> {
@@ -977,7 +984,11 @@ public class MatchView extends Page {
                     break;
                 case READY:
                     readyButton.setVisible(true);
-                    readyButton.setText("Not Ready");
+                    if (isHost) {
+                        readyButton.setText("Start Game!");
+                    } else {
+                        readyButton.setText("Not Ready");
+                    }
                     break;
                 case PLAYING:
                 case FINISHED:
