@@ -27,6 +27,16 @@ public class BgmManager {
 
     @Setter
     private double BGM_VOLUME = 0.2;
+    @Setter
+    private boolean autoProgressionEnabled = true;
+
+    private enum PlaybackMode {
+        PREVIEW,
+        PLAYLIST,
+        DEFAULT
+    }
+
+    private PlaybackMode currentPlaybackMode = PlaybackMode.DEFAULT;
 
     private BgmManager() {
 
@@ -83,6 +93,8 @@ public class BgmManager {
 
     public void playPreviewBgm(boolean fromAnotherPage) {
         System.out.println("calling playPreviewBgm, fromAnotherPage: " + fromAnotherPage);
+        BgmManager.getInstance().disableAutoProgression();
+        
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
         File tempDir = ResourceManager.getTempDirectory();
         File beatmapDir = new File(tempDir, String.valueOf(beatmap.getBeatmapSetId()));
@@ -112,7 +124,6 @@ public class BgmManager {
 //                currentPlayer.play();
                 if(currentPlayer.getCurrentTime().lessThan(currentPlayer.getTotalDuration())) currentPlayer.play();
                 else {
-                    // for playing the same song again after completing the game
                     currentBgmHash = null;
                     playPreviewBgm(false);
                     return;
@@ -125,6 +136,7 @@ public class BgmManager {
         System.out.println("From another page, Different BGM content. Playing new BGM.");
         stopBgm();
         currentBgmHash = newHash;
+        currentPlaybackMode = PlaybackMode.PREVIEW;
 
         Media media = new Media(audioFile.toURI().toString());
         currentPlayer = new MediaPlayer(media);
@@ -132,16 +144,13 @@ public class BgmManager {
         BeatmapSet beatmapSet = beatmap.getBeatmapSet();
         String audioPath = ResourceManager.getBeatmapSetAudioPath(beatmapSet.getBeatmapSetId());
         Song song = new Song(beatmapSet.getBeatmapSetId(), beatmapSet.getTitle(), beatmapSet.getArtist(), audioPath);
-        PlaylistManager.getInstance().playSong(song);
+        PlaylistManager.getInstance().setCurrentSongForPreview(song);
 
         currentPlayer.setOnReady(() -> {
             Duration previewTime = new Duration(OsuParser.getPreviewTime());
             currentPlayer.seek(previewTime);
 
-            currentPlayer.setOnEndOfMedia(() -> {
-                currentPlayer.seek(previewTime);
-                currentPlayer.play();
-            });
+            setupEndOfMediaBehavior();
         });
 
         currentPlayer.setAutoPlay(true);
@@ -189,12 +198,14 @@ public class BgmManager {
         stopBgm();
         defaultBgmHash = computeFileHash(bgmFile);
         currentBgmHash = defaultBgmHash;
+        currentPlaybackMode = PlaybackMode.DEFAULT;
 
         try {
             Media media = new Media(bgmFile.toURI().toString());
             currentPlayer = new MediaPlayer(media);
             currentPlayer.setAutoPlay(true);
             currentPlayer.setVolume(BGM_VOLUME);
+            setupEndOfMediaBehavior();
         } catch (Exception e) {
             System.err.println("Failed to load BGM: " + bgmFile.getPath());
             e.printStackTrace();
@@ -204,6 +215,7 @@ public class BgmManager {
     public void playAudio(String audioPath) {
         File songFile = new File(audioPath);
         currentBgmHash = computeFileHash(songFile);
+        currentPlaybackMode = PlaybackMode.PLAYLIST;
 
         stopBgm();
         try {
@@ -211,9 +223,38 @@ public class BgmManager {
             currentPlayer = new MediaPlayer(media);
             currentPlayer.setAutoPlay(true);
             currentPlayer.setVolume(BGM_VOLUME);
+            
+            setupEndOfMediaBehavior();
         } catch (Exception e) {
             System.err.println("Failed to load BGM: " + songFile.getPath());
             e.printStackTrace();
+        }
+    }
+
+    private void setupEndOfMediaBehavior() {
+        if (currentPlayer == null) return;
+        
+        switch (currentPlaybackMode) {
+            case PREVIEW:
+                currentPlayer.setOnEndOfMedia(() -> {
+                    Duration previewTime = new Duration(OsuParser.getPreviewTime());
+                    currentPlayer.seek(previewTime);
+                    currentPlayer.play();
+                });
+                break;
+                
+            case PLAYLIST:
+                if (autoProgressionEnabled) {
+                    currentPlayer.setOnEndOfMedia(() -> {
+                        PlaylistManager.getInstance().playNextSong();
+                    });
+                }
+                break;
+                
+            case DEFAULT:
+            default:
+                currentPlayer.setOnEndOfMedia(null);
+                break;
         }
     }
 
@@ -241,5 +282,13 @@ public class BgmManager {
         if (currentPlayer != null) {
             currentPlayer.setVolume(volume);
         }
+    }
+
+    public void enableAutoProgression() {
+        this.autoProgressionEnabled = true;
+    }
+
+    public void disableAutoProgression() {
+        this.autoProgressionEnabled = false;
     }
 }

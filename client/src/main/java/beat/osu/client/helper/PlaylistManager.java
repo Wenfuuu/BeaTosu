@@ -172,7 +172,13 @@ public class PlaylistManager implements SongEventPublisher {
 
     public void playSong(Song song) {
         setCurrentSong(song);
+        BgmManager.getInstance().enableAutoProgression();
         BgmManager.getInstance().playAudio(song.getAudioPath());
+        notifyListeners(new SongChangeEvent(song));
+    }
+
+    public void setCurrentSongForPreview(Song song) {
+        setCurrentSong(song);
         notifyListeners(new SongChangeEvent(song));
     }
 
