@@ -13,6 +13,7 @@ import beat.osu.client.view.lobby.component.ui.MatchFilters;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.events.HostChangedEvent;
 import beat.osu.shared.dto.match.events.HostLeftEvent;
+import beat.osu.shared.dto.match.events.MatchBeatmapUpdatedEvent;
 import beat.osu.shared.dto.match.events.MatchCreatedEvent;
 import beat.osu.shared.dto.match.events.MatchEndedEvent;
 import beat.osu.shared.dto.match.events.MatchNameUpdatedEvent;
@@ -144,6 +145,7 @@ public class MatchesPanel extends VBox {
         matchController.addHostLeftCallback(this::onHostLeft);
         matchController.addSlotChangedCallback(this::onSlotChanged);
         matchController.addMatchNameUpdatedCallback(this::onMatchNameUpdated);
+        matchController.addMatchBeatmapUpdatedCallback(this::onMatchBeatmapUpdated);
     }
     
     private void onMatchCreated(MatchCreatedEvent event) {
@@ -213,6 +215,16 @@ public class MatchesPanel extends VBox {
             MatchCard matchCard = matchCardMap.get(event.getMatchId());
             if (matchCard != null) {
                 matchCard.updateMatchName(event.getNewName());
+            }
+        });
+    }
+
+    private void onMatchBeatmapUpdated(MatchBeatmapUpdatedEvent event) {
+        Platform.runLater(() -> {
+            MatchCard matchCard = matchCardMap.get(event.getMatchId());
+            if (matchCard != null) {
+                String beatmapName = event.getNewBeatmapDto().getBeatmapSetDto().getTitle();
+                matchCard.updateBeatmap(event.getNewBeatmapDto().getId(), beatmapName);
             }
         });
     }

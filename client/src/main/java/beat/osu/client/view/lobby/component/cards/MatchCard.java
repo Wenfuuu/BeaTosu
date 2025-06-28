@@ -487,7 +487,19 @@ public class MatchCard extends HBox {
     public void updateMatchName(String newName) {
         if (newName != null && !newName.trim().isEmpty()) {
             this.matchName = newName;
-            matchNameLabel.setText(newName);
+            if (matchNameLabel != null) {
+                matchNameLabel.setText(newName);
+            }
+        }
+    }
+
+    public void updateBeatmap(int newBeatmapId, String newBeatmapName) {
+        if (newBeatmapName != null && !newBeatmapName.trim().isEmpty()) {
+            this.beatmapId = newBeatmapId;
+            this.beatmapName = newBeatmapName;
+            if (beatmapNameLabel != null) {
+                beatmapNameLabel.setText(newBeatmapName);
+            }
         }
     }
 }
