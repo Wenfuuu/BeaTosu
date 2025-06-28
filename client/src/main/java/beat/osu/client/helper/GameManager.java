@@ -24,6 +24,7 @@ import beat.osu.shared.dto.match.events.MatchCompletedEvent;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
 import beat.osu.shared.dto.match.events.PlayerFinishedEvent;
 import beat.osu.shared.dto.user.UserDto;
+import beat.osu.shared.enums.match.MatchWinCondition;
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
 import lombok.Getter;
@@ -39,6 +40,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private final List<GameEventListener> gameEventListenerList = new CopyOnWriteArrayList<>();
 
     private final Beatmap beatmap;
+    private final MatchDto matchDto;
     @Getter
     private final ArrayList<HitObject> hitObjects;
     private boolean isMultiplayer;
@@ -92,8 +94,10 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     // Throttling for network events
     private long lastSpectateEventSent = 0;
     private long lastMatchScoreEventSent = 0;
+    private final long initialMatchScoreDelay; // Random delay for each player
     private static final long SPECTATE_EVENT_INTERVAL = 50; // Send every 50ms (20 FPS)
     private static final long MATCH_SCORE_EVENT_INTERVAL = 2000; // Send every 2 seconds
+    private static final long BASE_INITIAL_MATCH_SCORE_DELAY = 3000; // Base delay 3 seconds
 
     int testCount = 0;
 
@@ -148,7 +152,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         sessionController.createPlayingBeatmapSession(user.getId(), beatmap.getBeatmapId()).thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Session created successfully: " + response.getValue().getMessage());
-                if(isMultiplayer) sendMatchScoreEvent();
             } else {
                 System.err.println("Failed to create session: " + response.getError().getMessage());
             }
@@ -166,7 +169,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         sessionController.removePlayingBeatmapSession(user.getId()).thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Session removed successfully: " + response.getValue().getMessage());
-                // notify server that player exit/completed game, that will also send final match score
+                // notify server that player exit/completed game, that will also send final
+                // match score
                 sendMatchScoreEvent();
             } else {
                 System.err.println("Failed to remove session: " + response.getError().getMessage());
@@ -302,7 +306,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         }
 
         UserDto user = AuthManager.getUser();
-        if (user == null) return;
+        if (user == null)
+            return;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String formatted = now.format(formatter);
         String osrFileName = String.format("%s-%s-%s.osr",
@@ -343,7 +348,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void failGame() {
-        // Notify spectators (this will also remove session after notification completes)
+        // Notify spectators (this will also remove session after notification
+        // completes)
         notifySpectatorsPlayerExited();
 
         System.out.println("Game failed, stopping game");
@@ -416,7 +422,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             HitObject hitObject = iterator.next();
             hitObject.update(elapsedMillis);
             if (hitObject instanceof HitSpinner) {
-                if (keyHolded) ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
+                if (keyHolded)
+                    ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
             } else if (hitObject instanceof HitSlider) {
                 ((HitSlider) hitObject).updateSlider(currentMouseX, currentMouseY);
             }
@@ -512,8 +519,9 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             if (response.isSuccess()) {
                 System.out.println("Spectate event sent successfully: " + response.getValue().getMessage());
 
-                // Send match score event with proper throttling
-                if (isMultiplayer && elapsedMillis - lastMatchScoreEventSent >= MATCH_SCORE_EVENT_INTERVAL) {
+                // Send match score event with proper throttling and random initial delay
+                if (isMultiplayer && elapsedMillis >= initialMatchScoreDelay &&
+                        elapsedMillis - lastMatchScoreEventSent >= MATCH_SCORE_EVENT_INTERVAL) {
                     sendMatchScoreEvent();
                     lastMatchScoreEventSent = elapsedMillis;
                 }
@@ -528,23 +536,25 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void sendMatchScoreEvent() {
-        if (!isMultiplayer) return;
+        if (!isMultiplayer)
+            return;
 
         try {
-            System.out.println("Sending match score event");
-            MatchDto matchDto = ViewManager.getInstance().getCurrentMatchDto();
+            System.out.println("Sending match score event (delay: " + initialMatchScoreDelay + "ms)");
             MatchScoreEvent event = new MatchScoreEvent(matchDto.getId(),
-                    score, masterComboNumber, AuthManager.getUser());
+                    score, masterComboNumber, highestCombo, accuracy, AuthManager.getUser());
             matchController.sendMatchScoreEvent(event).thenApply(response -> {
                 if (response.isSuccess()) {
                     System.out.println("Match score event sent successfully: " + response.getValue().getMessage());
-                    if (isMultiplayer && gameState == GameState.COMPLETED) sendPlayerFinishedEvent();
+                    if (isMultiplayer && gameState == GameState.COMPLETED)
+                        sendPlayerFinishedEvent();
                 } else {
                     System.err.println("Failed to send match score event: " + response.getError().getMessage());
                 }
                 return null;
             }).exceptionally(throwable -> {
                 System.err.println("Exception in sendMatchScoreEvent: " + throwable.getMessage());
+                throwable.printStackTrace();
                 return null;
             });
         } catch (Exception e) {
@@ -554,11 +564,11 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void sendPlayerFinishedEvent() {
-        if (!isMultiplayer) return;
+        if (!isMultiplayer)
+            return;
 
         try {
             System.out.println("Sending player finished event");
-            MatchDto matchDto = ViewManager.getInstance().getCurrentMatchDto();
             PlayerFinishedEvent event = new PlayerFinishedEvent(matchDto.getId(), AuthManager.getUser());
             matchController.sendPlayerFinishedEvent(event).thenApply(response -> {
                 if (response.isSuccess()) {
@@ -842,7 +852,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         if (isThisObjectANewCombo) {
             currentComboNumberInSet = 1; // Reset number for this new combo set
-            // Apply combo skip from the *previous* new combo object, or this one if it's the first.
+            // Apply combo skip from the *previous* new combo object, or this one if it's
+            // the first.
             // The comboSetIndex is incremented by 1 + the number of colors to skip.
             currentComboSetIndex = (currentComboSetIndex + 1 + comboSkipCounter) % OsuParser.getColours().size();
             comboSkipCounter = comboSkipFromThisObject; // Store skip for NEXT new combo
@@ -867,6 +878,10 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         this.sessionController = new SessionController();
         this.spectateController = new SpectateController();
         this.matchController = new MatchController();
+        this.matchDto = ViewManager.getInstance().getCurrentMatchDto();
+
+        // Add random delay (0-2 seconds) to prevent race conditions
+        this.initialMatchScoreDelay = BASE_INITIAL_MATCH_SCORE_DELAY + (long) (Math.random() * 2000);
 
         processBeatmap();
         setupMatchCallbacks();
@@ -896,19 +911,25 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 break;
             }
         }
+        if (!found)
+            multiplayerScores.add(event);
 
-        // If user not found, add new score entry
-        if (!found) multiplayerScores.add(event);
-        // Sort by score (highest first)
-        multiplayerScores.sort((a, b) -> Integer.compare(b.getScore(), a.getScore()));
+        if (matchDto.getWinCondition() == MatchWinCondition.SCORE) {
+            multiplayerScores.sort((a, b) -> Integer.compare(b.getScore(), a.getScore()));
+        } else if (matchDto.getWinCondition() == MatchWinCondition.COMBO) {
+            multiplayerScores.sort((a, b) -> Integer.compare(b.getHighestCombo(), a.getHighestCombo()));
+        } else if (matchDto.getWinCondition() == MatchWinCondition.ACCURACY) {
+            multiplayerScores.sort((a, b) -> Double.compare(b.getAccuracy(), a.getAccuracy()));
+        }
+
         notifyListeners(new GameEvent(GameEventType.MATCH_SCORE_CHANGED, multiplayerScores));
-//        System.out.println("Updated multiplayer scores. Current leaderboard:");
-//        for (int i = 0; i < multiplayerScores.size(); i++) {
-//            MatchScoreEvent score = multiplayerScores.get(i);
-//            System.out.println((i + 1) + ". " + score.getUser().getUsername() +
-//                    " - Score: " + score.getScore() +
-//                    " - Combo: " + score.getCombo());
-//        }
+        // System.out.println("Updated multiplayer scores. Current leaderboard:");
+        // for (int i = 0; i < multiplayerScores.size(); i++) {
+        // MatchScoreEvent score = multiplayerScores.get(i);
+        // System.out.println((i + 1) + ". " + score.getUser().getUsername() +
+        // " - Score: " + score.getScore() +
+        // " - Combo: " + score.getCombo());
+        // }
     }
 
     @Override

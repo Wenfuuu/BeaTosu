@@ -11,6 +11,8 @@ import java.io.Serializable;
 public class MatchScoreEvent implements Serializable {
     private int matchId;
     private int score;
+    private int highestCombo;
     private int combo;
+    private double accuracy;
     private UserDto user;
 }
