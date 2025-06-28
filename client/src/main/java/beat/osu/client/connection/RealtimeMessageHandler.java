@@ -10,6 +10,8 @@ public class RealtimeMessageHandler {
     private final ObjectOutputStream oos;
     private final Object writeLock;
     private final List<RealtimeMessageCallback> callbacks = new CopyOnWriteArrayList<>();
+    private int messagesSent = 0;
+    private static final int RESET_INTERVAL = 100; // Reset stream every 100 messages
 
     public RealtimeMessageHandler(ObjectOutputStream oos, Object writeLock) {
         this.oos = oos;
@@ -33,6 +35,13 @@ public class RealtimeMessageHandler {
             synchronized (writeLock) {
                 oos.writeObject(message);
                 oos.flush();
+
+                // Reset ObjectOutputStream periodically to prevent stream corruption
+                messagesSent++;
+                if (messagesSent >= RESET_INTERVAL) {
+                    oos.reset();
+                    messagesSent = 0;
+                }
             }
         } catch (Exception e) {
             System.err.println("Error sending realtime message: " + e.getMessage());

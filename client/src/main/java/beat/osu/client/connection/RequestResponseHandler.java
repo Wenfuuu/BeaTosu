@@ -12,6 +12,8 @@ public class RequestResponseHandler {
     private final ObjectOutputStream oos;
     private final Object writeLock;
     private final ConcurrentHashMap<String, CompletableFuture<Object>> pendingRequests = new ConcurrentHashMap<>();
+    private int requestsSent = 0;
+    private static final int RESET_INTERVAL = 50; // Reset stream every 50 requests
 
     public RequestResponseHandler(ObjectOutputStream oos, Object writeLock) {
         this.oos = oos;
@@ -29,6 +31,13 @@ public class RequestResponseHandler {
             synchronized (writeLock) {
                 oos.writeObject(request);
                 oos.flush();
+
+                // Reset ObjectOutputStream periodically to prevent stream corruption
+                requestsSent++;
+                if (requestsSent >= RESET_INTERVAL) {
+                    oos.reset();
+                    requestsSent = 0;
+                }
             }
         } catch (Exception e) {
             pendingRequests.remove(requestId);

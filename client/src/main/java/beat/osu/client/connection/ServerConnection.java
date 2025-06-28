@@ -34,6 +34,10 @@ public class ServerConnection {
     @Getter
     private RealtimeMessageHandler realtimeHandler;
 
+    private boolean isReconnecting = false;
+    private int reconnectAttempts = 0;
+    private static final int MAX_RECONNECT_ATTEMPTS = 3;
+
     public boolean connect() {
         try {
             configurationManager = ConfigurationManager.getInstance();
@@ -77,10 +81,36 @@ public class ServerConnection {
                 if (connected) {
                     System.err.println("Connection lost: " + e.getMessage());
                     e.printStackTrace(); // Print full stack trace for debugging
-                    Platform.runLater(() -> {
-                        Toast.error("Connection lost: " + e.getMessage()).show();
-                    });
-                    disconnect();
+
+                    // Check if it's a stream corruption error and attempt reconnection
+                    if (e instanceof java.io.StreamCorruptedException ||
+                            e.getMessage().contains("invalid type code")) {
+                        System.err.println("Stream corruption detected, attempting reconnection...");
+                        disconnect();
+
+                        // Attempt reconnection in a separate thread to avoid blocking
+                        if (canReconnect()) {
+                            new Thread(() -> {
+                                boolean reconnected = reconnect();
+                                Platform.runLater(() -> {
+                                    if (reconnected) {
+                                        Toast.success("Reconnected to server").show();
+                                    } else {
+                                        Toast.error("Failed to reconnect to server").show();
+                                    }
+                                });
+                            }).start();
+                        } else {
+                            Platform.runLater(() -> {
+                                Toast.error("Connection lost: " + e.getMessage()).show();
+                            });
+                        }
+                    } else {
+                        Platform.runLater(() -> {
+                            Toast.error("Connection lost: " + e.getMessage()).show();
+                        });
+                        disconnect();
+                    }
                 }
             }
         });
@@ -102,7 +132,27 @@ public class ServerConnection {
         } catch (Exception e) {
             System.err.println("Error routing message: " + e.getMessage());
             e.printStackTrace();
-            // Don't disconnect here, just log the error
+
+            // If we get stream corruption errors, disconnect and attempt reconnection
+            if (e instanceof java.io.StreamCorruptedException ||
+                    e.getMessage().contains("invalid type code")) {
+                System.err.println("Stream corruption detected in message routing, disconnecting...");
+                disconnect();
+
+                // Attempt reconnection in a separate thread
+                if (canReconnect()) {
+                    new Thread(() -> {
+                        boolean reconnected = reconnect();
+                        Platform.runLater(() -> {
+                            if (reconnected) {
+                                Toast.success("Reconnected to server after message routing error").show();
+                            } else {
+                                Toast.error("Failed to reconnect after message routing error").show();
+                            }
+                        });
+                    }).start();
+                }
+            }
         }
     }
 
@@ -161,5 +211,44 @@ public class ServerConnection {
 
     public boolean isConnected() {
         return connected && socket != null && !socket.isClosed();
+    }
+
+    public boolean reconnect() {
+        if (isReconnecting) {
+            return false;
+        }
+
+        isReconnecting = true;
+        reconnectAttempts++;
+
+        System.out.println(
+                "Attempting to reconnect... (attempt " + reconnectAttempts + "/" + MAX_RECONNECT_ATTEMPTS + ")");
+
+        // Clean up current connection
+        disconnect();
+
+        // Wait a bit before reconnecting
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        boolean success = connect();
+        isReconnecting = false;
+
+        if (success) {
+            reconnectAttempts = 0;
+            System.out.println("Reconnection successful");
+        } else if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+            System.err.println("Max reconnection attempts reached, giving up");
+            reconnectAttempts = 0;
+        }
+
+        return success;
+    }
+
+    public boolean canReconnect() {
+        return !isReconnecting && reconnectAttempts < MAX_RECONNECT_ATTEMPTS;
     }
 }

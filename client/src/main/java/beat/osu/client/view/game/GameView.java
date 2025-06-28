@@ -49,12 +49,14 @@ public class GameView extends Page implements GameEventListener {
     private GameUI uiPane;
     private PauseOverlay pauseOverlay;
     private ResultOverlay resultOverlay;
+    private MatchResultOverlay matchResultOverlay;
     private FailOverlay failOverlay;
     private MatchScoreContent matchScoreContent;
 
     private final Beatmap beatmap;
     private final GameManager gm;
     private boolean isMultiplayer;
+    private GameEndEvent gameEndEvent;
 
     // additional spins
     private Image[] digitImages;
@@ -102,6 +104,7 @@ public class GameView extends Page implements GameEventListener {
         uiPane = new GameUI();
         pauseOverlay = new PauseOverlay();
         resultOverlay = new ResultOverlay();
+        matchResultOverlay = new MatchResultOverlay();
         failOverlay = new FailOverlay();
         matchScoreContent = new MatchScoreContent(new ArrayList<>());
 
@@ -115,7 +118,8 @@ public class GameView extends Page implements GameEventListener {
 
         createGamePane();
 
-        root.getChildren().addAll(gamePane, uiPane, matchScoreContent, pauseOverlay, resultOverlay, failOverlay);
+        root.getChildren().addAll(gamePane, uiPane, matchScoreContent, pauseOverlay,
+                resultOverlay, matchResultOverlay, failOverlay);
 
         // Set alignment for matchScoreContent to center-left (only if multiplayer)
         if (isMultiplayer) {
@@ -163,6 +167,10 @@ public class GameView extends Page implements GameEventListener {
 
         resultOverlay.getBackButton().setOnMouseClicked(e -> {
             ViewManager.getInstance().showHomeView();
+        });
+
+        matchResultOverlay.getBackButton().setOnMouseClicked(e -> {
+
         });
 
         failOverlay.getRetryButton().setOnMouseClicked(e -> {
@@ -648,23 +656,40 @@ public class GameView extends Page implements GameEventListener {
                 break;
             case MATCH_SCORE_CHANGED:
                 System.out.println("Match score changed event received");
-                @SuppressWarnings("unchecked")
-                ArrayList<MatchScoreEvent> matchScoreEvents = (ArrayList<MatchScoreEvent>)
-                        event.getData(ArrayList.class);
-                if (matchScoreEvents != null && isMultiplayer) {
-                    Platform.runLater(() -> {
-                        matchScoreContent.populateScores(matchScoreEvents);
-                        // optional animation later
-                    });
+                try {
+                    @SuppressWarnings("unchecked")
+                    ArrayList<MatchScoreEvent> matchScoreEvents = (ArrayList<MatchScoreEvent>) event
+                            .getData(ArrayList.class);
+                    if (matchScoreEvents != null && isMultiplayer && matchScoreContent != null) {
+                        Platform.runLater(() -> {
+                            try {
+                                matchScoreContent.populateScores(matchScoreEvents);
+                                // optional animation later
+                            } catch (Exception e) {
+                                System.err.println("Error updating match score content: " + e.getMessage());
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error processing match score changed event: " + e.getMessage());
+                    e.printStackTrace();
                 }
                 break;
             case MATCH_COMPLETED:
                 System.out.println("Match completed event received, showing match results");
-
+                @SuppressWarnings("unchecked")
+                ArrayList<MatchScoreEvent> matchScores = (ArrayList<MatchScoreEvent>) event.getData(ArrayList.class);
+                if (matchScores != null) {
+                    Platform.runLater(() -> {
+                        matchResultOverlay.updateResult(this.gameEndEvent, beatmap, matchScores);
+                    });
+                }
                 uiPane.getHideTransition().play();
                 matchScoreContent.getHideTransition().play();
                 uiPane.getHideTransition().setOnFinished(e -> {
-
+                    matchResultOverlay.setVisible(true);
+                    matchResultOverlay.getShowTransition().play();
                 });
                 break;
             case GAME_STARTED:
@@ -684,6 +709,10 @@ public class GameView extends Page implements GameEventListener {
             case GAME_ENDED:
                 System.out.println("game ended, show result overlay here");
                 GameEndEvent gameEndEvent = event.getData(GameEndEvent.class);
+                this.gameEndEvent = gameEndEvent;
+
+                if (isMultiplayer)
+                    return;
                 if (gameEndEvent != null) {
                     resultOverlay.updateResult(gameEndEvent, beatmap);
                 }
