@@ -12,18 +12,19 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
+import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.Objects;
 
 public class MatchScoreItem extends HBox {
-    private final ImageView profilePicture;
+    private final ImageView profileImageView;
 
     public MatchScoreItem(MatchScoreEvent event) {
         String profileImagePath = "/assets/images/avatar-guest.png";
-        profilePicture = new ImageView(
+        profileImageView = new ImageView(
                 new Image(Objects.requireNonNull(Main.class.getResource(profileImagePath)).toExternalForm()));
-        profilePicture.setFitHeight(50);
-        profilePicture.setPreserveRatio(true);
+        profileImageView.setFitHeight(50);
+        profileImageView.setFitWidth(50);
 
         Label usernameLabel = new Label(event.getUser().getUsername());
         usernameLabel.getStyleClass().add("score-username");
@@ -43,9 +44,10 @@ public class MatchScoreItem extends HBox {
         comboLabel.getStyleClass().add("score-combo");
         comboLabel.setAlignment(Pos.BOTTOM_RIGHT);
 
-        this.getChildren().addAll(profilePicture, scoreInfo, spacer, comboLabel);
+        this.getChildren().addAll(profileImageView, scoreInfo, spacer, comboLabel);
 
         setupUI();
+        updateProfilePicture(event.getUser().getProfilePicture());
         loadStyles();
     }
 
@@ -56,7 +58,7 @@ public class MatchScoreItem extends HBox {
         this.setPrefHeight(70);
 
         // Add margin classes for better spacing
-        profilePicture.getStyleClass().add("score-profile-picture");
+        profileImageView.getStyleClass().add("score-profile-picture");
     }
 
     private void loadStyles() {
@@ -65,6 +67,32 @@ public class MatchScoreItem extends HBox {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {
             System.err.println("CSS file not found!");
+        }
+    }
+
+    private void updateProfilePicture(byte[] profile) {
+        if (profile != null && profile.length > 0) {
+            try {
+                ByteArrayInputStream bis = new ByteArrayInputStream(profile);
+                Image userImage = new Image(bis);
+                profileImageView.setImage(userImage);
+            } catch (Exception e) {
+                System.err.println("Could not load user profile picture: " + e.getMessage());
+                setDefaultProfilePicture();
+            }
+        } else {
+            setDefaultProfilePicture();
+        }
+    }
+
+    private void setDefaultProfilePicture() {
+        try {
+            Image defaultImage = new Image(Objects.requireNonNull(
+                    Main.class.getResource("/assets/images/avatar-guest.png")).toExternalForm());
+            profileImageView.setImage(defaultImage);
+        } catch (Exception e) {
+            System.err.println("Could not load default avatar: " + e.getMessage());
+            profileImageView.setImage(null);
         }
     }
 }
