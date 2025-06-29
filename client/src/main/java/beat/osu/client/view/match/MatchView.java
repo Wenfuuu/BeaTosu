@@ -415,7 +415,14 @@ public class MatchView extends Page {
         banchoPanelsContainer.setManaged(true);
         banchoPanelsContainer.setMouseTransparent(false);
         chatPanel.setVisible(true);
-        
+
+        matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
+            if (result.isSuccess()) {
+                System.out.println("Successfully updated status to: NOT_READY");
+            } else {
+                Toast.error("Failed to update status: " + result.getError().getMessage()).show();
+            }
+        });
         updateBlueButtonState();
         BgmManager.getInstance().changePlaybackMode(PlaybackMode.PREVIEW);
     }
@@ -976,22 +983,22 @@ public class MatchView extends Page {
                 case HIDDEN:
                     blueButton.setVisible(false);
                     break;
-                    
+
                 case READY:
                     blueButton.setVisible(true);
                     blueButton.setText("Ready");
                     break;
-                    
+
                 case NOT_READY:
                     blueButton.setVisible(true);
                     blueButton.setText("Not Ready");
                     break;
-                    
+
                 case START_GAME:
                     blueButton.setVisible(true);
                     blueButton.setText("Start Game!");
                     break;
-                    
+
                 case FORCE_START_GAME:
                     blueButton.setVisible(true);
                     int readyCount = getReadyPlayersCount();
