@@ -549,11 +549,54 @@ public class HitSlider extends HitObject {
         path.getElements().add(new MoveTo(0, 0)); // Path is relative to the group's origin (slider head's center)
 
         // TODO: Implement Bezier and Perfect Circle paths based on sliderType
-        // For now, only linear segments:
-        for (int i = 1; i < controlPoints.size(); i++) {
-            Point2D p = controlPoints.get(i);
-            path.getElements().add(new LineTo(p.getX() - start.getX(), p.getY() - start.getY()));
+        // linear segments:
+        if (sliderType == 'L' || sliderType == 'C') {
+            for (int i = 1; i < controlPoints.size(); i++) {
+                Point2D p = controlPoints.get(i);
+                path.getElements().add(new LineTo(p.getX() - start.getX(), p.getY() - start.getY()));
+            }
         }
+        /*
+        Perfect circle (P): Perfect circle curves are limited to three points
+        (including the hit object's position) that define the boundary of a circle.
+        Using more than three points will result in the curve type being switched to bézier.
+         */
+        else if (sliderType == 'P') { // Perfect Circle
+            // 'P' must only have 3 control points: center and end
+            if (controlPoints.size() == 3) {
+                Point2D center = controlPoints.get(1);
+                Point2D end = controlPoints.get(2);
+                double radius = center.distance(start);
+
+                // Calculate relative positions
+                double endX = end.getX() - start.getX();
+                double endY = end.getY() - start.getY();
+
+                // Determine sweep flag: 1 = clockwise, 0 = counter-clockwise
+                // Vector from center to start and end
+                Point2D vStart = start.subtract(center);
+                Point2D vEnd = end.subtract(center);
+                double cross = vStart.getX() * vEnd.getY() - vStart.getY() * vEnd.getX();
+                boolean sweepFlag = cross < 0; // Clockwise if negative (JavaFX sweepFlag=true)
+
+                ArcTo arcTo = new ArcTo(radius, radius, 0,
+                        endX, endY, false, sweepFlag);
+                path.getElements().add(arcTo);
+            } else {
+                System.err.println("Warning: 'P' slider type requires exactly 2 control points (start and center). "
+                        + "Using linear fallback for slider at " + getHitTime() + ", control points: " + controlPoints.size());
+                for (int i = 1; i < controlPoints.size(); i++) {
+                    Point2D p = controlPoints.get(i);
+                    path.getElements().add(new LineTo(p.getX() - start.getX(), p.getY() - start.getY()));
+                }
+            }
+        } else { // fallback to linear if unknown type
+            for (int i = 1; i < controlPoints.size(); i++) {
+                Point2D p = controlPoints.get(i);
+                path.getElements().add(new LineTo(p.getX() - start.getX(), p.getY() - start.getY()));
+            }
+        }
+
         return path;
     }
 
@@ -600,6 +643,58 @@ public class HitSlider extends HitObject {
         return Math.max(0.0, Math.min(1.0, ballFraction)); // Clamp to [0, 1]
     }
 
+    // --- Helper for Multi-Segment Bezier Path Drawing ---
+    private void addBezierSegmentToPath(Path path, List<Point2D> segmentPoints, Point2D sliderStartAbs) {
+        if (segmentPoints.size() < 2) return; // Need at least start and end
+
+        Point2D start = segmentPoints.get(0);
+        Point2D end = segmentPoints.get(segmentPoints.size() - 1);
+        Point2D relStart = new Point2D(start.getX()-sliderStartAbs.getX(), start.getY()-sliderStartAbs.getY());
+        Point2D relEnd = new Point2D(end.getX()-sliderStartAbs.getX(), end.getY()-sliderStartAbs.getY());
+
+        if (segmentPoints.size() == 2) { // Straight line segment
+            path.getElements().add(new LineTo(relEnd.getX(), relEnd.getY()));
+        } else if (segmentPoints.size() == 3) { // Treat as simple cubic (like 'P')
+            Point2D ctrl1 = segmentPoints.get(1);
+            Point2D relCtrl1 = new Point2D(ctrl1.getX()-sliderStartAbs.getX(), ctrl1.getY()-sliderStartAbs.getY());
+            path.getElements().add(new CubicCurveTo(relCtrl1.getX(), relCtrl1.getY(),
+                    relCtrl1.getX(), relCtrl1.getY(),
+                    relEnd.getX(), relEnd.getY()));
+        } else if (segmentPoints.size() == 4) { // Standard cubic Bezier
+            Point2D ctrl1 = segmentPoints.get(1);
+            Point2D ctrl2 = segmentPoints.get(2);
+            Point2D relCtrl1 = new Point2D(ctrl1.getX()-sliderStartAbs.getX(), ctrl1.getY()-sliderStartAbs.getY());
+            Point2D relCtrl2 = new Point2D(ctrl2.getX()-sliderStartAbs.getX(), ctrl2.getY()-sliderStartAbs.getY());
+            path.getElements().add(new CubicCurveTo(relCtrl1.getX(), relCtrl1.getY(),
+                    relCtrl2.getX(), relCtrl2.getY(),
+                    relEnd.getX(), relEnd.getY()));
+        } else {
+            // osu! doesn't typically generate segments with > 4 points between anchors.
+            // If it happens, fall back to linear connection to the end point for robustness.
+            System.err.println("Warning: Bezier segment has " + segmentPoints.size() + " points. Treating as linear to segment end.");
+            path.getElements().add(new LineTo(relEnd.getX(), relEnd.getY()));
+        }
+    }
+
+    private Point2D getPointOnCubicBezier(Point2D p0, Point2D p1, Point2D p2, Point2D p3, double t) {
+        if (t < 0) t = 0;
+        if (t > 1) t = 1;
+        double u = 1.0 - t;
+        double tt = t * t;
+        double uu = u * u;
+        double uuu = uu * u;
+        double ttt = tt * t;
+
+        double x = uuu * p0.getX() + 3 * uu * t * p1.getX() + 3 * u * tt * p2.getX() + ttt * p3.getX();
+        double y = uuu * p0.getY() + 3 * uu * t * p1.getY() + 3 * u * tt * p2.getY() + ttt * p3.getY();
+
+        return new Point2D(x, y);
+    }
+
+    private Point2D getPointOnSimpleBezier(Point2D p0, Point2D p1, Point2D p2, double t) {
+        return getPointOnCubicBezier(p0, p1, p1, p2, t);
+    }
+
     private Point2D getPointOnLinear(Point2D p0, Point2D p1, double t) {
         t = Math.max(0.0, Math.min(1.0, t)); // Clamp t to [0,1]
         double x = (1.0 - t) * p0.getX() + t * p1.getX();
@@ -608,16 +703,11 @@ public class HitSlider extends HitObject {
     }
 
     private Point2D getVisualPointAtFraction(double fraction) {
-        if (controlPoints.size() < 2) {
-            // System.err.println("Warning: Not enough control points to determine visual
-            // point. Slider at " + getHitTime());
-            return new Point2D(0, 0); // No path or malformed
-        }
+        if (controlPoints.size() < 2) return new Point2D(0, 0); // No path
 
         Point2D sliderStartAbs = controlPoints.get(0); // Absolute start coordinate of the slider
 
-        // TODO: This needs to handle different slider types (Bezier, Perfect Circle,
-        // Linear)
+        // TODO: This needs to handle different slider types (Bezier, Perfect Circle,Linear)
         // Current implementation is for multi-segment linear paths.
 
         // Calculate total length of the path segments defined by controlPoints
@@ -668,8 +758,7 @@ public class HitSlider extends HitObject {
 
         Point2D interpolatedAbsolutePoint = getPointOnLinear(p0, p1, fractionWithinSegment);
 
-        // Return the point relative to the slider's group origin (which is
-        // sliderStartAbs)
+        // Return the point relative to the slider's group origin (which is sliderStartAbs)
         return interpolatedAbsolutePoint.subtract(sliderStartAbs);
     }
 
@@ -690,7 +779,8 @@ public class HitSlider extends HitObject {
 
         if (headHit) {
             if (getCurrTime() <= endTime) { // only move if past hit time
-                if (getCurrTime() > getHitTime()) {                    double ballFraction = getBallFraction(timeSinceHitStart);
+                if (getCurrTime() > getHitTime()) {
+                    double ballFraction = getBallFraction((double) timeSinceHitStart);
                     Point2D ballPos = getVisualPointAtFraction(ballFraction);
                     sliderBall.setCenterX(ballPos.getX());
                     sliderBall.setCenterY(ballPos.getY());
