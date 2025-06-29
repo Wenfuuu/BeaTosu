@@ -502,6 +502,11 @@ public class LandingView extends Page {
 
     @Override
     public void onShow() {
+        try {
+            BackgroundManager.setRandomBackground(scene);
+        } catch (Exception e) {
+            System.err.println("Error setting background: " + e.getMessage());
+        }
         visualizer.setupAudioVisualization(BgmManager.getInstance().getCurrentPlayer());
         scene.setRoot(root);
         setInputManager();
