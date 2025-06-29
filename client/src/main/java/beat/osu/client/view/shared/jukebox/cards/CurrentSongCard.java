@@ -3,6 +3,8 @@ package beat.osu.client.view.shared.jukebox.cards;
 import java.net.URL;
 
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ScreenManager;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
@@ -52,8 +54,8 @@ public class CurrentSongCard extends StackPane {
         this.contentBox = new HBox();
         this.underline = new Rectangle();
 
-        contentBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
-        
+        contentBox.setAlignment(Pos.CENTER_RIGHT);
+
         try {
             String imagePath = "/assets/images/song-background.png";
             URL imageUrl = getClass().getResource(imagePath);
@@ -74,6 +76,7 @@ public class CurrentSongCard extends StackPane {
 
         contentBox.getStyleClass().add("current-song-box");
         this.currentSongLabel.getStyleClass().add("current-song-label");
+        this.currentSongLabel.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.4);
         contentBox.getChildren().add(currentSongLabel);
 
         underline.setHeight(2.0);
