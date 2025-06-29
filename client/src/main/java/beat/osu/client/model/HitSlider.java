@@ -604,6 +604,25 @@ public class HitSlider extends HitObject {
                     path.getElements().add(new LineTo(p.getX() - start.getX(), p.getY() - start.getY()));
                 }
             }
+        } else if (sliderType == 'B') {
+            List<Point2D> currentSegment = new ArrayList<>();
+            currentSegment.add(controlPoints.get(0)); // Start with the first point
+
+            for (int i = 1; i < controlPoints.size(); ++i) {
+                Point2D currentPoint = controlPoints.get(i);
+                currentSegment.add(currentPoint);
+
+                boolean isAnchor = i < controlPoints.size() - 1 && currentPoint.equals(controlPoints.get(i + 1));
+                boolean isLastPoint = i == controlPoints.size() - 1;
+
+                if (isAnchor || isLastPoint) {
+                    addBezierSegmentToPath(path, currentSegment, start);
+                    if (isAnchor) {
+                        currentSegment.clear();
+                        currentSegment.add(currentPoint);
+                    }
+                }
+            }
         } else { // fallback to linear if unknown type
             for (int i = 1; i < controlPoints.size(); i++) {
                 Point2D p = controlPoints.get(i);
@@ -767,8 +786,7 @@ public class HitSlider extends HitObject {
 
         Point2D sliderStartAbs = controlPoints.get(0); // Absolute start coordinate of the slider
 
-        // TODO: This needs to handle different slider types (Bezier, Perfect
-        // Circle,Linear)
+        // TODO: This needs to handle different slider types (Bezier, Perfect, Circle,Linear)
         // Current implementation is for multi-segment linear paths.
 
         // Calculate total length of the path segments defined by controlPoints
@@ -848,7 +866,11 @@ public class HitSlider extends HitObject {
                         .println("Warning: 'P' slider type requires exactly 3 control points. Using linear fallback.");
                 interpolatedAbsolutePoint = getPointOnLinear(p0, p1, fractionWithinSegment);
             }
-        } else { // Fallback to linear for unknown types
+        }
+//        else if (sliderType == 'B') {
+//
+//        }
+        else { // Fallback to linear for unknown types
             interpolatedAbsolutePoint = getPointOnLinear(p0, p1, fractionWithinSegment);
         }
 
