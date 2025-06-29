@@ -786,7 +786,8 @@ public class HitSlider extends HitObject {
 
         Point2D sliderStartAbs = controlPoints.get(0); // Absolute start coordinate of the slider
 
-        // TODO: This needs to handle different slider types (Bezier, Perfect, Circle,Linear)
+        // TODO: This needs to handle different slider types (Bezier, Perfect,
+        // Circle,Linear)
         // Current implementation is for multi-segment linear paths.
 
         // Calculate total length of the path segments defined by controlPoints
@@ -866,11 +867,9 @@ public class HitSlider extends HitObject {
                         .println("Warning: 'P' slider type requires exactly 3 control points. Using linear fallback.");
                 interpolatedAbsolutePoint = getPointOnLinear(p0, p1, fractionWithinSegment);
             }
-        }
-//        else if (sliderType == 'B') {
-//
-//        }
-        else { // Fallback to linear for unknown types
+        } else if (sliderType == 'B') {
+            interpolatedAbsolutePoint = getBezierPointAtFraction(fraction);
+        } else { // Fallback to linear for unknown types
             interpolatedAbsolutePoint = getPointOnLinear(p0, p1, fractionWithinSegment);
         }
 
@@ -1152,5 +1151,153 @@ public class HitSlider extends HitObject {
                 return angleMiddle >= angleStart || angleMiddle <= angleEnd;
             }
         }
+    }
+
+    private Point2D getBezierPointAtFraction(double fraction) {
+        if (controlPoints.size() < 2) {
+            return controlPoints.isEmpty() ? new Point2D(0, 0) : controlPoints.get(0);
+        }
+
+        // Parse the control points into segments based on anchor points (duplicate of
+        // the next point)
+        List<List<Point2D>> bezierSegments = new ArrayList<>();
+        List<Point2D> currentSegment = new ArrayList<>();
+        currentSegment.add(controlPoints.get(0));
+
+        for (int i = 1; i < controlPoints.size(); i++) {
+            Point2D currentPoint = controlPoints.get(i);
+            currentSegment.add(currentPoint);
+
+            // Check if this is an anchor point (duplicate of the next point)
+            boolean isAnchor = i < controlPoints.size() - 1 &&
+                    currentPoint.distance(controlPoints.get(i + 1)) < 1e-6;
+            boolean isLastPoint = i == controlPoints.size() - 1;
+
+            if (isAnchor || isLastPoint) {
+                // Complete this segment
+                if (currentSegment.size() >= 2) {
+                    bezierSegments.add(new ArrayList<>(currentSegment));
+                }
+
+                // Start new segment with the anchor point
+                if (isAnchor) {
+                    currentSegment.clear();
+                    currentSegment.add(currentPoint);
+                }
+            }
+        }
+
+        if (bezierSegments.isEmpty()) {
+            // Fallback: treat all points as one segment
+            bezierSegments.add(new ArrayList<>(controlPoints));
+        }
+
+        // Calculate the total approximate length of all segments
+        double[] segmentLengths = new double[bezierSegments.size()];
+        double totalLength = 0;
+
+        for (int i = 0; i < bezierSegments.size(); i++) {
+            segmentLengths[i] = approximateBezierLength(bezierSegments.get(i));
+            totalLength += segmentLengths[i];
+        }
+
+        if (totalLength == 0) {
+            return controlPoints.get(0);
+        }
+
+        // Find which segment the fraction falls into
+        double targetDistance = fraction * totalLength;
+        double accumulatedDistance = 0;
+        int segmentIndex = 0;
+
+        for (int i = 0; i < segmentLengths.length; i++) {
+            if (accumulatedDistance + segmentLengths[i] >= targetDistance) {
+                segmentIndex = i;
+                break;
+            }
+            accumulatedDistance += segmentLengths[i];
+        }
+
+        // Calculate the fraction within the found segment
+        double fractionInSegment = 0;
+        if (segmentLengths[segmentIndex] > 0) {
+            fractionInSegment = (targetDistance - accumulatedDistance) / segmentLengths[segmentIndex];
+        }
+        fractionInSegment = Math.max(0.0, Math.min(1.0, fractionInSegment));
+
+        // Get the point on the specific segment
+        return getPointOnBezierSegment(bezierSegments.get(segmentIndex), fractionInSegment);
+    }
+
+    private double approximateBezierLength(List<Point2D> segmentPoints) {
+        if (segmentPoints.size() < 2)
+            return 0;
+
+        // Approximate length by sampling the curve
+        double length = 0;
+        int samples = Math.max(10, segmentPoints.size() * 5);
+        Point2D prevPoint = getPointOnBezierSegment(segmentPoints, 0);
+
+        for (int i = 1; i <= samples; i++) {
+            double t = (double) i / samples;
+            Point2D currentPoint = getPointOnBezierSegment(segmentPoints, t);
+            length += prevPoint.distance(currentPoint);
+            prevPoint = currentPoint;
+        }
+
+        return length;
+    }
+
+    private Point2D getPointOnBezierSegment(List<Point2D> segmentPoints, double t) {
+        if (segmentPoints.size() < 2) {
+            return segmentPoints.isEmpty() ? new Point2D(0, 0) : segmentPoints.get(0);
+        }
+
+        t = Math.max(0.0, Math.min(1.0, t));
+
+        if (segmentPoints.size() == 2) {
+            // Linear interpolation
+            return getPointOnLinear(segmentPoints.get(0), segmentPoints.get(1), t);
+        } else if (segmentPoints.size() == 3) {
+            // Quadratic Bezier
+            return getPointOnQuadraticBezier(segmentPoints.get(0), segmentPoints.get(1), segmentPoints.get(2), t);
+        } else if (segmentPoints.size() == 4) {
+            // Cubic Bezier
+            return getPointOnCubicBezier(segmentPoints.get(0), segmentPoints.get(1), segmentPoints.get(2),
+                    segmentPoints.get(3), t);
+        } else {
+            // Higher order Bezier - use De Casteljau's algorithm
+            return getPointOnHighOrderBezier(segmentPoints, t);
+        }
+    }
+
+    private Point2D getPointOnQuadraticBezier(Point2D p0, Point2D p1, Point2D p2, double t) {
+        double u = 1.0 - t;
+        double tt = t * t;
+        double uu = u * u;
+
+        double x = uu * p0.getX() + 2 * u * t * p1.getX() + tt * p2.getX();
+        double y = uu * p0.getY() + 2 * u * t * p1.getY() + tt * p2.getY();
+
+        return new Point2D(x, y);
+    }
+
+    private Point2D getPointOnHighOrderBezier(List<Point2D> points, double t) {
+        // De Casteljau's algorithm for any order Bezier curve
+        List<Point2D> temp = new ArrayList<>(points);
+
+        while (temp.size() > 1) {
+            List<Point2D> newTemp = new ArrayList<>();
+            for (int i = 0; i < temp.size() - 1; i++) {
+                Point2D p1 = temp.get(i);
+                Point2D p2 = temp.get(i + 1);
+                double x = (1 - t) * p1.getX() + t * p2.getX();
+                double y = (1 - t) * p1.getY() + t * p2.getY();
+                newTemp.add(new Point2D(x, y));
+            }
+            temp = newTemp;
+        }
+
+        return temp.get(0);
     }
 }
