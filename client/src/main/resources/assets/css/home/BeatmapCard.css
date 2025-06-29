@@ -1,29 +1,49 @@
-/* BeatmapCard styles */
 .beatmap-card {
-    -fx-background-radius: 3;
+    -fx-border-color: black;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.5, 0, 0);
 }
 
-.beatmap-card:hover {
-    -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.2), 8, 0, 0, 2);
+.no-map-card {
+    -fx-background-color: rgba(255, 99, 2, 0.8);
 }
 
-.beatmap-card.selected {
-    -fx-border-color: white;
-    -fx-border-width: 2;
-    -fx-border-radius: 3;
+.changing-map-card {
+    -fx-background-color: #A9A9A9;
 }
 
-.beatmap-content {
-    -fx-background-radius: 3;
+.pink-overlay {
+    -fx-background-color: rgba(226, 72, 147, 0.80);
 }
 
-.beatmap-content .label {
+.orange-overlay {
+    -fx-background-color: rgba(247, 161, 1, 0.80);
+}
+
+.changing-map-title, .changing-map-description {
+    -fx-text-fill: white;
+}
+
+.changing-map-title, .no-map-title, .beatmap-name-label {
+    -fx-font-family: "Aller Light";
+    -fx-text-fill: white;
+}
+
+.beatmap-info {
+    -fx-font-family: "Aller Light";
+    -fx-text-fill: white;
+}
+
+.beatmap-version {
     -fx-font-family: "Aller";
     -fx-text-fill: white;
-    -fx-font-size: 12;
 }
 
-.beatmap-content .title {
-    -fx-font-weight: bold;
-    -fx-font-size: 14;
+.changing-map-description, .no-map-description {
+    -fx-font-family: "Aller";
+    -fx-text-fill: white;
+}
+
+.gamemode-box {
+    -fx-padding: 12 0 0 0;
 }
