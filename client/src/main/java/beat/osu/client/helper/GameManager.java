@@ -17,6 +17,8 @@ import beat.osu.client.model.*;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.utils.ReplayUtils;
 import beat.osu.client.events.game.ReplayEvent;
+import beat.osu.client.view.shared.common.Toast;
+import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.game.events.SpectateEvent;
 import beat.osu.shared.dto.game.events.SpectateStatusEvent;
 import beat.osu.shared.dto.match.MatchDto;
@@ -24,6 +26,7 @@ import beat.osu.shared.dto.match.MatchPlayerDto;
 import beat.osu.shared.dto.match.events.MatchCompletedEvent;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
 import beat.osu.shared.dto.match.events.PlayerFinishedEvent;
+import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.MatchWinCondition;
 import javafx.animation.AnimationTimer;
@@ -36,6 +39,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 
 public class GameManager implements GameEventPublisher, HitObjectListener {
     private final List<GameEventListener> gameEventListenerList = new CopyOnWriteArrayList<>();
@@ -340,7 +344,17 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         gameState = GameState.EXITED;
         gameLoop.stop();
         notifySpectatorsPlayerExited();
-        ViewManager.getInstance().showLobbyView();
+        try {
+            Result<LeaveMatchResponse> response = matchController.leaveMatch(matchDto.getId()).get();
+            if (response.isSuccess()) {
+                LeaveMatchResponse leaveMatchResponse = response.getValue();
+                ViewManager.getInstance().showLobbyView();
+            } else {
+                Toast.error("Failed to leave match: " + response.getError().getMessage()).show();
+            }
+        } catch (InterruptedException | ExecutionException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     private void insertScore(int id, String grade, LocalDateTime now) {
