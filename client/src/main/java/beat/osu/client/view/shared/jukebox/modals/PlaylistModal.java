@@ -41,7 +41,7 @@ public class PlaylistModal extends StackPane implements SongEventListener {
     private InputManager inputManager;
     private Timeline searchUpdateTimeline;
     private String lastSearchQuery = "";
-    private PlaylistManager playlistManager;
+    private final PlaylistManager playlistManager;
 
     public PlaylistModal() {
         super();

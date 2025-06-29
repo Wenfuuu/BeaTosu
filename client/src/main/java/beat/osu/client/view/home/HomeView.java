@@ -18,10 +18,9 @@ import beat.osu.shared.dto.score.responses.GetAllScoresResponse;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -50,6 +49,10 @@ public class HomeView extends Page {
     private ScoreOverlay scoreOverlay;
     private ArrayList<Beatmap> beatmaps;
     private ArrayList<ScoreDto> scores;
+
+    private HBox searchArea;
+    private Label searchLabel;
+    private Label contentLabel;
 
     private FadeTransition hideTransition;
     private FadeTransition showTransition;
@@ -82,6 +85,9 @@ public class HomeView extends Page {
         topBar = new TopBar();
         bottomBar = new BottomBar();
         rightBar = new VBox();
+        rightBar.setAlignment(Pos.TOP_RIGHT);
+
+        createSearchArea();
         beatmapContent = new BeatmapContent(beatmaps);
         uploadBox = new UploadBox();
         uploadBox.setOnUploadCompleteCallback(this::refreshBeatmaps);
@@ -113,7 +119,7 @@ public class HomeView extends Page {
 
     @Override
     public void setLayout() {
-        rightBar.getChildren().addAll(beatmapContent, uploadBox);
+        rightBar.getChildren().addAll(searchArea, beatmapContent, uploadBox);
 
         mainLayout.setTop(topBar);
         mainLayout.setRight(rightBar);
@@ -136,6 +142,21 @@ public class HomeView extends Page {
         scene.setRoot(root);
         BgmManager.getInstance().playPreviewBgm(true);
         BackgroundManager.setGameBackground(scene);
+    }
+
+    private void createSearchArea() {
+        searchArea = new HBox();
+        searchArea.getStyleClass().add("search-area");
+        searchArea.prefWidthProperty().bind(rightBar.widthProperty().multiply(0.5));
+        searchArea.setMaxWidth(Region.USE_PREF_SIZE);
+
+        searchLabel = new Label("Search: ");
+        searchLabel.getStyleClass().add("search-label");
+
+        contentLabel = new Label("Type to search!");
+        contentLabel.getStyleClass().add("search-content-label");
+
+        searchArea.getChildren().addAll(searchLabel, contentLabel);
     }
 
     private void setupAnimations() {
@@ -323,7 +344,7 @@ public class HomeView extends Page {
         rightBar.getChildren().remove(beatmapContent);
         beatmapContent = new BeatmapContent(beatmaps);
         beatmapContent.setOnBeatmapSelectedCallback(this::onBeatmapSelected);
-        rightBar.getChildren().add(0, beatmapContent);
+        rightBar.getChildren().add(1, beatmapContent);
 
         if (!beatmaps.isEmpty()) {
             topBar.updateSongInfo(beatmaps.get(0));
