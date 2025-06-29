@@ -703,12 +703,16 @@ public class HitSlider extends HitObject {
                     relCtrl2.getX(), relCtrl2.getY(),
                     relEnd.getX(), relEnd.getY()));
         } else {
-            // osu! doesn't typically generate segments with > 4 points between anchors.
-            // If it happens, fall back to linear connection to the end point for
-            // robustness.
-            System.err.println("Warning: Bezier segment has " + segmentPoints.size()
-                    + " points. Treating as linear to segment end.");
-            path.getElements().add(new LineTo(relEnd.getX(), relEnd.getY()));
+            // Higher order Bezier curve - use De Casteljau's algorithm to approximate with path segments
+            int samples = Math.max(20, segmentPoints.size() * 4); // More samples for smoother curves
+
+            for (int i = 1; i <= samples; i++) {
+                double t = (double) i / samples;
+                Point2D currentPoint = getPointOnHighOrderBezier(segmentPoints, t);
+                Point2D relCurrentPoint = new Point2D(currentPoint.getX() - sliderStartAbs.getX(),
+                        currentPoint.getY() - sliderStartAbs.getY());
+                path.getElements().add(new LineTo(relCurrentPoint.getX(), relCurrentPoint.getY()));
+            }
         }
     }
 
