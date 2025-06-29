@@ -111,7 +111,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
     private void pauseAllAnimations() {
         for (HitObject hitObject : hitObjects) {
-            if (hitObject.isVisible() && !hitObject.isHit()) {
+            if (hitObject.isVisible()) {
                 hitObject.pauseAnimations();
             }
         }
@@ -119,7 +119,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
     private void resumeAllAnimations() {
         for (HitObject hitObject : hitObjects) {
-            if (hitObject.isVisible() && !hitObject.isHit()) {
+            if (hitObject.isVisible()) {
                 hitObject.resumeAnimations();
             }
         }
@@ -266,6 +266,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         notifyListeners(new GameEvent(GameEventType.GAME_PAUSED, null));
 
         // notify to listeners that spectate is paused
+        if (!AuthManager.isAuthenticated()) return;
         SpectateStatusEvent event = new SpectateStatusEvent(true);
         spectateController.notifySpectatorsStatusChange(event).thenApply(response -> {
             if (response.isSuccess()) {
@@ -535,7 +536,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void sendSpectateEvent(long elapsedMillis, ReplayEvent replayEvent) {
-        if (!AuthManager.isAuthenticated() || spectateController == null) return;
+        if (!AuthManager.isAuthenticated() && spectateController == null) return;
         
         if (spectateEventInProgress) {
             System.out.println("Skipping spectate event - previous event still in progress");
@@ -630,8 +631,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         double objCenterX = hitObject.getScreenCenterX();
         double objCenterY = hitObject.getScreenCenterY();
         double objRadius = hitObject.getScreenRadius();
-        if (hitObject instanceof HitSpinner)
-            objRadius *= 2.5;
+        if (hitObject instanceof HitSpinner) objRadius *= 2.5;
 
         double dx = currentMouseX - objCenterX;
         double dy = currentMouseY - objCenterY;
