@@ -8,7 +8,7 @@
     -fx-font-size: 32px;
     -fx-text-fill: #ffffff;
     -fx-font-weight: bold;
-    -fx-padding: 0 0 20 0;
+    -fx-padding: 0;
     -fx-alignment: CENTER_LEFT;
 }
 
@@ -88,10 +88,6 @@
     -fx-border-style: dashed;
     -fx-alignment: CENTER;
     -fx-padding: 5;
-    -fx-pref-width: 600;
-    -fx-pref-height: 400;
-    -fx-max-width: 600;
-    -fx-max-height: 400;
 }
 
 .image-upload-container:hover {

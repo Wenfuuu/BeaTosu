@@ -7,7 +7,9 @@ import java.nio.file.Files;
 
 import beat.osu.client.controller.AuthController;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ScreenManager;
 import beat.osu.shared.dto.auth.responses.RegisterResponse;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -117,14 +119,14 @@ public class RegisterModal extends StackPane {
         passwordHint.getStyleClass().add("hint");
 
         profilePictureBox = new VBox(8);
-        profilePictureBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        profilePictureBox.setAlignment(Pos.CENTER_LEFT);
         profilePictureBox.getStyleClass().add("profile-picture-box");
         profilePictureLabel = new Label("Profile Picture:");
         profilePictureLabel.getStyleClass().add("label");
         
         profileImageView = new ImageView();
-        profileImageView.setFitWidth(580);
-        profileImageView.setFitHeight(380);
+        profileImageView.setFitWidth(ScreenManager.SCREEN_WIDTH * 0.30);
+        profileImageView.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.35);
         profileImageView.setPreserveRatio(true);
         
         placeholderLabel = new Label("Click here to upload image");
@@ -133,6 +135,10 @@ public class RegisterModal extends StackPane {
         imageContainer = new StackPane();
         imageContainer.getChildren().addAll(profileImageView, placeholderLabel);
         imageContainer.getStyleClass().add("image-upload-container");
+        imageContainer.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.30);
+        imageContainer.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.30);
+        imageContainer.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.33);
+        imageContainer.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.33);
         
         profilePictureHint = new Label("Optional: Upload a profile picture. It will be displayed on your profile and in game lobbies.");
         profilePictureHint.setWrapText(true);
