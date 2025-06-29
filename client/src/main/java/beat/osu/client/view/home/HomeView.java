@@ -40,6 +40,7 @@ public class HomeView extends Page {
     private BorderPane mainLayout;
     private TopBar topBar;
     private BottomBar bottomBar;
+    private VBox leftBar;
     private VBox rightBar;
     private BeatmapContent beatmapContent;
     private UploadBox uploadBox;
@@ -86,6 +87,11 @@ public class HomeView extends Page {
 
         topBar = new TopBar();
         bottomBar = new BottomBar();
+        leftBar = new VBox();
+        leftBar.setAlignment(Pos.TOP_LEFT);
+        leftBar.setFillWidth(true);
+        leftBar.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.3); // Set minimum width to prevent shrinking
+        leftBar.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.3); // Set preferred width
         rightBar = new VBox();
         rightBar.setAlignment(Pos.TOP_RIGHT);
 
@@ -93,6 +99,11 @@ public class HomeView extends Page {
         beatmapContent = new BeatmapContent(beatmaps);
         uploadBox = new UploadBox();
         uploadBox.setOnUploadCompleteCallback(this::refreshBeatmaps);
+
+        // Set initial upload box width properties
+        uploadBox.setMaxWidth(Double.MAX_VALUE);
+        uploadBox.setMinWidth(Region.USE_PREF_SIZE);
+
         scoreContent = new ScoreContent(new ArrayList<>());
 
         if (!beatmaps.isEmpty()) {
@@ -121,12 +132,25 @@ public class HomeView extends Page {
 
     @Override
     public void setLayout() {
-        rightBar.getChildren().addAll(searchArea, beatmapContent, uploadBox);
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+
+        // Ensure upload box takes full width
+        uploadBox.prefWidthProperty().bind(leftBar.widthProperty());
+        uploadBox.setMaxWidth(Double.MAX_VALUE);
+        uploadBox.setMinWidth(Region.USE_PREF_SIZE);
+
+        // Ensure scoreContent doesn't shrink the container
+        scoreContent.prefWidthProperty().bind(leftBar.widthProperty());
+        scoreContent.setMaxWidth(Double.MAX_VALUE);
+
+        leftBar.getChildren().addAll(scoreContent, spacer, uploadBox);
+        rightBar.getChildren().addAll(searchArea, beatmapContent);
 
         mainLayout.setTop(topBar);
         mainLayout.setRight(rightBar);
         mainLayout.setBottom(bottomBar);
-        mainLayout.setLeft(scoreContent);
+        mainLayout.setLeft(leftBar);
 
         root.getChildren().addAll(mainLayout, scoreOverlay);
     }
@@ -187,7 +211,8 @@ public class HomeView extends Page {
     }
 
     private void updateSearch() {
-        if (inputManager == null) return;
+        if (inputManager == null)
+            return;
 
         String currentQuery = inputManager.getTypedChars().toLowerCase().trim();
 
