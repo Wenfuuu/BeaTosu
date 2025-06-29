@@ -84,6 +84,17 @@ public class ViewManager {
         sceneManager.transitionToPage(lobbyView);
     }
 
+    public void backToMatch() {
+        if (currentMatchDto != null) {
+            MatchView matchView = new MatchView(primaryStage, currentMatchDto, connectedUsersController, chatController,
+                    matchController, sessionController, beatmapController);
+            matchView.onShow();
+            sceneManager.transitionToPage(matchView);
+        } else {
+            showLobbyView();
+        }
+    }
+
     public void showMatchView(MatchDto matchDto) {
         this.currentMatchDto = matchDto;
         MatchView matchView = new MatchView(primaryStage, matchDto, connectedUsersController, chatController,
