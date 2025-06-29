@@ -427,7 +427,7 @@ public class MatchService {
             MatchStartedEvent event = new MatchStartedEvent(matchId, matchDto);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_STARTED, clientId, event);
 
-            broadcastMessageToMatchPlayers(clientId, matchId, realtimeMessage);
+            RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
 
         return response;
@@ -486,9 +486,9 @@ public class MatchService {
         Match match = matches.get(matchId);
         if (match == null) return;
 
-        MatchCompletedEvent event = new MatchCompletedEvent("Match completed, showing results for match ID: " + matchId);
+        MatchCompletedEvent event = new MatchCompletedEvent(matchId);
         RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_COMPLETED, clientId, event);
-        broadcastMessageToMatchPlayers(clientId, matchId, realtimeMessage);
+        RealtimeMessageHandler.broadcastToAll(realtimeMessage);
     }
 
     public Result<ChangeMatchSlotResponse> changeMatchSlot(ChangeMatchSlotRequest request, String clientId) {

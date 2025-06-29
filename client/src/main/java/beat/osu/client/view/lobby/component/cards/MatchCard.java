@@ -487,9 +487,7 @@ public class MatchCard extends HBox {
     public void updateMatchName(String newName) {
         if (newName != null && !newName.trim().isEmpty()) {
             this.matchName = newName;
-            if (matchNameLabel != null) {
-                matchNameLabel.setText(newName);
-            }
+            updateMatchNameDisplay();
         }
     }
 
@@ -500,6 +498,24 @@ public class MatchCard extends HBox {
             if (beatmapNameLabel != null) {
                 beatmapNameLabel.setText(newBeatmapName);
             }
+        }
+    }
+
+    public void updateMatchInProgressStatus(boolean inProgress) {
+        this.inProgress = inProgress;
+        updateMatchNameDisplay();
+    }
+
+    private void updateMatchNameDisplay() {
+        if (matchNameLabel != null && matchName != null) {
+            String displayName = matchName;
+            if (inProgress && !matchName.endsWith("(In progress)")) {
+                displayName = matchName + " (In progress)";
+            } else if (!inProgress && matchName.endsWith("(In progress)")) {
+                displayName = matchName.replace(" (In progress)", "");
+                this.matchName = displayName; // Update the stored name to remove the suffix
+            }
+            matchNameLabel.setText(displayName);
         }
     }
 }

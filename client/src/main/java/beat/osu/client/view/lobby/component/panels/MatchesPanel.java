@@ -11,16 +11,7 @@ import beat.osu.client.helper.CssManager;
 import beat.osu.client.view.lobby.component.cards.MatchCard;
 import beat.osu.client.view.lobby.component.ui.MatchFilters;
 import beat.osu.shared.dto.match.MatchDto;
-import beat.osu.shared.dto.match.events.HostChangedEvent;
-import beat.osu.shared.dto.match.events.HostLeftEvent;
-import beat.osu.shared.dto.match.events.MatchBeatmapUpdatedEvent;
-import beat.osu.shared.dto.match.events.MatchCreatedEvent;
-import beat.osu.shared.dto.match.events.MatchEndedEvent;
-import beat.osu.shared.dto.match.events.MatchNameUpdatedEvent;
-import beat.osu.shared.dto.match.events.PlayerKickedEvent;
-import beat.osu.shared.dto.match.events.SlotChangedEvent;
-import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
-import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
+import beat.osu.shared.dto.match.events.*;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -146,6 +137,26 @@ public class MatchesPanel extends VBox {
         matchController.addSlotChangedCallback(this::onSlotChanged);
         matchController.addMatchNameUpdatedCallback(this::onMatchNameUpdated);
         matchController.addMatchBeatmapUpdatedCallback(this::onMatchBeatmapUpdated);
+        matchController.addMatchStartedCallback(this::onMatchStarted);
+        matchController.addMatchCompletedCallback(this::onMatchCompleted);
+    }
+
+    private void onMatchCompleted(MatchCompletedEvent event) {
+        Platform.runLater(() -> {
+            MatchCard matchCard = matchCardMap.get(event.getMatchId());
+            if (matchCard != null) {
+                matchCard.updateMatchInProgressStatus(false);
+            }
+        });
+    }
+
+    private void onMatchStarted(MatchStartedEvent event) {
+        Platform.runLater(() -> {
+            MatchCard matchCard = matchCardMap.get(event.getMatchId());
+            if (matchCard != null) {
+                matchCard.updateMatchInProgressStatus(true);
+            }
+        });
     }
     
     private void onMatchCreated(MatchCreatedEvent event) {

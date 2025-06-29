@@ -8,5 +8,5 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 public class MatchCompletedEvent implements Serializable {
-    private String message;
+    private int matchId;
 }
