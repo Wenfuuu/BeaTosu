@@ -45,7 +45,7 @@ public class HitCircle extends HitObject{
         outerCircle.setStrokeWidth(CIRCLE_STROKE_WIDTH);
 
         comboLabel = new Label(String.valueOf(getComboNumber()));
-        comboLabel.setFont(new Font(50));
+        comboLabel.setFont(Font.font("Aller", 50));
         comboLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
         comboLabel.layoutBoundsProperty().addListener((obs, oldBounds, newBounds) -> {
             comboLabel.setLayoutX(-newBounds.getWidth() / 2);

@@ -106,7 +106,7 @@ public class GameUI extends Pane {
 
             // Create keybind letter
             inputOverlayTexts[i] = new Text(keybindLetters[i]);
-            inputOverlayTexts[i].setFont(Font.font("Arial", 24));
+            inputOverlayTexts[i].setFont(Font.font("Aller", 24));
             inputOverlayTexts[i].setFill(Color.WHITE);
 
             // Create a simple container for each key (key image + letter)
@@ -277,12 +277,6 @@ public class GameUI extends Pane {
             newDigit.setPreserveRatio(true);
             comboDigits.add(0, newDigit);
         }
-
-        // Remove excess digits if combo got smaller (though this rarely happens in
-        // osu!)
-        // while (comboDigits.size() > requiredDigits) {
-        // comboDigits.remove(0);
-        // }
 
         // Update digit images
         for (int i = 0; i < requiredDigits; i++) {
