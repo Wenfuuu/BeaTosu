@@ -52,6 +52,7 @@ public class HomeView extends Page {
     private HBox searchArea;
     private Label searchLabel;
     private Label contentLabel;
+    private Label foundLabel;
 
     private FadeTransition hideTransition;
     private FadeTransition showTransition;
@@ -186,13 +187,24 @@ public class HomeView extends Page {
         searchArea.prefWidthProperty().bind(rightBar.widthProperty().multiply(0.5));
         searchArea.setMaxWidth(Region.USE_PREF_SIZE);
 
+        VBox searchContent = new VBox();
+
+        HBox searchLine = new HBox();
         searchLabel = new Label("Search: ");
         searchLabel.getStyleClass().add("search-label");
 
         contentLabel = new Label("Type to search!");
         contentLabel.getStyleClass().add("search-content-label");
 
-        searchArea.getChildren().addAll(searchLabel, contentLabel);
+        searchLine.getChildren().addAll(searchLabel, contentLabel);
+
+        foundLabel = new Label("");
+        foundLabel.getStyleClass().add("search-found-label");
+        foundLabel.setVisible(false);
+        foundLabel.setManaged(false);
+
+        searchContent.getChildren().addAll(searchLine, foundLabel);
+        searchArea.getChildren().add(searchContent);
     }
 
     private void setupAnimations() {
@@ -219,11 +231,16 @@ public class HomeView extends Page {
         if (!currentQuery.equals(lastSearchQuery)) {
             lastSearchQuery = currentQuery;
 
-            beatmapContent.filterBeatmaps(currentQuery);
+            int matchesFound = beatmapContent.filterBeatmaps(currentQuery);
             if (currentQuery.isEmpty()) {
                 contentLabel.setText("Type to search!");
+                foundLabel.setVisible(false);
+                foundLabel.setManaged(false);
             } else {
                 contentLabel.setText(currentQuery);
+                foundLabel.setText(String.format("%d matches found", matchesFound));
+                foundLabel.setVisible(true);
+                foundLabel.setManaged(true);
             }
         }
     }

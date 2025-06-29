@@ -151,7 +151,7 @@ public class BeatmapContent extends ScrollPane {
                 beatmap.getBeatmapSet().getArtist().toLowerCase().contains(query);
     }
 
-    public void filterBeatmaps(String query) {
+    public int filterBeatmaps(String query) {
         if (query == null || query.trim().isEmpty()) {
             clearFilter();
         } else {
@@ -161,6 +161,7 @@ public class BeatmapContent extends ScrollPane {
                     .collect(Collectors.toList());
         }
         updateBeatmapCards();
+        return filteredBeatmapCards.size();
     }
 
     public void clearFilter() {
