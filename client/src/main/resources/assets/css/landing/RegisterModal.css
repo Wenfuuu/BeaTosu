@@ -10,11 +10,13 @@
     -fx-font-weight: bold;
     -fx-padding: 0;
     -fx-alignment: CENTER_LEFT;
+    -fx-font-family: 'Aller';
 }
 
 .input-box {
     -fx-padding: 10;
     -fx-spacing: 20;
+    -fx-font-family: 'Aller';
 }
 
 .label {
@@ -22,13 +24,14 @@
     -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-min-width: 120px;
+    -fx-font-family: 'Aller';
 }
 
 .hint {
     -fx-text-fill: #ffffff;
     -fx-font-size: 12px;
-    -fx-max-width: 640;
     -fx-opacity: 0.8;
+    -fx-font-family: 'Aller';
 }
 
 .hbox {
@@ -45,6 +48,7 @@
     -fx-border-radius: 0;
     -fx-background-radius: 0;
     -fx-padding: 8 10;
+    -fx-font-family: 'Aller';
 }
 
 .button-box {
@@ -60,12 +64,14 @@
     -fx-padding: 10 20;
     -fx-min-width: 250px;
     -fx-alignment: CENTER;
+    -fx-font-family: 'Aller';
 }
 
 .create-button {
     -fx-background-color: #225f22;
     -fx-border-color: #4caf50;
     -fx-border-width: 2;
+    -fx-font-family: 'Aller';
 }
 
 .create-button:hover {
@@ -76,6 +82,7 @@
     -fx-background-color: #424242;
     -fx-border-color: #6c757d;
     -fx-border-width: 2;
+    -fx-font-family: 'Aller';
 }
 
 .cancel-button:hover {
