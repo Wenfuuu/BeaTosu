@@ -28,6 +28,7 @@ public class MatchScoreItem extends HBox {
 
         Label usernameLabel = new Label(event.getUser().getUsername());
         usernameLabel.getStyleClass().add("score-username");
+        usernameLabel.setMaxWidth(150);
 
         String scoreString = String.format("%,d", event.getScore());
         Label scoreLabel = new Label(scoreString);

@@ -51,6 +51,7 @@ public class ScoreItem extends HBox {
 
         Label usernameLabel = new Label(score.getUsername());
         usernameLabel.getStyleClass().add("score-username");
+        usernameLabel.setMaxWidth(150);
 
         String scoreString = String.format("Score: %,d (%dx)", score.getScore(), score.getHighestCombo());
         Label scoreLabel = new Label(scoreString);
