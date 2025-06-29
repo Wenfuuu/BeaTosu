@@ -32,7 +32,8 @@ public class HitSlider extends HitObject {
     private final Group headGroup;
     private final Circle headCircle;
     private final Path sliderPath;
-    private final Path borderPath;    private final Circle sliderBall;
+    private final Path borderPath;
+    private final Circle sliderBall;
     private final Circle sliderBallOuter;
     private final Circle approachCircle;
     private final Label comboLabel;
@@ -69,7 +70,7 @@ public class HitSlider extends HitObject {
     // private List<MediaPlayer> activePlayers = new ArrayList<>();
     private ParallelTransition parallelAnimation;
     private final List<ImageView> reverseArrows = new ArrayList<>();
-    private int currentTraversalIndex = -1;    // Visual Constants
+    private int currentTraversalIndex = -1; // Visual Constants
     private final double PATH_STROKE_WIDTH;
     private final double BALL_RADIUS;
     private final double BALL_OUTER_RADIUS;
@@ -248,7 +249,8 @@ public class HitSlider extends HitObject {
             boolean comboEnd, ArrayList<String> sfxFilenames,
             HitObjectListener listener) {
         super(osuX, osuY, hitTime, type, hitSound, hitSample, approachRate,
-                circleSize, comboNumber, comboSetIndex, comboEnd, sfxFilenames);        PATH_STROKE_WIDTH = getCircleRadius() * 2;
+                circleSize, comboNumber, comboSetIndex, comboEnd, sfxFilenames);
+        PATH_STROKE_WIDTH = getCircleRadius() * 2;
         BALL_RADIUS = getCircleRadius() * 0.8;
         BALL_OUTER_RADIUS = getCircleRadius() * 1.5; // Larger radius for mouse detection
         TICK_RADIUS = getCircleRadius() * 0.15;
@@ -557,34 +559,46 @@ public class HitSlider extends HitObject {
             }
         }
         /*
-        Perfect circle (P): Perfect circle curves are limited to three points
-        (including the hit object's position) that define the boundary of a circle.
-        Using more than three points will result in the curve type being switched to bézier.
+         * Perfect circle (P): Perfect circle curves are limited to three points
+         * (including the hit object's position) that define the boundary of a circle.
+         * Using more than three points will result in the curve type being switched to
+         * bézier.
          */
         else if (sliderType == 'P') { // Perfect Circle
-            // 'P' must only have 3 control points: center and end
+            // 'P' must have exactly 3 control points: start, middle point on arc, and end
             if (controlPoints.size() == 3) {
-                Point2D center = controlPoints.get(1);
+                Point2D middle = controlPoints.get(1);
                 Point2D end = controlPoints.get(2);
-                double radius = center.distance(start);
+                Point2D center = calculateCircleCenter(start, middle, end);
 
-                // Calculate relative positions
-                double endX = end.getX() - start.getX();
-                double endY = end.getY() - start.getY();
+                if (center != null) {
+                    double radius = center.distance(start);
 
-                // Determine sweep flag: 1 = clockwise, 0 = counter-clockwise
-                // Vector from center to start and end
-                Point2D vStart = start.subtract(center);
-                Point2D vEnd = end.subtract(center);
-                double cross = vStart.getX() * vEnd.getY() - vStart.getY() * vEnd.getX();
-                boolean sweepFlag = cross < 0; // Clockwise if negative (JavaFX sweepFlag=true)
+                    // Calculate relative positions
+                    double endX = end.getX() - start.getX();
+                    double endY = end.getY() - start.getY();
 
-                ArcTo arcTo = new ArcTo(radius, radius, 0,
-                        endX, endY, false, sweepFlag);
-                path.getElements().add(arcTo);
+                    // Determine sweep flag: 1 = clockwise, 0 = counter-clockwise
+                    // Vector from center to start and end
+                    Point2D vStart = start.subtract(center);
+                    Point2D vEnd = end.subtract(center);
+                    double cross = vStart.getX() * vEnd.getY() - vStart.getY() * vEnd.getX();
+                    boolean sweepFlag = cross > 0; // Clockwise if negative (JavaFX sweepFlag=true)
+
+                    ArcTo arcTo = new ArcTo(radius, radius, 0,
+                            endX, endY, false, sweepFlag);
+                    path.getElements().add(arcTo);
+                } else {
+                    // Fallback to linear if center calculation fails
+                    for (int i = 1; i < controlPoints.size(); i++) {
+                        Point2D p = controlPoints.get(i);
+                        path.getElements().add(new LineTo(p.getX() - start.getX(), p.getY() - start.getY()));
+                    }
+                }
             } else {
-                System.err.println("Warning: 'P' slider type requires exactly 2 control points (start and center). "
-                        + "Using linear fallback for slider at " + getHitTime() + ", control points: " + controlPoints.size());
+                System.err.println("Warning: 'P' slider type requires exactly 3 control points (start, middle, end). "
+                        + "Using linear fallback for slider at " + getHitTime() + ", control points: "
+                        + controlPoints.size());
                 for (int i = 1; i < controlPoints.size(); i++) {
                     Point2D p = controlPoints.get(i);
                     path.getElements().add(new LineTo(p.getX() - start.getX(), p.getY() - start.getY()));
@@ -645,40 +659,45 @@ public class HitSlider extends HitObject {
 
     // --- Helper for Multi-Segment Bezier Path Drawing ---
     private void addBezierSegmentToPath(Path path, List<Point2D> segmentPoints, Point2D sliderStartAbs) {
-        if (segmentPoints.size() < 2) return; // Need at least start and end
+        if (segmentPoints.size() < 2)
+            return; // Need at least start and end
 
         Point2D start = segmentPoints.get(0);
         Point2D end = segmentPoints.get(segmentPoints.size() - 1);
-        Point2D relStart = new Point2D(start.getX()-sliderStartAbs.getX(), start.getY()-sliderStartAbs.getY());
-        Point2D relEnd = new Point2D(end.getX()-sliderStartAbs.getX(), end.getY()-sliderStartAbs.getY());
+        Point2D relStart = new Point2D(start.getX() - sliderStartAbs.getX(), start.getY() - sliderStartAbs.getY());
+        Point2D relEnd = new Point2D(end.getX() - sliderStartAbs.getX(), end.getY() - sliderStartAbs.getY());
 
         if (segmentPoints.size() == 2) { // Straight line segment
             path.getElements().add(new LineTo(relEnd.getX(), relEnd.getY()));
         } else if (segmentPoints.size() == 3) { // Treat as simple cubic (like 'P')
             Point2D ctrl1 = segmentPoints.get(1);
-            Point2D relCtrl1 = new Point2D(ctrl1.getX()-sliderStartAbs.getX(), ctrl1.getY()-sliderStartAbs.getY());
+            Point2D relCtrl1 = new Point2D(ctrl1.getX() - sliderStartAbs.getX(), ctrl1.getY() - sliderStartAbs.getY());
             path.getElements().add(new CubicCurveTo(relCtrl1.getX(), relCtrl1.getY(),
                     relCtrl1.getX(), relCtrl1.getY(),
                     relEnd.getX(), relEnd.getY()));
         } else if (segmentPoints.size() == 4) { // Standard cubic Bezier
             Point2D ctrl1 = segmentPoints.get(1);
             Point2D ctrl2 = segmentPoints.get(2);
-            Point2D relCtrl1 = new Point2D(ctrl1.getX()-sliderStartAbs.getX(), ctrl1.getY()-sliderStartAbs.getY());
-            Point2D relCtrl2 = new Point2D(ctrl2.getX()-sliderStartAbs.getX(), ctrl2.getY()-sliderStartAbs.getY());
+            Point2D relCtrl1 = new Point2D(ctrl1.getX() - sliderStartAbs.getX(), ctrl1.getY() - sliderStartAbs.getY());
+            Point2D relCtrl2 = new Point2D(ctrl2.getX() - sliderStartAbs.getX(), ctrl2.getY() - sliderStartAbs.getY());
             path.getElements().add(new CubicCurveTo(relCtrl1.getX(), relCtrl1.getY(),
                     relCtrl2.getX(), relCtrl2.getY(),
                     relEnd.getX(), relEnd.getY()));
         } else {
             // osu! doesn't typically generate segments with > 4 points between anchors.
-            // If it happens, fall back to linear connection to the end point for robustness.
-            System.err.println("Warning: Bezier segment has " + segmentPoints.size() + " points. Treating as linear to segment end.");
+            // If it happens, fall back to linear connection to the end point for
+            // robustness.
+            System.err.println("Warning: Bezier segment has " + segmentPoints.size()
+                    + " points. Treating as linear to segment end.");
             path.getElements().add(new LineTo(relEnd.getX(), relEnd.getY()));
         }
     }
 
     private Point2D getPointOnCubicBezier(Point2D p0, Point2D p1, Point2D p2, Point2D p3, double t) {
-        if (t < 0) t = 0;
-        if (t > 1) t = 1;
+        if (t < 0)
+            t = 0;
+        if (t > 1)
+            t = 1;
         double u = 1.0 - t;
         double tt = t * t;
         double uu = u * u;
@@ -702,12 +721,54 @@ public class HitSlider extends HitObject {
         return new Point2D(x, y);
     }
 
+    private Point2D getPointOnPerfectCircle(Point2D start, Point2D center, Point2D end, double t) {
+        Point2D vStart = start.subtract(center);
+        Point2D vEnd = end.subtract(center);
+
+        double radius = vStart.magnitude();
+        if (radius == 0)
+            return center;
+
+        double angleStart = Math.atan2(vStart.getY(), vStart.getX());
+        double angleEnd = Math.atan2(vEnd.getY(), vEnd.getX());
+
+        double angleDiff = angleEnd - angleStart;
+
+        // Cross product to determine sweep direction
+        double cross = vStart.getX() * vEnd.getY() - vStart.getY() * vEnd.getX();
+
+        boolean sweepClockwise = cross < 0;
+
+        // Now enforce the sweep direction to match ArcTo’s visual result (clockwise =
+        // sweepFlag = true)
+        if (sweepClockwise && angleDiff > 0) {
+            angleDiff -= 2 * Math.PI;
+        } else if (!sweepClockwise && angleDiff < 0) {
+            angleDiff += 2 * Math.PI;
+        }
+
+        double angleAtT = angleStart + t * angleDiff;
+
+        double x = center.getX() + radius * Math.cos(angleAtT);
+        double y = center.getY() + radius * Math.sin(angleAtT);
+
+        return new Point2D(x, y);
+    }
+
+    private Point2D getPointOnPerfectCircleReversed(Point2D start, Point2D center, Point2D end, double t) {
+        // This is like getPointOnPerfectCircle but traverses the arc in the opposite
+        // direction
+        return getPointOnPerfectCircle(end, center, start, 1.0 - t);
+    }
+
     private Point2D getVisualPointAtFraction(double fraction) {
-        if (controlPoints.size() < 2) return new Point2D(0, 0); // No path
+        if (controlPoints.size() < 2)
+            return new Point2D(0, 0); // No path
 
         Point2D sliderStartAbs = controlPoints.get(0); // Absolute start coordinate of the slider
 
-        // TODO: This needs to handle different slider types (Bezier, Perfect Circle,Linear)
+        // TODO: This needs to handle different slider types (Bezier, Perfect
+        // Circle,Linear)
         // Current implementation is for multi-segment linear paths.
 
         // Calculate total length of the path segments defined by controlPoints
@@ -756,9 +817,43 @@ public class HitSlider extends HitObject {
         Point2D p0 = controlPoints.get(segmentIndex);
         Point2D p1 = controlPoints.get(segmentIndex + 1);
 
-        Point2D interpolatedAbsolutePoint = getPointOnLinear(p0, p1, fractionWithinSegment);
+        Point2D interpolatedAbsolutePoint;
+        if (sliderType == 'L' || sliderType == 'C') { // Linear or Cubic
+            interpolatedAbsolutePoint = getPointOnLinear(p0, p1, fractionWithinSegment);
+        } else if (sliderType == 'P') { // Perfect Circle
+            if (controlPoints.size() == 3) {
+                // For perfect circle, we need to calculate the actual center from the 3 points
+                Point2D start = controlPoints.get(0);
+                Point2D middle = controlPoints.get(1);
+                Point2D end = controlPoints.get(2);
+                Point2D center = calculateCircleCenter(start, middle, end);
+                if (center != null) {
+                    // Check which direction gives us the middle point on the arc
+                    Point2D testPoint = getPointOnPerfectCircle(start, center, end, 0.5);
+                    double distToMiddle = testPoint.distance(middle);
 
-        // Return the point relative to the slider's group origin (which is sliderStartAbs)
+                    // If test point is far from middle, try the opposite direction
+                    if (distToMiddle > getCircleRadius() * 0.1) { // tolerance check
+                        // Swap start and end to get the other arc
+                        interpolatedAbsolutePoint = getPointOnPerfectCircleReversed(start, center, end, fraction);
+                    } else {
+                        interpolatedAbsolutePoint = getPointOnPerfectCircle(start, center, end, fraction);
+                    }
+                } else {
+                    // Fallback to linear if center calculation fails
+                    interpolatedAbsolutePoint = getPointOnLinear(p0, p1, fractionWithinSegment);
+                }
+            } else {
+                System.err
+                        .println("Warning: 'P' slider type requires exactly 3 control points. Using linear fallback.");
+                interpolatedAbsolutePoint = getPointOnLinear(p0, p1, fractionWithinSegment);
+            }
+        } else { // Fallback to linear for unknown types
+            interpolatedAbsolutePoint = getPointOnLinear(p0, p1, fractionWithinSegment);
+        }
+
+        // Return the point relative to the slider's group origin (which is
+        // sliderStartAbs)
         return interpolatedAbsolutePoint.subtract(sliderStartAbs);
     }
 
@@ -952,7 +1047,7 @@ public class HitSlider extends HitObject {
     public void applyVisualsToNode(double centerX, double centerY, double scaledRadius) {
         if (group != null) {
             group.setLayoutX(centerX);
-            group.setLayoutY(centerY);            // Update the radius of the circles based on the scaleFactor
+            group.setLayoutY(centerY); // Update the radius of the circles based on the scaleFactor
             headCircle.setRadius(scaledRadius);
             approachCircle.setRadius(scaledRadius);
             sliderPath.setStrokeWidth(scaledRadius * 2);
@@ -981,5 +1076,59 @@ public class HitSlider extends HitObject {
         double dy = mouseY - ballScreenY;
         double distance = Math.sqrt(dx * dx + dy * dy);
         return distance <= (getScreenRadius() * 1.5); // Using the same multiplier as BALL_OUTER_RADIUS
+    }
+
+    private Point2D calculateCircleCenter(Point2D p1, Point2D p2, Point2D p3) {
+        // Calculate the center of a circle from three points using the circumcenter
+        // formula
+        double ax = p1.getX(), ay = p1.getY();
+        double bx = p2.getX(), by = p2.getY();
+        double cx = p3.getX(), cy = p3.getY();
+
+        double d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by));
+        if (Math.abs(d) < 1e-10) {
+            // Points are collinear or too close, cannot form a circle
+            return null;
+        }
+
+        double ux = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay)
+                + (cx * cx + cy * cy) * (ay - by)) / d;
+        double uy = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx)
+                + (cx * cx + cy * cy) * (bx - ax)) / d;
+
+        return new Point2D(ux, uy);
+    }
+
+    private boolean isMiddlePointOnArc(Point2D start, Point2D center, Point2D middle, Point2D end, boolean clockwise) {
+        // Calculate angles for all three points
+        Point2D vStart = start.subtract(center);
+        Point2D vMiddle = middle.subtract(center);
+        Point2D vEnd = end.subtract(center);
+
+        double angleStart = Math.atan2(vStart.getY(), vStart.getX());
+        double angleMiddle = Math.atan2(vMiddle.getY(), vMiddle.getX());
+        double angleEnd = Math.atan2(vEnd.getY(), vEnd.getX());
+
+        // Normalize angles to [0, 2π)
+        angleStart = (angleStart + 2 * Math.PI) % (2 * Math.PI);
+        angleMiddle = (angleMiddle + 2 * Math.PI) % (2 * Math.PI);
+        angleEnd = (angleEnd + 2 * Math.PI) % (2 * Math.PI);
+
+        if (clockwise) {
+            // For clockwise, middle should be between start and end in clockwise direction
+            if (angleStart > angleEnd) {
+                return angleMiddle <= angleStart && angleMiddle >= angleEnd;
+            } else {
+                return angleMiddle <= angleStart || angleMiddle >= angleEnd;
+            }
+        } else {
+            // For counter-clockwise, middle should be between start and end in
+            // counter-clockwise direction
+            if (angleStart < angleEnd) {
+                return angleMiddle >= angleStart && angleMiddle <= angleEnd;
+            } else {
+                return angleMiddle >= angleStart || angleMiddle <= angleEnd;
+            }
+        }
     }
 }
