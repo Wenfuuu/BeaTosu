@@ -11,15 +11,10 @@ import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.controller.MatchController;
 import beat.osu.client.controller.SessionController;
 import beat.osu.client.enums.PlaybackMode;
-import beat.osu.client.helper.AuthManager;
-import beat.osu.client.helper.BackgroundManager;
-import beat.osu.client.helper.BgmManager;
-import beat.osu.client.helper.CssManager;
-import beat.osu.client.helper.ResourceManager;
-import beat.osu.client.helper.ScreenManager;
-import beat.osu.client.helper.ViewManager;
+import beat.osu.client.helper.*;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
+import beat.osu.client.model.Song;
 import beat.osu.client.view.match.component.cards.BeatmapCard;
 import beat.osu.client.view.match.component.layout.TopBar;
 import beat.osu.client.view.match.component.modals.ChangePasswordModal;
@@ -726,6 +721,12 @@ public class MatchView extends Page {
                             }
                         });
                     }
+                } else {
+                    BeatmapSet beatmapSet = beatmap.getBeatmapSet();
+                    String audioPath = ResourceManager.getBeatmapSetAudioPath(beatmapSet.getBeatmapSetId());
+                    Song song = new Song(beatmapSet.getBeatmapSetId(), beatmapSet.getTitle(), beatmapSet.getArtist(), audioPath);
+                    PlaylistManager.getInstance().playSong(song);
+                    BgmManager.getInstance().changePlaybackMode(PlaybackMode.PREVIEW);
                 }
                 
                 updateBlueButtonState();
