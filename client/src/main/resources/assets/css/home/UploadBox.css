@@ -13,7 +13,6 @@
 
 .drop-box:hover {
     -fx-background-color: rgba(42, 42, 42, 0.95);
-    -fx-cursor: hand;
 }
 
 .drop-box .label {

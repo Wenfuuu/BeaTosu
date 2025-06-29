@@ -51,7 +51,6 @@
 
 .settings-slider .thumb:hover {
     -fx-background-color: #0d89a8;
-    -fx-cursor: hand;
 }
 
 .settings-slider .thumb:pressed {
