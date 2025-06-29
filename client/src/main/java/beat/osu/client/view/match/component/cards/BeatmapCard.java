@@ -18,6 +18,7 @@ import javafx.animation.ParallelTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -37,7 +38,15 @@ public class BeatmapCard extends StackPane {
     private String version;
     private String artist;
     private String creator;
+
+    private String length;
+    private int bpm;
+    private double circleSize;
+    private double approachRate;
+    private double overallDifficulty;
+    private double hpDrainRate;
     private double stars;
+
     private String beatmapBgPath;
 
     // Components for changing and no map variants
@@ -90,6 +99,13 @@ public class BeatmapCard extends StackPane {
         card.version = beatmap.getVersion();
         card.artist = beatmap.getBeatmapSet().getArtist();
         card.creator = beatmap.getBeatmapSet().getCreator();
+        card.length = beatmap.getBeatmapSet().getLength();
+        card.bpm = beatmap.getBeatmapSet().getBpm();
+        card.circleSize = beatmap.getCircleSize();
+        card.approachRate = beatmap.getApproachRate();
+        card.overallDifficulty = beatmap.getOverallDifficulty();
+        card.hpDrainRate = beatmap.getHpDrainRate();
+        card.variant = BeatmapCardVariant.AVAILABLE;
         card.stars = beatmap.getStarRating();
 
         try {
@@ -249,6 +265,8 @@ public class BeatmapCard extends StackPane {
         infoBox.getChildren().addAll(beatmapNameLabel, beatmapInfoLabel, beatmapVersionLabel, beatmapStarsBox);
         contentContainer.getChildren().addAll(gamemodeBox, infoBox);
 
+        setupHoverPopup();
+
         this.setOnMouseEntered(e -> transitionToOrange());
         this.setOnMouseExited(e -> transitionToPink());
 
@@ -280,6 +298,24 @@ public class BeatmapCard extends StackPane {
         File beatmapDir = new File(tempDir, String.valueOf(beatmapSetId));
         File imageFile = new File(beatmapDir, gameBg);
         return imageFile.getAbsolutePath();
+    }
+
+    private void setupHoverPopup() {
+        if (version == null) {
+            return;
+        }
+
+        String tooltipText = "BPM: " + bpm + "  Length: " + length + "\n"
+                + "CS: " + circleSize + "  AR: " + approachRate + "  OD: " + overallDifficulty
+                + "  HP: " + hpDrainRate + "\nStar Rating: " + stars + " ★";
+
+        Tooltip playerTooltip = new Tooltip(tooltipText);
+        playerTooltip.getStyleClass().add("beatmap-tooltip");
+
+        playerTooltip.setShowDelay(Duration.millis(100));
+        playerTooltip.setHideDelay(Duration.millis(100));
+
+        Tooltip.install(this, playerTooltip);
     }
 
     private void transitionToPink() {
