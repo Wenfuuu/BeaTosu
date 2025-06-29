@@ -15,9 +15,7 @@ import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
 import beat.osu.shared.dto.score.ScoreDto;
 import beat.osu.shared.dto.score.responses.GetAllScoresResponse;
-import javafx.animation.FadeTransition;
-import javafx.animation.PauseTransition;
-import javafx.animation.SequentialTransition;
+import javafx.animation.*;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
@@ -57,11 +55,15 @@ public class HomeView extends Page {
     private FadeTransition hideTransition;
     private FadeTransition showTransition;
 
+    private String lastSearchQuery = "";
+    private Timeline searchUpdateTimeline;
+
     public HomeView(Stage stage) {
         super(stage);
         setupView();
         handleEvent();
         setupAnimations();
+        setupSearchUpdater();
     }
 
     @Override
@@ -139,6 +141,16 @@ public class HomeView extends Page {
         scores = fetchScores(beatmapContent.getSelectedBeatmap());
         scoreContent.populateScores(scores);
 
+        setInputManager();
+        if (inputManager != null) {
+            inputManager.clearTypedChars();
+            lastSearchQuery = "";
+            contentLabel.setText("Type to search!");
+        }
+        if (searchUpdateTimeline != null) {
+            searchUpdateTimeline.play();
+        }
+
         scene.setRoot(root);
         BgmManager.getInstance().playPreviewBgm(true);
         BackgroundManager.setGameBackground(scene);
@@ -167,6 +179,28 @@ public class HomeView extends Page {
         showTransition = new FadeTransition(Duration.millis(500), mainLayout);
         showTransition.setFromValue(0);
         showTransition.setToValue(1);
+    }
+
+    private void setupSearchUpdater() {
+        searchUpdateTimeline = new Timeline(new KeyFrame(Duration.millis(100), e -> updateSearch()));
+        searchUpdateTimeline.setCycleCount(Timeline.INDEFINITE);
+    }
+
+    private void updateSearch() {
+        if (inputManager == null) return;
+
+        String currentQuery = inputManager.getTypedChars().toLowerCase().trim();
+
+        if (!currentQuery.equals(lastSearchQuery)) {
+            lastSearchQuery = currentQuery;
+
+            beatmapContent.filterBeatmaps(currentQuery);
+            if (currentQuery.isEmpty()) {
+                contentLabel.setText("Type to search!");
+            } else {
+                contentLabel.setText(currentQuery);
+            }
+        }
     }
 
     private ArrayList<ScoreDto> fetchScores(Beatmap beatmap) {
@@ -292,13 +326,18 @@ public class HomeView extends Page {
             Beatmap selectedBeatmap = beatmapContent.getSelectedBeatmap();
             if (selectedBeatmap != null) {
                 BgmManager.getInstance().stopBgm();
-                // new GameView(stage, selectedBeatmap);
+                if (searchUpdateTimeline != null) {
+                    searchUpdateTimeline.stop();
+                }
                 ViewManager.getInstance().showGameView(selectedBeatmap, false);
             }
         });
 
         bottomBar.getBackButton().setOnMouseClicked(e -> {
             System.out.println("Back button clicked");
+            if (searchUpdateTimeline != null) {
+                searchUpdateTimeline.stop();
+            }
             ViewManager.getInstance().showLandingView();
         });
 
@@ -319,6 +358,9 @@ public class HomeView extends Page {
                 }
                 scoreOverlay.setVisible(false);
                 showTransition.play();
+                if (searchUpdateTimeline != null) {
+                    searchUpdateTimeline.stop();
+                }
                 ViewManager.getInstance().showReplayView(beatmap, replayEvents);
             } catch (IOException ex) {
                 if (ex.getMessage().contains("Replay file not found")) {
@@ -340,6 +382,8 @@ public class HomeView extends Page {
 
     private void refreshBeatmaps() {
         beatmaps = fetchBeatmaps();
+        lastSearchQuery = "";
+        inputManager.clearTypedChars();
 
         rightBar.getChildren().remove(beatmapContent);
         beatmapContent = new BeatmapContent(beatmaps);

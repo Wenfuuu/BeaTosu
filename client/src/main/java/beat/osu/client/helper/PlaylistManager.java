@@ -15,13 +15,9 @@ import lombok.Getter;
 public class PlaylistManager implements SongEventPublisher {
     private static volatile PlaylistManager instance;
 
-    @Getter
     private List<Song> fullPlaylist;
-    @Getter
     private List<Song> filteredPlaylist;
-    @Getter
     private String currentFilter = "";
-    @Getter
     private boolean isFiltered = false;
     @Getter
     private int currentSongIndex = -1;

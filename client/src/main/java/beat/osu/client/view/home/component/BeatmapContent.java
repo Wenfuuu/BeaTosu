@@ -3,10 +3,13 @@ package beat.osu.client.view.home.component;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.model.Beatmap;
+import beat.osu.client.model.Song;
 import beat.osu.client.utils.OsuParser;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
@@ -16,7 +19,9 @@ import lombok.Setter;
 public class BeatmapContent extends ScrollPane {
     private final VBox beatmapListBox;
     private ArrayList<Beatmap> beatmaps;
-    private ArrayList<BeatmapCard> beatmapCards;
+    private List<BeatmapCard> beatmapCards;
+    private List<BeatmapCard> filteredBeatmapCards;
+    private String currentFilter = "";
     @Getter
     private Beatmap selectedBeatmap;
     @Setter
@@ -26,6 +31,7 @@ public class BeatmapContent extends ScrollPane {
         this.beatmapListBox = new VBox();
         this.beatmaps = beatmaps;
         this.beatmapCards = new ArrayList<>();
+        this.filteredBeatmapCards = new ArrayList<>();
         this.selectedBeatmap = beatmaps.isEmpty() ? null : beatmaps.get(0);
 
         this.getStyleClass().add("scroll-pane");
@@ -58,12 +64,13 @@ public class BeatmapContent extends ScrollPane {
     }
 
     private void populateBeatmaps() {
-        if(beatmaps.isEmpty()) return;
+        if (beatmaps.isEmpty())
+            return;
         String currentOszPath = "";
 
-        for(Beatmap beatmap: beatmaps) {
+        for (Beatmap beatmap : beatmaps) {
             String oszPath = OsuParser.getOszPath(beatmap);
-            if(!oszPath.equals(currentOszPath)) {
+            if (!oszPath.equals(currentOszPath)) {
                 System.out.println("different path, parsing beatmap");
                 try {
                     OsuParser.parseBeatmap(beatmap);
@@ -77,15 +84,27 @@ public class BeatmapContent extends ScrollPane {
 
             BeatmapCard beatmapCard = new BeatmapCard(beatmap);
             beatmapCard.setOnClickCallback(this::onBeatmapCardClicked);
-            
+
             beatmapCards.add(beatmapCard);
+        }
+
+        filteredBeatmapCards = beatmapCards;
+        updateBeatmapCards();
+    }
+
+    public void updateBeatmapCards() {
+        // Clear existing children to prevent duplicate additions
+        beatmapListBox.getChildren().clear();
+
+        for (BeatmapCard beatmapCard : filteredBeatmapCards) {
             beatmapListBox.getChildren().add(beatmapCard);
         }
 
         // Select first beatmap by default if available
-        if (!beatmapCards.isEmpty()) {
-            beatmapCards.get(0).setSelected(true);
-            selectedBeatmap = beatmaps.get(0);
+        if (!filteredBeatmapCards.isEmpty()) {
+            filteredBeatmapCards.get(0).setSelected(true);
+            selectedBeatmap = filteredBeatmapCards.get(0).getBeatmap();
+            onBeatmapCardClicked(filteredBeatmapCards.get(0));
 
             try {
                 OsuParser.parseBeatmap(selectedBeatmap);
@@ -109,21 +128,43 @@ public class BeatmapContent extends ScrollPane {
 
     private void onBeatmapCardClicked(BeatmapCard clickedCard) {
         // Deselect all cards
-        beatmapCards.forEach(card -> card.setSelected(false));
-        
+        filteredBeatmapCards.forEach(card -> card.setSelected(false));
+
         // Select the clicked card
         clickedCard.setSelected(true);
-        
+
         // Update selected beatmap
         selectedBeatmap = clickedCard.getBeatmap();
-        
+
         // Find index for logging
-        int index = beatmapCards.indexOf(clickedCard);
+        int index = filteredBeatmapCards.indexOf(clickedCard);
         System.out.println("Clicked index: " + index);
 
         // Trigger callback if set
         if (onBeatmapSelectedCallback != null) {
             onBeatmapSelectedCallback.accept(selectedBeatmap);
         }
+    }
+
+    private boolean matchesQuery(Beatmap beatmap, String query) {
+        return beatmap.getBeatmapSet().getTitle().toLowerCase().contains(query) ||
+                beatmap.getBeatmapSet().getArtist().toLowerCase().contains(query);
+    }
+
+    public void filterBeatmaps(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            clearFilter();
+        } else {
+            this.currentFilter = query.toLowerCase().trim();
+            this.filteredBeatmapCards = beatmapCards.stream()
+                    .filter(beatmapCard -> matchesQuery(beatmapCard.getBeatmap(), this.currentFilter))
+                    .collect(Collectors.toList());
+        }
+        updateBeatmapCards();
+    }
+
+    public void clearFilter() {
+        this.currentFilter = "";
+        this.filteredBeatmapCards = this.beatmapCards;
     }
 }
