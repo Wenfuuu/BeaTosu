@@ -2,6 +2,7 @@ package beat.osu.client.view.home;
 
 import beat.osu.client.controller.BeatmapController;
 import beat.osu.client.controller.ScoreController;
+import beat.osu.client.enums.ScoreFilter;
 import beat.osu.client.events.game.ReplayEvent;
 import beat.osu.client.helper.*;
 import beat.osu.client.model.Beatmap;
@@ -17,6 +18,7 @@ import beat.osu.shared.dto.score.ScoreDto;
 import beat.osu.shared.dto.score.responses.GetAllScoresResponse;
 import javafx.animation.*;
 import javafx.geometry.Pos;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class HomeView extends Page {
 
@@ -53,6 +56,7 @@ public class HomeView extends Page {
     private Label searchLabel;
     private Label contentLabel;
     private Label foundLabel;
+    private ComboBox<String> scoreFilterComboBox;
 
     private FadeTransition hideTransition;
     private FadeTransition showTransition;
@@ -64,6 +68,7 @@ public class HomeView extends Page {
         super(stage);
         setupView();
         handleEvent();
+        setupCallbacks();
         setupAnimations();
         setupSearchUpdater();
     }
@@ -97,6 +102,12 @@ public class HomeView extends Page {
         rightBar.setAlignment(Pos.TOP_RIGHT);
 
         createSearchArea();
+        scoreFilterComboBox = new ComboBox<>();
+        scoreFilterComboBox.getStyleClass().add("score-combo-box");
+        scoreFilterComboBox.getItems().addAll(ScoreFilter.getAllScoreFilters());
+        scoreFilterComboBox.getSelectionModel().selectFirst();
+        scoreFilterComboBox.setOpacity(1.0);
+
         beatmapContent = new BeatmapContent(beatmaps);
         uploadBox = new UploadBox();
         uploadBox.setOnUploadCompleteCallback(this::refreshBeatmaps);
@@ -145,7 +156,7 @@ public class HomeView extends Page {
         scoreContent.prefWidthProperty().bind(leftBar.widthProperty());
         scoreContent.setMaxWidth(Double.MAX_VALUE);
 
-        leftBar.getChildren().addAll(scoreContent, spacer, uploadBox);
+        leftBar.getChildren().addAll(scoreFilterComboBox, scoreContent, spacer, uploadBox);
         rightBar.getChildren().addAll(searchArea, beatmapContent);
 
         mainLayout.setTop(topBar);
@@ -254,8 +265,23 @@ public class HomeView extends Page {
                 ArrayList<ScoreDto> scoreDtos = result.getValue().getScores();
                 if (scoreDtos != null && !scoreDtos.isEmpty()) {
                     scores = scoreDtos;
-                    System.out
-                            .println("Fetched " + scores.size() + " scores for beatmap ID: " + beatmap.getBeatmapId());
+
+                    String selectedFilter = scoreFilterComboBox.getSelectionModel().getSelectedItem();
+                    if (ScoreFilter.LOCAL.getScoreFilter().equals(selectedFilter) && AuthManager.isAuthenticated()) {
+                        int currentUserId = AuthManager.getUser().getId();
+                        ArrayList<ScoreDto> filteredScores = new ArrayList<>();
+                        for (ScoreDto score : scores) {
+                            if (score.getUserId() == currentUserId) {
+                                filteredScores.add(score);
+                            }
+                        }
+                        scores = filteredScores;
+                        System.out.println(
+                                "Filtered to " + scores.size() + " local scores for user ID: " + currentUserId);
+                    } else {
+                        System.out.println("Fetched " + scores.size() + " global scores for beatmap ID: "
+                                + beatmap.getBeatmapId());
+                    }
                 } else {
                     System.out.println("No scores found for beatmap ID: " + beatmap.getBeatmapId());
                 }
@@ -359,9 +385,19 @@ public class HomeView extends Page {
         });
     }
 
-    private void handleEvent() {
+    private void setupCallbacks() {
         beatmapContent.setOnBeatmapSelectedCallback(this::onBeatmapSelected);
         scoreContent.setOnScoreSelectedCallback(this::onScoreSelected);
+    }
+
+    private void handleEvent() {
+        scoreFilterComboBox.setOnAction(e -> {
+            Beatmap selectedBeatmap = beatmapContent.getSelectedBeatmap();
+            if (selectedBeatmap != null) {
+                scores = fetchScores(selectedBeatmap);
+                scoreContent.populateScores(scores);
+            }
+        });
 
         bottomBar.getLogoView().setOnMouseClicked(e -> {
             System.out.println("clicking play button");
