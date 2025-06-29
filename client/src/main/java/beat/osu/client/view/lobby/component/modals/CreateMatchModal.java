@@ -124,6 +124,9 @@ public class CreateMatchModal extends VBox {
         maxPlayersBox.getChildren().addAll(maxPlayersLabel, maxPlayersComboBox);
 
         createMatchForm.getChildren().addAll(gameNameBox, passwordCheckBox, passwordBox, maxPlayersBox);
+        createMatchForm.setMinWidth(ScreenManager.SCREEN_WIDTH);
+        createMatchForm.setMaxWidth(ScreenManager.SCREEN_WIDTH);
+        createMatchForm.setPrefWidth(ScreenManager.SCREEN_WIDTH);
 
         this.getChildren().addAll(createMatchForm, buttonsContainer);
         VBox.setMargin(createMatchForm, new Insets(156, 0, 0, 0));
