@@ -186,12 +186,12 @@ public class BeatmapCard extends StackPane {
         Image image = new Image(imageFile.toURI().toString());
         beatmapImageView = new ImageView(image);
 
-        beatmapImageView.setPreserveRatio(true);
+        double fixedImageWidth = this.getPrefWidth() * 0.25;
         double fitHeight = this.getPrefHeight() - 1;
-        beatmapImageView.setFitHeight(fitHeight);
 
-        double aspectRatio = image.getWidth() / image.getHeight();
-        double calculatedWidth = fitHeight * aspectRatio;
+        beatmapImageView.setFitWidth(fixedImageWidth);
+        beatmapImageView.setFitHeight(fitHeight);
+        beatmapImageView.setPreserveRatio(false);
 
         StackPane.setAlignment(beatmapImageView, Pos.CENTER_LEFT);
 
@@ -205,7 +205,7 @@ public class BeatmapCard extends StackPane {
         orangeOverlay.setOpacity(0.15);
 
         HBox contentContainer = new HBox();
-        StackPane.setMargin(contentContainer, new Insets(0, 0, 0, calculatedWidth + 10));
+        StackPane.setMargin(contentContainer, new Insets(0, 0, 0, fixedImageWidth + 10));
         contentContainer.setSpacing(10);
         HBox.setHgrow(contentContainer, Priority.NEVER);
 
