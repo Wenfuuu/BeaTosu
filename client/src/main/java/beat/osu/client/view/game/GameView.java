@@ -41,6 +41,8 @@ public class GameView extends Page implements GameEventListener {
     private final double PLAYFIELD_OFFSET_X_IN_REF = 64.0;
     private final double PLAYFIELD_OFFSET_Y_IN_REF = 56.0;
 
+    private double INITIAL_OPACITY;
+
     private final double circleSize; // Default Circle Size (CS) if parsing fails
     private double osuPixelDiameter; // Diameter in original osu! coordinates
 
@@ -449,16 +451,16 @@ public class GameView extends Page implements GameEventListener {
     }
 
     private void enterBreakPeriod() {
-        FadeTransition fade = new FadeTransition(Duration.millis(300), backgroundOverlay);
+        FadeTransition fade = new FadeTransition(Duration.millis(1000), backgroundOverlay);
         fade.setFromValue(backgroundOverlay.getOpacity());
         fade.setToValue(0.5);
         fade.play();
     }
 
     private void exitBreakPeriod() {
-        FadeTransition fade = new FadeTransition(Duration.millis(300), backgroundOverlay);
+        FadeTransition fade = new FadeTransition(Duration.millis(1000), backgroundOverlay);
         fade.setFromValue(backgroundOverlay.getOpacity());
-        fade.setToValue(0.25);
+        fade.setToValue(INITIAL_OPACITY);
         fade.play();
     }
 
@@ -560,6 +562,9 @@ public class GameView extends Page implements GameEventListener {
         backgroundOverlay.setStyle("-fx-background-color: rgba(18, 18, 18, 0.5);");
         backgroundOverlay.prefWidthProperty().bind(root.widthProperty());
         backgroundOverlay.prefHeightProperty().bind(root.heightProperty());
+
+        INITIAL_OPACITY = backgroundOverlay.getOpacity();
+        System.out.println("Initial Opacity: " + INITIAL_OPACITY);
 
         // Add the overlay pane to the root
         root.getChildren().addAll(backgroundOverlay);
@@ -740,6 +745,14 @@ public class GameView extends Page implements GameEventListener {
             case GAME_FAILED:
                 System.out.println("game failed, show fail overlay here");
                 failOverlay.showFailOverlay();
+                break;
+            case ENTER_BREAK_PERIOD:
+                System.out.println("enter break period");
+                enterBreakPeriod();
+                break;
+            case EXIT_BREAK_PERIOD:
+                System.out.println("exit break period");
+                exitBreakPeriod();
                 break;
         }
     }

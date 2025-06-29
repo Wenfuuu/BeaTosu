@@ -52,6 +52,8 @@ public class OsuParser {
         events.clear();
         bgFileName = "";
         bgm = 0;
+        timingPointsList.clear();
+        breakPeriodsList.clear();
     }
 
     private static double getStarRating(double hp, double cs, double od, double ar, double sm, double st) {
