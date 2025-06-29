@@ -180,8 +180,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         sessionController.removePlayingBeatmapSession(user.getId()).thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Session removed successfully: " + response.getValue().getMessage());
-                // notify server that player exit/completed game, that will also send final
-                // match score
+                // notify server that player exit/completed game, that will also send final match score
                 sendMatchScoreEvent();
             } else {
                 System.err.println("Failed to remove session: " + response.getError().getMessage());
@@ -336,6 +335,14 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         notifySpectatorsPlayerExited();
     }
 
+    private void exitMatch() {
+        // clean up match & notify exit
+        gameState = GameState.EXITED;
+        gameLoop.stop();
+        notifySpectatorsPlayerExited();
+        ViewManager.getInstance().showLobbyView();
+    }
+
     private void insertScore(int id, String grade, LocalDateTime now) {
         System.out.println("Inserting score for user: " + id);
         scoreController.insertScore(beatmap.getBeatmapId(), id, score,
@@ -412,11 +419,17 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         }
 
         if (pressedEsc) {
-            if (gameState == GameState.PLAYING || gameState == GameState.BREAK_PERIOD) {
-                pauseGame();
-            } else if (gameState == GameState.PAUSED) {
-                resumeGame();
+            if (!isMultiplayer) {
+                if (gameState == GameState.PLAYING || gameState == GameState.BREAK_PERIOD) {
+                    pauseGame();
+                } else if (gameState == GameState.PAUSED) {
+                    resumeGame();
+                }
+            } else {
+                // clean up and notify exit
+                exitMatch();
             }
+
             previousKeys.clear();
             previousKeys.addAll(currentKeys);
         }
@@ -589,7 +602,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 if (response.isSuccess()) {
                     System.out.println("Match score event sent successfully: " + response.getValue().getMessage());
                     matchScoreEventInProgress = false;
-                    if (isMultiplayer && gameState == GameState.COMPLETED) sendPlayerFinishedEvent();
+                    if (isMultiplayer && (gameState == GameState.COMPLETED ||
+                            gameState == GameState.EXITED)) sendPlayerFinishedEvent();
                 } else {
                     System.err.println("Failed to send match score event: " + response.getError().getMessage());
                 }
@@ -607,8 +621,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void sendPlayerFinishedEvent() {
-        if (!isMultiplayer)
-            return;
+        if (!isMultiplayer) return;
 
         try {
             System.out.println("Sending player finished event");
@@ -935,6 +948,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
     private void onMatchCompletedEvent(MatchCompletedEvent event) {
         System.out.println("Match completed, notifying view");
+        if (gameState == GameState.EXITED) return;
         notifyListeners(new GameEvent(GameEventType.MATCH_COMPLETED, multiplayerScores));
     }
 
