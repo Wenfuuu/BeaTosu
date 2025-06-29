@@ -173,7 +173,7 @@ public class GameView extends Page implements GameEventListener {
         });
 
         matchResultOverlay.getBackButton().setOnMouseClicked(e -> {
-
+            ViewManager.getInstance().backToMatchView();
         });
 
         failOverlay.getRetryButton().setOnMouseClicked(e -> {
