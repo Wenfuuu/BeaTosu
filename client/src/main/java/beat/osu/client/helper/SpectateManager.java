@@ -2,6 +2,7 @@ package beat.osu.client.helper;
 
 import beat.osu.client.controller.SpectateController;
 import beat.osu.client.enums.GameEventType;
+import beat.osu.client.enums.GameState;
 import beat.osu.client.enums.HitResult;
 import beat.osu.client.events.game.*;
 import beat.osu.client.factory.HitObjectFactory;
@@ -35,6 +36,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     @Getter
     private final ArrayList<HitObject> hitObjects;
     // private boolean bgmStarted = false;
+    private GameState gameState = GameState.PLAYING;
     private final InputManager inputManager;
     private final CoordinateConverter coordinateConverter;
     private AnimationTimer spectateLoop;
@@ -377,6 +379,27 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
 
             Set<KeyCode> currentKeys = inputManager.getPressedKeys();
             boolean pressedEsc = currentKeys.contains(KeyCode.ESCAPE);
+
+            boolean inBreakPeriod = false;
+            for (BreakPeriod breakPeriod : OsuParser.getBreakPeriodsList()) {
+                int startTime = breakPeriod.getStartTime();
+                int endTime = breakPeriod.getEndTime();
+                if (event.getCurrentTime() >= startTime && event.getCurrentTime() <= endTime) {
+                    inBreakPeriod = true;
+                    if (gameState != GameState.BREAK_PERIOD) {
+                        System.out.println("Entering break period");
+                        gameState = GameState.BREAK_PERIOD;
+                        notifyListeners(new GameEvent(GameEventType.ENTER_BREAK_PERIOD, null));
+                    }
+                    break;
+                }
+            }
+
+            if (!inBreakPeriod && gameState == GameState.BREAK_PERIOD) {
+                System.out.println("Exiting break period, returning to playing state");
+                gameState = GameState.PLAYING;
+                notifyListeners(new GameEvent(GameEventType.EXIT_BREAK_PERIOD, null));
+            }
 
             if (pressedEsc) {
                 System.out.println("Escape key pressed, stopping spectate session");

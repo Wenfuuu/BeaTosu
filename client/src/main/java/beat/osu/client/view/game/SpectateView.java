@@ -39,10 +39,13 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
     private final double PLAYFIELD_OFFSET_X_IN_REF = 64.0;
     private final double PLAYFIELD_OFFSET_Y_IN_REF = 56.0;
 
+    private double INITIAL_OPACITY;
+
     private final double circleSize;
     private double osuPixelDiameter;
 
     private StackPane root;
+    private Pane backgroundOverlay;
     private Pane spectatePane;
     private GameUI uiPane;
     private SpectatePauseOverlay spectatePauseOverlay;
@@ -403,6 +406,20 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
         fullAnimation.play();
     }
 
+    private void enterBreakPeriod() {
+        FadeTransition fade = new FadeTransition(Duration.millis(1000), backgroundOverlay);
+        fade.setFromValue(backgroundOverlay.getOpacity());
+        fade.setToValue(0.5);
+        fade.play();
+    }
+
+    private void exitBreakPeriod() {
+        FadeTransition fade = new FadeTransition(Duration.millis(1000), backgroundOverlay);
+        fade.setFromValue(backgroundOverlay.getOpacity());
+        fade.setToValue(INITIAL_OPACITY);
+        fade.play();
+    }
+
     private void loadBackground() {
         try {
             BackgroundManager.setGameBackground(scene);
@@ -505,10 +522,11 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
         root = new StackPane();
 
         // Create an overlay pane for semi-transparent background
-        Pane backgroundOverlay = new Pane();
+        backgroundOverlay = new Pane();
         backgroundOverlay.setStyle("-fx-background-color: rgba(18, 18, 18, 0.5);");
         backgroundOverlay.prefWidthProperty().bind(root.widthProperty());
         backgroundOverlay.prefHeightProperty().bind(root.heightProperty());
+        INITIAL_OPACITY = backgroundOverlay.getOpacity();
 
         // Add the overlay pane to the root
         root.getChildren().addAll(backgroundOverlay);
@@ -602,6 +620,14 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
                 break;
             case SPECTATE_EXIT:
                 if (spectatePauseOverlay.isVisible()) sm.stopSpectate();
+                break;
+            case ENTER_BREAK_PERIOD:
+                System.out.println("enter break period");
+                enterBreakPeriod();
+                break;
+            case EXIT_BREAK_PERIOD:
+                System.out.println("exit break period");
+                exitBreakPeriod();
                 break;
         }
     }

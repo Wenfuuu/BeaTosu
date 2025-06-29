@@ -392,7 +392,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         for (BreakPeriod breakPeriod : OsuParser.getBreakPeriodsList()) {
             int startTime = breakPeriod.getStartTime();
             int endTime = breakPeriod.getEndTime();
-            System.out.println("Checking break period: " + startTime + " - " + endTime + ", elapsed: " + elapsedMillis);
+//            System.out.println("Checking break period: " + startTime + " - " + endTime + ", elapsed: " + elapsedMillis);
             if (elapsedMillis >= startTime && elapsedMillis <= endTime) {
                 inBreakPeriod = true;
                 if (gameState != GameState.BREAK_PERIOD) {

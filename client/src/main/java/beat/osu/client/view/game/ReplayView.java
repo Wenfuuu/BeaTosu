@@ -36,10 +36,13 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
     private final double PLAYFIELD_OFFSET_X_IN_REF = 64.0;
     private final double PLAYFIELD_OFFSET_Y_IN_REF = 56.0;
 
+    private double INITIAL_OPACITY;
+
     private final double circleSize;
     private double osuPixelDiameter;
 
     private StackPane root;
+    private Pane backgroundOverlay;
     private Pane replayPane;
     private GameUI uiPane;
     private PauseOverlay pauseOverlay;
@@ -395,6 +398,20 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
         fullAnimation.play();
     }
 
+    private void enterBreakPeriod() {
+        FadeTransition fade = new FadeTransition(Duration.millis(1000), backgroundOverlay);
+        fade.setFromValue(backgroundOverlay.getOpacity());
+        fade.setToValue(0.5);
+        fade.play();
+    }
+
+    private void exitBreakPeriod() {
+        FadeTransition fade = new FadeTransition(Duration.millis(1000), backgroundOverlay);
+        fade.setFromValue(backgroundOverlay.getOpacity());
+        fade.setToValue(INITIAL_OPACITY);
+        fade.play();
+    }
+
     private void loadBackground() {
         try {
             BackgroundManager.setGameBackground(scene);
@@ -481,10 +498,11 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
         root = new StackPane();
 
         // Create an overlay pane for semi-transparent background
-        Pane backgroundOverlay = new Pane();
+        backgroundOverlay = new Pane();
         backgroundOverlay.setStyle("-fx-background-color: rgba(18, 18, 18, 0.5);");
         backgroundOverlay.prefWidthProperty().bind(root.widthProperty());
         backgroundOverlay.prefHeightProperty().bind(root.heightProperty());
+        INITIAL_OPACITY = backgroundOverlay.getOpacity();
 
         // Add the overlay pane to the root
         root.getChildren().addAll(backgroundOverlay);
@@ -616,6 +634,14 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
                     cursorImage.setLayoutX(cursorX - cursorImage.getFitWidth() / 2);
                     cursorImage.setLayoutY(cursorY - cursorImage.getFitHeight() / 2);
                 }
+                break;
+            case ENTER_BREAK_PERIOD:
+                System.out.println("enter break period");
+                enterBreakPeriod();
+                break;
+            case EXIT_BREAK_PERIOD:
+                System.out.println("exit break period");
+                exitBreakPeriod();
                 break;
         }
     }

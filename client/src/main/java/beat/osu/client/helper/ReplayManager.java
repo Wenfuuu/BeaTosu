@@ -33,6 +33,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     private long totalPausedNanos = 0;
     private final long replayStartOffset = 2000;
     private long lastHpDrainMillis = 0;
+    private GameState gameState = GameState.PLAYING;
     private ReplayState replayState = ReplayState.NOT_STARTED;
     private boolean bgmStarted = false;
     private final ArrayList<ReplayEvent> replayEvents;
@@ -157,9 +158,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
         }
 
         replayState = ReplayState.PLAYING;
-        if (bgmStarted)
-            BgmManager.getInstance().resumeBgm();
-        // add countdown later
+        if (bgmStarted) BgmManager.getInstance().resumeBgm();
         resumeAllAnimations();
         notifyListeners(new GameEvent(GameEventType.REPLAY_RESUMED, null));
     }
@@ -174,6 +173,27 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
         System.out.println("Updating replay, elapsed millis: " + elapsedMillis);
         Set<KeyCode> currentKeys = inputManager.getPressedKeys();
         boolean pressedEsc = currentKeys.contains(KeyCode.ESCAPE);
+
+        boolean inBreakPeriod = false;
+        for (BreakPeriod breakPeriod : OsuParser.getBreakPeriodsList()) {
+            int startTime = breakPeriod.getStartTime();
+            int endTime = breakPeriod.getEndTime();
+            if (elapsedMillis >= startTime && elapsedMillis <= endTime) {
+                inBreakPeriod = true;
+                if (gameState != GameState.BREAK_PERIOD) {
+                    System.out.println("Entering break period");
+                    gameState = GameState.BREAK_PERIOD;
+                    notifyListeners(new GameEvent(GameEventType.ENTER_BREAK_PERIOD, null));
+                }
+                break;
+            }
+        }
+
+        if (!inBreakPeriod && gameState == GameState.BREAK_PERIOD) {
+            System.out.println("Exiting break period, returning to playing state");
+            gameState = GameState.PLAYING;
+            notifyListeners(new GameEvent(GameEventType.EXIT_BREAK_PERIOD, null));
+        }
 
         if (pressedEsc) {
             if (replayState == ReplayState.PLAYING) {
