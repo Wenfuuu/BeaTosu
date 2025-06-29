@@ -631,7 +631,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         double objCenterX = hitObject.getScreenCenterX();
         double objCenterY = hitObject.getScreenCenterY();
         double objRadius = hitObject.getScreenRadius();
-        if (hitObject instanceof HitSpinner) objRadius *= 2.5;
+        if (hitObject instanceof HitSpinner) objRadius *= 20.0;
 
         double dx = currentMouseX - objCenterX;
         double dy = currentMouseY - objCenterY;
