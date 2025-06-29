@@ -940,7 +940,13 @@ public class HitSlider extends HitObject {
     public void updateSlider(double mouseX, double mouseY) {
         if (isHit()) {
             if (getCurrTime() <= endTime) {
+                boolean previousMouseInBallRadius = mouseInBallRadius;
                 mouseInBallRadius = isMouseInBallRadius(mouseX, mouseY);
+
+                // Update colors if the mouse state changed
+                if (previousMouseInBallRadius != mouseInBallRadius) {
+                    updateSliderBallColors();
+                }
             } else if (getCurrTime() > endTime) {
                 HitResult judgement = getSliderJudgement();
                 System.out.println("Head early hit: " + earlyHit + ", Ticks hit: " + ticksHit + "/"
@@ -1045,6 +1051,9 @@ public class HitSlider extends HitObject {
         // Set outer circle to initial position as well
         sliderBallOuter.setCenterX(initialBallPos.getX());
         sliderBallOuter.setCenterY(initialBallPos.getY());
+
+        // Set initial slider ball colors
+        updateSliderBallColors();
 
         // (Optional) Add fade effect for headCircle if you want
         FadeTransition fade = new FadeTransition(Duration.millis(150), headGroup);
@@ -1299,5 +1308,20 @@ public class HitSlider extends HitObject {
         }
 
         return temp.get(0);
+    }
+
+    private void updateSliderBallColors() {
+        if (sliderBall == null || sliderBallOuter == null) {
+            return;
+        }
+
+        if (mouseInBallRadius) {
+            sliderBall.setFill(Color.WHITE.deriveColor(1, 1, 1, 0.7));
+            sliderBallOuter.setFill(Color.WHITE.deriveColor(1, 1, 1, 0.35));
+        } else {
+            // darker colors when mouse is not in radius
+            sliderBall.setFill(Color.WHITE.deriveColor(0, 1, 1, 0.3)); // dimmer white
+            sliderBallOuter.setFill(Color.WHITE.deriveColor(0, 1, 1, 0.15)); // even dimmer
+        }
     }
 }
