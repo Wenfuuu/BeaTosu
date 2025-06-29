@@ -217,8 +217,7 @@ public class ScoreOverlay extends BorderPane {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String formatted = now.format(formatter);
-        String userName = AuthManager.isAuthenticated() ? AuthManager.getUser().getUsername() : "Guest";
-        playedLabel.setText("Played by " + userName + " on " + formatted + ".");
+        playedLabel.setText("Played by " + score.getUsername() + " on " + formatted + ".");
 
         updateScore(score.getScore());
         updateCombo(score.getHighestCombo());
