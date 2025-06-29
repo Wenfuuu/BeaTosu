@@ -45,6 +45,7 @@ public class GameView extends Page implements GameEventListener {
     private double osuPixelDiameter; // Diameter in original osu! coordinates
 
     private StackPane root;
+    private Pane backgroundOverlay;
     private Pane gamePane;
     private GameUI uiPane;
     private PauseOverlay pauseOverlay;
@@ -447,6 +448,20 @@ public class GameView extends Page implements GameEventListener {
         fullAnimation.play();
     }
 
+    private void enterBreakPeriod() {
+        FadeTransition fade = new FadeTransition(Duration.millis(300), backgroundOverlay);
+        fade.setFromValue(backgroundOverlay.getOpacity());
+        fade.setToValue(0.5);
+        fade.play();
+    }
+
+    private void exitBreakPeriod() {
+        FadeTransition fade = new FadeTransition(Duration.millis(300), backgroundOverlay);
+        fade.setFromValue(backgroundOverlay.getOpacity());
+        fade.setToValue(0.25);
+        fade.play();
+    }
+
     private void loadBackground() {
         try {
             BackgroundManager.setGameBackground(scene);
@@ -541,7 +556,7 @@ public class GameView extends Page implements GameEventListener {
         root = new StackPane();
 
         // Create an overlay pane for semi-transparent background
-        Pane backgroundOverlay = new Pane();
+        backgroundOverlay = new Pane();
         backgroundOverlay.setStyle("-fx-background-color: rgba(18, 18, 18, 0.5);");
         backgroundOverlay.prefWidthProperty().bind(root.widthProperty());
         backgroundOverlay.prefHeightProperty().bind(root.heightProperty());

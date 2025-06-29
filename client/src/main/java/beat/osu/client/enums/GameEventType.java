@@ -22,4 +22,6 @@ public enum GameEventType {
     SPECTATE_EXIT,
     MATCH_SCORE_CHANGED,
     MATCH_COMPLETED,
+    ENTER_BREAK_PERIOD,
+    EXIT_BREAK_PERIOD,
 }
