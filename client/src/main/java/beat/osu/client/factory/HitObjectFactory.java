@@ -166,7 +166,7 @@ public class HitObjectFactory {
         // Slider => 59,124,2279,6,0,P|116:91|220:132,1,171.73332756836,2|0,0:2|0:2,0:0:0:0:
         Map<String, String> colours = OsuParser.getColours();
         String key = "Combo" + (comboSetIndex + 1); // +1 because osu uses 1-based keys
-        String colorString = colours.getOrDefault(key, "255,255,255"); // Default to white if not found
+        String colorString = colours.getOrDefault(key, "64,64,64"); // Default to white if not found
 //        System.out.println("key: " + key);
 //        System.out.println("color: " + colorString);
 

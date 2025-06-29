@@ -881,6 +881,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 comboEnd = HitObjectFactory.checkNewCombo(nextData);
             }
 
+            System.out.println("index data " + i);
             createHitObject(data, comboEnd);
         }
     }
@@ -894,7 +895,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             // Apply combo skip from the *previous* new combo object, or this one if it's
             // the first.
             // The comboSetIndex is incremented by 1 + the number of colors to skip.
-            currentComboSetIndex = (currentComboSetIndex + 1 + comboSkipCounter) % OsuParser.getColours().size();
+            currentComboSetIndex = (currentComboSetIndex + 1 + comboSkipCounter);
+            if (!OsuParser.getColours().isEmpty()) currentComboSetIndex %= OsuParser.getColours().size();
             comboSkipCounter = comboSkipFromThisObject; // Store skip for NEXT new combo
         } else {
             currentComboNumberInSet++;
