@@ -17,6 +17,7 @@ import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
 import beat.osu.shared.dto.score.ScoreDto;
 import beat.osu.shared.dto.score.responses.GetAllScoresResponse;
 import javafx.animation.*;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -32,7 +33,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class HomeView extends Page {
 
@@ -51,6 +51,9 @@ public class HomeView extends Page {
     private ScoreOverlay scoreOverlay;
     private ArrayList<Beatmap> beatmaps;
     private ArrayList<ScoreDto> scores;
+    
+    private volatile boolean isLoadingBeatmaps = false;
+    private Thread loadingThread = null;
 
     private HBox searchArea;
     private Label searchLabel;
@@ -89,15 +92,15 @@ public class HomeView extends Page {
 
         mainLayout = new BorderPane();
 
-        beatmaps = fetchBeatmaps();
+        beatmaps = new ArrayList<>();
 
         topBar = new TopBar();
         bottomBar = new BottomBar();
         leftBar = new VBox();
         leftBar.setAlignment(Pos.TOP_LEFT);
         leftBar.setFillWidth(true);
-        leftBar.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.3); // Set minimum width to prevent shrinking
-        leftBar.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.3); // Set preferred width
+        leftBar.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.3);
+        leftBar.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.3);
         rightBar = new VBox();
         rightBar.setAlignment(Pos.TOP_RIGHT);
 
@@ -112,17 +115,12 @@ public class HomeView extends Page {
         uploadBox = new UploadBox();
         uploadBox.setOnUploadCompleteCallback(this::refreshBeatmaps);
 
-        // Set initial upload box width properties
         uploadBox.setMaxWidth(Double.MAX_VALUE);
         uploadBox.setMinWidth(Region.USE_PREF_SIZE);
 
         scoreContent = new ScoreContent(new ArrayList<>());
 
-        if (!beatmaps.isEmpty()) {
-            topBar.updateSongInfo(beatmaps.get(0));
-            scores = fetchScores(beatmaps.get(0));
-            scoreContent = new ScoreContent(scores);
-        }
+        scores = new ArrayList<>();
 
         scoreOverlay = new ScoreOverlay();
 
@@ -147,12 +145,10 @@ public class HomeView extends Page {
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
-        // Ensure upload box takes full width
         uploadBox.prefWidthProperty().bind(leftBar.widthProperty());
         uploadBox.setMaxWidth(Double.MAX_VALUE);
         uploadBox.setMinWidth(Region.USE_PREF_SIZE);
 
-        // Ensure scoreContent doesn't shrink the container
         scoreContent.prefWidthProperty().bind(leftBar.widthProperty());
         scoreContent.setMaxWidth(Double.MAX_VALUE);
 
@@ -169,13 +165,8 @@ public class HomeView extends Page {
 
     @Override
     public void onShow() {
-        try {
-            OsuParser.parseBeatmap(beatmapContent.getSelectedBeatmap());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        scores = fetchScores(beatmapContent.getSelectedBeatmap());
-        scoreContent.populateScores(scores);
+        clearBeatmapData();
+        startProgressiveLoading();
 
         setInputManager();
         if (inputManager != null) {
@@ -367,10 +358,6 @@ public class HomeView extends Page {
 
         scores = fetchScores(beatmap);
         scoreContent.populateScores(scores);
-        // sfx testing purpose
-        // for (String data: OsuParser.getHitObjects()) {
-        // HitObjectFactory.createHitObject(data, beatmap, 1, 1);
-        // }
     }
 
     private void onScoreSelected(ScoreDto score) {
@@ -457,19 +444,117 @@ public class HomeView extends Page {
     }
 
     private void refreshBeatmaps() {
-        beatmaps = fetchBeatmaps();
+        clearBeatmapData();
+        startProgressiveLoading();
         lastSearchQuery = "";
-        inputManager.clearTypedChars();
-
-        rightBar.getChildren().remove(beatmapContent);
-        beatmapContent = new BeatmapContent(beatmaps);
-        beatmapContent.setOnBeatmapSelectedCallback(this::onBeatmapSelected);
-        rightBar.getChildren().add(1, beatmapContent);
-
-        if (!beatmaps.isEmpty()) {
-            topBar.updateSongInfo(beatmaps.get(0));
-            scores = fetchScores(beatmaps.get(0));
-            scoreContent.populateScores(scores);
+        if (inputManager != null) {
+            inputManager.clearTypedChars();
+        }
+    }
+    
+    private void clearBeatmapData() {
+        if (loadingThread != null && loadingThread.isAlive()) {
+            loadingThread.interrupt();
+        }
+        isLoadingBeatmaps = false;
+        
+        if (beatmaps != null) {
+            beatmaps.clear();
+        }
+        
+        if (beatmapContent != null && beatmapContent.getContent() instanceof VBox) {
+            VBox listBox = (VBox) beatmapContent.getContent();
+            listBox.getChildren().clear();
+        }
+        
+        if (scores != null) {
+            scores.clear();
+        }
+        if (scoreContent != null) {
+            scoreContent.populateScores(new ArrayList<>());
+        }
+    }
+    
+    private void startProgressiveLoading() {
+        if (isLoadingBeatmaps) {
+            return;
+        }
+        
+        isLoadingBeatmaps = true;
+        beatmaps = new ArrayList<>();
+        
+        loadingThread = new Thread(() -> {
+            try {
+                ArrayList<Beatmap> fetchedBeatmaps = fetchBeatmaps();
+                
+                for (int i = 0; i < fetchedBeatmaps.size(); i++) {
+                    if (Thread.currentThread().isInterrupted()) {
+                        return;
+                    }
+                    
+                    Beatmap beatmap = fetchedBeatmaps.get(i);
+                    final int index = i;
+                    
+                    try {
+                        OsuParser.parseBeatmap(beatmap);
+                    } catch (IOException e) {
+                        System.err.println("Error parsing beatmap " + beatmap.getBeatmapId() + ": " + e.getMessage());
+                        continue;
+                    }
+                    
+                    Platform.runLater(() -> {
+                        beatmaps.add(beatmap);
+                        addBeatmapWithFadeIn(beatmap, index);
+                        
+                        if (index == 0) {
+                            topBar.updateSongInfo(beatmap);
+                            BackgroundManager.setGameBackground(scene);
+                            
+                            scores = fetchScores(beatmap);
+                            scoreContent.populateScores(scores);
+                        }
+                    });
+                    
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                }
+                
+                Platform.runLater(() -> {
+                    isLoadingBeatmaps = false;
+                });
+                
+            } catch (Exception e) {
+                System.err.println("Error during progressive loading: " + e.getMessage());
+                Platform.runLater(() -> {
+                    isLoadingBeatmaps = false;
+                });
+            }
+        });
+        
+        loadingThread.setDaemon(true);
+        loadingThread.start();
+    }
+    
+    private void addBeatmapWithFadeIn(Beatmap beatmap, int index) {
+        BeatmapCard beatmapCard = new BeatmapCard(beatmap);
+        beatmapCard.setOnClickCallback(card -> {
+            onBeatmapSelected(beatmap);
+        });
+        
+        beatmapCard.setOpacity(0.0);
+        
+        if (beatmapContent != null && beatmapContent.getContent() instanceof VBox) {
+            VBox listBox = (VBox) beatmapContent.getContent();
+            listBox.getChildren().add(beatmapCard);
+            
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(200), beatmapCard);
+            fadeIn.setFromValue(0.0);
+            fadeIn.setToValue(1.0);
+            fadeIn.play();
         }
     }
 }
