@@ -1,0 +1,41 @@
+/* SelectBeatmapModal.css - Clone of HomeView styling */
+
+.label {
+    -fx-text-fill: white;
+}
+
+.search-area {
+    -fx-background-color: rgba(0, 0, 0, 0.7);
+    -fx-background-radius: 0px;
+    -fx-padding: 12px 16px;
+    -fx-margin: 0 0 10px 0;
+    -fx-border-width: 0px;
+    -fx-border-radius: 0px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 5, 0, 0, 2);
+}
+
+.search-area:hover {
+    -fx-background-color: rgba(0, 0, 0, 0.8);
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+}
+
+.search-label {
+    -fx-text-fill: #B7E468;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Aller Light";
+}
+
+.search-content-label {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Aller Light";
+}
+
+.search-found-label {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+    -fx-font-family: "Aller Light";
+}

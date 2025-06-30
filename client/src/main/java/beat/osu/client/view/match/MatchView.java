@@ -11,7 +11,6 @@ import beat.osu.client.controller.ChatController;
 import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.controller.MatchController;
 import beat.osu.client.controller.SessionController;
-import beat.osu.client.enums.PlaybackMode;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.BgmManager;
@@ -22,12 +21,12 @@ import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.ViewManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
-import beat.osu.client.model.Song;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.view.match.component.cards.BeatmapCard;
 import beat.osu.client.view.match.component.layout.TopBar;
 import beat.osu.client.view.match.component.modals.ChangePasswordModal;
 import beat.osu.client.view.match.component.modals.HostActionsModal;
+import beat.osu.client.view.match.component.modals.SelectBeatmapModal;
 import beat.osu.client.view.match.component.panels.MatchSlotPanel;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
@@ -41,7 +40,6 @@ import beat.osu.client.view.shared.common.Toast;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.beatmap.BeatmapDto;
 import beat.osu.shared.dto.chat.ChannelDto;
-import beat.osu.shared.dto.chat.responses.GetJoinedChannelsResponse;
 import beat.osu.shared.dto.chat.responses.JoinChannelResponse;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
@@ -123,6 +121,7 @@ public class MatchView extends Page {
 
     private HostActionsModal hostActionsModal;
     private ChangePasswordModal changePasswordModal;
+    private SelectBeatmapModal selectBeatmapModal;
 
     // left panel components
     private MatchSlotPanel matchSlotPanel;
@@ -222,6 +221,7 @@ public class MatchView extends Page {
 
         hostActionsModal = new HostActionsModal();
         changePasswordModal = new ChangePasswordModal();
+        selectBeatmapModal = new SelectBeatmapModal();
 
         selectChannelModal.setChatPanel(chatPanel);
         selectChannelModal.setOnlineUsersPanel(onlineUsersPanel);
@@ -333,24 +333,6 @@ public class MatchView extends Page {
         winConditionBox.setAlignment(Pos.CENTER_RIGHT);
         VBox.setMargin(winConditionBox, new Insets(20, 40, 0, 0));
 
-
-        // TODO: Remove later after finish testing
-        TextField beatmapIdTextField = new TextField();
-        updateBeatmapButton = new Button("Update Beatmap");
-        HBox beatmapIdBox = new HBox(10);
-        beatmapIdBox.getChildren().addAll(beatmapIdTextField, updateBeatmapButton);
-        updateBeatmapButton.setOnAction(e -> {
-            int beatmapId = Integer.parseInt(beatmapIdTextField.getText());
-            matchController.updateMatchBeatmap(matchId, beatmapId).thenAccept(result -> {
-                if (result.isSuccess()) {
-                    System.out.println("Successfully updated beatmap to ID: " + beatmapId);
-                } else {
-                    Toast.error("Failed to update beatmap: " + result.getError().getMessage()).show();
-                }
-            });
-        });
-
-
         blueButton = new Button("Ready");
         blueButton.getStyleClass().add("ready-button");
 
@@ -359,7 +341,7 @@ public class MatchView extends Page {
                 BeatmapCard.noMap(beatmap.getBeatmapId(), beatmap.getBeatmapSetId(),
                 beatmap.getBeatmapSet().getTitle(), beatmap.getBeatmapSet().getArtist());
 
-        rightContent = new VBox(gameBox, gameNameTextField, beatmapBox, beatmapCard, winConditionBox, beatmapIdBox);
+        rightContent = new VBox(gameBox, gameNameTextField, beatmapBox, beatmapCard, winConditionBox);
         rightContent.setPadding(new Insets(24, 0, 10, ScreenManager.SCREEN_WIDTH * 0.1));
 
         rightContent.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.43);
@@ -414,6 +396,9 @@ public class MatchView extends Page {
 
         root.getChildren().add(changePasswordModal);
         StackPane.setAlignment(changePasswordModal, Pos.CENTER);
+
+        root.getChildren().add(selectBeatmapModal);
+        StackPane.setAlignment(selectBeatmapModal, Pos.CENTER);
         
         updateUIBasedOnRole();
         updateEventHandlingBasedOnRole();
@@ -621,6 +606,26 @@ public class MatchView extends Page {
 
         changePasswordButton.setOnMouseClicked(e -> {
             changePasswordModal.show();
+        });
+
+        changeBeatmapButton.setOnMouseClicked(e -> {
+            selectBeatmapModal.setInputManager(inputManager);
+            selectBeatmapModal.setOnBeatmapSelectedCallback(selectedBeatmap -> {
+                try {
+                    Result<beat.osu.shared.dto.match.responses.UpdateMatchBeatmapResponse> result = 
+                        matchController.updateMatchBeatmap(matchId, selectedBeatmap.getBeatmapId()).get();
+                    
+                    if (result.isSuccess()) {
+                        Toast.success("Beatmap updated successfully!").show();
+                        System.out.println("Successfully updated beatmap to: " + selectedBeatmap.getBeatmapSet().getTitle() + " [" + selectedBeatmap.getVersion() + "]");
+                    } else {
+                        Toast.error("Failed to update beatmap: " + result.getError().getMessage()).show();
+                    }
+                } catch (Exception ex) {
+                    Toast.error("Error updating beatmap: " + ex.getMessage()).show();
+                }
+            });
+            selectBeatmapModal.show();
         });
 
         changePasswordModal.getConfirmButton().setOnMouseClicked(e -> {

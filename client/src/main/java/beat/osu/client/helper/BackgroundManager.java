@@ -1,5 +1,12 @@
 package beat.osu.client.helper;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import beat.osu.client.Main;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.utils.OsuParser;
@@ -9,16 +16,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
-
-import java.io.*;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 public class BackgroundManager {
     private static final String BACKGROUNDS_DIR = "/assets/backgrounds/";
@@ -188,6 +195,53 @@ public class BackgroundManager {
             scene.getRoot().setStyle(backgroundStyle);
         } catch (Exception e) {
             System.err.println("Error setting background image: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public static void setModalBeatmapBackground(Region backgroundLayer, Beatmap beatmap) {
+        if (backgroundLayer == null || beatmap == null) {
+            System.err.println("Background layer or beatmap is null");
+            return;
+        }
+
+        String beatmapBg = OsuParser.getBgFile();
+        if (beatmapBg == null || beatmapBg.isEmpty()) {
+            System.err.println("No background file found for the beatmap.");
+            return;
+        }
+
+        try {
+            File tempDir = ResourceManager.getTempDirectory();
+            File beatmapDir = new File(tempDir, String.valueOf(beatmap.getBeatmapSetId()));
+            File imageFile = new File(beatmapDir, beatmapBg);
+            
+            if (!imageFile.exists()) {
+                System.err.println("Background image not found: " + imageFile.getAbsolutePath());
+                return;
+            }
+
+            Image image = new Image(new FileInputStream(imageFile));
+            backgroundLayer.setBackground(new Background(
+                    new BackgroundImage(
+                            image,
+                            BackgroundRepeat.NO_REPEAT,
+                            BackgroundRepeat.NO_REPEAT,
+                            BackgroundPosition.CENTER,
+                            new BackgroundSize(
+                                    BackgroundSize.AUTO,
+                                    BackgroundSize.AUTO,
+                                    false,
+                                    false,
+                                    true,
+                                    true
+                            )
+                    )
+            ));
+            
+            System.out.println("Modal beatmap background set successfully for: " + beatmapBg);
+        } catch (Exception e) {
+            System.err.println("Error setting modal beatmap background: " + e.getMessage());
             e.printStackTrace();
         }
     }
