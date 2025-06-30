@@ -281,8 +281,6 @@ public class LandingView extends Page {
                     System.out.println("Found directory: " + dir);
                 }
 
-                System.out.println("Expected dir name: " + expectedDirName);
-
                 if (!validBeatmapDirs.contains(expectedDirName)) {
                     System.out.println("Beatmap directory not found in temp directory: " + expectedDirName);
                     return null;

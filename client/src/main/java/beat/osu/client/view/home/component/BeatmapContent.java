@@ -71,15 +71,12 @@ public class BeatmapContent extends ScrollPane {
         for (Beatmap beatmap : beatmaps) {
             String oszPath = OsuParser.getOszPath(beatmap);
             if (!oszPath.equals(currentOszPath)) {
-                System.out.println("different path, parsing beatmap");
                 try {
                     OsuParser.parseBeatmap(beatmap);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
                 currentOszPath = oszPath;
-            } else {
-                System.out.println("same path, skipping parsing beatmap");
             }
 
             BeatmapCard beatmapCard = new BeatmapCard(beatmap);

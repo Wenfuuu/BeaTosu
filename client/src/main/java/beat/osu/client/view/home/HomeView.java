@@ -317,8 +317,6 @@ public class HomeView extends Page {
                     String expectedDirName = String.format("%d",
                             beatmapDto.getBeatmapSetId());
 
-                    System.out.println("Expected dir name: " + expectedDirName);
-
                     if (!validBeatmapDirs.contains(expectedDirName)) {
                         return;
                     }
