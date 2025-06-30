@@ -3,6 +3,8 @@ package beat.osu.client.helper;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
@@ -103,5 +105,34 @@ public class ResourceManager {
 
     public static File getUserFile(String relativePath) {
         return new File(applicationDirectory, relativePath);
+    }
+
+    /**
+     * Extracts a resource from the JAR and returns the absolute path to the extracted file.
+     * This is needed when running from JAR since resources cannot be accessed as File objects directly.
+     * 
+     * @param resourcePath the path to the resource (e.g., "assets/audio/nekodex-circles.mp3")
+     * @param fileName the name to give the extracted file
+     * @return the absolute path to the extracted file, or null if extraction failed
+     */
+    public static String extractResourceToTempAndGetPath(String resourcePath, String fileName) {
+        try (InputStream inputStream = getResourceAsStream(resourcePath)) {
+            if (inputStream == null) {
+                System.err.println("Resource not found: " + resourcePath);
+                return null;
+            }
+
+            File tempDir = getTempDirectory();
+            File extractedFile = new File(tempDir, fileName);
+
+            // Copy the resource to the temp directory
+            Files.copy(inputStream, extractedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            
+            return extractedFile.getAbsolutePath();
+        } catch (IOException e) {
+            System.err.println("Failed to extract resource " + resourcePath + " to temp directory: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 }

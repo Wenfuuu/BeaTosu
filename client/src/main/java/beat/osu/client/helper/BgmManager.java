@@ -191,28 +191,21 @@ public class BgmManager {
         }
     }
 
-    public void playDefaultBgm(File bgmFile) {
-        stopBgm();
-        defaultBgmHash = computeFileHash(bgmFile);
-        currentBgmHash = defaultBgmHash;
-        currentPlaybackMode = PlaybackMode.DEFAULT;
-
-        try {
-            Media media = new Media(bgmFile.toURI().toString());
-            currentPlayer = new MediaPlayer(media);
-            currentPlayer.setAutoPlay(true);
-            currentPlayer.setVolume(BGM_VOLUME);
-            setupEndOfMediaBehavior();
-        } catch (Exception e) {
-            System.err.println("Failed to load BGM: " + bgmFile.getPath());
-            e.printStackTrace();
-        }
+    public void playAudio(String audioPath) {
+        playAudio(audioPath, PlaybackMode.PLAYLIST);
     }
 
-    public void playAudio(String audioPath) {
+    public void playAudio(String audioPath, PlaybackMode mode) {
         File songFile = new File(audioPath);
-        currentBgmHash = computeFileHash(songFile);
-        currentPlaybackMode = PlaybackMode.PLAYLIST;
+        String newHash = computeFileHash(songFile);
+        
+        // Set default BGM hash if this is default mode
+        if (mode == PlaybackMode.DEFAULT) {
+            defaultBgmHash = newHash;
+        }
+        
+        currentBgmHash = newHash;
+        currentPlaybackMode = mode;
 
         stopBgm();
         try {

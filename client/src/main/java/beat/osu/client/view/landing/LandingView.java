@@ -433,15 +433,13 @@ public class LandingView extends Page {
 
         playlistModal.setVisible(false);
 
-        String bgmPath = "/assets/audio/nekodex-circles.mp3";
-        URL bgmUrl = Main.class.getResource(bgmPath);
-        if (bgmUrl != null && BgmManager.getInstance().getCurrentPlayer() == null) {
-            try {
-                File bgmFile = new File(bgmUrl.toURI());
-                BgmManager.getInstance().playDefaultBgm(bgmFile);
-            } catch (Exception e) {
-                System.err.println("Failed to convert BGM URL to File: " + e.getMessage());
-                e.printStackTrace();
+        String bgmPath = "assets/audio/nekodex-circles.mp3";
+        if (BgmManager.getInstance().getCurrentPlayer() == null) {
+            String extractedBgmPath = ResourceManager.extractResourceToTempAndGetPath(bgmPath, "default-bgm.mp3");
+            if (extractedBgmPath != null) {
+                BgmManager.getInstance().playAudio(extractedBgmPath, PlaybackMode.DEFAULT);
+            } else {
+                System.err.println("Failed to extract default BGM resource: " + bgmPath);
             }
         }
 
