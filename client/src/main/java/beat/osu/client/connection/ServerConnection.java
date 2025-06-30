@@ -1,7 +1,6 @@
 package beat.osu.client.connection;
 
 import java.io.EOFException;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -174,6 +173,11 @@ public class ServerConnection {
 
     public void disconnect() {
         connected = false;
+
+        // Stop the realtime message handler first
+        if (realtimeHandler != null) {
+            realtimeHandler.stop();
+        }
 
         try {
             if (readerThread != null) {
