@@ -9,6 +9,8 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 public class StartMatchResponse implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private MatchDto matchDto;
     private String message;
 }

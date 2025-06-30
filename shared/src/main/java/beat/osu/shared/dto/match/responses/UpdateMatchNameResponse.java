@@ -10,5 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateMatchNameResponse implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String message;
 }

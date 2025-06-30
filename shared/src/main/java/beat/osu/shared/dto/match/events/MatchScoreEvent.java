@@ -9,6 +9,8 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 public class MatchScoreEvent implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int matchId;
     private int score;
     private int highestCombo;

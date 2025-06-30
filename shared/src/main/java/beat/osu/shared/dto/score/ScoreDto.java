@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ScoreDto implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String id;
     private int beatmapId;
     private int userId;

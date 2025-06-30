@@ -10,6 +10,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HostLeftEvent implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int matchId;
     private int previousHostUserId;
     private int newHostUserId;

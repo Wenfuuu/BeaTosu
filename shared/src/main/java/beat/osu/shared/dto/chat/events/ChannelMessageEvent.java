@@ -7,6 +7,8 @@ import lombok.Data;
 
 @Data
 public class ChannelMessageEvent implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private ChannelMessageDto channelMessage;
     private long timestamp;
 

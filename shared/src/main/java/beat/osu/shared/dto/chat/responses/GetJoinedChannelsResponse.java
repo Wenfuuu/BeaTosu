@@ -12,5 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetJoinedChannelsResponse implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private List<ChannelDto> channels;
 }

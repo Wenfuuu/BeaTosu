@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PrivateChatMessageDto implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int senderId;
     private String senderName;
     private boolean fromSupporter;

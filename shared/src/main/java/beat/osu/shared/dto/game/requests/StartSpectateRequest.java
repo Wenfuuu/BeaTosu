@@ -9,5 +9,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 public class StartSpectateRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private SpectateDto spectateDto;
 }

@@ -9,5 +9,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 public class PlayerFinishedEventRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private PlayerFinishedEvent playerFinishedEvent;
 }

@@ -8,6 +8,8 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 public class TransferHostRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int matchId;
     private int newHostUserId;
 }

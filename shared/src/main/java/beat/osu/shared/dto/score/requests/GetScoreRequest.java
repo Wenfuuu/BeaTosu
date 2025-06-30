@@ -10,5 +10,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetScoreRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int beatmapId;
 }

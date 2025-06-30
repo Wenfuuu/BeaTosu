@@ -12,5 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetAllMatchesResponse implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private List<MatchDto> matches;
 }

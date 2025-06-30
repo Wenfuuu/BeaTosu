@@ -8,6 +8,8 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 public class GetSessionDataRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int userId;
     private String key;
 }

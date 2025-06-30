@@ -10,5 +10,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RegisterResponse implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String message;
 }

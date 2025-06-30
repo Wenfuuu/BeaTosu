@@ -10,6 +10,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SpectateDto implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int spectatorUserId;
     private int playingUserId;
     private int beatmapId;

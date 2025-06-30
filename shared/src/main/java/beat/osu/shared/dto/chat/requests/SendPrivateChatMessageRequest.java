@@ -10,6 +10,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SendPrivateChatMessageRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int otherUserId;
     private String message;
 }

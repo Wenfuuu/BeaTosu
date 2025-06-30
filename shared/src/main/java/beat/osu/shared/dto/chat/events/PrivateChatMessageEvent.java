@@ -8,6 +8,8 @@ import java.io.Serializable;
 
 @Data
 public class PrivateChatMessageEvent implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private PrivateChatMessageDto privateChatMessage;
     private long timestamp;
 

@@ -12,5 +12,7 @@ import java.util.ArrayList;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetAllScoresResponse implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private ArrayList<ScoreDto> scores;
 }

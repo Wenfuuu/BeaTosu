@@ -11,5 +11,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class JoinChannelResponse implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private ChannelDto channel;
 }

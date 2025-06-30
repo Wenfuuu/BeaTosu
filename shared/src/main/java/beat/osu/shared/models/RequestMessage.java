@@ -11,6 +11,8 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 public class RequestMessage implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String requestId;
     private MessageType type;
     private MessageAction action;

@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MatchNameUpdatedEvent implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int matchId;
     private String newName;
     private long timestamp;

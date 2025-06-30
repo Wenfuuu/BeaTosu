@@ -10,6 +10,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InsertBeatmapSetRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int id;
     private String title;
     private String artist;

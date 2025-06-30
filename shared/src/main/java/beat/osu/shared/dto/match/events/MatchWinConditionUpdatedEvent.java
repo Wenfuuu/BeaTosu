@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MatchWinConditionUpdatedEvent implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int matchId;
     private MatchWinCondition newWinCondition;
     private long timestamp;

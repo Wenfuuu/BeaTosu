@@ -7,6 +7,8 @@ import lombok.Data;
 
 @Data
 public class UserLeftChannelEvent implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int channelId;
     private int userId;
     private long timestamp;

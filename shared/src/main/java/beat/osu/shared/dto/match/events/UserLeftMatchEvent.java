@@ -6,6 +6,8 @@ import java.io.Serializable;
 
 @Data
 public class UserLeftMatchEvent implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int matchId;
     private int userId;
     private long timestamp;

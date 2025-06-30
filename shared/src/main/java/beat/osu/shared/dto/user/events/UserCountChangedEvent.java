@@ -6,6 +6,8 @@ import java.io.Serializable;
 
 @Data
 public class UserCountChangedEvent implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int userCount;
     private long timestamp;
 

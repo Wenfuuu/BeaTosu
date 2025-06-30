@@ -6,6 +6,8 @@ import lombok.Data;
 
 @Data
 public class PlayerKickedEvent implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int matchId;
     private int kickedUserId;
     private long timestamp;

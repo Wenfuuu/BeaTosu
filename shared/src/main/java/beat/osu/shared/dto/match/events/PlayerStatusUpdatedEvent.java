@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlayerStatusUpdatedEvent implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int matchId;
     private int userId;
     private PlayerStatus newStatus;

@@ -8,5 +8,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 public class NotifyExitRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String message;
 }
