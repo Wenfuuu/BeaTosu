@@ -11,7 +11,14 @@ import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.controller.MatchController;
 import beat.osu.client.controller.SessionController;
 import beat.osu.client.enums.PlaybackMode;
-import beat.osu.client.helper.*;
+import beat.osu.client.helper.AuthManager;
+import beat.osu.client.helper.BackgroundManager;
+import beat.osu.client.helper.BgmManager;
+import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.PlaylistManager;
+import beat.osu.client.helper.ResourceManager;
+import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.ViewManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.model.Song;
@@ -31,6 +38,9 @@ import beat.osu.client.view.shared.common.Page;
 import beat.osu.client.view.shared.common.Toast;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.beatmap.BeatmapDto;
+import beat.osu.shared.dto.chat.ChannelDto;
+import beat.osu.shared.dto.chat.responses.GetJoinedChannelsResponse;
+import beat.osu.shared.dto.chat.responses.JoinChannelResponse;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
 import beat.osu.shared.dto.match.events.HostChangedEvent;
@@ -414,7 +424,34 @@ public class MatchView extends Page {
         banchoPanelsContainer.setVisible(true);
         banchoPanelsContainer.setManaged(true);
         banchoPanelsContainer.setMouseTransparent(false);
-        chatPanel.setVisible(true);
+
+        boolean hasJoinedLobby = false;
+        chatController.loadJoinedChannels();
+        chatController.loadExistingPrivateChats();
+
+        for (ChannelDto channel : chatController.getJoinedChannels()) {
+            if (channel.getId() == 3) {
+                hasJoinedLobby = true;
+                chatPanel.getChatTabs().selectTab(channel);
+                break;
+            }
+        }
+
+        if (!hasJoinedLobby) {
+            try {
+                Result<JoinChannelResponse> response = chatController.getChannelController().joinChannel(3).get();
+                if (response.isSuccess()) {
+                    chatPanel.getChatTabs().selectTab(response.getValue().getChannel());
+                    Toast.success("Successfully joined lobby!").show();
+                } else {
+                    Toast.error("Failed to join lobby: " + response.getError().getMessage()).show();
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        chatPanel.show();
 
         matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
             if (result.isSuccess()) {

@@ -27,6 +27,9 @@ import beat.osu.client.view.shared.common.Toast;
 import beat.osu.client.view.shared.jukebox.Jukebox;
 import beat.osu.client.view.shared.jukebox.modals.PlaylistModal;
 import beat.osu.shared.common.Result;
+import beat.osu.shared.dto.chat.ChannelDto;
+import beat.osu.shared.dto.chat.responses.GetJoinedChannelsResponse;
+import beat.osu.shared.dto.chat.responses.JoinChannelResponse;
 import beat.osu.shared.dto.match.responses.JoinMatchResponse;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
@@ -234,18 +237,34 @@ public class LobbyView extends Page {
         banchoPanelsContainer.setVisible(true);
         banchoPanelsContainer.setManaged(true);
         banchoPanelsContainer.setMouseTransparent(false);
-        chatPanel.setVisible(true);
 
-        matchesPanel.loadInitialMatches();
+        boolean hasJoinedLobby = false;
+        chatController.loadJoinedChannels();
+        chatController.loadExistingPrivateChats();
 
-        chatController.getChannelController().joinChannel(3).thenAccept(result -> {
-            Platform.runLater(() -> {
-                if (result.isSuccess()) {
-                    chatPanel.getChatTabs().selectTab(result.getValue().getChannel());
+        for (ChannelDto channel : chatController.getJoinedChannels()) {
+            if (channel.getId() == 3) {
+                hasJoinedLobby = true;
+                chatPanel.getChatTabs().selectTab(channel);
+                break;
+            }
+        }
+
+        if (!hasJoinedLobby) {
+            try {
+                Result<JoinChannelResponse> response = chatController.getChannelController().joinChannel(3).get();
+                if (response.isSuccess()) {
+                    chatPanel.getChatTabs().selectTab(response.getValue().getChannel());
                     Toast.success("Successfully joined lobby!").show();
+                } else {
+                    Toast.error("Failed to join lobby: " + response.getError().getMessage()).show();
                 }
-            });
-        });
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        chatPanel.show();
     }
 
     public void handleEvent() {
