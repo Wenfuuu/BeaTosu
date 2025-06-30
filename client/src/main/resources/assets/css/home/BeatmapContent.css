@@ -2,6 +2,7 @@
     -fx-background-color: transparent;
     -fx-background: transparent;
     -fx-padding: 0;
+    -fx-smooth: true; 
 }
 
 .scroll-pane > .viewport {
@@ -12,9 +13,8 @@
     -fx-background-color: #222;
     -fx-background-radius: 0;
     -fx-pref-width: 10;
-    /* Increase scroll sensitivity by adjusting unit increment */
-    -fx-unit-increment: 20;
-    -fx-block-increment: 100;
+    -fx-unit-increment: 50;
+    -fx-block-increment: 250;
 }
 
 .scroll-pane .scroll-bar:vertical .thumb {
@@ -35,7 +35,6 @@
     -fx-padding: 0;
 }
 
-/* Hide horizontal scrollbar completely */
 .scroll-pane .scroll-bar:horizontal {
     -fx-opacity: 0;
     -fx-pref-height: 0;

@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.model.Beatmap;
-import beat.osu.client.model.Song;
 import beat.osu.client.utils.OsuParser;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
@@ -25,7 +24,7 @@ public class BeatmapContent extends ScrollPane {
     @Getter
     private Beatmap selectedBeatmap;
     @Setter
-    private Consumer<Beatmap> onBeatmapSelectedCallback;// will be used later for changing current BGM
+    private Consumer<Beatmap> onBeatmapSelectedCallback;
 
     public BeatmapContent(ArrayList<Beatmap> beatmaps) {
         this.beatmapListBox = new VBox();
@@ -43,7 +42,6 @@ public class BeatmapContent extends ScrollPane {
         loadStyles();
 
         populateBeatmaps();
-        handleEvent();
     }
 
     private void initializeComponents() {
@@ -111,33 +109,15 @@ public class BeatmapContent extends ScrollPane {
         }
     }
 
-    private void handleEvent() {
-        beatmapListBox.setOnScroll(event -> {
-            double deltaY = event.getDeltaY();
-            double width = getContent().getBoundsInLocal().getWidth();
-            double vvalue = getVvalue();
-
-            setVvalue(vvalue - deltaY / width);
-
-            event.consume();
-        });
-    }
-
     private void onBeatmapCardClicked(BeatmapCard clickedCard) {
-        // Deselect all cards
         filteredBeatmapCards.forEach(card -> card.setSelected(false));
 
-        // Select the clicked card
         clickedCard.setSelected(true);
-
-        // Update selected beatmap
         selectedBeatmap = clickedCard.getBeatmap();
 
-        // Find index for logging
         int index = filteredBeatmapCards.indexOf(clickedCard);
         System.out.println("Clicked index: " + index);
 
-        // Trigger callback if set
         if (onBeatmapSelectedCallback != null) {
             onBeatmapSelectedCallback.accept(selectedBeatmap);
         }
@@ -151,7 +131,7 @@ public class BeatmapContent extends ScrollPane {
     public int filterBeatmaps(String query) {
         if (query == null || query.trim().isEmpty()) {
             clearFilter();
-        } else {
+    } else {
             this.currentFilter = query.toLowerCase().trim();
             this.filteredBeatmapCards = beatmapCards.stream()
                     .filter(beatmapCard -> matchesQuery(beatmapCard.getBeatmap(), this.currentFilter))
