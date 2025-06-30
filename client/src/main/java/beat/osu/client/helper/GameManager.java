@@ -103,8 +103,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private static final long MATCH_SCORE_EVENT_INTERVAL = 3000; // Send every 3 seconds - increased from 2s
     
     // Prevent thread pool exhaustion by implementing thread pool protection flags
-    private volatile boolean spectateEventInProgress = false;
-    private volatile boolean matchScoreEventInProgress = false;
+//    private volatile boolean spectateEventInProgress = false;
+//    private volatile boolean matchScoreEventInProgress = false;
 
     int testCount = 0;
 
@@ -211,8 +211,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         lastMatchScoreEventSent = 0;
         
         // Reset thread pool protection flags
-        spectateEventInProgress = false;
-        matchScoreEventInProgress = false;
+//        spectateEventInProgress = false;
+//        matchScoreEventInProgress = false;
 
         // Clear multiplayer scores for new game
         if (isMultiplayer) {
@@ -568,12 +568,12 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private void sendSpectateEvent(long elapsedMillis, ReplayEvent replayEvent) {
         if (!AuthManager.isAuthenticated() && spectateController == null) return;
         
-        if (spectateEventInProgress) {
-            System.out.println("Skipping spectate event - previous event still in progress");
-            return;
-        }
+//        if (spectateEventInProgress) {
+//            System.out.println("Skipping spectate event - previous event still in progress");
+//            return;
+//        }
 
-        spectateEventInProgress = true;
+//        spectateEventInProgress = true;
         testCount++;
         System.out.println("Sending spectate event, count: " + testCount);
         try {
@@ -583,7 +583,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             spectateController.sendSpectateEvent(event).thenApply(response -> {
                 if (response.isSuccess()) {
                     System.out.println("Spectate event sent successfully: " + response.getValue().getMessage());
-                    spectateEventInProgress = false;
+//                    spectateEventInProgress = false;
                 } else {
                     System.err.println("Failed to send spectate event: " + response.getError().getMessage());
                 }
@@ -596,26 +596,26 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         } catch (Exception e) {
             System.err.println("Error creating spectate event: " + e.getMessage());
             e.printStackTrace();
-            spectateEventInProgress = false;
+//            spectateEventInProgress = false;
         }
     }
 
     private void sendMatchScoreEvent() {
         if (!isMultiplayer || matchController == null) return;
             
-        if (matchScoreEventInProgress) {
-            System.out.println("Skipping match score event - previous event still in progress");
-            return;
-        }
+//        if (matchScoreEventInProgress) {
+//            System.out.println("Skipping match score event - previous event still in progress");
+//            return;
+//        }
 
-        matchScoreEventInProgress = true;
+//        matchScoreEventInProgress = true;
         try {
             MatchScoreEvent event = new MatchScoreEvent(matchDto.getId(),
                     score, masterComboNumber, highestCombo, accuracy, AuthManager.getUser());
             matchController.sendMatchScoreEvent(event).thenApply(response -> {
                 if (response.isSuccess()) {
                     System.out.println("Match score event sent successfully: " + response.getValue().getMessage());
-                    matchScoreEventInProgress = false;
+//                    matchScoreEventInProgress = false;
                     if (isMultiplayer && (gameState == GameState.COMPLETED ||
                             gameState == GameState.EXITED)) sendPlayerFinishedEvent();
                 } else {
@@ -630,7 +630,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         } catch (Exception e) {
             System.err.println("Error creating match score event: " + e.getMessage());
             e.printStackTrace();
-            matchScoreEventInProgress = false;
+//            matchScoreEventInProgress = false;
         }
     }
 
