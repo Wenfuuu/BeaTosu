@@ -45,6 +45,12 @@ public class ServerConnection {
 
             socket = new Socket(serverHost, serverPort);
             
+            // Optimize socket for low latency and high throughput
+            socket.setTcpNoDelay(true); // Disable Nagle's algorithm for low latency
+            socket.setSendBufferSize(64 * 1024); // 64KB send buffer
+            socket.setReceiveBufferSize(64 * 1024); // 64KB receive buffer
+            socket.setKeepAlive(true); // Enable keep-alive
+            
             // Create ObjectOutputStream first and flush to establish stream header
             oos = new ObjectOutputStream(socket.getOutputStream());
             oos.flush(); // Important: Ensure stream header is sent

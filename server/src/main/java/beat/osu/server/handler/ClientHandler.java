@@ -43,6 +43,12 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         try {
+            // Optimize socket for low latency and high throughput
+            clientSocket.setTcpNoDelay(true); // Disable Nagle's algorithm for low latency
+            clientSocket.setSendBufferSize(64 * 1024); // 64KB send buffer
+            clientSocket.setReceiveBufferSize(64 * 1024); // 64KB receive buffer
+            clientSocket.setKeepAlive(true); // Enable keep-alive
+            
             // Set socket timeout for stream creation
             clientSocket.setSoTimeout(5000); // 5 second timeout
             

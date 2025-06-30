@@ -99,8 +99,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     // Throttling for network events
     private long lastSpectateEventSent = 0;
     private long lastMatchScoreEventSent = 0;
-    private static final long SPECTATE_EVENT_INTERVAL = 20; // Send every 100ms (10 FPS) - reduced from 50ms
-    private static final long MATCH_SCORE_EVENT_INTERVAL = 3000; // Send every 3 seconds - increased from 2s
+    private static final long SPECTATE_EVENT_INTERVAL = 17; // Send every 17ms (~ 60 FPS)
+    private static final long MATCH_SCORE_EVENT_INTERVAL = 1000; // Send every 1 second
     
     // Prevent thread pool exhaustion by implementing thread pool protection flags
 //    private volatile boolean spectateEventInProgress = false;
