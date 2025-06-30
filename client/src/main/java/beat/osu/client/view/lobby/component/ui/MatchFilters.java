@@ -1,5 +1,7 @@
 package beat.osu.client.view.lobby.component.ui;
 
+import java.net.URL;
+
 import beat.osu.client.helper.CssManager;
 import javafx.geometry.Insets;
 import javafx.scene.control.CheckBox;
@@ -8,8 +10,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
-
-import java.net.URL;
 
 public class MatchFilters extends HBox {
 
@@ -37,15 +37,19 @@ public class MatchFilters extends HBox {
 
         ownedBeatmapsCheckBox = new CheckBox("Owned Beatmaps");
         ownedBeatmapsCheckBox.getStyleClass().add("checkbox");
+        ownedBeatmapsCheckBox.setSelected(true);
 
         showFullCheckBox = new CheckBox("Show Full");
         showFullCheckBox.getStyleClass().add("checkbox");
+        showFullCheckBox.setSelected(true); 
 
         showLockedCheckBox = new CheckBox("Show Locked");
         showLockedCheckBox.getStyleClass().add("checkbox");
+        showLockedCheckBox.setSelected(true);
 
         showInProgressCheckBox = new CheckBox("Show In-Progress");
         showInProgressCheckBox.getStyleClass().add("checkbox");
+        showInProgressCheckBox.setSelected(true);
 
         searchLabel = new Label("Search:");
         searchLabel.getStyleClass().add("search-label");

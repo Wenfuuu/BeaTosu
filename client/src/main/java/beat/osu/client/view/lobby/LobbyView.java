@@ -9,7 +9,13 @@ import beat.osu.client.controller.MatchController;
 import beat.osu.client.controller.SessionController;
 import beat.osu.client.controller.SpectateController;
 import beat.osu.client.enums.PlaybackMode;
-import beat.osu.client.helper.*;
+import beat.osu.client.helper.AuthManager;
+import beat.osu.client.helper.BackgroundManager;
+import beat.osu.client.helper.BgmManager;
+import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.PlaylistManager;
+import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.ViewManager;
 import beat.osu.client.view.lobby.component.layout.NavigationBar;
 import beat.osu.client.view.lobby.component.layout.TopBar;
 import beat.osu.client.view.lobby.component.modals.CreateMatchModal;
@@ -28,11 +34,9 @@ import beat.osu.client.view.shared.jukebox.Jukebox;
 import beat.osu.client.view.shared.jukebox.modals.PlaylistModal;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.chat.ChannelDto;
-import beat.osu.shared.dto.chat.responses.GetJoinedChannelsResponse;
 import beat.osu.shared.dto.chat.responses.JoinChannelResponse;
 import beat.osu.shared.dto.match.responses.JoinMatchResponse;
 import javafx.animation.FadeTransition;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Pane;
@@ -265,6 +269,7 @@ public class LobbyView extends Page {
         }
 
         chatPanel.show();
+        matchesPanel.loadInitialMatches();
     }
 
     public void handleEvent() {

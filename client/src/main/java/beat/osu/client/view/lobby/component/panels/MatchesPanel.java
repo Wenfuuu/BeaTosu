@@ -11,7 +11,18 @@ import beat.osu.client.helper.CssManager;
 import beat.osu.client.view.lobby.component.cards.MatchCard;
 import beat.osu.client.view.lobby.component.ui.MatchFilters;
 import beat.osu.shared.dto.match.MatchDto;
-import beat.osu.shared.dto.match.events.*;
+import beat.osu.shared.dto.match.events.HostChangedEvent;
+import beat.osu.shared.dto.match.events.HostLeftEvent;
+import beat.osu.shared.dto.match.events.MatchBeatmapUpdatedEvent;
+import beat.osu.shared.dto.match.events.MatchCompletedEvent;
+import beat.osu.shared.dto.match.events.MatchCreatedEvent;
+import beat.osu.shared.dto.match.events.MatchEndedEvent;
+import beat.osu.shared.dto.match.events.MatchNameUpdatedEvent;
+import beat.osu.shared.dto.match.events.MatchStartedEvent;
+import beat.osu.shared.dto.match.events.PlayerKickedEvent;
+import beat.osu.shared.dto.match.events.SlotChangedEvent;
+import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
+import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -54,6 +65,7 @@ public class MatchesPanel extends VBox {
         this.getStyleClass().add("matches-panel");
 
         matchFilters = new MatchFilters();
+        setupFilterCallbacks();
 
         matchesContainer = new VBox();
         matchesContainer.getStyleClass().add("matches-container");
@@ -91,6 +103,7 @@ public class MatchesPanel extends VBox {
             match.getMaxPlayerCount(),
             match.getBeatmap().getId(),
             match.getBeatmap().getBeatmapSetDto().getTitle(),
+            match.getBeatmap().getBeatmapSetId(),
             match.getLowestRank(),
             match.getHighestRank(),
             match.getWinCondition(),
@@ -107,13 +120,15 @@ public class MatchesPanel extends VBox {
         matchCardMap.put(match.getId(), matchCard);
         
         Platform.runLater(() -> {
-            matchCard.setOpacity(0);
-            matchesContainer.getChildren().add(matchCard);
-            
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), matchCard);
-            fadeIn.setFromValue(0);
-            fadeIn.setToValue(1);
-            fadeIn.play();
+            if (shouldShowMatch(matchCard)) {
+                matchCard.setOpacity(0);
+                matchesContainer.getChildren().add(matchCard);
+                
+                FadeTransition fadeIn = new FadeTransition(Duration.millis(300), matchCard);
+                fadeIn.setFromValue(0);
+                fadeIn.setToValue(1);
+                fadeIn.play();
+            }
         });
     }
 
@@ -256,5 +271,55 @@ public class MatchesPanel extends VBox {
             fadeOut.setOnFinished(e -> matchesContainer.getChildren().remove(matchCard));
             fadeOut.play();
         }
+    }
+    
+    private void setupFilterCallbacks() {
+        matchFilters.getOwnedBeatmapsCheckBox().setOnAction(e -> applyFilters());
+        matchFilters.getShowFullCheckBox().setOnAction(e -> applyFilters());
+        matchFilters.getShowLockedCheckBox().setOnAction(e -> applyFilters());
+        matchFilters.getShowInProgressCheckBox().setOnAction(e -> applyFilters());
+        
+        matchFilters.getSearchTextField().textProperty().addListener((observable, oldValue, newValue) -> {
+            applyFilters();
+        });
+    }
+
+    private void applyFilters() {
+        Platform.runLater(() -> {
+            matchesContainer.getChildren().clear();
+            
+            for (MatchCard matchCard : matchCards) {
+                if (shouldShowMatch(matchCard)) {
+                    matchesContainer.getChildren().add(matchCard);
+                }
+            }
+        });
+    }
+
+    private boolean shouldShowMatch(MatchCard matchCard) {
+        if (!matchFilters.getOwnedBeatmapsCheckBox().isSelected() && !matchCard.userHasBeatmap()) {
+            return false;
+        }
+        
+        if (!matchFilters.getShowFullCheckBox().isSelected() && matchCard.isFull()) {
+            return false;
+        }
+        
+        if (!matchFilters.getShowLockedCheckBox().isSelected() && matchCard.isLocked()) {
+            return false;
+        }
+        
+        if (!matchFilters.getShowInProgressCheckBox().isSelected() && matchCard.isInProgress()) {
+            return false;
+        }
+        
+        String searchText = matchFilters.getSearchTextField().getText();
+        if (searchText != null && !searchText.trim().isEmpty()) {
+            String lowerSearchText = searchText.toLowerCase().trim();
+            String matchName = matchCard.getMatchName();
+            return matchName != null && matchName.toLowerCase().contains(lowerSearchText);
+        }
+        
+        return true;
     }
 }

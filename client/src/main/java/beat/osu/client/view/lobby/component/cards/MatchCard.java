@@ -10,6 +10,7 @@ import java.util.Objects;
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.LocaleManager;
+import beat.osu.client.helper.ResourceManager;
 import beat.osu.shared.dto.match.MatchPlayerDto;
 import beat.osu.shared.enums.match.MatchWinCondition;
 import beat.osu.shared.enums.match.PlayerRole;
@@ -27,11 +28,13 @@ public class MatchCard extends HBox {
     @Getter
     private String matchName;
     private String matchPassword;
+    @Getter
     private boolean inProgress;
     private int maxPlayerCount;
 
     private int beatmapId;
     private String beatmapName;
+    private int beatmapSetId;
 
     private int lowestRank;
     private int highestRank;
@@ -54,7 +57,7 @@ public class MatchCard extends HBox {
     private Map<Integer, MatchPlayerCard> playerCards; // map index to player
 
     public MatchCard(Integer matchId, String matchName, String matchPassword, boolean inProgress,
-                        int maxPlayerCount, int beatmapId, String beatmapName,
+                        int maxPlayerCount, int beatmapId, String beatmapName, int beatmapSetId,
                         int lowestRank, int highestRank, MatchWinCondition winCondition,
                         List<MatchPlayerDto> players) {
         this.matchId = matchId;
@@ -64,6 +67,7 @@ public class MatchCard extends HBox {
         this.maxPlayerCount = maxPlayerCount;
         this.beatmapId = beatmapId;
         this.beatmapName = beatmapName;
+        this.beatmapSetId = beatmapSetId;
         this.lowestRank = lowestRank;
         this.highestRank = highestRank;
         this.winCondition = winCondition;
@@ -509,13 +513,25 @@ public class MatchCard extends HBox {
     private void updateMatchNameDisplay() {
         if (matchNameLabel != null && matchName != null) {
             String displayName = matchName;
-            if (inProgress && !matchName.endsWith("(In progress)")) {
-                displayName = matchName + " (In progress)";
-            } else if (!inProgress && matchName.endsWith("(In progress)")) {
-                displayName = matchName.replace(" (In progress)", "");
-                this.matchName = displayName; // Update the stored name to remove the suffix
+            if (inProgress && !matchName.endsWith("(In Progress)")) {
+                displayName = matchName + " (In Progress)";
+            } else if (!inProgress && matchName.endsWith("(In Progress)")) {
+                displayName = matchName.replace(" (In Progress)", "");
+                this.matchName = displayName;
             }
             matchNameLabel.setText(displayName);
         }
+    }
+
+    public boolean isFull() {
+        return players.size() >= maxPlayerCount;
+    }
+
+    public boolean isLocked() {
+        return matchPassword != null && !matchPassword.trim().isEmpty();
+    }
+
+    public boolean userHasBeatmap() {
+        return ResourceManager.beatmapSetDirectoryExists(beatmapSetId);
     }
 }
