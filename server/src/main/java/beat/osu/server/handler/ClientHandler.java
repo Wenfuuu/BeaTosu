@@ -1,8 +1,11 @@
 package beat.osu.server.handler;
 
+import java.io.EOFException;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -68,8 +71,14 @@ public class ClientHandler implements Runnable {
             while ((receivedObject = ois.readObject()) != null) {
                 routeIncomingMessage(receivedObject);
             }
+        } catch (EOFException e) {
+            System.out.println("Client disconnected gracefully: " + clientId);
+        } catch (SocketTimeoutException e) {
+            System.err.println("Client connection timed out during setup: " + clientId);
+        } catch (IOException e) {
+            System.out.println("Client connection lost (I/O): " + clientId + " - " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("Error in ClientHandler for " + clientId + ": " + e.getMessage());
+            System.err.println("Unexpected error in ClientHandler for " + clientId + ": " + e.getMessage());
             e.printStackTrace();
         } finally {
             cleanup();
@@ -137,12 +146,27 @@ public class ClientHandler implements Runnable {
                 RealtimeMessageHandler.broadcastToAll(userDisconnectedMessage);
             }
             
-            if (oos != null) oos.close();
-            if (ois != null) ois.close();
-            if (clientSocket != null) clientSocket.close();
-            System.out.println("Client disconnected: " + clientId);
+            try {
+                if (oos != null) oos.close();
+            } catch (Exception e) {
+                System.err.println("Error closing ObjectOutputStream for " + clientId + ": " + e.getMessage());
+            }
+            
+            try {
+                if (ois != null) ois.close();
+            } catch (Exception e) {
+                System.err.println("Error closing ObjectInputStream for " + clientId + ": " + e.getMessage());
+            }
+            
+            try {
+                if (clientSocket != null) clientSocket.close();
+            } catch (Exception e) {
+                System.err.println("Error closing socket for " + clientId + ": " + e.getMessage());
+            }
+            
+            System.out.println("Client cleanup completed: " + clientId);
         } catch (Exception e) {
-            System.err.println("Error during cleanup: " + e.getMessage());
+            System.err.println("Error during cleanup for " + clientId + ": " + e.getMessage());
         }
     }
 
