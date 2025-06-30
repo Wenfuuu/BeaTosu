@@ -44,7 +44,15 @@ public class ServerConnection {
             int serverPort = configurationManager.getServerPort();
 
             socket = new Socket(serverHost, serverPort);
+            
+            // Create ObjectOutputStream first and flush to establish stream header
             oos = new ObjectOutputStream(socket.getOutputStream());
+            oos.flush(); // Important: Ensure stream header is sent
+            
+            // Small delay to ensure server has time to create its InputStream
+            Thread.sleep(150);
+            
+            // Then create ObjectInputStream
             ois = new ObjectInputStream(socket.getInputStream());
 
             requestHandler = new RequestResponseHandler(oos, writeLock);
@@ -76,15 +84,70 @@ public class ServerConnection {
                         Toast.error("Server closed connection").show();
                     });
                 }
+            } catch (java.io.StreamCorruptedException e) {
+                if (connected) {
+                    System.err.println("Stream corruption detected: " + e.getMessage());
+                    e.printStackTrace();
+                    
+                    // Specific handling for stream corruption
+                    System.err.println("Stream corruption detected, attempting reconnection...");
+                    disconnect();
+
+                    // Attempt reconnection in a separate thread to avoid blocking
+                    if (canReconnect()) {
+                        new Thread(() -> {
+                            boolean reconnected = reconnect();
+                            Platform.runLater(() -> {
+                                if (reconnected) {
+                                    Toast.success("Reconnected to server").show();
+                                } else {
+                                    Toast.error("Failed to reconnect to server").show();
+                                }
+                            });
+                        }).start();
+                    } else {
+                        Platform.runLater(() -> {
+                            Toast.error("Stream corruption: " + e.getMessage()).show();
+                        });
+                    }
+                }
+            } catch (java.io.OptionalDataException e) {
+                if (connected) {
+                    System.err.println("Data format error: " + e.getMessage());
+                    e.printStackTrace();
+                    
+                    // Handle optional data exception which can occur with stream corruption
+                    System.err.println("Data format error detected, attempting reconnection...");
+                    disconnect();
+
+                    if (canReconnect()) {
+                        new Thread(() -> {
+                            boolean reconnected = reconnect();
+                            Platform.runLater(() -> {
+                                if (reconnected) {
+                                    Toast.success("Reconnected to server").show();
+                                } else {
+                                    Toast.error("Failed to reconnect to server").show();
+                                }
+                            });
+                        }).start();
+                    } else {
+                        Platform.runLater(() -> {
+                            Toast.error("Data format error: " + e.getMessage()).show();
+                        });
+                    }
+                }
             } catch (Exception e) {
                 if (connected) {
                     System.err.println("Connection lost: " + e.getMessage());
                     e.printStackTrace(); // Print full stack trace for debugging
 
-                    // Check if it's a stream corruption error and attempt reconnection
-                    if (e instanceof java.io.StreamCorruptedException ||
-                            e.getMessage().contains("invalid type code")) {
-                        System.err.println("Stream corruption detected, attempting reconnection...");
+                    // Check if it's any kind of stream-related error
+                    if (e.getMessage() != null && 
+                        (e.getMessage().contains("invalid type code") ||
+                         e.getMessage().contains("stream") ||
+                         e.getMessage().contains("protocol"))) {
+                        System.err.println("Stream-related error detected, attempting reconnection...");
                         disconnect();
 
                         // Attempt reconnection in a separate thread to avoid blocking
@@ -180,10 +243,17 @@ public class ServerConnection {
         }
 
         try {
-            if (readerThread != null) {
+            // Interrupt the reader thread first
+            if (readerThread != null && readerThread.isAlive()) {
                 readerThread.interrupt();
+                try {
+                    readerThread.join(1000); // Wait up to 1 second for thread to finish
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
 
+            // Send disconnect message if possible
             if (oos != null && socket != null && !socket.isClosed()) {
                 try {
                     synchronized (writeLock) {
@@ -193,23 +263,47 @@ public class ServerConnection {
                         oos.flush();
                     }
 
-                    Thread.sleep(100);
+                    Thread.sleep(100); // Give server time to process disconnect
                 } catch (Exception e) {
                     System.out.println("Note: Could not send disconnect message: " + e.getMessage());
                 }
             }
 
-            if (oos != null)
-                oos.close();
-            if (ois != null)
-                ois.close();
-            if (socket != null)
-                socket.close();
+            // Close streams and socket
+            if (oos != null) {
+                try {
+                    oos.close();
+                } catch (Exception e) {
+                    System.err.println("Error closing ObjectOutputStream: " + e.getMessage());
+                }
+            }
+            
+            if (ois != null) {
+                try {
+                    ois.close();
+                } catch (Exception e) {
+                    System.err.println("Error closing ObjectInputStream: " + e.getMessage());
+                }
+            }
+            
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (Exception e) {
+                    System.err.println("Error closing socket: " + e.getMessage());
+                }
+            }
 
             System.out.println("Disconnected from server");
 
         } catch (Exception e) {
             System.err.println("Error during disconnect: " + e.getMessage());
+        } finally {
+            // Reset references
+            oos = null;
+            ois = null;
+            socket = null;
+            readerThread = null;
         }
     }
 
@@ -228,12 +322,12 @@ public class ServerConnection {
         System.out.println(
                 "Attempting to reconnect... (attempt " + reconnectAttempts + "/" + MAX_RECONNECT_ATTEMPTS + ")");
 
-        // Clean up current connection
+        // Clean up current connection thoroughly
         disconnect();
 
-        // Wait a bit before reconnecting
+        // Wait longer before reconnecting to allow server cleanup
         try {
-            Thread.sleep(1000);
+            Thread.sleep(2000); // Increased delay
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

@@ -1,7 +1,7 @@
 package beat.osu.client.service;
 
-import beat.osu.client.connection.RealtimeMessageHandler;
 import beat.osu.client.connection.ServerConnection;
+import beat.osu.shared.models.RealtimeMessage;
 import lombok.Getter;
 
 @Getter
@@ -34,5 +34,32 @@ public class ClientService {
 
     public boolean isConnected() {
         return connection.isConnected();
+    }
+
+    /**
+     * Sends a realtime message to the server
+     */
+    public void sendRealtimeMessage(RealtimeMessage message) {
+        connection.sendRealtimeMessage(message);
+    }
+
+    /**
+     * Gets the current queue size for monitoring
+     */
+    public int getMessageQueueSize() {
+        if (connection.getRealtimeHandler() != null) {
+            return connection.getRealtimeHandler().getQueueSize();
+        }
+        return 0;
+    }
+
+    /**
+     * Checks if the realtime message handler is running
+     */
+    public boolean isRealtimeHandlerRunning() {
+        if (connection.getRealtimeHandler() != null) {
+            return connection.getRealtimeHandler().isRunning();
+        }
+        return false;
     }
 }

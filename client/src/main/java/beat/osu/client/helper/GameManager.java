@@ -99,7 +99,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     // Throttling for network events
     private long lastSpectateEventSent = 0;
     private long lastMatchScoreEventSent = 0;
-    private static final long SPECTATE_EVENT_INTERVAL = 100; // Send every 100ms (10 FPS) - reduced from 50ms
+    private static final long SPECTATE_EVENT_INTERVAL = 20; // Send every 100ms (10 FPS) - reduced from 50ms
     private static final long MATCH_SCORE_EVENT_INTERVAL = 3000; // Send every 3 seconds - increased from 2s
     
     // Prevent thread pool exhaustion by implementing thread pool protection flags
@@ -159,14 +159,14 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         sessionController.createPlayingBeatmapSession(user.getId(), beatmap.getBeatmapId()).thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Session created successfully: " + response.getValue().getMessage());
-                if (isMultiplayer) {
-                    List<MatchPlayerDto> players = matchDto.getPlayers();
-                    for (MatchPlayerDto player : players) {
-                        MatchScoreEvent event = new MatchScoreEvent(matchDto.getId(), 0,
-                                0, 0, 0, player.getUser());
-                        updateMatchScoreEvent(event);
-                    }
-                }
+//                if (isMultiplayer) {
+//                    List<MatchPlayerDto> players = matchDto.getPlayers();
+//                    for (MatchPlayerDto player : players) {
+//                        MatchScoreEvent event = new MatchScoreEvent(matchDto.getId(), 0,
+//                                0, 0, 0, player.getUser());
+//                        updateMatchScoreEvent(event);
+//                    }
+//                }
             } else {
                 System.err.println("Failed to create session: " + response.getError().getMessage());
             }

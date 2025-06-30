@@ -9,6 +9,8 @@ import beat.osu.shared.models.ResponseMessage;
 public class RequestResponseHandler {
     private final MessageRouter messageRouter;
     private final ObjectOutputStream outputStream;
+    private int responsesSent = 0;
+    private static final int RESET_INTERVAL = 50; // Reset stream every 50 responses
     
     public RequestResponseHandler(MessageRouter messageRouter, ObjectOutputStream outputStream) {
         this.messageRouter = messageRouter;
@@ -25,8 +27,16 @@ public class RequestResponseHandler {
                 System.currentTimeMillis()
             );
             
-            outputStream.writeObject(response);
-            outputStream.flush();
+            synchronized (outputStream) {
+                outputStream.writeObject(response);
+                outputStream.flush();
+                
+                responsesSent++;
+                if (responsesSent >= RESET_INTERVAL) {
+                    outputStream.reset();
+                    responsesSent = 0;
+                }
+            }
         } catch (Exception e) {
             System.err.println("RequestResponseHandler: Error handling request: " + e.getMessage());
             
@@ -37,8 +47,10 @@ public class RequestResponseHandler {
                         "Server error: " + e.getMessage(),
                         System.currentTimeMillis()
                     );
-                    outputStream.writeObject(errorResponse);
-                    outputStream.flush();
+                    synchronized (outputStream) {
+                        outputStream.writeObject(errorResponse);
+                        outputStream.flush();
+                    }
                 } catch (Exception sendError) {
                     System.err.println("RequestResponseHandler: Failed to send error response: " + sendError.getMessage());
                 }

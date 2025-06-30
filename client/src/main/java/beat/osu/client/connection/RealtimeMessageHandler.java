@@ -15,12 +15,9 @@ public class RealtimeMessageHandler {
     private final List<RealtimeMessageCallback> callbacks = new CopyOnWriteArrayList<>();
     
     // BlockingQueue for managing outgoing messages
-    private final BlockingQueue<RealtimeMessage> messageQueue = new LinkedBlockingQueue<>(1000);
+    private final BlockingQueue<RealtimeMessage> messageQueue = new LinkedBlockingQueue<>(5000); // Increased for high throughput
     private final Thread senderThread;
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
-    
-    private int messagesSent = 0;
-    private static final int RESET_INTERVAL = 100; // Reset stream every 100 messages
 
     public RealtimeMessageHandler(ObjectOutputStream oos, Object writeLock) {
         this.oos = oos;
@@ -78,10 +75,9 @@ public class RealtimeMessageHandler {
             synchronized (writeLock) {
                 oos.writeObject(message);
                 oos.flush();
-
-                // Reset ObjectOutputStream periodically to prevent stream corruption
+                // Reset stream much less frequently for high-throughput scenarios
                 messagesSent++;
-                if (messagesSent >= RESET_INTERVAL) {
+                if (messagesSent >= 100) { // Reset every 100 messages instead of every message
                     oos.reset();
                     messagesSent = 0;
                 }
@@ -90,6 +86,8 @@ public class RealtimeMessageHandler {
             System.err.println("Error sending realtime message: " + e.getMessage());
         }
     }
+    
+    private int messagesSent = 0;
 
     public interface RealtimeMessageCallback {
         void onRealtimeMessage(RealtimeMessage message);

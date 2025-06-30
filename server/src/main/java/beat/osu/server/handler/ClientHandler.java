@@ -1,5 +1,12 @@
 package beat.osu.server.handler;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 import beat.osu.server.entities.User;
 import beat.osu.server.router.MessageRouter;
 import beat.osu.server.service.SessionService;
@@ -7,17 +14,10 @@ import beat.osu.server.service.UserService;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.dto.user.events.UserDisconnectedEvent;
 import beat.osu.shared.enums.message.RealtimeMessageType;
-import beat.osu.shared.models.RequestMessage;
 import beat.osu.shared.models.RealtimeMessage;
+import beat.osu.shared.models.RequestMessage;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
 public class ClientHandler implements Runnable {
@@ -40,8 +40,21 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         try {
+            // Set socket timeout for stream creation
+            clientSocket.setSoTimeout(5000); // 5 second timeout
+            
+            // Create ObjectOutputStream first and flush to establish stream header
             oos = new ObjectOutputStream(clientSocket.getOutputStream());
+            oos.flush(); // Important: Ensure stream header is sent before client creates its InputStream
+            
+            // Small delay to ensure client has time to create its InputStream
+            Thread.sleep(100);
+            
+            // Then create ObjectInputStream
             ois = new ObjectInputStream(clientSocket.getInputStream());
+            
+            // Remove timeout after successful connection
+            clientSocket.setSoTimeout(0);
 
             requestResponseHandler = new RequestResponseHandler(messageRouter, oos);
             realtimeMessageHandler = new RealtimeMessageHandler(oos, clientId);
@@ -56,7 +69,8 @@ public class ClientHandler implements Runnable {
                 routeIncomingMessage(receivedObject);
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            System.err.println("Error in ClientHandler for " + clientId + ": " + e.getMessage());
+            e.printStackTrace();
         } finally {
             cleanup();
         }
@@ -134,7 +148,7 @@ public class ClientHandler implements Runnable {
 
     public void sendRealtimeMessage(RealtimeMessage message) {
         if (realtimeMessageHandler != null) {
-            realtimeMessageHandler.sendToClient(message, clientId);
+            RealtimeMessageHandler.sendToClient(message, clientId);
         }
     }
 }
