@@ -212,7 +212,8 @@ public class ChatController {
     
     private void handleUserJoinedChannel(UserJoinedChannelEvent event) {
         Platform.runLater(() -> {
-            if (event.getUserId() == AuthManager.getUser().getId()) {
+            var currentUser = AuthManager.getUser();
+            if (currentUser != null && event.getUserId() == currentUser.getId()) {
                 ChannelDto channel = event.getChannel();
                 if (joinedChannels.stream().noneMatch(ch -> ch.getId() == channel.getId())) {
                     joinedChannels.add(channel);
@@ -224,7 +225,8 @@ public class ChatController {
     
     private void handleUserLeftChannel(UserLeftChannelEvent event) {
         Platform.runLater(() -> {
-            if (event.getUserId() == AuthManager.getUser().getId()) {
+            var currentUser = AuthManager.getUser();
+            if (currentUser != null && event.getUserId() == currentUser.getId()) {
                 joinedChannels.removeIf(channel -> channel.getId() == event.getChannelId());
                 channelMessages.remove(event.getChannelId());
                 notifyChannelRemoved(event.getChannelId());
@@ -234,14 +236,19 @@ public class ChatController {
     
     private void handlePrivateMessage(PrivateChatMessageEvent event) {
         Platform.runLater(() -> {
+            var currentUser = AuthManager.getUser();
+            if (currentUser == null) {
+                return;
+            }
+            
             PrivateChatMessageDto message = event.getPrivateChatMessage();
-            int otherUserId = message.getSenderId() == AuthManager.getUser().getId() 
+            int otherUserId = message.getSenderId() == currentUser.getId() 
                 ? message.getRecipientId()
                 : message.getSenderId();
             
             privateChatMessages.computeIfAbsent(otherUserId, k -> new ArrayList<>()).add(message);
             
-            String otherUserName = message.getSenderId() == AuthManager.getUser().getId()
+            String otherUserName = message.getSenderId() == currentUser.getId()
                 ? message.getRecipientName()
                 : message.getSenderName();
             
