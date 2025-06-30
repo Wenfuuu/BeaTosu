@@ -1,5 +1,6 @@
 package beat.osu.client.view.match;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ import beat.osu.client.helper.ViewManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.model.Song;
+import beat.osu.client.utils.OsuParser;
 import beat.osu.client.view.match.component.cards.BeatmapCard;
 import beat.osu.client.view.match.component.layout.TopBar;
 import beat.osu.client.view.match.component.modals.ChangePasswordModal;
@@ -461,7 +463,15 @@ public class MatchView extends Page {
             }
         });
         updateBlueButtonState();
-        BgmManager.getInstance().changePlaybackMode(PlaybackMode.PREVIEW);
+
+        if (PlaylistManager.getInstance().getCurrentSong().getId() != beatmap.getBeatmapSetId()) {
+            try {
+                OsuParser.parseBeatmap(beatmap);
+                BgmManager.getInstance().playPreviewBgm(true);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public void handleEvent() {
@@ -766,11 +776,14 @@ public class MatchView extends Page {
                         });
                     }
                 } else {
-                    BeatmapSet beatmapSet = beatmap.getBeatmapSet();
-                    String audioPath = ResourceManager.getBeatmapSetAudioPath(beatmapSet.getBeatmapSetId());
-                    Song song = new Song(beatmapSet.getBeatmapSetId(), beatmapSet.getTitle(), beatmapSet.getArtist(), audioPath);
-                    PlaylistManager.getInstance().playSong(song);
-                    BgmManager.getInstance().changePlaybackMode(PlaybackMode.PREVIEW);
+                    if (PlaylistManager.getInstance().getCurrentSong().getId() != beatmap.getBeatmapSetId()) {
+                        try {
+                            OsuParser.parseBeatmap(beatmap);
+                            BgmManager.getInstance().playPreviewBgm(true);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
                 }
                 
                 updateBlueButtonState();

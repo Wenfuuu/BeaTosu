@@ -51,7 +51,7 @@ public class BgmManager {
         }
     }
 
-    private String computeFileHash(File file) {
+    public String computeFileHash(File file) {
         try (InputStream fis = new FileInputStream(file)) {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] buffer = new byte[8192];
