@@ -18,6 +18,7 @@ import beat.osu.client.helper.ResourceManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.utils.OsuParser;
+import beat.osu.client.view.home.component.BeatmapCard;
 import beat.osu.client.view.home.component.BeatmapContent;
 import beat.osu.client.view.home.component.BottomBar;
 import beat.osu.client.view.home.component.TopBar;
@@ -26,6 +27,7 @@ import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -50,13 +52,17 @@ public class SelectBeatmapModal extends StackPane {
     private VBox rightBar;
     private BeatmapContent beatmapContent;
     private ArrayList<Beatmap> beatmaps;
+    private boolean beatmapsLoaded = false;
+    private boolean firstBeatmapSetup = false;
+    private Beatmap cachedFirstBeatmap = null;
+
+    private Thread loadingThread = null;
 
     private HBox searchArea;
     private Label searchLabel;
     private Label contentLabel;
     private Label foundLabel;
 
-    private FadeTransition hideTransition;
     private FadeTransition showTransition;
 
     @Setter
@@ -101,7 +107,7 @@ public class SelectBeatmapModal extends StackPane {
 
         mainLayout = new BorderPane();
 
-        beatmaps = fetchBeatmaps();
+        beatmaps = new ArrayList<>();
 
         topBar = new TopBar();
         bottomBar = new BottomBar();
@@ -112,10 +118,6 @@ public class SelectBeatmapModal extends StackPane {
         createSearchArea();
 
         beatmapContent = new BeatmapContent(beatmaps);
-
-        if (!beatmaps.isEmpty()) {
-            topBar.updateSongInfo(beatmaps.get(0));
-        }
     }
 
     private void createSearchArea() {
@@ -171,10 +173,6 @@ public class SelectBeatmapModal extends StackPane {
     }
 
     private void setupAnimations() {
-        hideTransition = new FadeTransition(Duration.millis(500), mainLayout);
-        hideTransition.setFromValue(1);
-        hideTransition.setToValue(0);
-
         showTransition = new FadeTransition(Duration.millis(500), mainLayout);
         showTransition.setFromValue(0);
         showTransition.setToValue(1);
@@ -209,11 +207,8 @@ public class SelectBeatmapModal extends StackPane {
     }
 
     private void handleEvent() {
-        beatmapContent.setOnBeatmapSelectedCallback(this::onBeatmapSelected);
-
         bottomBar.getLogoView().setOnMouseClicked(e -> {
             System.out.println("Select button clicked");
-            Beatmap selectedBeatmap = beatmapContent.getSelectedBeatmap();
             if (selectedBeatmap != null && onBeatmapSelectedCallback != null) {
                 onBeatmapSelectedCallback.accept(selectedBeatmap);
                 hide();
@@ -228,13 +223,13 @@ public class SelectBeatmapModal extends StackPane {
 
     private void onBeatmapSelected(Beatmap beatmap) {
         try {
-            beat.osu.client.utils.OsuParser.parseBeatmap(beatmap);
+            OsuParser.parseBeatmap(beatmap);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.err.println("Error parsing beatmap: " + e.getMessage());
         }
+        
         topBar.updateSongInfo(beatmap);
         BgmManager.getInstance().playPreviewBgm(false);
-        
         BackgroundManager.setModalBeatmapBackground(backgroundLayer, beatmap);
         
         selectedBeatmap = beatmap;
@@ -300,13 +295,9 @@ public class SelectBeatmapModal extends StackPane {
     }
 
     public void show() {
-        beatmaps = fetchBeatmaps();
-        
-        rightBar.getChildren().remove(beatmapContent);
-        beatmapContent = new BeatmapContent(beatmaps);
-        beatmapContent.setOnBeatmapSelectedCallback(this::onBeatmapSelected);
-        rightBar.getChildren().add(1, beatmapContent);
-        
+        clearBeatmapData();
+        startProgressiveLoading();
+
         if (inputManager != null) {
             inputManager.clearTypedChars();
             lastSearchQuery = "";
@@ -315,17 +306,9 @@ public class SelectBeatmapModal extends StackPane {
             foundLabel.setManaged(false);
         }
         
-        if (!beatmaps.isEmpty()) {
-            Beatmap firstBeatmap = beatmaps.get(0);
-            topBar.updateSongInfo(firstBeatmap);
-            
-            try {
-                OsuParser.parseBeatmap(firstBeatmap);
-                BackgroundManager.setModalBeatmapBackground(backgroundLayer, firstBeatmap);
-                selectedBeatmap = firstBeatmap;
-            } catch (IOException e) {
-                System.err.println("Error parsing first beatmap for background: " + e.getMessage());
-            }
+        if (beatmapContent == null) {
+            beatmapContent = new BeatmapContent(new ArrayList<>());
+            rightBar.getChildren().add(beatmapContent);
         }
         
         this.setVisible(true);
@@ -335,18 +318,105 @@ public class SelectBeatmapModal extends StackPane {
         }
 
         BgmManager.getInstance().playPreviewBgm(true);
-
         showTransition.play();
     }
 
     public void hide() {
+        if (loadingThread != null && loadingThread.isAlive()) {
+            loadingThread.interrupt();
+        }
+        
         if (searchUpdateTimeline != null) {
             searchUpdateTimeline.stop();
         }
+        
+        clearBeatmapData();
+        this.setVisible(false);
+    }
+    
+    private void clearBeatmapData() {
+        if (beatmaps != null) {
+            beatmaps.clear();
+        }
+        
+        if (beatmapContent != null && beatmapContent.getContent() instanceof VBox) {
+            VBox listBox = (VBox) beatmapContent.getContent();
+            listBox.getChildren().clear();
+        }
+        
+        selectedBeatmap = null;
+        cachedFirstBeatmap = null;
+        firstBeatmapSetup = false;
+        beatmapsLoaded = false;
+    }
 
-        hideTransition.play();
-        hideTransition.setOnFinished(e -> {
-            this.setVisible(false);
+    private void startProgressiveLoading() {
+        beatmaps = new ArrayList<>();
+        
+        loadingThread = new Thread(() -> {
+            try {
+                ArrayList<Beatmap> fetchedBeatmaps = fetchBeatmaps();
+                
+                for (int i = 0; i < fetchedBeatmaps.size(); i++) {
+                    if (Thread.currentThread().isInterrupted()) {
+                        return;
+                    }
+                    
+                    Beatmap beatmap = fetchedBeatmaps.get(i);
+                    final int index = i;
+                    
+                    try {
+                        OsuParser.parseBeatmap(beatmap);
+                    } catch (IOException e) {
+                        System.err.println("Error parsing beatmap " + beatmap.getBeatmapId() + ": " + e.getMessage());
+                        continue;
+                    }
+                    
+                    Platform.runLater(() -> {
+                        beatmaps.add(beatmap);
+                        addBeatmapWithFadeIn(beatmap, index);
+                        
+                        if (index == 0) {
+                            topBar.updateSongInfo(beatmap);
+                            BackgroundManager.setModalBeatmapBackground(backgroundLayer, beatmap);
+                            selectedBeatmap = beatmap;
+                        }
+                    });
+                    
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                }
+                
+           
+            } catch (Exception e) {
+                System.err.println("Error during progressive loading: " + e.getMessage());
+            }
         });
+        
+        loadingThread.setDaemon(true);
+        loadingThread.start();
+    }
+    
+    private void addBeatmapWithFadeIn(Beatmap beatmap, int index) {
+        BeatmapCard beatmapCard = new BeatmapCard(beatmap);
+        beatmapCard.setOnClickCallback(card -> {
+            onBeatmapSelected(beatmap);
+        });
+        
+        beatmapCard.setOpacity(0.0);
+        
+        if (beatmapContent != null && beatmapContent.getContent() instanceof VBox) {
+            VBox listBox = (VBox) beatmapContent.getContent();
+            listBox.getChildren().add(beatmapCard);
+            
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(200), beatmapCard);
+            fadeIn.setFromValue(0.0);
+            fadeIn.setToValue(1.0);
+            fadeIn.play();
+        }
     }
 }
