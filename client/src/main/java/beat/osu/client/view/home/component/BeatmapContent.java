@@ -162,16 +162,25 @@ public class BeatmapContent extends ScrollPane {
         
         beatmapCards.add(beatmapCard);
         
-        if (currentFilter.isEmpty() || matchesQuery(beatmap, currentFilter)) {
-            filteredBeatmapCards.add(beatmapCard);
-            beatmapListBox.getChildren().add(beatmapCard);
-            
-            if (selectedBeatmap == null) {
-                beatmapCard.setSelected(true);
-                selectedBeatmap = beatmap;
-                if (onBeatmapSelectedCallback != null) {
-                    onBeatmapSelectedCallback.accept(selectedBeatmap);
-                }
+        if (currentFilter.isEmpty()) {
+            filteredBeatmapCards = beatmapCards;
+        } else {
+            filteredBeatmapCards = beatmapCards.stream()
+                    .filter(card -> matchesQuery(card.getBeatmap(), currentFilter))
+                    .collect(Collectors.toList());
+        }
+        
+        beatmapListBox.getChildren().clear();
+        for (BeatmapCard card : filteredBeatmapCards) {
+            beatmapListBox.getChildren().add(card);
+        }
+        
+        if (selectedBeatmap == null && !filteredBeatmapCards.isEmpty()) {
+            BeatmapCard firstCard = filteredBeatmapCards.get(0);
+            firstCard.setSelected(true);
+            selectedBeatmap = firstCard.getBeatmap();
+            if (onBeatmapSelectedCallback != null) {
+                onBeatmapSelectedCallback.accept(selectedBeatmap);
             }
         }
     }
