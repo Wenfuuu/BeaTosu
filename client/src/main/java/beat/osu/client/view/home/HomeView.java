@@ -39,7 +39,6 @@ import beat.osu.shared.dto.score.responses.GetAllScoresResponse;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -111,7 +110,7 @@ public class HomeView extends Page {
 
         mainLayout = new BorderPane();
 
-        beatmaps = new ArrayList<>();
+        beatmaps = fetchBeatmaps();
 
         topBar = new TopBar();
         bottomBar = new BottomBar();
@@ -184,9 +183,6 @@ public class HomeView extends Page {
 
     @Override
     public void onShow() {
-        clearBeatmapData();
-        startProgressiveLoading();
-
         setInputManager();
         if (inputManager != null) {
             inputManager.clearTypedChars();
@@ -463,103 +459,20 @@ public class HomeView extends Page {
     }
 
     private void refreshBeatmaps() {
-        clearBeatmapData();
-        startProgressiveLoading();
+        beatmaps = fetchBeatmaps();
+        beatmapContent.clearContent();
+        
+        beatmapContent = new BeatmapContent(beatmaps);
+        beatmapContent.setOnBeatmapSelectedCallback(this::onBeatmapSelected);
+        
+        leftBar.getChildren().clear();
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+        leftBar.getChildren().addAll(searchArea, beatmapContent, spacer, uploadBox);
+        
         lastSearchQuery = "";
         if (inputManager != null) {
             inputManager.clearTypedChars();
         }
-    }
-    
-    private void clearBeatmapData() {
-        if (loadingThread != null && loadingThread.isAlive()) {
-            loadingThread.interrupt();
-        }
-        isLoadingBeatmaps = false;
-        
-        if (beatmaps != null) {
-            beatmaps.clear();
-        }
-        
-        if (beatmapContent != null && beatmapContent.getContent() instanceof VBox) {
-            beatmapContent.clearContent();
-        }
-        
-        if (scores != null) {
-            scores.clear();
-        }
-        if (scoreContent != null) {
-            scoreContent.populateScores(new ArrayList<>());
-        }
-    }
-    
-    private void startProgressiveLoading() {
-        if (isLoadingBeatmaps) {
-            return;
-        }
-        
-        isLoadingBeatmaps = true;
-        beatmaps = new ArrayList<>();
-        
-        loadingThread = new Thread(() -> {
-            try {
-                ArrayList<Beatmap> fetchedBeatmaps = fetchBeatmaps();
-                
-                for (int i = 0; i < fetchedBeatmaps.size(); i++) {
-                    if (Thread.currentThread().isInterrupted()) {
-                        return;
-                    }
-                    
-                    Beatmap beatmap = fetchedBeatmaps.get(i);
-                    final int index = i;
-                    
-                    try {
-                        OsuParser.parseBeatmap(beatmap);
-                    } catch (IOException e) {
-                        System.err.println("Error parsing beatmap " + beatmap.getBeatmapId() + ": " + e.getMessage());
-                        continue;
-                    }
-                    
-                    Platform.runLater(() -> {
-                        beatmaps.add(beatmap);
-                        addBeatmapWithFadeIn(beatmap, index);
-                        
-                        if (index == 0) {
-                            topBar.updateSongInfo(beatmap);
-                            BackgroundManager.setGameBackground(scene);
-                            
-                            scores = fetchScores(beatmap);
-                            scoreContent.populateScores(scores);
-                        }
-                    });
-                    
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        return;
-                    }
-                }
-                
-                Platform.runLater(() -> {
-                    isLoadingBeatmaps = false;
-                });
-                
-            } catch (Exception e) {
-                System.err.println("Error during progressive loading: " + e.getMessage());
-                Platform.runLater(() -> {
-                    isLoadingBeatmaps = false;
-                });
-            }
-        });
-        
-        loadingThread.setDaemon(true);
-        loadingThread.start();
-    }
-    
-    private void addBeatmapWithFadeIn(Beatmap beatmap, int index) {
-        Platform.runLater(() -> {
-            beatmapContent.addBeatmap(beatmap);
-        });
     }
 }

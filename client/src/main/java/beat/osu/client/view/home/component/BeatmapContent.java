@@ -3,34 +3,42 @@ package beat.osu.client.view.home.component;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.utils.OsuParser;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.Pane;
 import lombok.Getter;
 import lombok.Setter;
 
 public class BeatmapContent extends ScrollPane {
-    private final VBox beatmapListBox;
-    private ArrayList<Beatmap> beatmaps;
-    private List<BeatmapCard> beatmapCards;
-    private List<BeatmapCard> filteredBeatmapCards;
+    
+    private static final double BEATMAP_CARD_HEIGHT = ScreenManager.SCREEN_HEIGHT * 0.11;
+
+    private final Pane virtualContainer;
+    private ArrayList<Beatmap> allBeatmaps;
+    private List<Beatmap> filteredBeatmaps;
     private String currentFilter = "";
+    
+    private final Map<Integer, BeatmapCard> renderedCards = new HashMap<>();
+    private int visibleItemCount = 0;
+    
     @Getter
     private Beatmap selectedBeatmap;
     @Setter
     private Consumer<Beatmap> onBeatmapSelectedCallback;
 
     public BeatmapContent(ArrayList<Beatmap> beatmaps) {
-        this.beatmapListBox = new VBox();
-        this.beatmaps = beatmaps;
-        this.beatmapCards = new ArrayList<>();
-        this.filteredBeatmapCards = new ArrayList<>();
+        this.virtualContainer = new Pane();
+        this.allBeatmaps = beatmaps;
+        this.filteredBeatmaps = new ArrayList<>(beatmaps);
         this.selectedBeatmap = beatmaps.isEmpty() ? null : beatmaps.get(0);
 
         this.getStyleClass().add("scroll-pane");
@@ -40,16 +48,17 @@ public class BeatmapContent extends ScrollPane {
         initializeComponents();
         setupLayout();
         loadStyles();
-
-        populateBeatmaps();
+        setupVirtualScrolling();
     }
 
     private void initializeComponents() {
-        beatmapListBox.getStyleClass().add("beatmap-list");
+        virtualContainer.getStyleClass().add("beatmap-list");
+        
+        visibleItemCount = 10;
     }
 
     private void setupLayout() {
-        this.setContent(beatmapListBox);
+        this.setContent(virtualContainer);
     }
 
     private void loadStyles() {
@@ -61,62 +70,77 @@ public class BeatmapContent extends ScrollPane {
         }
     }
 
-    private void populateBeatmaps() {
-        if (beatmaps.isEmpty())
-            return;
-        String currentOszPath = "";
-
-        for (Beatmap beatmap : beatmaps) {
-            String oszPath = OsuParser.getOszPath(beatmap);
-            if (!oszPath.equals(currentOszPath)) {
-                try {
-                    OsuParser.parseBeatmap(beatmap);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                currentOszPath = oszPath;
-            }
-
-            BeatmapCard beatmapCard = new BeatmapCard(beatmap);
-            beatmapCard.setOnClickCallback(this::onBeatmapCardClicked);
-
-            beatmapCards.add(beatmapCard);
-        }
-
-        filteredBeatmapCards = beatmapCards;
-        updateBeatmapCards();
+    private void setupVirtualScrolling() {
+        visibleItemCount = Math.max(10, (int) Math.ceil(ScreenManager.SCREEN_HEIGHT * 0.8 / BEATMAP_CARD_HEIGHT));
+        updateVirtualContainerHeight();
+        
+        this.vvalueProperty().addListener((obs, oldVal, newVal) -> {
+            updateVisibleItems();
+        });
+        
+        updateVisibleItems();
     }
 
-    public void updateBeatmapCards() {
-        // Clear existing children to prevent duplicate additions
-        beatmapListBox.getChildren().clear();
+    private void updateVirtualContainerHeight() {
+        double totalHeight = filteredBeatmaps.size() * BEATMAP_CARD_HEIGHT;
+        virtualContainer.setPrefHeight(totalHeight);
+        virtualContainer.setMinHeight(totalHeight);
+    }
 
-        for (BeatmapCard beatmapCard : filteredBeatmapCards) {
-            beatmapListBox.getChildren().add(beatmapCard);
+    private void updateVisibleItems() {
+        if (filteredBeatmaps.isEmpty()) {
+            clearRenderedCards();
+            return;
         }
 
-        // Select first beatmap by default if available
-        if (!filteredBeatmapCards.isEmpty()) {
-            filteredBeatmapCards.get(0).setSelected(true);
-            selectedBeatmap = filteredBeatmapCards.get(0).getBeatmap();
-            onBeatmapCardClicked(filteredBeatmapCards.get(0));
-
-            try {
-                OsuParser.parseBeatmap(selectedBeatmap);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        double scrollValue = this.getVvalue();
+        
+        double totalHeight = filteredBeatmaps.size() * BEATMAP_CARD_HEIGHT;
+        double viewportHeight = getViewportHeight();
+        double scrollTop = scrollValue * Math.max(0, totalHeight - viewportHeight);
+        
+        int firstVisibleItem = (int) (scrollTop / BEATMAP_CARD_HEIGHT);
+        int newFirstIndex = Math.max(0, firstVisibleItem);
+        int newLastIndex = Math.min(filteredBeatmaps.size() - 1, firstVisibleItem + visibleItemCount);
+        
+        renderedCards.entrySet().removeIf(entry -> {
+            int index = entry.getKey();
+            if (index < newFirstIndex || index > newLastIndex) {
+                virtualContainer.getChildren().remove(entry.getValue());
+                return true;
+            }
+            return false;
+        });
+        
+        for (int i = newFirstIndex; i <= newLastIndex; i++) {
+            if (!renderedCards.containsKey(i) && i < filteredBeatmaps.size()) {
+                createAndPositionCard(i);
             }
         }
+    }
+
+    private void createAndPositionCard(int index) {
+        Beatmap beatmap = filteredBeatmaps.get(index);
+        
+        try {
+            OsuParser.parseBeatmap(beatmap);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        BeatmapCard card = new BeatmapCard(beatmap);
+        card.setOnClickCallback(this::onBeatmapCardClicked);
+        
+        card.setLayoutY(index * BEATMAP_CARD_HEIGHT);
+        renderedCards.put(index, card);
+        virtualContainer.getChildren().add(card);
     }
 
     private void onBeatmapCardClicked(BeatmapCard clickedCard) {
-        filteredBeatmapCards.forEach(card -> card.setSelected(false));
+        renderedCards.values().forEach(card -> card.setSelected(false));
 
         clickedCard.setSelected(true);
         selectedBeatmap = clickedCard.getBeatmap();
-
-        int index = filteredBeatmapCards.indexOf(clickedCard);
-        System.out.println("Clicked index: " + index);
 
         if (onBeatmapSelectedCallback != null) {
             onBeatmapSelectedCallback.accept(selectedBeatmap);
@@ -131,61 +155,49 @@ public class BeatmapContent extends ScrollPane {
     public int filterBeatmaps(String query) {
         if (query == null || query.trim().isEmpty()) {
             clearFilter();
-    } else {
+            return filteredBeatmaps.size();
+        } else {
             this.currentFilter = query.toLowerCase().trim();
-            this.filteredBeatmapCards = beatmapCards.stream()
-                    .filter(beatmapCard -> matchesQuery(beatmapCard.getBeatmap(), this.currentFilter))
+            this.filteredBeatmaps = allBeatmaps.stream()
+                    .filter(beatmap -> matchesQuery(beatmap, this.currentFilter))
                     .collect(Collectors.toList());
         }
-        updateBeatmapCards();
-        return filteredBeatmapCards.size();
+        
+        renderedCards.clear();
+        virtualContainer.getChildren().clear();
+        updateVirtualContainerHeight();
+        updateVisibleItems();
+        
+        return filteredBeatmaps.size();
     }
 
     public void clearFilter() {
         this.currentFilter = "";
-        this.filteredBeatmapCards = this.beatmapCards;
+        this.filteredBeatmaps = new ArrayList<>(this.allBeatmaps);
+        
+        renderedCards.clear();
+        virtualContainer.getChildren().clear();
+        updateVirtualContainerHeight();
+        updateVisibleItems();
     }
 
     public void clearContent() {
-        beatmaps.clear();
-        beatmapCards.clear();
-        filteredBeatmapCards.clear();
-        beatmapListBox.getChildren().clear();
+        allBeatmaps.clear();
+        filteredBeatmaps.clear();
+        renderedCards.clear();
+        virtualContainer.getChildren().clear();
         selectedBeatmap = null;
+        updateVirtualContainerHeight();
     }
 
-    public void addBeatmap(Beatmap beatmap) {
-        beatmaps.add(beatmap);
-        
-        BeatmapCard beatmapCard = new BeatmapCard(beatmap);
-        beatmapCard.setOnClickCallback(this::onBeatmapCardClicked);
-        
-        beatmapCards.add(beatmapCard);
-        
-        if (currentFilter.isEmpty()) {
-            filteredBeatmapCards = beatmapCards;
-        } else {
-            filteredBeatmapCards = beatmapCards.stream()
-                    .filter(card -> matchesQuery(card.getBeatmap(), currentFilter))
-                    .collect(Collectors.toList());
-        }
-        
-        beatmapListBox.getChildren().clear();
-        for (BeatmapCard card : filteredBeatmapCards) {
-            beatmapListBox.getChildren().add(card);
-        }
-        
-        if (selectedBeatmap == null && !filteredBeatmapCards.isEmpty()) {
-            BeatmapCard firstCard = filteredBeatmapCards.get(0);
-            firstCard.setSelected(true);
-            selectedBeatmap = firstCard.getBeatmap();
-            if (onBeatmapSelectedCallback != null) {
-                onBeatmapSelectedCallback.accept(selectedBeatmap);
-            }
-        }
+    private void clearRenderedCards() {
+        renderedCards.values().forEach(card -> {
+            virtualContainer.getChildren().remove(card);
+        });
+        renderedCards.clear();
     }
 
-    public VBox getBeatmapListBox() {
-        return beatmapListBox;
+    private double getViewportHeight() {
+        return this.getBoundsInLocal().getHeight();
     }
 }
