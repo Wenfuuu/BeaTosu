@@ -11,6 +11,7 @@ import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
+import beat.osu.client.view.shared.common.Toast;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.chat.PrivateChatDto;
 import beat.osu.shared.dto.game.SpectateDto;
@@ -116,6 +117,7 @@ public class ViewUserModal extends VBox {
                     hide();
                 } else {
                     System.err.println("Cannot start spectating: No beatmap is currently being played");
+                    Toast.error("Cannot start spectating: No beatmap is currently being played").show();
                 }
             }
         });

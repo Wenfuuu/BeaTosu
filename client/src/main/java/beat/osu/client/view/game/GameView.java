@@ -151,6 +151,7 @@ public class GameView extends Page implements GameEventListener {
 
         pauseOverlay.getRetryButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
+            gm.notifySpectatorsPlayerExited();
             ViewManager.getInstance().showGameView(beatmap, false);
         });
 
