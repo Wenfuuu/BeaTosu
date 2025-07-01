@@ -9,6 +9,7 @@ import beat.osu.server.service.ScoreService;
 import beat.osu.server.service.SessionService;
 import beat.osu.server.service.SpectateService;
 import beat.osu.server.service.SystemService;
+import beat.osu.server.service.UserService;
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.auth.requests.LoginRequest;
@@ -51,6 +52,7 @@ public class MessageRouter {
 
     private final SystemService systemService;
     private final AuthService authService;
+    private final UserService userService;
     private final BeatmapService beatmapService;
     private final ScoreService scoreService;
     private final ChannelService channelService;

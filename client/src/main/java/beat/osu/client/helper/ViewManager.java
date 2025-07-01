@@ -30,6 +30,7 @@ public class ViewManager {
     private HomeView homeView;
     private LobbyView lobbyView;
 
+    private UserController userController;
     private BeatmapController beatmapController;
     private ConnectedUsersController connectedUsersController;
     private ChannelController channelController;
@@ -142,6 +143,7 @@ public class ViewManager {
     }
 
     private void initializeControllers() {
+        userController = new UserController();
         beatmapController = new BeatmapController();
         connectedUsersController = new ConnectedUsersController();
         channelController = new ChannelController();
