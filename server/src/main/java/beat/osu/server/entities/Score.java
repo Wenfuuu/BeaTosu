@@ -1,16 +1,16 @@
 package beat.osu.server.entities;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Score {
-    private String id;
+    private int id;
     private int beatmapId;
     private int userId;
     private int score;

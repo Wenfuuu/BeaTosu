@@ -1,12 +1,14 @@
 package beat.osu.server.repositories;
 
-import beat.osu.server.database.Connect;
-import beat.osu.server.entities.Score;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.UUID;
+
+import beat.osu.server.database.Connect;
+import beat.osu.server.entities.Score;
 
 public class ScoreRepository {
     private final Connection conn;
@@ -30,25 +32,24 @@ public class ScoreRepository {
             String grade,
             LocalDateTime date
     ) {
-        String query = "INSERT INTO scores (id, beatmap_id, user_id, score, highest_combo, accuracy, " +
+        String query = "INSERT INTO scores (beatmap_id, user_id, score, highest_combo, accuracy, " +
                 "perfect_hit, geki_hit, great_hit, katu_hit, good_hit, miss, grade, date) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
         try {
             PreparedStatement statement = conn.prepareStatement(query);
-            statement.setString(1, UUID.randomUUID().toString());
-            statement.setInt(2, beatmapId);
-            statement.setInt(3, userId);
-            statement.setInt(4, score);
-            statement.setInt(5, highestCombo);
-            statement.setDouble(6, accuracy);
-            statement.setInt(7, perfectHit);
-            statement.setInt(8, gekiHit);
-            statement.setInt(9, greatHit);
-            statement.setInt(10, katuHit);
-            statement.setInt(11, goodHit);
-            statement.setInt(12, miss);
-            statement.setString(13, grade);
-            statement.setTimestamp(14, Timestamp.valueOf(date));
+            statement.setInt(1, beatmapId);
+            statement.setInt(2, userId);
+            statement.setInt(3, score);
+            statement.setInt(4, highestCombo);
+            statement.setDouble(5, accuracy);
+            statement.setInt(6, perfectHit);
+            statement.setInt(7, gekiHit);
+            statement.setInt(8, greatHit);
+            statement.setInt(9, katuHit);
+            statement.setInt(10, goodHit);
+            statement.setInt(11, miss);
+            statement.setString(12, grade);
+            statement.setTimestamp(13, Timestamp.valueOf(date));
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -64,7 +65,7 @@ public class ScoreRepository {
             var rs = statement.executeQuery();
             while (rs.next()) {
                 Score score = new Score(
-                        rs.getString("id"),
+                        rs.getInt("id"),
                         rs.getInt("beatmap_id"),
                         rs.getInt("user_id"),
                         rs.getInt("score"),

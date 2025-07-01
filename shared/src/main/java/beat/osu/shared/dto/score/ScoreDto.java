@@ -1,12 +1,11 @@
 package beat.osu.shared.dto.score;
 
-import beat.osu.shared.dto.user.UserDto;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.io.Serializable;
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -14,7 +13,7 @@ import java.time.LocalDateTime;
 public class ScoreDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String id;
+    private int id;
     private int beatmapId;
     private int userId;
     private int score;
