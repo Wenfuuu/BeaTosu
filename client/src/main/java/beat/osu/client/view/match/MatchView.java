@@ -224,7 +224,7 @@ public class MatchView extends Page {
 
         hostActionsModal = new HostActionsModal();
         changePasswordModal = new ChangePasswordModal();
-        selectBeatmapModal = new SelectBeatmapModal();
+        selectBeatmapModal = new SelectBeatmapModal(beatmapController);
         selectBeatmapModal.setMatchController(matchController);
         selectBeatmapModal.setMatchId(matchId);
 
@@ -621,6 +621,7 @@ public class MatchView extends Page {
 
         changeBeatmapButton.setOnMouseClicked(e -> {
             selectBeatmapModal.setInputManager(inputManager);
+            selectBeatmapModal.setCurrentMatchBeatmap(beatmap);
             selectBeatmapModal.setOnBeatmapSelectedCallback(selectedBeatmap -> {
                 try {
                     Result<beat.osu.shared.dto.match.responses.UpdateMatchBeatmapResponse> result = 
@@ -769,7 +770,7 @@ public class MatchView extends Page {
         if (event.getMatchId() == this.matchId) {
             Platform.runLater(() -> {
                 beatmap = convertBeatmapDtoToBeatmap(event.getNewBeatmapDto());
-                this.isChangingBeatmap = false; // Reset changing state when beatmap is updated
+                this.isChangingBeatmap = false;
                 updateBeatmapCard();
                 
                 boolean beatmapExists = ResourceManager.beatmapSetDirectoryExists(beatmap.getBeatmapSetId());

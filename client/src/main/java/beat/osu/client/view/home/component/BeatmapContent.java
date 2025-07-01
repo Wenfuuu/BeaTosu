@@ -267,4 +267,10 @@ public class BeatmapContent extends ScrollPane {
     public void resetSelectionState() {
         hasTriggeredInitialSelection = false;
     }
+
+    public void setSelectedBeatmap(Beatmap beatmap) {
+        if (beatmap != null && allBeatmaps.contains(beatmap)) {
+            this.selectedBeatmap = beatmap;
+        }
+    }
 }
