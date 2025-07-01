@@ -1,5 +1,9 @@
 package beat.osu.server.service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import beat.osu.server.handler.RealtimeMessageHandler;
 import beat.osu.server.repositories.UserRepository;
 import beat.osu.shared.common.Error;
@@ -34,7 +38,8 @@ public class AuthService {
                 return Result.failure(Error.validation("Password must be at least 8 characters!"));
             }
 
-            userRepository.insertUser(request.getUsername(), request.getEmail(), request.getPassword(), request.getCountryCode(), request.getProfilePicture(), request.isSupporter());
+            String hashedPassword = hashPassword(request.getPassword());
+            userRepository.insertUser(request.getUsername(), request.getEmail(), hashedPassword, request.getCountryCode(), request.getProfilePicture(), request.isSupporter());
 
             String message = "User registered successfully!";
 
@@ -55,7 +60,8 @@ public class AuthService {
                 return Result.failure(Error.notFound("User not found!"));
             }
 
-            if (!user.getPasswordHash().equals(request.getPassword())) {
+            String hashedPassword = hashPassword(request.getPassword());
+            if (!user.getPasswordHash().equals(hashedPassword)) {
                 return Result.failure(Error.validation("Invalid password!"));
             }
 
@@ -78,5 +84,27 @@ public class AuthService {
         } catch (Exception e) {
             return Result.failure(Error.internal("Login failed: " + e.getMessage()));
         }
+    }
+
+    private String hashPassword(String password) {
+        StringBuilder hex = new StringBuilder();
+
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+
+            byte[] encodedHash = messageDigest.digest(password.getBytes(StandardCharsets.UTF_8));
+
+            for (byte b : encodedHash) {
+                String hexStr = Integer.toHexString(0xff & b);
+                if (hexStr.length() == 1) {
+                    hex.append('0');
+                }
+                hex.append(hexStr);
+            }
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+
+        return hex.toString();
     }
 }

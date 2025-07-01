@@ -44,32 +44,6 @@ CREATE TABLE `beatmaps` (
 -- Dumping data for table `beatmaps`
 --
 
-INSERT INTO `beatmaps` (`id`, `beatmap_set_id`, `version`, `hp_drain_rate`, `circle_size`, `overall_difficulty`, `approach_rate`, `slider_multiplier`, `slider_tick_rate`, `star_rating`) VALUES
-(1201284, 567148, 'Hard', 5, 4, 6, 7.5, 1.4, 1, 5.07),
-(1201410, 567148, 'Normal', 4, 3.5, 4, 5, 1.1, 1, 3.38),
-(1201550, 567148, 'Easy', 2, 3.2, 2, 3, 0.8, 1, 1.71),
-(1205138, 567148, 'HB\'s Insane', 6, 4, 7, 9, 1.6, 1, 6.08),
-(1207223, 569503, 'Extra', 6, 4, 8.5, 9.3, 1.7, 1, 6.625),
-(1222417, 569503, 'Collab Insane', 6, 4, 8, 9, 1.6, 1, 6.33),
-(1240054, 569503, '117\'s Hard', 5, 4, 6, 8, 1.5, 1, 5.3),
-(1242829, 569503, 'Akanya\'s Easy', 2, 3, 2, 3, 1, 1, 1.85),
-(1245721, 569503, 'Regraz\'s Normal', 3.5, 3.9, 4.1, 5.3, 1, 1, 3.38),
-(1255495, 569503, 'NiNo\'s Extra', 5, 4, 8.5, 9.4, 1.9, 1, 6.665),
-(2014468, 962088, 'Hard', 4.5, 3.2, 6, 8, 1.3, 1, 4.984999999999999),
-(2014469, 962088, 'Horizon', 5.5, 3.8, 9, 9.2, 1.4, 1, 6.385),
-(2014470, 962088, 'Insane', 5, 3.6, 8, 9, 1.3, 1, 5.9),
-(2014471, 962088, 'Normal', 3.5, 3, 4, 5, 1.1, 1, 3.255),
-(2581182, 1241559, 'Tenshi', 5, 4, 7.8, 8.6, 1.6, 1, 6.01),
-(2586612, 1241559, 'xidorn\'s Normal', 3, 3, 4, 5, 1.2, 1, 3.26),
-(2603213, 1241559, 'bongo\'s Hard', 4, 3.7, 6, 6.7, 1.4, 1, 4.6499999999999995),
-(2753267, 1328989, 'Hard', 4.5, 3.5, 6, 8, 1.2, 1, 4.935),
-(2753268, 1328989, 'gokugohan12468\'s Easy', 2, 2, 2, 3, 1, 1, 1.75),
-(2753473, 1328989, 'Wanpachi\'s Normal', 4, 3, 4, 5.5, 1, 1, 3.3999999999999995),
-(2755127, 1328989, 'Beast', 5.6, 4.5, 8.5, 9.2, 1.6, 1, 6.505),
-(2755633, 1328989, 'Syoko\'s Expert', 5.2, 4.4, 8, 8.8, 1.8, 1, 6.35),
-(2756887, 1328989, 'PikA\'s Insane ft. Kuro', 5, 4, 7.5, 9, 1.8, 1, 6.215),
-(2865437, 1328989, 'Addy\'s Extra', 5.4, 3.8, 8, 9.2, 1.8, 1, 6.4399999999999995);
-
 -- --------------------------------------------------------
 
 --
@@ -77,7 +51,7 @@ INSERT INTO `beatmaps` (`id`, `beatmap_set_id`, `version`, `hp_drain_rate`, `cir
 --
 
 CREATE TABLE `scores` (
-  `id` varchar(50) NOT NULL,
+  `id` int(11) NOT NULL,
   `beatmap_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `score` int(11) NOT NULL,
@@ -112,13 +86,6 @@ CREATE TABLE `beatmap_sets` (
 -- Dumping data for table `beatmap_sets`
 --
 
-INSERT INTO `beatmap_sets` (`id`, `title`, `artist`, `creator`, `length`, `bpm`) VALUES
-(567148, 'Heikousen', 'Sayuri', 'Lilyanna', '01:29', 73),
-(569503, 'Uso no Hibana', '96neko', 'Yasaija 714', '03:42', 187),
-(962088, 'Marshmary', 'MIMI feat. Hatsune Miku', 'Log Off Now', '01:31', 181),
-(1241559, '#Aquairo Palette', 'Minato Aqua', 'Amateurre', '04:32', 155),
-(1328989, 'Kaibutsu (TV Size)', 'YOASOBI', '[-Evil-]', '01:28', 170);
-
 -- --------------------------------------------------------
 
 --
@@ -144,8 +111,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `email`, `password_hash`, `country_code`, `profile_picture`, `performance`, `accuracy`, `play_count`, `level`, `is_supporter`) VALUES
-  (1, 'wenfu', 'bertrand13022005@gmail.com', 'wenfu', 'ID', NULL, 3234, '94.67', 1023, 78, false),
-  (2, 'artificed', 'artificed@gmail.com', 'artificed', 'US', NULL, 7313, '78.23', 1343, 94, true);
+  (1, 'wenfu', 'bertrand13022005@gmail.com', 'd1ea055730ff077714908cd3a849632a849764d05a0ecf45d98483f7e08cf0ea', 'ID', NULL, 3234, '94.67', 1023, 78, false),
+  (2, 'artificed', 'artificed@gmail.com', 'cad8c22a24ea48ea0050614ae74f2e059efbb58ab5c8c23ec03c5d65a9700890', 'US', NULL, 7313, '78.23', 1343, 94, true);
 
 -- --------------------------------------------------------
 
@@ -182,6 +149,12 @@ ALTER TABLE `users`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `scores`
+--
+ALTER TABLE `scores`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `users`
