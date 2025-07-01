@@ -369,8 +369,7 @@ public class SelectBeatmapModal extends StackPane {
         }
         
         if (beatmapContent != null && beatmapContent.getContent() instanceof VBox) {
-            VBox listBox = (VBox) beatmapContent.getContent();
-            listBox.getChildren().clear();
+            beatmapContent.clearContent();
         }
         
         selectedBeatmap = null;

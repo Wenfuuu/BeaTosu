@@ -193,6 +193,7 @@ public class HomeView extends Page {
             searchUpdateTimeline.play();
         }
 
+        beatmapContent.triggerInitialSelection();
         scene.setRoot(root);
         BgmManager.getInstance().playPreviewBgm(true);
         BackgroundManager.setGameBackground(scene);
@@ -388,8 +389,6 @@ public class HomeView extends Page {
     private void setupCallbacks() {
         beatmapContent.setOnBeatmapSelectedCallback(this::onBeatmapSelected);
         scoreContent.setOnScoreSelectedCallback(this::onScoreSelected);
-        
-        beatmapContent.triggerInitialSelection();
     }
 
     private void handleEvent() {
