@@ -33,6 +33,7 @@ import beat.osu.shared.dto.match.requests.SendMatchScoreEventRequest;
 import beat.osu.shared.dto.match.requests.StartMatchRequest;
 import beat.osu.shared.dto.match.requests.TransferHostRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchBeatmapRequest;
+import beat.osu.shared.dto.match.requests.UpdateMatchChangingBeatmapRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchNameRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchPasswordRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchWinConditionRequest;
@@ -183,6 +184,8 @@ public class MessageRouter {
                 return matchService.updateMatchName((UpdateMatchNameRequest) request.getPayload(), clientId);
             case UPDATE_MATCH_BEATMAP:
                 return matchService.updateMatchBeatmap((UpdateMatchBeatmapRequest) request.getPayload(), clientId);
+            case UPDATE_MATCH_CHANGING_BEATMAP:
+                return matchService.updateMatchChangingBeatmap((UpdateMatchChangingBeatmapRequest) request.getPayload(), clientId);
             case UPDATE_MATCH_WIN_CONDITION:
                 return matchService.updateMatchWinCondition((UpdateMatchWinConditionRequest) request.getPayload(), clientId);
             case UPDATE_PLAYER_STATUS:

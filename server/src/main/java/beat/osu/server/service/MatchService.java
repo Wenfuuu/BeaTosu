@@ -23,10 +23,10 @@ import beat.osu.shared.dto.match.MatchPlayerDto;
 import beat.osu.shared.dto.match.events.HostChangedEvent;
 import beat.osu.shared.dto.match.events.HostLeftEvent;
 import beat.osu.shared.dto.match.events.MatchBeatmapUpdatedEvent;
+import beat.osu.shared.dto.match.events.MatchChangingBeatmapUpdatedEvent;
 import beat.osu.shared.dto.match.events.MatchCompletedEvent;
 import beat.osu.shared.dto.match.events.MatchCreatedEvent;
 import beat.osu.shared.dto.match.events.MatchEndedEvent;
-import beat.osu.shared.dto.match.events.MatchInProgressUpdatedEvent;
 import beat.osu.shared.dto.match.events.MatchNameUpdatedEvent;
 import beat.osu.shared.dto.match.events.MatchPasswordUpdatedEvent;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
@@ -48,7 +48,7 @@ import beat.osu.shared.dto.match.requests.SendMatchScoreEventRequest;
 import beat.osu.shared.dto.match.requests.StartMatchRequest;
 import beat.osu.shared.dto.match.requests.TransferHostRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchBeatmapRequest;
-import beat.osu.shared.dto.match.requests.UpdateMatchInProgressRequest;
+import beat.osu.shared.dto.match.requests.UpdateMatchChangingBeatmapRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchNameRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchPasswordRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchWinConditionRequest;
@@ -64,7 +64,7 @@ import beat.osu.shared.dto.match.responses.SendMatchScoreEventResponse;
 import beat.osu.shared.dto.match.responses.StartMatchResponse;
 import beat.osu.shared.dto.match.responses.TransferHostResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchBeatmapResponse;
-import beat.osu.shared.dto.match.responses.UpdateMatchInProgressResponse;
+import beat.osu.shared.dto.match.responses.UpdateMatchChangingBeatmapResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchNameResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchPasswordResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchWinConditionResponse;
@@ -675,6 +675,39 @@ public class MatchService {
         return response;
     }
 
+    public Result<UpdateMatchChangingBeatmapResponse> updateMatchChangingBeatmap(UpdateMatchChangingBeatmapRequest request, String clientId) {
+        int matchId = request.getMatchId();
+        boolean isChangingBeatmap = request.isChangingBeatmap();
+
+        Match match = matches.get(matchId);
+        if (match == null) {
+            return Result.failure(Error.notFound("Match not found"));
+        }
+
+        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
+        if (userId == null) {
+            return Result.failure(Error.unauthorized("User not authenticated"));
+        }
+
+        MatchPlayer player = findPlayerInMatch(matchId, userId);
+        if (player == null || !player.getRole().equals(PlayerRole.HOST)) {
+            return Result.failure(Error.unauthorized("Only the host can update the changing beatmap status"));
+        }
+
+        match.setChangingBeatmap(isChangingBeatmap);
+
+        String message = "Match changing beatmap status updated to " + (isChangingBeatmap ? "true" : "false");
+        Result<UpdateMatchChangingBeatmapResponse> response = Result.success(new UpdateMatchChangingBeatmapResponse(message));
+
+        if (response.isSuccess()) {
+            MatchChangingBeatmapUpdatedEvent event = new MatchChangingBeatmapUpdatedEvent(matchId, isChangingBeatmap);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_CHANGING_BEATMAP_UPDATED, clientId, event);
+            RealtimeMessageHandler.broadcastToAll(realtimeMessage);
+        }
+
+        return response;
+    }
+
     public Result<UpdateMatchWinConditionResponse> updateMatchWinCondition(UpdateMatchWinConditionRequest request, String clientId) {
         int matchId = request.getMatchId();
         MatchWinCondition newWinCondition = request.getNewWinCondition();
@@ -755,39 +788,6 @@ public class MatchService {
             PlayerStatusUpdatedEvent event = new PlayerStatusUpdatedEvent(matchId, userId, newStatus);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.PLAYER_STATUS_UPDATED, clientId, event);
             broadcastMessageToMatchPlayers(clientId, matchId, realtimeMessage);
-        }
-
-        return response;
-    }
-
-    public Result<UpdateMatchInProgressResponse> updateMatchInProgress(UpdateMatchInProgressRequest request, String clientId) {
-        int matchId = request.getMatchId();
-        boolean inProgress = request.isInProgress();
-
-        Match match = matches.get(matchId);
-        if (match == null) {
-            return Result.failure(Error.notFound("Match not found"));
-        }
-
-        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
-        if (userId == null) {
-            return Result.failure(Error.unauthorized("User not authenticated"));
-        }
-
-        MatchPlayer player = findPlayerInMatch(matchId, userId);
-        if (player == null || !player.getRole().equals(PlayerRole.HOST)) {
-            return Result.failure(Error.unauthorized("Only the host can update the match in-progress status"));
-        }
-
-        match.setInProgress(inProgress);
-
-        String message = "Match in-progress status updated to " + (inProgress ? "IN PROGRESS" : "NOT IN PROGRESS");
-        Result<UpdateMatchInProgressResponse> response = Result.success(new UpdateMatchInProgressResponse(message));
-
-        if (response.isSuccess()) {
-            MatchInProgressUpdatedEvent event = new MatchInProgressUpdatedEvent(matchId, inProgress);
-            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_IN_PROGRESS_UPDATED, clientId, event);
-            RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
 
         return response;

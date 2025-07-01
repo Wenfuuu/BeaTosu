@@ -19,6 +19,7 @@ public class MatchDto implements Serializable {
     private String name;
     private String password;
     private boolean inProgress;
+    private boolean isChangingBeatmap;
     private int maxPlayerCount;
 
     private BeatmapDto beatmap;
