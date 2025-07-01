@@ -11,11 +11,7 @@ import java.util.function.Consumer;
 
 import beat.osu.client.controller.BeatmapController;
 import beat.osu.client.controller.MatchController;
-import beat.osu.client.helper.BackgroundManager;
-import beat.osu.client.helper.BgmManager;
-import beat.osu.client.helper.CssManager;
-import beat.osu.client.helper.InputManager;
-import beat.osu.client.helper.ResourceManager;
+import beat.osu.client.helper.*;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.utils.OsuParser;
@@ -29,12 +25,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.util.Duration;
 import lombok.Getter;
 import lombok.Setter;
@@ -69,6 +60,7 @@ public class SelectBeatmapModal extends StackPane {
     @Getter
     private Beatmap selectedBeatmap;
     
+    @Setter
     private Beatmap currentMatchBeatmap;
     
     @Setter
@@ -122,6 +114,8 @@ public class SelectBeatmapModal extends StackPane {
         
         rightBar = new VBox();
         rightBar.setAlignment(Pos.TOP_RIGHT);
+        rightBar.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.40);
+        rightBar.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.40);
 
         createSearchArea();
 
@@ -132,8 +126,9 @@ public class SelectBeatmapModal extends StackPane {
     private void createSearchArea() {
         searchArea = new HBox();
         searchArea.getStyleClass().add("search-area");
-        searchArea.prefWidthProperty().bind(rightBar.widthProperty().multiply(0.5));
-        searchArea.setMaxWidth(Region.USE_PREF_SIZE);
+        searchArea.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.20);
+        searchArea.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.20);
+        searchArea.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.20);
 
         VBox searchContent = new VBox();
 
@@ -157,6 +152,7 @@ public class SelectBeatmapModal extends StackPane {
 
     private void setupLayout() {
         rightBar.getChildren().addAll(searchArea, beatmapContent);
+        VBox.setVgrow(beatmapContent, Priority.ALWAYS);
 
         mainLayout.setTop(topBar);
         mainLayout.setRight(rightBar);
@@ -387,9 +383,5 @@ public class SelectBeatmapModal extends StackPane {
     
     private void clearBeatmapData() {
         selectedBeatmap = null;
-    }
-
-    public void setCurrentMatchBeatmap(Beatmap currentBeatmap) {
-        this.currentMatchBeatmap = currentBeatmap;
     }
 }

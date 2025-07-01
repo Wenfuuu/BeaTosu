@@ -208,8 +208,7 @@ public class HomeView extends Page {
     private void createSearchArea() {
         searchArea = new HBox();
         searchArea.getStyleClass().add("search-area");
-        // Use fixed width instead of binding to rightBar width to prevent shrinking
-        searchArea.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.20); // Fixed 20% of screen width
+        searchArea.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.20);
         searchArea.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.20);
         searchArea.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.20);
 
