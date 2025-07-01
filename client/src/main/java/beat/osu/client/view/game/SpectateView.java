@@ -174,7 +174,7 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
                 beatmap.getVersion());
 
         marqueeLabel = new Label(marqueeText);
-        marqueeLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Aller Light'; -fx-font-size: 20px;");
+        marqueeLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Aller Light'; -fx-font-size: " + ScreenManager.SCREEN_HEIGHT * 0.02 + "px;");
 
         marqueeContainer.getChildren().add(marqueeLabel);
 

@@ -29,6 +29,7 @@ import beat.osu.client.model.HitObject;
 import beat.osu.client.view.game.component.GameUI;
 import beat.osu.client.view.game.component.PauseOverlay;
 import beat.osu.client.view.shared.common.Page;
+import beat.osu.client.view.shared.replay.EndReplayButton;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
@@ -44,10 +45,16 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -89,6 +96,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
     private Integer playingUserId;
     private HBox marqueeContainer;
     private Label marqueeLabel;
+    private EndReplayButton endReplayButton;
     private TranslateTransition marqueeAnimation;
 
     public ReplayView(Stage stage, UserController userController, Beatmap selectedBeatmap, int playingUserId, ArrayList<ReplayEvent> replayEvents) {
@@ -755,9 +763,21 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
                         beatmap.getVersion());
 
                 marqueeLabel = new Label(marqueeText);
-                marqueeLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Aller Light'; -fx-font-size: 20px;");
+                marqueeLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Aller Light'; -fx-font-size: " + ScreenManager.SCREEN_HEIGHT * 0.02 + "px;");
 
-                marqueeContainer.getChildren().add(marqueeLabel);
+                endReplayButton = new EndReplayButton();
+
+                endReplayButton.setOnMouseClicked(e -> {
+                    SfxManager.playSfx("pause-click.wav");
+                    ViewManager.getInstance().showHomeView();
+                });
+
+                Region spacer = new Region();
+                HBox.setHgrow(spacer, Priority.ALWAYS);
+
+                HBox.setMargin(endReplayButton, new Insets(48, 12, 0, 12));
+
+                marqueeContainer.getChildren().addAll(marqueeLabel, spacer, endReplayButton);
                 StackPane.setAlignment(marqueeContainer, Pos.CENTER);
                 setupMarqueeAnimation();
             });
@@ -771,7 +791,20 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
                 marqueeLabel = new Label(marqueeText);
                 marqueeLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Aller Light'; -fx-font-size: 20px;");
 
-                marqueeContainer.getChildren().add(marqueeLabel);
+                endReplayButton = new EndReplayButton();
+                endReplayButton.setBackground(new Background(new BackgroundFill(Color.color(1, 0.2, 0.2, 0.5), CornerRadii.EMPTY, Insets.EMPTY)));
+                
+                endReplayButton.setOnMouseClicked(e -> {
+                    SfxManager.playSfx("pause-click.wav");
+                    ViewManager.getInstance().showHomeView();
+                });
+
+                Region spacer = new Region();
+                HBox.setHgrow(spacer, Priority.ALWAYS);
+
+                HBox.setMargin(endReplayButton, new Insets(48, 0, 0, 0));
+
+                marqueeContainer.getChildren().addAll(marqueeLabel, spacer, endReplayButton);
                 StackPane.setAlignment(marqueeContainer, Pos.CENTER);
                 setupMarqueeAnimation();
             });
