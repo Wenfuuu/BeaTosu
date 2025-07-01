@@ -482,8 +482,7 @@ public class HomeView extends Page {
         }
         
         if (beatmapContent != null && beatmapContent.getContent() instanceof VBox) {
-            VBox listBox = (VBox) beatmapContent.getContent();
-            listBox.getChildren().clear();
+            beatmapContent.clearContent();
         }
         
         if (scores != null) {
