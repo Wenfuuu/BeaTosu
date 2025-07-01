@@ -136,8 +136,9 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
                     bgmStarted = true;
                 }
 
+                System.out.println("Elapsed replay millis: " + elapsedMillis);
                 if (!replayOffsetCompleted && elapsedMillis >= replayStartOffset) {
-                    System.out.println("Game offset completed, notifying listeners");
+                    System.out.println("Replay offset completed, notifying listeners");
                     notifyListeners(new GameEvent(GameEventType.GAME_OFFSET_COMPLETED, null));
                     replayOffsetCompleted = true;
                 }

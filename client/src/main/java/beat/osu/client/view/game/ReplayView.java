@@ -541,7 +541,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
 
         // Create an overlay pane for semi-transparent background
         backgroundOverlay = new Pane();
-        backgroundOverlay.setStyle("-fx-background-color: rgba(18, 18, 18, 0.5);");
+        backgroundOverlay.setStyle("-fx-background-color: rgba(18, 18, 18);");
         backgroundOverlay.prefWidthProperty().bind(root.widthProperty());
         backgroundOverlay.prefHeightProperty().bind(root.heightProperty());
         backgroundOverlay.setOpacity(0.5);
