@@ -468,7 +468,10 @@ public class HomeView extends Page {
         leftBar.getChildren().clear();
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
-        leftBar.getChildren().addAll(searchArea, beatmapContent, spacer, uploadBox);
+        leftBar.getChildren().addAll(scoreFilterComboBox, scoreContent, spacer, uploadBox);
+        
+        rightBar.getChildren().clear();
+        rightBar.getChildren().addAll(searchArea, beatmapContent);
         
         lastSearchQuery = "";
         if (inputManager != null) {

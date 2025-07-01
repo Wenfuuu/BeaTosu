@@ -88,7 +88,7 @@ public class BeatmapCard extends StackPane {
         beatmapImageView = new ImageView(image);
 
         double fixedImageWidth = this.getPrefWidth() * 0.25;
-        double fitHeight = this.getPrefHeight() - 1;
+        double fitHeight = this.getPrefHeight() - 2;
 
         beatmapImageView.setFitWidth(fixedImageWidth);
         beatmapImageView.setFitHeight(fitHeight);
