@@ -69,7 +69,7 @@ public class HomeView extends Page {
     private ScoreOverlay scoreOverlay;
     private ArrayList<Beatmap> beatmaps;
     private ArrayList<ScoreDto> scores;
-    
+
     private volatile boolean isLoadingBeatmaps = false;
     private Thread loadingThread = null;
 
@@ -121,6 +121,8 @@ public class HomeView extends Page {
         leftBar.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.3);
         rightBar = new VBox();
         rightBar.setAlignment(Pos.TOP_RIGHT);
+        rightBar.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.40);
+        rightBar.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.40);
 
         createSearchArea();
         scoreFilterComboBox = new ComboBox<>();
@@ -173,6 +175,9 @@ public class HomeView extends Page {
         leftBar.getChildren().addAll(scoreFilterComboBox, scoreContent, spacer, uploadBox);
         rightBar.getChildren().addAll(searchArea, beatmapContent);
 
+        // Ensure beatmapContent grows to fill available space in rightBar
+        VBox.setVgrow(beatmapContent, Priority.ALWAYS);
+
         mainLayout.setTop(topBar);
         mainLayout.setRight(rightBar);
         mainLayout.setBottom(bottomBar);
@@ -203,8 +208,10 @@ public class HomeView extends Page {
     private void createSearchArea() {
         searchArea = new HBox();
         searchArea.getStyleClass().add("search-area");
-        searchArea.prefWidthProperty().bind(rightBar.widthProperty().multiply(0.5));
-        searchArea.setMaxWidth(Region.USE_PREF_SIZE);
+        // Use fixed width instead of binding to rightBar width to prevent shrinking
+        searchArea.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.20); // Fixed 20% of screen width
+        searchArea.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.20);
+        searchArea.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.20);
 
         VBox searchContent = new VBox();
 
@@ -366,7 +373,7 @@ public class HomeView extends Page {
     private void onBeatmapSelected(Beatmap beatmap) {
         onBeatmapSelected(beatmap, true);
     }
-    
+
     private void onBeatmapSelected(Beatmap beatmap, boolean updateBackground) {
         try {
             OsuParser.parseBeatmap(beatmap);
@@ -375,7 +382,7 @@ public class HomeView extends Page {
         }
         topBar.updateSongInfo(beatmap);
         BgmManager.getInstance().playPreviewBgm(false);
-        
+
         if (updateBackground) {
             BackgroundManager.setGameBackground(scene);
         }
@@ -471,21 +478,21 @@ public class HomeView extends Page {
     private void refreshBeatmaps() {
         beatmaps = fetchBeatmaps();
         beatmapContent.clearContent();
-        
+
         beatmapContent = new BeatmapContent(beatmaps);
         beatmapContent.setOnBeatmapSelectedCallback(this::onBeatmapSelected);
         beatmapContent.setOnBeatmapSelectedWithBackgroundCallback(this::onBeatmapSelected);
-        
+
         leftBar.getChildren().clear();
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
         leftBar.getChildren().addAll(scoreFilterComboBox, scoreContent, spacer, uploadBox);
-        
+
         rightBar.getChildren().clear();
         rightBar.getChildren().addAll(searchArea, beatmapContent);
-        
+
         beatmapContent.triggerInitialSelection();
-        
+
         lastSearchQuery = "";
         if (inputManager != null) {
             inputManager.clearTypedChars();
