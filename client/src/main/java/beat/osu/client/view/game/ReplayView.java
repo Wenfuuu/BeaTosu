@@ -66,7 +66,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
     private final double PLAYFIELD_OFFSET_X_IN_REF = 64.0;
     private final double PLAYFIELD_OFFSET_Y_IN_REF = 56.0;
 
-    private double INITIAL_OPACITY;
+    private double INITIAL_OPACITY = 0.75;
 
     private final double circleSize;
     private double osuPixelDiameter;
@@ -544,7 +544,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
         backgroundOverlay.setStyle("-fx-background-color: rgba(18, 18, 18, 0.5);");
         backgroundOverlay.prefWidthProperty().bind(root.widthProperty());
         backgroundOverlay.prefHeightProperty().bind(root.heightProperty());
-        INITIAL_OPACITY = backgroundOverlay.getOpacity();
+        backgroundOverlay.setOpacity(0.5);
 
         // Add the overlay pane to the root
         root.getChildren().addAll(backgroundOverlay);
@@ -683,6 +683,10 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
                 break;
             case EXIT_BREAK_PERIOD:
                 System.out.println("exit break period");
+                exitBreakPeriod();
+                break;
+            case GAME_OFFSET_COMPLETED:
+                System.out.println("game offset completed, decreasing background opacity");
                 exitBreakPeriod();
                 break;
         }

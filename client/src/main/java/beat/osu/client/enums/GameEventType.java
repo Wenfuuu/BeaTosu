@@ -24,4 +24,5 @@ public enum GameEventType {
     MATCH_COMPLETED,
     ENTER_BREAK_PERIOD,
     EXIT_BREAK_PERIOD,
+    GAME_OFFSET_COMPLETED,
 }

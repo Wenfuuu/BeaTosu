@@ -57,6 +57,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private long lastHpDrainMillis = 0;
     private GameState gameState = GameState.NOT_STARTED;
     private boolean bgmStarted = false;
+    private boolean gameOffsetCompleted = false;
     private final InputManager inputManager;
     private final ScoreController scoreController;
     private final SessionController sessionController;
@@ -101,10 +102,10 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private long lastMatchScoreEventSent = 0;
     private static final long SPECTATE_EVENT_INTERVAL = 11; // Send every 17ms (~ 60 FPS)
     private static final long MATCH_SCORE_EVENT_INTERVAL = 1000; // Send every 1 second
-    
+
     // Prevent thread pool exhaustion by implementing thread pool protection flags
-//    private volatile boolean spectateEventInProgress = false;
-//    private volatile boolean matchScoreEventInProgress = false;
+    // private volatile boolean spectateEventInProgress = false;
+    // private volatile boolean matchScoreEventInProgress = false;
 
     int testCount = 0;
 
@@ -185,7 +186,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         sessionController.removePlayingBeatmapSession(user.getId()).thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Session removed successfully: " + response.getValue().getMessage());
-                // notify server that player exit/completed game, that will also send final match score
+                // notify server that player exit/completed game, that will also send final
+                // match score
                 sendMatchScoreEvent();
             } else {
                 System.err.println("Failed to remove session: " + response.getError().getMessage());
@@ -195,11 +197,11 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     public void startGame() {
-        if (gameState == GameState.PLAYING)
-            return;
+        if (gameState == GameState.PLAYING) return;
 
         gameState = GameState.PLAYING;
         bgmStarted = false;
+        gameOffsetCompleted = false;
         startTimeNanos = -1;
         totalPausedNanos = 0;
 
@@ -210,10 +212,10 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         // Reset throttling variables
         lastSpectateEventSent = 0;
         lastMatchScoreEventSent = 0;
-        
+
         // Reset thread pool protection flags
-//        spectateEventInProgress = false;
-//        matchScoreEventInProgress = false;
+        // spectateEventInProgress = false;
+        // matchScoreEventInProgress = false;
 
         // Clear multiplayer scores for new game
         if (isMultiplayer) {
@@ -252,6 +254,12 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                     bgmStarted = true;
                 }
 
+                if (!gameOffsetCompleted && elapsedMillis >= gameStartOffset) {
+                    System.out.println("Game offset completed, notifying listeners");
+                    notifyListeners(new GameEvent(GameEventType.GAME_OFFSET_COMPLETED, null));
+                    gameOffsetCompleted = true;
+                }
+
                 updateGame(elapsedMillis - gameStartOffset);
             }
         };
@@ -270,7 +278,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         notifyListeners(new GameEvent(GameEventType.GAME_PAUSED, null));
 
         // notify to listeners that spectate is paused
-        if (!AuthManager.isAuthenticated()) return;
+        if (!AuthManager.isAuthenticated())
+            return;
         SpectateStatusEvent event = new SpectateStatusEvent(true);
         spectateController.notifySpectatorsStatusChange(event).thenApply(response -> {
             if (response.isSuccess()) {
@@ -325,7 +334,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 misses, grade, now)));
 
         UserDto user = AuthManager.getUser();
-        if (user == null) return;
+        if (user == null)
+            return;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String formatted = now.format(formatter);
         String osrFileName = String.format("%s-%s-%s.osr",
@@ -363,16 +373,16 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         scoreController.insertScore(beatmap.getBeatmapId(), id, score,
                 highestCombo, accuracy, perfectHits, gekiHits, greatHits, greatKatuHits,
                 goodHits, misses, grade, now).thenApply(response -> {
-            if (response.isSuccess()) {
-                System.out.println("Score inserted successfully: " + response.getValue().getMessage());
-                // Notify spectators (this will also remove session after notification
-                // completes)
-                notifySpectatorsPlayerExited();
-            } else {
-                System.err.println("Failed to insert score: " + response.getError().getMessage());
-            }
-            return null;
-        });
+                    if (response.isSuccess()) {
+                        System.out.println("Score inserted successfully: " + response.getValue().getMessage());
+                        // Notify spectators (this will also remove session after notification
+                        // completes)
+                        notifySpectatorsPlayerExited();
+                    } else {
+                        System.err.println("Failed to insert score: " + response.getError().getMessage());
+                    }
+                    return null;
+                });
     }
 
     public void notifySpectatorsPlayerExited() {
@@ -414,7 +424,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         for (BreakPeriod breakPeriod : OsuParser.getBreakPeriodsList()) {
             int startTime = breakPeriod.getStartTime();
             int endTime = breakPeriod.getEndTime();
-//            System.out.println("Checking break period: " + startTime + " - " + endTime + ", elapsed: " + elapsedMillis);
+            // System.out.println("Checking break period: " + startTime + " - " + endTime +
+            // ", elapsed: " + elapsedMillis);
             if (elapsedMillis >= startTime && elapsedMillis <= endTime) {
                 inBreakPeriod = true;
                 if (gameState != GameState.BREAK_PERIOD) {
@@ -557,7 +568,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         }
 
         // Send match score event separately to avoid nested async calls
-        if (isMultiplayer && elapsedMillis - lastMatchScoreEventSent >= MATCH_SCORE_EVENT_INTERVAL + (long) (Math.random() * 1000)) {
+        if (isMultiplayer && elapsedMillis - lastMatchScoreEventSent >= MATCH_SCORE_EVENT_INTERVAL
+                + (long) (Math.random() * 1000)) {
             sendMatchScoreEvent();
             lastMatchScoreEventSent = elapsedMillis;
         }
@@ -567,14 +579,16 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void sendSpectateEvent(long elapsedMillis, ReplayEvent replayEvent) {
-        if (!AuthManager.isAuthenticated() && spectateController == null) return;
-        
-//        if (spectateEventInProgress) {
-//            System.out.println("Skipping spectate event - previous event still in progress");
-//            return;
-//        }
+        if (!AuthManager.isAuthenticated() && spectateController == null)
+            return;
 
-//        spectateEventInProgress = true;
+        // if (spectateEventInProgress) {
+        // System.out.println("Skipping spectate event - previous event still in
+        // progress");
+        // return;
+        // }
+
+        // spectateEventInProgress = true;
         testCount++;
         System.out.println("Sending spectate event, count: " + testCount);
         try {
@@ -584,7 +598,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             spectateController.sendSpectateEvent(event).thenApply(response -> {
                 if (response.isSuccess()) {
                     System.out.println("Spectate event sent successfully: " + response.getValue().getMessage());
-//                    spectateEventInProgress = false;
+                    // spectateEventInProgress = false;
                 } else {
                     System.err.println("Failed to send spectate event: " + response.getError().getMessage());
                 }
@@ -597,28 +611,31 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         } catch (Exception e) {
             System.err.println("Error creating spectate event: " + e.getMessage());
             e.printStackTrace();
-//            spectateEventInProgress = false;
+            // spectateEventInProgress = false;
         }
     }
 
     private void sendMatchScoreEvent() {
-        if (!isMultiplayer || matchController == null) return;
-            
-//        if (matchScoreEventInProgress) {
-//            System.out.println("Skipping match score event - previous event still in progress");
-//            return;
-//        }
+        if (!isMultiplayer || matchController == null)
+            return;
 
-//        matchScoreEventInProgress = true;
+        // if (matchScoreEventInProgress) {
+        // System.out.println("Skipping match score event - previous event still in
+        // progress");
+        // return;
+        // }
+
+        // matchScoreEventInProgress = true;
         try {
             MatchScoreEvent event = new MatchScoreEvent(matchDto.getId(),
                     score, masterComboNumber, highestCombo, accuracy, AuthManager.getUser());
             matchController.sendMatchScoreEvent(event).thenApply(response -> {
                 if (response.isSuccess()) {
                     System.out.println("Match score event sent successfully: " + response.getValue().getMessage());
-//                    matchScoreEventInProgress = false;
+                    // matchScoreEventInProgress = false;
                     if (isMultiplayer && (gameState == GameState.COMPLETED ||
-                            gameState == GameState.EXITED)) sendPlayerFinishedEvent();
+                            gameState == GameState.EXITED))
+                        sendPlayerFinishedEvent();
                 } else {
                     System.err.println("Failed to send match score event: " + response.getError().getMessage());
                 }
@@ -631,12 +648,13 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         } catch (Exception e) {
             System.err.println("Error creating match score event: " + e.getMessage());
             e.printStackTrace();
-//            matchScoreEventInProgress = false;
+            // matchScoreEventInProgress = false;
         }
     }
 
     private void sendPlayerFinishedEvent() {
-        if (!isMultiplayer) return;
+        if (!isMultiplayer)
+            return;
 
         try {
             System.out.println("Sending player finished event");
@@ -662,7 +680,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         double objCenterX = hitObject.getScreenCenterX();
         double objCenterY = hitObject.getScreenCenterY();
         double objRadius = hitObject.getScreenRadius();
-        if (hitObject instanceof HitSpinner) objRadius *= 20.0;
+        if (hitObject instanceof HitSpinner)
+            objRadius *= 20.0;
 
         double dx = currentMouseX - objCenterX;
         double dy = currentMouseY - objCenterY;
@@ -927,7 +946,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             // the first.
             // The comboSetIndex is incremented by 1 + the number of colors to skip.
             currentComboSetIndex = (currentComboSetIndex + 1 + comboSkipCounter);
-            if (!OsuParser.getColours().isEmpty()) currentComboSetIndex %= OsuParser.getColours().size();
+            if (!OsuParser.getColours().isEmpty())
+                currentComboSetIndex %= OsuParser.getColours().size();
             comboSkipCounter = comboSkipFromThisObject; // Store skip for NEXT new combo
         } else {
             currentComboNumberInSet++;
@@ -963,7 +983,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
     private void onMatchCompletedEvent(MatchCompletedEvent event) {
         System.out.println("Match completed, notifying view");
-        if (gameState == GameState.EXITED) return;
+        if (gameState == GameState.EXITED)
+            return;
         notifyListeners(new GameEvent(GameEventType.MATCH_COMPLETED, multiplayerScores));
     }
 
@@ -989,12 +1010,14 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 MatchScoreEvent existingEvent = multiplayerScores.get(i);
                 if (existingEvent != null && existingEvent.getUser() != null &&
                         existingEvent.getUser().getId() == event.getUser().getId()) {
-                    if(event.getScore() != 0) multiplayerScores.set(i, event);
+                    if (event.getScore() != 0)
+                        multiplayerScores.set(i, event);
                     found = true;
                     break;
                 }
             }
-            if (!found) multiplayerScores.add(event);
+            if (!found)
+                multiplayerScores.add(event);
 
             if (matchDto.getWinCondition() == MatchWinCondition.SCORE) {
                 multiplayerScores.sort((a, b) -> Integer.compare(b.getScore(), a.getScore()));

@@ -41,7 +41,7 @@ public class GameView extends Page implements GameEventListener {
     private final double PLAYFIELD_OFFSET_X_IN_REF = 64.0;
     private final double PLAYFIELD_OFFSET_Y_IN_REF = 56.0;
 
-    private double INITIAL_OPACITY;
+    private final double INITIAL_OPACITY = 0.75;
 
     private final double circleSize; // Default Circle Size (CS) if parsing fails
     private double osuPixelDiameter; // Diameter in original osu! coordinates
@@ -560,12 +560,10 @@ public class GameView extends Page implements GameEventListener {
 
         // Create an overlay pane for semi-transparent background
         backgroundOverlay = new Pane();
-        backgroundOverlay.setStyle("-fx-background-color: rgba(18, 18, 18, 0.5);");
+        backgroundOverlay.setStyle("-fx-background-color: rgba(18, 18, 18);");
         backgroundOverlay.prefWidthProperty().bind(root.widthProperty());
         backgroundOverlay.prefHeightProperty().bind(root.heightProperty());
-
-        INITIAL_OPACITY = backgroundOverlay.getOpacity();
-        System.out.println("Initial Opacity: " + INITIAL_OPACITY);
+        backgroundOverlay.setOpacity(0.5);
 
         // Add the overlay pane to the root
         root.getChildren().addAll(backgroundOverlay);
@@ -753,6 +751,10 @@ public class GameView extends Page implements GameEventListener {
                 break;
             case EXIT_BREAK_PERIOD:
                 System.out.println("exit break period");
+                exitBreakPeriod();
+                break;
+            case GAME_OFFSET_COMPLETED:
+                System.out.println("game offset completed, decreasing background opacity");
                 exitBreakPeriod();
                 break;
         }

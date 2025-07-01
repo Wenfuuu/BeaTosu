@@ -48,6 +48,8 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     private boolean wasKey1Pressed = false;
     private boolean wasKey2Pressed = false;
     private boolean keyHolded = false;
+    private final long gameStartOffset = 2000;
+    private boolean spectateOffsetCompleted = false;
 
     private int masterComboNumber = 0;
     private int currentComboNumberInSet = 0;
@@ -274,6 +276,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
 
         wasKey1Pressed = false;
         wasKey2Pressed = false;
+        spectateOffsetCompleted = false;
 
         spectateLoop = new AnimationTimer() {
             @Override
@@ -404,6 +407,12 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
                     }
                     break;
                 }
+            }
+
+            if (!spectateOffsetCompleted && event.getCurrentTime() >= gameStartOffset) {
+                System.out.println("Game offset completed, notifying listeners");
+                notifyListeners(new GameEvent(GameEventType.GAME_OFFSET_COMPLETED, null));
+                spectateOffsetCompleted = true;
             }
 
             if (!inBreakPeriod && gameState == GameState.BREAK_PERIOD) {

@@ -32,6 +32,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     private long pauseStartNanos = -1;
     private long totalPausedNanos = 0;
     private final long replayStartOffset = 2000;
+    private boolean replayOffsetCompleted = false;
     private long lastHpDrainMillis = 0;
     private GameState gameState = GameState.PLAYING;
     private ReplayState replayState = ReplayState.NOT_STARTED;
@@ -100,6 +101,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
         bgmStarted = false;
         startTimeNanos = -1;
         totalPausedNanos = 0;
+        replayOffsetCompleted = false;
 
         // Reset replay event processing
         currentReplayEventIndex = 0;
@@ -132,6 +134,12 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
                 if (!bgmStarted && elapsedMillis >= replayStartOffset) {
                     BgmManager.getInstance().playGameBgm();
                     bgmStarted = true;
+                }
+
+                if (!replayOffsetCompleted && elapsedMillis >= replayStartOffset) {
+                    System.out.println("Game offset completed, notifying listeners");
+                    notifyListeners(new GameEvent(GameEventType.GAME_OFFSET_COMPLETED, null));
+                    replayOffsetCompleted = true;
                 }
 
                 updateReplay(elapsedMillis - replayStartOffset);
