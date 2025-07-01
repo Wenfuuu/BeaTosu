@@ -35,7 +35,7 @@ public class HitCircle extends HitObject{
         Color circleColor = parseColorString(colorString);
         // --- CORE CHANGE: Create circles at (0,0) relative to the Group ---
         innerCircle = new Circle(0, 0, getCircleRadius());
-        innerCircle.setFill(circleColor.deriveColor(1, 1, 1, 0.8)); // Example color
+        innerCircle.setFill(circleColor.deriveColor(1, 1, 1, 0.3)); // Example color
         innerCircle.setStroke(Color.WHITE);
         innerCircle.setStrokeWidth(CIRCLE_STROKE_WIDTH);
 

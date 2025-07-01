@@ -291,7 +291,7 @@ public class HitSlider extends HitObject {
         }
 
         headCircle = new Circle(0, 0, getCircleRadius());
-        headCircle.setFill(circleColor.deriveColor(1, 1, 1, 0.8));
+        headCircle.setFill(circleColor.deriveColor(1, 1, 1, 0.3));
         headCircle.setStroke(Color.WHITE);
         headCircle.setStrokeWidth(CIRCLE_STROKE_WIDTH);
 
