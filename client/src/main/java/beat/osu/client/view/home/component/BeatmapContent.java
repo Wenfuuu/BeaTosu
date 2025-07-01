@@ -29,6 +29,7 @@ public class BeatmapContent extends ScrollPane {
     
     private final Map<Integer, BeatmapCard> renderedCards = new HashMap<>();
     private int visibleItemCount = 0;
+    private boolean hasTriggeredInitialSelection = false;
     
     @Getter
     private Beatmap selectedBeatmap;
@@ -131,6 +132,10 @@ public class BeatmapContent extends ScrollPane {
         BeatmapCard card = new BeatmapCard(beatmap);
         card.setOnClickCallback(this::onBeatmapCardClicked);
         
+        if (index == 0 && selectedBeatmap != null && selectedBeatmap.equals(beatmap) && hasTriggeredInitialSelection) {
+            card.setSelected(true);
+        }
+        
         card.setLayoutY(index * BEATMAP_CARD_HEIGHT);
         renderedCards.put(index, card);
         virtualContainer.getChildren().add(card);
@@ -187,6 +192,7 @@ public class BeatmapContent extends ScrollPane {
         renderedCards.clear();
         virtualContainer.getChildren().clear();
         selectedBeatmap = null;
+        hasTriggeredInitialSelection = false;
         updateVirtualContainerHeight();
     }
 
@@ -199,5 +205,25 @@ public class BeatmapContent extends ScrollPane {
 
     private double getViewportHeight() {
         return this.getBoundsInLocal().getHeight();
+    }
+
+    public void triggerInitialSelection() {
+        if (!filteredBeatmaps.isEmpty() && selectedBeatmap != null && !hasTriggeredInitialSelection) {
+            System.out.println("Triggering initial selection for beatmap: " + selectedBeatmap.getBeatmapSet().getTitle());
+            hasTriggeredInitialSelection = true;
+            if (onBeatmapSelectedCallback != null) {
+                onBeatmapSelectedCallback.accept(selectedBeatmap);
+            } else {
+                System.out.println("Warning: onBeatmapSelectedCallback is null!");
+            }
+            BeatmapCard firstCard = renderedCards.get(0);
+            if (firstCard != null) {
+                firstCard.setSelected(true);
+            }
+        } else {
+            System.out.println("Skipping initial selection - isEmpty: " + filteredBeatmaps.isEmpty() + 
+                             ", selectedBeatmap null: " + (selectedBeatmap == null) + 
+                             ", already triggered: " + hasTriggeredInitialSelection);
+        }
     }
 }

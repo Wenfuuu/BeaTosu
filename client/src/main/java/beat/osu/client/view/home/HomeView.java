@@ -388,6 +388,8 @@ public class HomeView extends Page {
     private void setupCallbacks() {
         beatmapContent.setOnBeatmapSelectedCallback(this::onBeatmapSelected);
         scoreContent.setOnScoreSelectedCallback(this::onScoreSelected);
+        
+        beatmapContent.triggerInitialSelection();
     }
 
     private void handleEvent() {
@@ -472,6 +474,8 @@ public class HomeView extends Page {
         
         rightBar.getChildren().clear();
         rightBar.getChildren().addAll(searchArea, beatmapContent);
+        
+        beatmapContent.triggerInitialSelection();
         
         lastSearchQuery = "";
         if (inputManager != null) {
