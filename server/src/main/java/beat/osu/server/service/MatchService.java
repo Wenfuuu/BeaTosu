@@ -483,7 +483,10 @@ public class MatchService {
         Set<MatchPlayer> players = matchPlayers.get(matchId);
         boolean allFinished = players.stream()
                 .allMatch(p -> p.getStatus() == PlayerStatus.FINISHED);
-        if (allFinished) sendMatchCompletedEvent(matchId, clientId);
+        if (allFinished) {
+            sendMatchCompletedEvent(matchId, clientId);
+            match.setInProgress(false);
+        }
 
         return Result.success(new PlayerFinishedEventResponse("Player finished match successfully"));
     }

@@ -391,6 +391,7 @@ public class LandingView extends Page {
                 return;
             }
 
+            Toast.information("Starting spectate " + spectateDto.getPlayingUsername()).show();
             ViewManager.getInstance().showSpectateView(beatmap, spectateDto);
         });
 
