@@ -145,4 +145,38 @@ public class BeatmapContent extends ScrollPane {
         this.currentFilter = "";
         this.filteredBeatmapCards = this.beatmapCards;
     }
+
+    public void clearContent() {
+        beatmaps.clear();
+        beatmapCards.clear();
+        filteredBeatmapCards.clear();
+        beatmapListBox.getChildren().clear();
+        selectedBeatmap = null;
+    }
+
+    public void addBeatmap(Beatmap beatmap) {
+        beatmaps.add(beatmap);
+        
+        BeatmapCard beatmapCard = new BeatmapCard(beatmap);
+        beatmapCard.setOnClickCallback(this::onBeatmapCardClicked);
+        
+        beatmapCards.add(beatmapCard);
+        
+        if (currentFilter.isEmpty() || matchesQuery(beatmap, currentFilter)) {
+            filteredBeatmapCards.add(beatmapCard);
+            beatmapListBox.getChildren().add(beatmapCard);
+            
+            if (selectedBeatmap == null) {
+                beatmapCard.setSelected(true);
+                selectedBeatmap = beatmap;
+                if (onBeatmapSelectedCallback != null) {
+                    onBeatmapSelectedCallback.accept(selectedBeatmap);
+                }
+            }
+        }
+    }
+
+    public VBox getBeatmapListBox() {
+        return beatmapListBox;
+    }
 }

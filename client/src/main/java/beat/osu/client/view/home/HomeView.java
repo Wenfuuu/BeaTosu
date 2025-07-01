@@ -1,30 +1,5 @@
 package beat.osu.client.view.home;
 
-import beat.osu.client.controller.BeatmapController;
-import beat.osu.client.controller.ScoreController;
-import beat.osu.client.enums.ScoreFilter;
-import beat.osu.client.events.game.ReplayEvent;
-import beat.osu.client.helper.*;
-import beat.osu.client.model.Beatmap;
-import beat.osu.client.model.BeatmapSet;
-import beat.osu.client.utils.OsuParser;
-import beat.osu.client.utils.ReplayUtils;
-import beat.osu.client.view.home.component.*;
-import beat.osu.client.view.shared.common.Page;
-import beat.osu.client.view.shared.common.Toast;
-import beat.osu.shared.common.Result;
-import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
-import beat.osu.shared.dto.score.ScoreDto;
-import beat.osu.shared.dto.score.responses.GetAllScoresResponse;
-import javafx.animation.*;
-import javafx.application.Platform;
-import javafx.geometry.Pos;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.layout.*;
-import javafx.stage.Stage;
-import javafx.util.Duration;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -33,6 +8,50 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+
+import beat.osu.client.controller.BeatmapController;
+import beat.osu.client.controller.ScoreController;
+import beat.osu.client.enums.ScoreFilter;
+import beat.osu.client.events.game.ReplayEvent;
+import beat.osu.client.helper.AuthManager;
+import beat.osu.client.helper.BackgroundManager;
+import beat.osu.client.helper.BgmManager;
+import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ResourceManager;
+import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.ViewManager;
+import beat.osu.client.model.Beatmap;
+import beat.osu.client.model.BeatmapSet;
+import beat.osu.client.utils.OsuParser;
+import beat.osu.client.utils.ReplayUtils;
+import beat.osu.client.view.home.component.BeatmapContent;
+import beat.osu.client.view.home.component.BottomBar;
+import beat.osu.client.view.home.component.ScoreContent;
+import beat.osu.client.view.home.component.ScoreOverlay;
+import beat.osu.client.view.home.component.TopBar;
+import beat.osu.client.view.home.component.UploadBox;
+import beat.osu.client.view.shared.common.Page;
+import beat.osu.client.view.shared.common.Toast;
+import beat.osu.shared.common.Result;
+import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
+import beat.osu.shared.dto.score.ScoreDto;
+import beat.osu.shared.dto.score.responses.GetAllScoresResponse;
+import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.geometry.Pos;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class HomeView extends Page {
 
@@ -540,21 +559,8 @@ public class HomeView extends Page {
     }
     
     private void addBeatmapWithFadeIn(Beatmap beatmap, int index) {
-        BeatmapCard beatmapCard = new BeatmapCard(beatmap);
-        beatmapCard.setOnClickCallback(card -> {
-            onBeatmapSelected(beatmap);
+        Platform.runLater(() -> {
+            beatmapContent.addBeatmap(beatmap);
         });
-        
-        beatmapCard.setOpacity(0.0);
-        
-        if (beatmapContent != null && beatmapContent.getContent() instanceof VBox) {
-            VBox listBox = (VBox) beatmapContent.getContent();
-            listBox.getChildren().add(beatmapCard);
-            
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(200), beatmapCard);
-            fadeIn.setFromValue(0.0);
-            fadeIn.setToValue(1.0);
-            fadeIn.play();
-        }
     }
 }
