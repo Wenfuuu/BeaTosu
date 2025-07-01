@@ -769,6 +769,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
 
                 endReplayButton.setOnMouseClicked(e -> {
                     SfxManager.playSfx("pause-click.wav");
+                    rm.stopReplay();
                     ViewManager.getInstance().showHomeView();
                 });
 
