@@ -142,7 +142,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
         createReplayPane();
         createMarqueeText();
 
-        root.getChildren().addAll(replayPane, uiPane, pauseOverlay, marqueeContainer);
+        root.getChildren().addAll(replayPane, uiPane, marqueeContainer, pauseOverlay);
     }
 
     private void createReplayPane() {
