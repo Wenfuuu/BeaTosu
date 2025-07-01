@@ -99,7 +99,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     // Throttling for network events
     private long lastSpectateEventSent = 0;
     private long lastMatchScoreEventSent = 0;
-    private static final long SPECTATE_EVENT_INTERVAL = 17; // Send every 17ms (~ 60 FPS)
+    private static final long SPECTATE_EVENT_INTERVAL = 11; // Send every 17ms (~ 60 FPS)
     private static final long MATCH_SCORE_EVENT_INTERVAL = 1000; // Send every 1 second
     
     // Prevent thread pool exhaustion by implementing thread pool protection flags
@@ -159,14 +159,15 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         sessionController.createPlayingBeatmapSession(user.getId(), beatmap.getBeatmapId()).thenApply(response -> {
             if (response.isSuccess()) {
                 System.out.println("Session created successfully: " + response.getValue().getMessage());
-//                if (isMultiplayer) {
-//                    List<MatchPlayerDto> players = matchDto.getPlayers();
-//                    for (MatchPlayerDto player : players) {
-//                        MatchScoreEvent event = new MatchScoreEvent(matchDto.getId(), 0,
-//                                0, 0, 0, player.getUser());
-//                        updateMatchScoreEvent(event);
-//                    }
-//                }
+                if (isMultiplayer) {
+                    System.out.println("sending initial match score event");
+                    List<MatchPlayerDto> players = matchDto.getPlayers();
+                    for (MatchPlayerDto player : players) {
+                        MatchScoreEvent event = new MatchScoreEvent(matchDto.getId(), 0,
+                                0, 0, 0, player.getUser());
+                        updateMatchScoreEvent(event);
+                    }
+                }
             } else {
                 System.err.println("Failed to create session: " + response.getError().getMessage());
             }
@@ -977,8 +978,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                     ", score: " + event.getScore() + ", combo: " + event.getCombo());
 
             // Check if multiplayer components are still valid
-            if (multiplayerScores == null || matchDto == null) {
-                System.err.println("Multiplayer components are null, ignoring match score event");
+            if (matchDto == null) {
+                System.err.println("Match DTO are null, ignoring match score event");
                 return;
             }
 
@@ -988,7 +989,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 MatchScoreEvent existingEvent = multiplayerScores.get(i);
                 if (existingEvent != null && existingEvent.getUser() != null &&
                         existingEvent.getUser().getId() == event.getUser().getId()) {
-                    multiplayerScores.set(i, event);
+                    if(event.getScore() != 0) multiplayerScores.set(i, event);
                     found = true;
                     break;
                 }

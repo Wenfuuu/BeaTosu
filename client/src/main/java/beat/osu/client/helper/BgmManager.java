@@ -91,7 +91,7 @@ public class BgmManager {
 
     public void playPreviewBgm(boolean fromAnotherPage) {
         System.out.println("calling playPreviewBgm, fromAnotherPage: " + fromAnotherPage);
-        
+
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
         File tempDir = ResourceManager.getTempDirectory();
         File beatmapDir = new File(tempDir, String.valueOf(beatmap.getBeatmapSetId()));
@@ -111,15 +111,16 @@ public class BgmManager {
             System.out.println("stopping current BGM and playing new one.");
             stopBgm();
         } else {
-            if(newHash != null && currentBgmHash.equals(defaultBgmHash)) {
+            if (newHash != null && currentBgmHash.equals(defaultBgmHash)) {
                 System.out.println("From another page, Default BGM content. Stopping BGM.");
                 stopBgm();
             }
             if (isSameBgm(newHash) && currentPlayer != null) {
                 System.out.println("From another page, Same BGM content. Resuming BGM.");
                 System.out.println("Current Player Status: " + currentPlayer.getStatus());
-//                currentPlayer.play();
-                if(currentPlayer.getCurrentTime().lessThan(currentPlayer.getTotalDuration())) currentPlayer.play();
+                // currentPlayer.play();
+                if (currentPlayer.getCurrentTime().lessThan(currentPlayer.getTotalDuration()))
+                    currentPlayer.play();
                 else {
                     currentBgmHash = null;
                     playPreviewBgm(false);
@@ -185,7 +186,7 @@ public class BgmManager {
     }
 
     public void playGameBgm() {
-        if(currentPlayer != null) {
+        if (currentPlayer != null) {
             System.out.println("Playing game BGM");
             currentPlayer.play();
         }
@@ -198,12 +199,12 @@ public class BgmManager {
     public void playAudio(String audioPath, PlaybackMode mode) {
         File songFile = new File(audioPath);
         String newHash = computeFileHash(songFile);
-        
+
         // Set default BGM hash if this is default mode
         if (mode == PlaybackMode.DEFAULT) {
             defaultBgmHash = newHash;
         }
-        
+
         currentBgmHash = newHash;
         currentPlaybackMode = mode;
 
@@ -213,7 +214,7 @@ public class BgmManager {
             currentPlayer = new MediaPlayer(media);
             currentPlayer.setAutoPlay(true);
             currentPlayer.setVolume(BGM_VOLUME);
-            
+
             setupEndOfMediaBehavior();
         } catch (Exception e) {
             System.err.println("Failed to load BGM: " + songFile.getPath());
@@ -223,7 +224,7 @@ public class BgmManager {
 
     private void setupEndOfMediaBehavior() {
         if (currentPlayer == null) return;
-        
+
         switch (currentPlaybackMode) {
             case PREVIEW:
                 currentPlayer.setOnEndOfMedia(() -> {
@@ -232,7 +233,7 @@ public class BgmManager {
                     currentPlayer.play();
                 });
                 break;
-                
+
             case PLAYLIST:
 
             case DEFAULT:

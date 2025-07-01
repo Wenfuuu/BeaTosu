@@ -97,8 +97,8 @@ public class LandingView extends Page {
     private FadeTransition subMenuFadeOut;
 
     public LandingView(Stage stage, ConnectedUsersController connectedUsersController,
-                       ChatController chatController, SessionController sessionController,
-                       SpectateController spectateController) {
+            ChatController chatController, SessionController sessionController,
+            SpectateController spectateController) {
         super(stage);
 
         this.connectedUsersController = connectedUsersController;
@@ -292,8 +292,7 @@ public class LandingView extends Page {
                         beatmapDto.getBeatmapSetDto().getArtist(),
                         beatmapDto.getBeatmapSetDto().getCreator(),
                         beatmapDto.getBeatmapSetDto().getLength(),
-                        beatmapDto.getBeatmapSetDto().getBpm()
-                );
+                        beatmapDto.getBeatmapSetDto().getBpm());
 
                 return new Beatmap(
                         beatmapDto.getId(),
@@ -306,8 +305,7 @@ public class LandingView extends Page {
                         beatmapDto.getSliderMultiplier(),
                         beatmapDto.getSliderTickRate(),
                         beatmapDto.getStarRating(),
-                        beatmapSet
-                );
+                        beatmapSet);
 
             } else {
                 System.err.println("Failed to fetch beatmaps: " + result.getError().getMessage());
@@ -319,7 +317,6 @@ public class LandingView extends Page {
             return null;
         }
     }
-
 
     @Override
     public void init() {
@@ -341,7 +338,7 @@ public class LandingView extends Page {
 
         playlistModal = new PlaylistModal();
         PlaylistManager.getInstance().addListener(playlistModal);
-        
+
         jukebox = new Jukebox(playlistModal);
         PlaylistManager.getInstance().addListener(jukebox);
 
@@ -361,14 +358,14 @@ public class LandingView extends Page {
         banchoPanelsContainer.setMaxWidth(Double.MAX_VALUE);
         banchoPanelsContainer.setMaxHeight(Double.MAX_VALUE);
         banchoPanelsContainer.setMouseTransparent(false);
-        
+
         onlineUsersPanel.setMaxWidth(Double.MAX_VALUE);
         chatPanel.setMaxWidth(Double.MAX_VALUE);
         VBox.setVgrow(onlineUsersPanel, Priority.ALWAYS);
         chatPanel.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.35);
         chatPanel.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.35);
         chatPanel.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.35);
-        
+
         banchoPanelsContainer.getChildren().addAll(onlineUsersPanel, chatPanel);
 
         viewUserModal.setOnStartChatCallback(privateChat -> {
@@ -409,8 +406,7 @@ public class LandingView extends Page {
                     userCard.getLevel(),
                     userCard.getRank(),
                     userCard.getIsSupporter(),
-                    UserCardBehavior.STATIC
-            );
+                    UserCardBehavior.STATIC);
             viewUserModal.updateUserCard(modalUserCard);
             viewUserModal.show();
         });
@@ -441,7 +437,7 @@ public class LandingView extends Page {
             }
         }
 
-        if(BgmManager.getInstance().getCurrentPlayer() != null) {
+        if (BgmManager.getInstance().getCurrentPlayer() != null) {
             visualizer.setupAudioVisualization(BgmManager.getInstance().getCurrentPlayer());
         } else {
             System.err.println("Failed to load BGM: " + bgmPath);
@@ -557,7 +553,7 @@ public class LandingView extends Page {
                 }
             }
 
-            if(settingsModal.isShowing()) {
+            if (settingsModal.isShowing()) {
                 Node target = (Node) e.getTarget();
                 boolean clickedOnSettingsModal = false;
                 while (target != null) {
@@ -602,9 +598,10 @@ public class LandingView extends Page {
             showSubMenu();
         });
         menuButtons.getOptionButton().setOnMouseClicked(e -> {
-            if(loginModal.isShowing()) loginModal.hide();
+            if (loginModal.isShowing())
+                loginModal.hide();
 
-            if(!settingsModal.isShowing()) {
+            if (!settingsModal.isShowing()) {
                 if (chatPanel.isVisible()) {
                     chatPanel.hide();
                     bottomBar.setFullOpacity();

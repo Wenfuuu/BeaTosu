@@ -108,11 +108,14 @@ public class ResourceManager {
     }
 
     /**
-     * Extracts a resource from the JAR and returns the absolute path to the extracted file.
-     * This is needed when running from JAR since resources cannot be accessed as File objects directly.
+     * Extracts a resource from the JAR and returns the absolute path to the
+     * extracted file.
+     * This is needed when running from JAR since resources cannot be accessed as
+     * File objects directly.
      * 
-     * @param resourcePath the path to the resource (e.g., "assets/audio/nekodex-circles.mp3")
-     * @param fileName the name to give the extracted file
+     * @param resourcePath the path to the resource (e.g.,
+     *                     "assets/audio/nekodex-circles.mp3")
+     * @param fileName     the name to give the extracted file
      * @return the absolute path to the extracted file, or null if extraction failed
      */
     public static String extractResourceToTempAndGetPath(String resourcePath, String fileName) {
@@ -127,7 +130,7 @@ public class ResourceManager {
 
             // Copy the resource to the temp directory
             Files.copy(inputStream, extractedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            
+
             return extractedFile.getAbsolutePath();
         } catch (IOException e) {
             System.err.println("Failed to extract resource " + resourcePath + " to temp directory: " + e.getMessage());
