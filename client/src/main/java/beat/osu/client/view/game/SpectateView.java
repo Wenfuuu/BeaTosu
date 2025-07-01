@@ -101,13 +101,19 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
 
     private void updateSpectateStatus(SpectateStatusEvent event) {
         spectatePauseOverlay.setVisible(event.isPaused());
-        if (event.isPaused()) pauseAllAnimations();
-        else resumeAllAnimations();
+        if (event.isPaused()) {
+            pauseAllAnimations();
+            BgmManager.getInstance().pauseBgm();
+        } else {
+            resumeAllAnimations();
+            BgmManager.getInstance().resumeBgm();
+        }
     }
 
     private void onPlayerExited(String message) {
         Platform.runLater(() -> {
             spectatePauseOverlay.getPauseLabel().setText(message);
+            BgmManager.getInstance().stopBgm();
         });
     }
 
