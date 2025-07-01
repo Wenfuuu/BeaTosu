@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,8 @@ public class BeatmapContent extends ScrollPane {
     private Beatmap selectedBeatmap;
     @Setter
     private Consumer<Beatmap> onBeatmapSelectedCallback;
+    @Setter
+    private BiConsumer<Beatmap, Boolean> onBeatmapSelectedWithBackgroundCallback;
 
     public BeatmapContent(ArrayList<Beatmap> beatmaps) {
         this.virtualContainer = new Pane();
@@ -214,11 +217,14 @@ public class BeatmapContent extends ScrollPane {
             
             scrollToSelected();
             
-            if (onBeatmapSelectedCallback != null) {
+            if (onBeatmapSelectedWithBackgroundCallback != null) {
+                onBeatmapSelectedWithBackgroundCallback.accept(selectedBeatmap, false);
+            } else if (onBeatmapSelectedCallback != null) {
                 onBeatmapSelectedCallback.accept(selectedBeatmap);
             } else {
-                System.out.println("Warning: onBeatmapSelectedCallback is null!");
+                System.out.println("Warning: no beatmap selection callbacks are set!");
             }
+            
             for (BeatmapCard card : renderedCards.values()) {
                 if (card.getBeatmap().equals(selectedBeatmap)) {
                     card.setSelected(true);

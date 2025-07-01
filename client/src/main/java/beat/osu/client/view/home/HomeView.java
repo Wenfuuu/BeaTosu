@@ -364,6 +364,10 @@ public class HomeView extends Page {
     }
 
     private void onBeatmapSelected(Beatmap beatmap) {
+        onBeatmapSelected(beatmap, true);
+    }
+    
+    private void onBeatmapSelected(Beatmap beatmap, boolean updateBackground) {
         try {
             OsuParser.parseBeatmap(beatmap);
         } catch (IOException e) {
@@ -371,7 +375,10 @@ public class HomeView extends Page {
         }
         topBar.updateSongInfo(beatmap);
         BgmManager.getInstance().playPreviewBgm(false);
-        BackgroundManager.setGameBackground(scene);
+        
+        if (updateBackground) {
+            BackgroundManager.setGameBackground(scene);
+        }
 
         scores = fetchScores(beatmap);
         scoreContent.populateScores(scores);
@@ -389,6 +396,7 @@ public class HomeView extends Page {
 
     private void setupCallbacks() {
         beatmapContent.setOnBeatmapSelectedCallback(this::onBeatmapSelected);
+        beatmapContent.setOnBeatmapSelectedWithBackgroundCallback(this::onBeatmapSelected);
         scoreContent.setOnScoreSelectedCallback(this::onScoreSelected);
     }
 
@@ -466,6 +474,7 @@ public class HomeView extends Page {
         
         beatmapContent = new BeatmapContent(beatmaps);
         beatmapContent.setOnBeatmapSelectedCallback(this::onBeatmapSelected);
+        beatmapContent.setOnBeatmapSelectedWithBackgroundCallback(this::onBeatmapSelected);
         
         leftBar.getChildren().clear();
         Region spacer = new Region();
