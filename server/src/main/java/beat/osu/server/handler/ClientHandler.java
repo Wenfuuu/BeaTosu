@@ -133,6 +133,8 @@ public class ClientHandler implements Runnable {
                             user.getPlayCount(), user.getLevel(), userService.getUserRank(user.getId()), user.isSupporter()
                     );
                 }
+                
+                messageRouter.cleanupDisconnectedUser((Integer) userId);
             }
 
             activeClients.remove(clientId);
