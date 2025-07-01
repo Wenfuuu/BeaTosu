@@ -109,10 +109,11 @@ public class ViewUserModal extends VBox {
                     SpectateDto spectateDto = new SpectateDto(
                             user.getId(),
                             userCard.getUserId(),
+                            userCard.getUsername(),
                             beatmapId
                     );
                     onStartSpectateCallback.accept(spectateDto);
-                    hide(); // Close the modal after starting spectate
+                    hide();
                 } else {
                     System.err.println("Cannot start spectating: No beatmap is currently being played");
                 }

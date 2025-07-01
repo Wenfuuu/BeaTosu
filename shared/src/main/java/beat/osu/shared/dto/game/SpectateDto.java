@@ -14,5 +14,6 @@ public class SpectateDto implements Serializable {
 
     private int spectatorUserId;
     private int playingUserId;
+    private String playingUsername;
     private int beatmapId;
 }

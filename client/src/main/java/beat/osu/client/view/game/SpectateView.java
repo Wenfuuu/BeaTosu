@@ -18,12 +18,16 @@ import beat.osu.shared.dto.game.events.SpectateStatusEvent;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -63,11 +67,21 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
     private double originalRecordingWidth = 0.0;
     private double originalRecordingHeight = 0.0;
 
+    private final Beatmap beatmap;
+    private final SpectateDto spectateDto;
+
+    private HBox marqueeContainer;
+    private Label marqueeLabel;
+    private TranslateTransition marqueeAnimation;
+
     public SpectateView(Stage stage, Beatmap beatmap, SpectateDto spectateDto, SpectateController spectateController) {
         super(stage);
         setupView();
 
         this.spectateController = spectateController;
+        this.beatmap = beatmap;
+        this.spectateDto = spectateDto;
+
         this.circleSize = beatmap.getCircleSize();
         this.sm = new SpectateManager(beatmap, spectateDto, spectateController, inputManager, this);
         this.sm.addListener(this);
@@ -139,8 +153,53 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
                 32, 32, true, true));
 
         createSpectatePane();
+        createMarqueeText();
 
-        root.getChildren().addAll(spectatePane, uiPane, spectatePauseOverlay);
+        root.getChildren().addAll(spectatePane, uiPane, spectatePauseOverlay, marqueeContainer);
+
+    }
+
+
+    private void createMarqueeText() {
+        marqueeContainer = new HBox();
+        marqueeContainer.setAlignment(Pos.TOP_CENTER);
+        marqueeContainer.setPrefHeight(stage.getHeight());
+        marqueeContainer.setPrefWidth(stage.getWidth());
+        marqueeContainer.setPadding(new Insets(ScreenManager.SCREEN_HEIGHT * 0.13, 0, 0, 0));
+
+        String marqueeText = String.format("SPECTATOR MODE - Watching %s play %s - %s [%s]",
+                spectateDto.getPlayingUsername(),
+                beatmap.getBeatmapSet().getArtist(),
+                beatmap.getBeatmapSet().getTitle(),
+                beatmap.getVersion());
+
+        marqueeLabel = new Label(marqueeText);
+        marqueeLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Aller Light'; -fx-font-size: 20px;");
+
+        marqueeContainer.getChildren().add(marqueeLabel);
+
+        StackPane.setAlignment(marqueeContainer, Pos.CENTER);
+        setupMarqueeAnimation();
+    }
+
+    private void setupMarqueeAnimation() {
+        Platform.runLater(() -> {
+            marqueeContainer.applyCss();
+            marqueeContainer.layout();
+            marqueeLabel.applyCss();
+            marqueeLabel.layout();
+
+            double containerWidth = root.getWidth();
+            double labelWidth = marqueeLabel.getBoundsInLocal().getWidth();
+
+            marqueeAnimation = new TranslateTransition(Duration.seconds(15), marqueeLabel);
+            marqueeAnimation.setFromX(containerWidth);
+            marqueeAnimation.setToX(-labelWidth);
+            marqueeAnimation.setCycleCount(TranslateTransition.INDEFINITE);
+            marqueeAnimation.setInterpolator(Interpolator.LINEAR);
+
+            marqueeAnimation.play();
+        });
     }
 
     private void createSpectatePane() {
