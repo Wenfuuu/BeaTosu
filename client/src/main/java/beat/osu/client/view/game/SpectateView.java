@@ -12,6 +12,7 @@ import beat.osu.client.model.HitObject;
 import beat.osu.client.view.game.component.GameUI;
 import beat.osu.client.view.game.component.SpectatePauseOverlay;
 import beat.osu.client.view.shared.common.Page;
+import beat.osu.client.view.shared.replay.EndReplayButton;
 import beat.osu.shared.dto.game.SpectateDto;
 import beat.osu.shared.dto.game.events.SpectateEvent;
 import beat.osu.shared.dto.game.events.SpectateStatusEvent;
@@ -25,6 +26,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -72,6 +75,7 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
 
     private HBox marqueeContainer;
     private Label marqueeLabel;
+    private EndReplayButton endReplayButton;
     private TranslateTransition marqueeAnimation;
 
     public SpectateView(Stage stage, Beatmap beatmap, SpectateDto spectateDto, SpectateController spectateController) {
@@ -159,7 +163,6 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
 
     }
 
-
     private void createMarqueeText() {
         marqueeContainer = new HBox();
         marqueeContainer.setAlignment(Pos.TOP_CENTER);
@@ -174,10 +177,23 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
                 beatmap.getVersion());
 
         marqueeLabel = new Label(marqueeText);
-        marqueeLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Aller Light'; -fx-font-size: " + ScreenManager.SCREEN_HEIGHT * 0.02 + "px;");
+        marqueeLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Aller Light'; -fx-font-size: "
+                + ScreenManager.SCREEN_HEIGHT * 0.02 + "px;");
 
-        marqueeContainer.getChildren().add(marqueeLabel);
+        endReplayButton = new EndReplayButton();
 
+        endReplayButton.setOnMouseClicked(e -> {
+            SfxManager.playSfx("pause-click.wav");
+            sm.stopSpectate();
+            ViewManager.getInstance().showLandingView();
+        });
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox.setMargin(endReplayButton, new Insets(48, 12, 0, 12));
+
+        marqueeContainer.getChildren().addAll(marqueeLabel, spacer, endReplayButton);
         StackPane.setAlignment(marqueeContainer, Pos.CENTER);
         setupMarqueeAnimation();
     }
@@ -212,7 +228,8 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
         spectatePane.getChildren().add(cursorImage);
     }
 
-    private void showHitImage(HitObject hitObject, HitResult hitResult, boolean perfectCombo, boolean imperfectOrMissed) {
+    private void showHitImage(HitObject hitObject, HitResult hitResult, boolean perfectCombo,
+            boolean imperfectOrMissed) {
         String imagePath = "";
         switch (hitResult) {
             case PERFECT:
@@ -684,7 +701,8 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
                 }
                 break;
             case SPECTATE_EXIT:
-                if (spectatePauseOverlay.isVisible()) sm.stopSpectate();
+                if (spectatePauseOverlay.isVisible())
+                    sm.stopSpectate();
                 break;
             case ENTER_BREAK_PERIOD:
                 System.out.println("enter break period");
