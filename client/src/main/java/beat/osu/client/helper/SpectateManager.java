@@ -371,10 +371,21 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
 
             if (firstSpectateEvent) {
                 firstSpectateEvent = false;
-                BgmManager.getInstance().getCurrentPlayer().seek(Duration.millis(event.getCurrentTime()));
-                BgmManager.getInstance().playGameBgm();
                 // clear all hit objects that has hit time before the first event
                 hitObjects.removeIf(hitObject -> hitObject.getHitTime() < event.getCurrentTime());
+                if (event.getCurrentTime() <= 0) return;
+                BgmManager.getInstance().getCurrentPlayer().seek(Duration.millis(event.getCurrentTime()));
+                BgmManager.getInstance().playGameBgm();
+            }else {
+                if (event.getCurrentTime() <= 0) return;
+                System.out.println("Current time: " + event.getCurrentTime());
+                System.out.println("Current BGM time: " + BgmManager.getInstance().getCurrentPlayer().getCurrentTime());
+                // seek bgm duration to the current time of the event if has difference more than 50ms
+                Duration currentBgmTime = BgmManager.getInstance().getCurrentPlayer().getCurrentTime();
+                if (Math.abs(currentBgmTime.toMillis() - event.getCurrentTime()) > 50) {
+                    BgmManager.getInstance().getCurrentPlayer().seek(Duration.millis(event.getCurrentTime()));
+                    System.out.println("Seeking BGM to: " + event.getCurrentTime());
+                }
             }
 
             Set<KeyCode> currentKeys = inputManager.getPressedKeys();
