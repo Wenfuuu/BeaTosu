@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import beat.osu.client.controller.BeatmapController;
+import beat.osu.client.controller.MatchController;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
@@ -43,6 +44,8 @@ import lombok.Setter;
 public class SelectBeatmapModal extends StackPane {
 
     private BeatmapController beatmapController;
+    private MatchController matchController;
+    private int matchId;
     
     private Pane backgroundLayer;
     private Pane overlayLayer;
@@ -75,6 +78,14 @@ public class SelectBeatmapModal extends StackPane {
     
     @Setter
     private Consumer<Beatmap> onBeatmapSelectedCallback;
+
+    public void setMatchController(MatchController matchController) {
+        this.matchController = matchController;
+    }
+
+    public void setMatchId(int matchId) {
+        this.matchId = matchId;
+    }
 
     public SelectBeatmapModal() {
         initializeComponents();
@@ -295,6 +306,15 @@ public class SelectBeatmapModal extends StackPane {
     }
 
     public void show() {
+        // Send request to set isChangingBeatmap to true
+        if (matchController != null) {
+            matchController.updateMatchChangingBeatmap(matchId, true).thenAccept(result -> {
+                if (!result.isSuccess()) {
+                    System.err.println("Failed to set changing beatmap status to true: " + result.getError().getMessage());
+                }
+            });
+        }
+        
         clearBeatmapData();
         startProgressiveLoading();
 
@@ -322,6 +342,15 @@ public class SelectBeatmapModal extends StackPane {
     }
 
     public void hide() {
+        // Send request to set isChangingBeatmap to false
+        if (matchController != null) {
+            matchController.updateMatchChangingBeatmap(matchId, false).thenAccept(result -> {
+                if (!result.isSuccess()) {
+                    System.err.println("Failed to set changing beatmap status to false: " + result.getError().getMessage());
+                }
+            });
+        }
+        
         if (loadingThread != null && loadingThread.isAlive()) {
             loadingThread.interrupt();
         }

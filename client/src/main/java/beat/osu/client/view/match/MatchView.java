@@ -46,6 +46,7 @@ import beat.osu.shared.dto.match.MatchPlayerDto;
 import beat.osu.shared.dto.match.events.HostChangedEvent;
 import beat.osu.shared.dto.match.events.HostLeftEvent;
 import beat.osu.shared.dto.match.events.MatchBeatmapUpdatedEvent;
+import beat.osu.shared.dto.match.events.MatchChangingBeatmapUpdatedEvent;
 import beat.osu.shared.dto.match.events.MatchNameUpdatedEvent;
 import beat.osu.shared.dto.match.events.MatchStartedEvent;
 import beat.osu.shared.dto.match.events.MatchWinConditionUpdatedEvent;
@@ -97,6 +98,7 @@ public class MatchView extends Page {
     private String matchName;
     private String matchPassword;
     private boolean inProgress;
+    private boolean isChangingBeatmap;
     private int maxPlayerCount;
 
     private Beatmap beatmap;
@@ -163,6 +165,7 @@ public class MatchView extends Page {
         this.matchName = matchDto.getName();
         this.matchPassword = matchDto.getPassword();
         this.inProgress = matchDto.isInProgress();
+        this.isChangingBeatmap = matchDto.isChangingBeatmap();
         this.maxPlayerCount = matchDto.getMaxPlayerCount();
         this.beatmap = convertBeatmapDtoToBeatmap(matchDto.getBeatmap());
         this.winCondition = matchDto.getWinCondition();
@@ -222,6 +225,8 @@ public class MatchView extends Page {
         hostActionsModal = new HostActionsModal();
         changePasswordModal = new ChangePasswordModal();
         selectBeatmapModal = new SelectBeatmapModal();
+        selectBeatmapModal.setMatchController(matchController);
+        selectBeatmapModal.setMatchId(matchId);
 
         selectChannelModal.setChatPanel(chatPanel);
         selectChannelModal.setOnlineUsersPanel(onlineUsersPanel);
@@ -337,9 +342,15 @@ public class MatchView extends Page {
         blueButton.getStyleClass().add("ready-button");
 
         boolean beatmapExists = ResourceManager.beatmapSetDirectoryExists(beatmap.getBeatmapSetId());
-        beatmapCard = beatmapExists ? BeatmapCard.available(beatmap) :
-                BeatmapCard.noMap(beatmap.getBeatmapId(), beatmap.getBeatmapSetId(),
+        
+        if (isChangingBeatmap) {
+            beatmapCard = BeatmapCard.changingMap();
+        } else if (beatmapExists) {
+            beatmapCard = BeatmapCard.available(beatmap);
+        } else {
+            beatmapCard = BeatmapCard.noMap(beatmap.getBeatmapId(), beatmap.getBeatmapSetId(),
                 beatmap.getBeatmapSet().getTitle(), beatmap.getBeatmapSet().getArtist());
+        }
 
         rightContent = new VBox(gameBox, gameNameTextField, beatmapBox, beatmapCard, winConditionBox);
         rightContent.setPadding(new Insets(24, 0, 10, ScreenManager.SCREEN_WIDTH * 0.1));
@@ -662,6 +673,7 @@ public class MatchView extends Page {
         matchController.addSlotChangedCallback(this::onSlotChanged);
         matchController.addMatchNameUpdatedCallback(this::onMatchNameUpdated);
         matchController.addMatchBeatmapUpdatedCallback(this::onMatchBeatmapUpdated);
+        matchController.addMatchChangingBeatmapUpdatedCallback(this::onMatchChangingBeatmapUpdated);
         matchController.addMatchWinConditionUpdatedCallback(this::onMathWinConditionUpdated);
         matchController.addPlayerStatusUpdatedCallback(this::onPlayerStatusUpdated);
     }
@@ -757,20 +769,10 @@ public class MatchView extends Page {
         if (event.getMatchId() == this.matchId) {
             Platform.runLater(() -> {
                 beatmap = convertBeatmapDtoToBeatmap(event.getNewBeatmapDto());
+                this.isChangingBeatmap = false; // Reset changing state when beatmap is updated
+                updateBeatmapCard();
                 
                 boolean beatmapExists = ResourceManager.beatmapSetDirectoryExists(beatmap.getBeatmapSetId());
-                
-                BeatmapCard newBeatmapCard = beatmapExists ?
-                    BeatmapCard.available(beatmap) : 
-                    BeatmapCard.noMap(beatmap.getBeatmapId(), beatmap.getBeatmapSetId(),
-                            beatmap.getBeatmapSet().getTitle(), beatmap.getBeatmapSet().getArtist());
-                
-                int beatmapCardIndex = rightContent.getChildren().indexOf(beatmapCard);
-                if (beatmapCardIndex != -1) {
-                    rightContent.getChildren().set(beatmapCardIndex, newBeatmapCard);
-                    beatmapCard = newBeatmapCard;
-                }
-                
                 if (!beatmapExists) {
                     PlayerStatus currentStatus = getCurrentUserStatus();
                     if (currentStatus != PlayerStatus.NO_MAP) {
@@ -792,6 +794,15 @@ public class MatchView extends Page {
                 }
                 
                 updateBlueButtonState();
+            });
+        }
+    }
+
+    private void onMatchChangingBeatmapUpdated(MatchChangingBeatmapUpdatedEvent event) {
+        if (event.getMatchId() == this.matchId) {
+            Platform.runLater(() -> {
+                this.isChangingBeatmap = event.isChangingBeatmap();
+                updateBeatmapCard();
             });
         }
     }
@@ -1087,6 +1098,26 @@ public class MatchView extends Page {
                 beatmapSet);
     }
     
+    private void updateBeatmapCard() {
+        boolean beatmapExists = ResourceManager.beatmapSetDirectoryExists(beatmap.getBeatmapSetId());
+        
+        BeatmapCard newBeatmapCard;
+        if (isChangingBeatmap) {
+            newBeatmapCard = BeatmapCard.changingMap();
+        } else if (beatmapExists) {
+            newBeatmapCard = BeatmapCard.available(beatmap);
+        } else {
+            newBeatmapCard = BeatmapCard.noMap(beatmap.getBeatmapId(), beatmap.getBeatmapSetId(),
+                    beatmap.getBeatmapSet().getTitle(), beatmap.getBeatmapSet().getArtist());
+        }
+        
+        int beatmapCardIndex = rightContent.getChildren().indexOf(beatmapCard);
+        if (beatmapCardIndex != -1) {
+            rightContent.getChildren().set(beatmapCardIndex, newBeatmapCard);
+            beatmapCard = newBeatmapCard;
+        }
+    }
+
     private void updateBlueButtonState() {
         updateHostStatus();
         BlueButtonState newState = determineBlueButtonState();

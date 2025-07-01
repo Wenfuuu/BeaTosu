@@ -14,6 +14,7 @@ import beat.osu.shared.dto.match.MatchPlayerDto;
 import beat.osu.shared.dto.match.events.HostChangedEvent;
 import beat.osu.shared.dto.match.events.HostLeftEvent;
 import beat.osu.shared.dto.match.events.MatchBeatmapUpdatedEvent;
+import beat.osu.shared.dto.match.events.MatchChangingBeatmapUpdatedEvent;
 import beat.osu.shared.dto.match.events.MatchCompletedEvent;
 import beat.osu.shared.dto.match.events.MatchCreatedEvent;
 import beat.osu.shared.dto.match.events.MatchEndedEvent;
@@ -38,6 +39,7 @@ import beat.osu.shared.dto.match.requests.SendMatchScoreEventRequest;
 import beat.osu.shared.dto.match.requests.StartMatchRequest;
 import beat.osu.shared.dto.match.requests.TransferHostRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchBeatmapRequest;
+import beat.osu.shared.dto.match.requests.UpdateMatchChangingBeatmapRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchNameRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchPasswordRequest;
 import beat.osu.shared.dto.match.requests.UpdateMatchWinConditionRequest;
@@ -53,6 +55,7 @@ import beat.osu.shared.dto.match.responses.SendMatchScoreEventResponse;
 import beat.osu.shared.dto.match.responses.StartMatchResponse;
 import beat.osu.shared.dto.match.responses.TransferHostResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchBeatmapResponse;
+import beat.osu.shared.dto.match.responses.UpdateMatchChangingBeatmapResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchNameResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchPasswordResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchWinConditionResponse;
@@ -88,6 +91,7 @@ public class MatchController {
     private final List<Consumer<MatchPasswordUpdatedEvent>> matchPasswordUpdatedCallbacks = new ArrayList<>();
     private final List<Consumer<MatchNameUpdatedEvent>> matchNameUpdatedCallbacks = new ArrayList<>();
     private final List<Consumer<MatchBeatmapUpdatedEvent>> matchBeatmapUpdatedCallbacks = new ArrayList<>();
+    private final List<Consumer<MatchChangingBeatmapUpdatedEvent>> matchChangingBeatmapUpdatedCallbacks = new ArrayList<>();
     private final List<Consumer<MatchWinConditionUpdatedEvent>> matchWinConditionUpdatedCallbacks = new ArrayList<>();
     private final List<Consumer<PlayerStatusUpdatedEvent>> playerStatusUpdatedCallbacks = new ArrayList<>();
 
@@ -153,6 +157,10 @@ public class MatchController {
         matchBeatmapUpdatedCallbacks.add(callback);
     }
 
+    public void addMatchChangingBeatmapUpdatedCallback(Consumer<MatchChangingBeatmapUpdatedEvent> callback) {
+        matchChangingBeatmapUpdatedCallbacks.add(callback);
+    }
+
     public void addMatchWinConditionUpdatedCallback(Consumer<MatchWinConditionUpdatedEvent> callback) {
         matchWinConditionUpdatedCallbacks.add(callback);
     }
@@ -215,6 +223,10 @@ public class MatchController {
 
     public void removeMatchBeatmapUpdatedCallback(Consumer<MatchBeatmapUpdatedEvent> callback) {
         matchBeatmapUpdatedCallbacks.remove(callback);
+    }
+
+    public void removeMatchChangingBeatmapUpdatedCallback(Consumer<MatchChangingBeatmapUpdatedEvent> callback) {
+        matchChangingBeatmapUpdatedCallbacks.remove(callback);
     }
 
     public void removeMatchWinConditionUpdatedCallback(Consumer<MatchWinConditionUpdatedEvent> callback) {
@@ -532,6 +544,26 @@ public class MatchController {
         });
     }
 
+    public CompletableFuture<Result<UpdateMatchChangingBeatmapResponse>> updateMatchChangingBeatmap(int matchId, boolean isChangingBeatmap) {
+        UpdateMatchChangingBeatmapRequest requestData = new UpdateMatchChangingBeatmapRequest(matchId, isChangingBeatmap);
+        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.UPDATE_MATCH_CHANGING_BEATMAP, requestData);
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendRequest(request).get();
+
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((UpdateMatchChangingBeatmapResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
+    }
+
     private void handleRealtimeMessage(RealtimeMessage message) {
         if (message.getType() == RealtimeMessageType.MATCH_CREATED) {
             if (message.getPayload() instanceof MatchCreatedEvent) {
@@ -605,6 +637,12 @@ public class MatchController {
                 MatchBeatmapUpdatedEvent event = (MatchBeatmapUpdatedEvent) message.getPayload();
                 updateMatchBeatmapInList(event.getMatchId(), event.getNewBeatmapDto());
                 notifyMatchBeatmapUpdated(event);
+            }
+        } else if (message.getType() == RealtimeMessageType.MATCH_CHANGING_BEATMAP_UPDATED) {
+            if (message.getPayload() instanceof MatchChangingBeatmapUpdatedEvent) {
+                MatchChangingBeatmapUpdatedEvent event = (MatchChangingBeatmapUpdatedEvent) message.getPayload();
+                updateMatchChangingBeatmapInList(event.getMatchId(), event.isChangingBeatmap());
+                notifyMatchChangingBeatmapUpdated(event);
             }
         } else if (message.getType() == RealtimeMessageType.MATCH_WIN_CONDITION_UPDATED) {
             if (message.getPayload() instanceof MatchWinConditionUpdatedEvent) {
@@ -778,6 +816,16 @@ public class MatchController {
         System.err.println("Match with ID " + matchId + " not found to update beatmap.");
     }
 
+    private void updateMatchChangingBeatmapInList(int matchId, boolean isChangingBeatmap) {
+        for (MatchDto match : matches) {
+            if (match.getId() == matchId) {
+                match.setChangingBeatmap(isChangingBeatmap);
+                return;
+            }
+        }
+        System.err.println("Match with ID " + matchId + " not found to update changing beatmap status.");
+    }
+
     private void updateMatchWinConditionInList(int matchId, MatchWinCondition newWinCondition) {
         for (MatchDto match : matches) {
             if (match.getId() == matchId) {
@@ -864,6 +912,16 @@ public class MatchController {
                 callback.accept(event);
             } catch (Exception e) {
                 System.err.println("Error in match beatmap updated callback: " + e.getMessage());
+            }
+        }
+    }
+
+    private void notifyMatchChangingBeatmapUpdated(MatchChangingBeatmapUpdatedEvent event) {
+        for (Consumer<MatchChangingBeatmapUpdatedEvent> callback : matchChangingBeatmapUpdatedCallbacks) {
+            try {
+                callback.accept(event);
+            } catch (Exception e) {
+                System.err.println("Error in match changing beatmap updated callback: " + e.getMessage());
             }
         }
     }
