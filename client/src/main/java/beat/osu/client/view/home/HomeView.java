@@ -443,7 +443,7 @@ public class HomeView extends Page {
                 if (searchUpdateTimeline != null) {
                     searchUpdateTimeline.stop();
                 }
-                ViewManager.getInstance().showReplayView(beatmap, replayEvents);
+                ViewManager.getInstance().showReplayView(beatmap, score.getUserId(), replayEvents);
             } catch (IOException ex) {
                 if (ex.getMessage().contains("Replay file not found")) {
                     Toast.error("Replay file not found").show();

@@ -37,7 +37,7 @@ public class Main {
         MatchService matchService = new MatchService(sessionService, userService, beatmapService);
         SpectateService spectateService = new SpectateService(sessionService, userService);
 
-        MessageRouter messageRouter = new MessageRouter(systemService, authService, beatmapService,
+        MessageRouter messageRouter = new MessageRouter(systemService, authService, userService, beatmapService,
                 scoreService, channelService, privateChatService, matchService, sessionService,
                 spectateService);
 

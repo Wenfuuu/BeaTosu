@@ -1,20 +1,47 @@
 package beat.osu.client.view.game;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Objects;
+
 import beat.osu.client.Main;
+import beat.osu.client.controller.UserController;
 import beat.osu.client.enums.HitResult;
-import beat.osu.client.events.game.*;
-import beat.osu.client.helper.*;
-import beat.osu.client.interfaces.game.GameEventListener;
+import beat.osu.client.events.game.AdditionalSpinEvent;
+import beat.osu.client.events.game.ComboChangeEvent;
+import beat.osu.client.events.game.CursorMoveEvent;
+import beat.osu.client.events.game.GameEvent;
+import beat.osu.client.events.game.HitObjectEvent;
+import beat.osu.client.events.game.InputOverlayEvent;
+import beat.osu.client.events.game.ReplayEvent;
+import beat.osu.client.events.game.ScoreChangeEvent;
+import beat.osu.client.helper.BackgroundManager;
+import beat.osu.client.helper.BgmManager;
+import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ReplayManager;
+import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.SfxManager;
+import beat.osu.client.helper.ViewManager;
 import beat.osu.client.interfaces.game.CoordinateConverter;
+import beat.osu.client.interfaces.game.GameEventListener;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.HitObject;
 import beat.osu.client.view.game.component.GameUI;
 import beat.osu.client.view.game.component.PauseOverlay;
 import beat.osu.client.view.shared.common.Page;
-import beat.osu.client.events.game.ReplayEvent;
-import javafx.animation.*;
+import javafx.animation.Animation;
+import javafx.animation.FadeTransition;
+import javafx.animation.Interpolator;
+import javafx.animation.ParallelTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.ScaleTransition;
+import javafx.animation.SequentialTransition;
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -23,10 +50,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Objects;
 
 public class ReplayView extends Page implements GameEventListener, CoordinateConverter {
     private final double OSU_WIDTH = 640.0;
@@ -61,10 +84,20 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
     private double originalRecordingWidth = 0.0;
     private double originalRecordingHeight = 0.0;
 
-    public ReplayView(Stage stage, Beatmap selectedBeatmap, ArrayList<ReplayEvent> replayEvents) {
+    private UserController userController;
+
+    private Integer playingUserId;
+    private HBox marqueeContainer;
+    private Label marqueeLabel;
+    private TranslateTransition marqueeAnimation;
+
+    public ReplayView(Stage stage, UserController userController, Beatmap selectedBeatmap, int playingUserId, ArrayList<ReplayEvent> replayEvents) {
         super(stage);
         setupView();
 
+        this.userController = userController;
+
+        this.playingUserId = playingUserId;
         this.beatmap = selectedBeatmap;
         this.circleSize = selectedBeatmap.getCircleSize();
         this.replayEvents = replayEvents;
@@ -107,8 +140,9 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
                 32, 32, true, true));
 
         createReplayPane();
+        createMarqueeText();
 
-        root.getChildren().addAll(replayPane, uiPane, pauseOverlay);
+        root.getChildren().addAll(replayPane, uiPane, pauseOverlay, marqueeContainer);
     }
 
     private void createReplayPane() {
@@ -129,7 +163,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
 
         pauseOverlay.getRetryButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("pause-click.wav");
-            ViewManager.getInstance().showReplayView(beatmap, replayEvents);
+            ViewManager.getInstance().showReplayView(beatmap, playingUserId, replayEvents);
         });
 
         pauseOverlay.getLeaveButton().setOnMouseClicked(e -> {
@@ -696,5 +730,72 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
         System.out.println("Converted replayY: " + replayY + " to currentY: " + currentY);
 
         return currentY;
+    }
+
+    private void createMarqueeText() {
+        marqueeContainer = new HBox();
+        marqueeContainer.setAlignment(Pos.TOP_CENTER);
+        marqueeContainer.setPrefHeight(stage.getHeight());
+        marqueeContainer.setPrefWidth(stage.getWidth());
+        marqueeContainer.setPadding(new Insets(ScreenManager.SCREEN_HEIGHT * 0.13, 0, 0, 0));
+
+        userController.getUsernameById(playingUserId).thenAccept(result -> {
+            Platform.runLater(() -> {
+                String username = "Unknown Player";
+                if (result.isSuccess()) {
+                    username = result.getValue().getUsername();
+                } else {
+                    System.err.println("Failed to fetch username: " + result.getError().getMessage());
+                }
+
+                String marqueeText = String.format("REPLAY MODE - Watching %s play %s - %s [%s]",
+                        username,
+                        beatmap.getBeatmapSet().getArtist(),
+                        beatmap.getBeatmapSet().getTitle(),
+                        beatmap.getVersion());
+
+                marqueeLabel = new Label(marqueeText);
+                marqueeLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Aller Light'; -fx-font-size: 20px;");
+
+                marqueeContainer.getChildren().add(marqueeLabel);
+                StackPane.setAlignment(marqueeContainer, Pos.CENTER);
+                setupMarqueeAnimation();
+            });
+        }).exceptionally(throwable -> {
+            Platform.runLater(() -> {
+                String marqueeText = String.format("REPLAY MODE - Watching replay of %s - %s [%s]",
+                        beatmap.getBeatmapSet().getArtist(),
+                        beatmap.getBeatmapSet().getTitle(),
+                        beatmap.getVersion());
+
+                marqueeLabel = new Label(marqueeText);
+                marqueeLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Aller Light'; -fx-font-size: 20px;");
+
+                marqueeContainer.getChildren().add(marqueeLabel);
+                StackPane.setAlignment(marqueeContainer, Pos.CENTER);
+                setupMarqueeAnimation();
+            });
+            return null;
+        });
+    }
+
+    private void setupMarqueeAnimation() {
+        Platform.runLater(() -> {
+            marqueeContainer.applyCss();
+            marqueeContainer.layout();
+            marqueeLabel.applyCss();
+            marqueeLabel.layout();
+
+            double containerWidth = root.getWidth();
+            double labelWidth = marqueeLabel.getBoundsInLocal().getWidth();
+
+            marqueeAnimation = new TranslateTransition(Duration.seconds(15), marqueeLabel);
+            marqueeAnimation.setFromX(containerWidth);
+            marqueeAnimation.setToX(-labelWidth);
+            marqueeAnimation.setCycleCount(TranslateTransition.INDEFINITE);
+            marqueeAnimation.setInterpolator(Interpolator.LINEAR);
+
+            marqueeAnimation.play();
+        });
     }
 }

@@ -44,6 +44,7 @@ import beat.osu.shared.dto.score.requests.InsertScoreRequest;
 import beat.osu.shared.dto.session.requests.CreateSessionDataRequest;
 import beat.osu.shared.dto.session.requests.GetSessionDataRequest;
 import beat.osu.shared.dto.session.requests.RemoveSessionDataRequest;
+import beat.osu.shared.dto.user.requests.GetUsernameByIdRequest;
 import beat.osu.shared.models.RequestMessage;
 import lombok.RequiredArgsConstructor;
 
@@ -80,6 +81,8 @@ public class MessageRouter {
         switch (request.getType()) {
             case SYSTEM:
                 return handleSystemRequest(request, clientId);
+            case USER:
+                return handleUserRequest(request, clientId);
             case AUTH:
                 return handleAuthRequest(request, clientId);
             case BEATMAP:
@@ -109,6 +112,15 @@ public class MessageRouter {
                 return Result.success("Disconnection acknowledged");
             default:
                 return Result.failure(Error.validation("Unknown system action: " + request.getAction()));
+        }
+    }
+
+    private Object handleUserRequest(RequestMessage request, String clientId) {
+        switch (request.getAction()) {
+            case GET_USERNAME_BY_ID:
+                return userService.getUsernameById((GetUsernameByIdRequest) request.getPayload());
+            default:
+                return Result.failure(Error.validation("Unknown user action: " + request.getAction()));
         }
     }
 

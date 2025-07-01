@@ -165,7 +165,8 @@ public class GameView extends Page implements GameEventListener {
         });
 
         resultOverlay.getReplayButton().setOnMouseClicked(e -> {
-            ViewManager.getInstance().showReplayView(beatmap, gm.getReplayEvents());
+            int currentUserId = AuthManager.getUser().getId();
+            ViewManager.getInstance().showReplayView(beatmap, currentUserId, gm.getReplayEvents());
         });
 
         resultOverlay.getBackButton().setOnMouseClicked(e -> {
