@@ -67,6 +67,7 @@ public class HitSlider extends HitObject {
     private final List<Boolean> repeatHitStatus = new ArrayList<>();
     private boolean headHit = false;
     private boolean mouseInBallRadius = false;
+    private boolean keyHolded = false;
     // private List<MediaPlayer> activePlayers = new ArrayList<>();
     private ParallelTransition parallelAnimation;
     private final List<ImageView> reverseArrows = new ArrayList<>();
@@ -390,12 +391,9 @@ public class HitSlider extends HitObject {
     }
 
     private void updateTickVisuals(double timeSinceHitStart) {
-        if (!headHit || sliderTicks.isEmpty())
-            return;
+        if (!headHit || sliderTicks.isEmpty()) return;
 
-        // Return early if mouse is not in slider ball radius
-        if (!mouseInBallRadius)
-            return;
+        if (!mouseInBallRadius || !keyHolded) return;
 
         double tickSpacing = msPerBeat / calculateTickRate();
         int newTickIndex = (int) Math.floor(timeSinceHitStart / tickSpacing);
@@ -929,14 +927,18 @@ public class HitSlider extends HitObject {
         }
     }
 
-    public void updateSlider(double mouseX, double mouseY) {
+    public void updateSlider(double mouseX, double mouseY, boolean keyHolded) {
         if (isHit()) {
             if (getCurrTime() <= endTime) {
                 boolean previousMouseInBallRadius = mouseInBallRadius;
                 mouseInBallRadius = isMouseInBallRadius(mouseX, mouseY);
+                boolean previousKeyHolded = this.keyHolded;
+                this.keyHolded = keyHolded;
+                System.out.println("Key holded: " + keyHolded);
 
                 // Update colors if the mouse state changed
-                if (previousMouseInBallRadius != mouseInBallRadius) {
+                if (previousMouseInBallRadius != mouseInBallRadius ||
+                previousKeyHolded != this.keyHolded) {
                     updateSliderBallColors();
                 }
             } else if (getCurrTime() > endTime) {
@@ -954,9 +956,7 @@ public class HitSlider extends HitObject {
     }
 
     private void trackRepeatHit(int repeatIndex) {
-        // Return early if mouse is not in slider ball radius
-        if (!mouseInBallRadius)
-            return;
+        if (!mouseInBallRadius || !keyHolded) return;
 
         if (repeatIndex >= 0 && repeatIndex < repeatHitStatus.size() && !repeatHitStatus.get(repeatIndex)) {
             repeatHitStatus.set(repeatIndex, true);
@@ -1307,9 +1307,9 @@ public class HitSlider extends HitObject {
             return;
         }
 
-        if (mouseInBallRadius) {
-            sliderBall.setFill(Color.WHITE.deriveColor(1, 1, 1, 0.7));
-            sliderBallOuter.setFill(Color.WHITE.deriveColor(1, 1, 1, 0.35));
+        if (mouseInBallRadius && keyHolded) {
+            sliderBall.setFill(Color.PINK.deriveColor(1, 1, 1, 0.7));
+            sliderBallOuter.setFill(Color.PINK.deriveColor(1, 1, 1, 0.35));
         } else {
             // darker colors when mouse is not in radius
             sliderBall.setFill(Color.WHITE.deriveColor(0, 1, 1, 0.3)); // dimmer white
