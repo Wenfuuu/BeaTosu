@@ -13,6 +13,7 @@ public class Match {
     private String name;
     private String password;
     private boolean inProgress;
+    private boolean isChangingBeatmap;
     private int maxPlayerCount;
     private int beatmapId;
     private MatchWinCondition winCondition;
