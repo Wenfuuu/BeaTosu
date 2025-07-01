@@ -131,8 +131,8 @@ public class BeatmapContent extends ScrollPane {
 
         BeatmapCard card = new BeatmapCard(beatmap);
         card.setOnClickCallback(this::onBeatmapCardClicked);
-        
-        if (index == 0 && selectedBeatmap != null && selectedBeatmap.equals(beatmap) && hasTriggeredInitialSelection) {
+
+        if (selectedBeatmap != null && selectedBeatmap.equals(beatmap)) {
             card.setSelected(true);
         }
         
@@ -211,19 +211,54 @@ public class BeatmapContent extends ScrollPane {
         if (!filteredBeatmaps.isEmpty() && selectedBeatmap != null && !hasTriggeredInitialSelection) {
             System.out.println("Triggering initial selection for beatmap: " + selectedBeatmap.getBeatmapSet().getTitle());
             hasTriggeredInitialSelection = true;
+            
+            scrollToSelected();
+            
             if (onBeatmapSelectedCallback != null) {
                 onBeatmapSelectedCallback.accept(selectedBeatmap);
             } else {
                 System.out.println("Warning: onBeatmapSelectedCallback is null!");
             }
-            BeatmapCard firstCard = renderedCards.get(0);
-            if (firstCard != null) {
-                firstCard.setSelected(true);
+            for (BeatmapCard card : renderedCards.values()) {
+                if (card.getBeatmap().equals(selectedBeatmap)) {
+                    card.setSelected(true);
+                    break;
+                }
             }
         } else {
             System.out.println("Skipping initial selection - isEmpty: " + filteredBeatmaps.isEmpty() + 
                              ", selectedBeatmap null: " + (selectedBeatmap == null) + 
                              ", already triggered: " + hasTriggeredInitialSelection);
         }
+    }
+    
+    public void scrollToSelected() {
+        if (selectedBeatmap != null) {
+            int selectedIndex = -1;
+            for (int i = 0; i < filteredBeatmaps.size(); i++) {
+                if (filteredBeatmaps.get(i).equals(selectedBeatmap)) {
+                    selectedIndex = i;
+                    break;
+                }
+            }
+            
+            if (selectedIndex >= 0) {
+                double totalHeight = filteredBeatmaps.size() * BEATMAP_CARD_HEIGHT;
+                double viewportHeight = getViewportHeight();
+                double targetY = selectedIndex * BEATMAP_CARD_HEIGHT + 60;
+                
+                targetY = Math.max(0, targetY - viewportHeight / 2);
+                
+                double maxScrollY = Math.max(0, totalHeight - viewportHeight);
+                double scrollValue = maxScrollY > 0 ? targetY / maxScrollY : 0;
+                scrollValue = Math.max(0, Math.min(1, scrollValue));
+                
+                this.setVvalue(scrollValue);
+            }
+        }
+    }
+    
+    public void resetSelectionState() {
+        hasTriggeredInitialSelection = false;
     }
 }

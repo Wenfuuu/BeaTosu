@@ -193,6 +193,7 @@ public class HomeView extends Page {
             searchUpdateTimeline.play();
         }
 
+        beatmapContent.resetSelectionState();
         beatmapContent.triggerInitialSelection();
         scene.setRoot(root);
         BgmManager.getInstance().playPreviewBgm(true);
