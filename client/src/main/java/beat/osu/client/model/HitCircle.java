@@ -41,7 +41,7 @@ public class HitCircle extends HitObject{
 
         outerCircle = new Circle(0, 0, getCircleRadius()); // Base radius, will be scaled by animation
         outerCircle.setFill(Color.TRANSPARENT);
-        outerCircle.setStroke(Color.WHITE); // Approach circle color
+        outerCircle.setStroke(circleColor.deriveColor(1, 1, 1, 0.8)); // Approach circle color
         outerCircle.setStrokeWidth(CIRCLE_STROKE_WIDTH);
 
         comboLabel = new Label(String.valueOf(getComboNumber()));

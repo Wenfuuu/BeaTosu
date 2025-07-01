@@ -283,8 +283,9 @@ public class HitSlider extends HitObject {
         sliderPath = createSliderPath();
         borderPath = createSliderPath();
         if (sliderPath != null && borderPath != null) {
-            borderPath.setStroke(Color.WHITE);
-            sliderPath.setStroke(circleColor);
+            borderPath.setStroke(Color.rgb(168, 107, 121, 0.8));
+//            sliderPath.setStroke(circleColor.deriveColor(1, 1, 1, 0.8));
+            sliderPath.setStroke(Color.rgb(0, 0, 0, 0.5));
 
             group.getChildren().addAll(borderPath, sliderPath);
         }
@@ -308,7 +309,7 @@ public class HitSlider extends HitObject {
 
         approachCircle = new Circle(0, 0, getCircleRadius());
         approachCircle.setFill(Color.TRANSPARENT);
-        approachCircle.setStroke(Color.WHITE);
+        approachCircle.setStroke(circleColor.deriveColor(1, 1, 1, 0.8));
         approachCircle.setStrokeWidth(CIRCLE_STROKE_WIDTH);
         approachCircle.setScaleX(APPROACH_START_SCALE);
         approachCircle.setScaleY(APPROACH_START_SCALE);
@@ -550,21 +551,13 @@ public class HitSlider extends HitObject {
         Point2D start = controlPoints.get(0);
         path.getElements().add(new MoveTo(0, 0)); // Path is relative to the group's origin (slider head's center)
 
-        // TODO: Implement Bezier and Perfect Circle paths based on sliderType
         // linear segments:
         if (sliderType == 'L' || sliderType == 'C') {
             for (int i = 1; i < controlPoints.size(); i++) {
                 Point2D p = controlPoints.get(i);
                 path.getElements().add(new LineTo(p.getX() - start.getX(), p.getY() - start.getY()));
             }
-        }
-        /*
-         * Perfect circle (P): Perfect circle curves are limited to three points
-         * (including the hit object's position) that define the boundary of a circle.
-         * Using more than three points will result in the curve type being switched to
-         * bézier.
-         */
-        else if (sliderType == 'P') { // Perfect Circle
+        }else if (sliderType == 'P') { // Perfect Circle
             // 'P' must have exactly 3 control points: start, middle point on arc, and end
             if (controlPoints.size() == 3) {
                 Point2D middle = controlPoints.get(1);
@@ -790,11 +783,6 @@ public class HitSlider extends HitObject {
 
         Point2D sliderStartAbs = controlPoints.get(0); // Absolute start coordinate of the slider
 
-        // TODO: This needs to handle different slider types (Bezier, Perfect,
-        // Circle,Linear)
-        // Current implementation is for multi-segment linear paths.
-
-        // Calculate total length of the path segments defined by controlPoints
         double totalVisualLength = 0;
         double[] segmentLengths = new double[controlPoints.size() - 1];
 

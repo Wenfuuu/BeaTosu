@@ -37,7 +37,7 @@ public abstract class HitObject {
     private double screenRadius;
 
     protected final double APPROACH_START_SCALE = 5.0;
-    protected final double CIRCLE_STROKE_WIDTH = 3.0;
+    protected final double CIRCLE_STROKE_WIDTH = 4.0;
 
     protected final Group group;
 
