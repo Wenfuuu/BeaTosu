@@ -23,15 +23,14 @@ public class BeatmapSetRepository {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            while(rs.next()) {
+            while (rs.next()) {
                 BeatmapSet set = new BeatmapSet(
                         rs.getInt("id"),
                         rs.getString("title"),
                         rs.getString("artist"),
                         rs.getString("creator"),
                         rs.getString("length"),
-                        rs.getInt("bpm")
-                );
+                        rs.getInt("bpm"));
                 beatmapSets.add(set);
             }
         } catch (SQLException e) {
@@ -53,8 +52,7 @@ public class BeatmapSetRepository {
                         rs.getString("artist"),
                         rs.getString("creator"),
                         rs.getString("length"),
-                        rs.getInt("bpm")
-                );
+                        rs.getInt("bpm"));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -68,8 +66,7 @@ public class BeatmapSetRepository {
             String artist,
             String creator,
             String length,
-            int bpm
-    ) throws SQLException {
+            int bpm) throws SQLException {
         String query = "INSERT INTO beatmap_sets (id, title, artist, creator, length, bpm) " +
                 "VALUES (?, ?, ?, ?, ?, ?);";
         try {
@@ -83,8 +80,8 @@ public class BeatmapSetRepository {
             statement.executeUpdate();
         } catch (SQLException e) {
             // Check if it's a duplicate key constraint violation
-            if (e.getSQLState() != null && e.getSQLState().equals("23000") && 
-                e.getMessage().contains("Duplicate entry")) {
+            if (e.getSQLState() != null && e.getSQLState().equals("23000") &&
+                    e.getMessage().contains("Duplicate entry")) {
                 throw new SQLException("DUPLICATE_BEATMAP_SET:" + beatmapSetId, e);
             }
             throw e;

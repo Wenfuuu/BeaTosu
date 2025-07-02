@@ -11,6 +11,7 @@ import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.view.landing.component.layout.TopBar;
 import beat.osu.client.view.landing.component.ui.LightRays;
 import beat.osu.client.view.landing.component.ui.Visualizer;
+import beat.osu.client.view.shared.common.Toast;
 import beat.osu.shared.dto.auth.responses.LoginResponse;
 import beat.osu.shared.dto.user.UserDto;
 import javafx.animation.Animation;
@@ -206,6 +207,7 @@ public class LoginModal extends StackPane {
                                 hide();
                             } else {
                                 System.err.println(result.getError().getMessage());
+                                Toast.error(result.getError().getMessage()).show();
                             }
                         });
                     });

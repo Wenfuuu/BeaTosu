@@ -1,6 +1,10 @@
 package beat.osu.client.view.shared.common;
 
+import java.net.URL;
+
 import beat.osu.client.enums.ToastType;
+import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.SceneManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.StageManager;
 import javafx.animation.*;
@@ -49,11 +53,11 @@ public class Toast {
 
     private void setText(String message) {
         Text iconText = new Text(type.getIcon());
-        iconText.setFont(Font.font("Nunito", FontWeight.BOLD, 20));
+        iconText.setFont(Font.font("Aller Light", FontWeight.BOLD, 20));
         iconText.setFill(Color.web(type.getTextColor()));
 
         Text messageText = new Text(message);
-        messageText.setFont(Font.font("Nunito", 18));
+        messageText.setFont(Font.font("Aller Light", 18));
         messageText.setFill(Color.WHITE);
         messageText.setWrappingWidth(MAX_TOAST_WIDTH - 80);
         messageText.setTextAlignment(TextAlignment.LEFT);
@@ -105,6 +109,13 @@ public class Toast {
         toastStage.setY(0);
 
         this.root = new HBox();
+
+        URL globalCssUrl = CssManager.getGlobalCssURL();
+        if (globalCssUrl != null) {
+            SceneManager.getInstance().getScene().getStylesheets().add(globalCssUrl.toExternalForm());
+        } else {
+            System.err.println("Css file not found!");
+        }
     }
 
     public void show() {

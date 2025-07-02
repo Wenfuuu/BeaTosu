@@ -20,10 +20,10 @@ public class OsuParser {
     private static BeatmapController beatmapController = new BeatmapController();
     @Getter
     private static Beatmap currentBeatmap;
-    
+
     // Callback for error messages
     private static Consumer<String> errorCallback;
-    
+
     public static void setErrorCallback(Consumer<String> callback) {
         errorCallback = callback;
     }
@@ -66,20 +66,22 @@ public class OsuParser {
 
     private static double getStarRating(double hp, double cs, double od, double ar, double sm, double st) {
         return 0.15 * hp
-                + 0.1  * cs
+                + 0.1 * cs
                 + 0.25 * od
-                + 0.3  * ar
-                + 0.8  * (sm - 1.0)
+                + 0.3 * ar
+                + 0.8 * (sm - 1.0)
                 + 0.05 * st
                 - 0.2;
     }
 
-    private static String decodeType(int type){
+    private static String decodeType(int type) {
         boolean isHitCircle = (type & 1) != 0;
         boolean isSlider = (type & 2) != 0;
 
-        if(isHitCircle) return "circle";
-        else if(isSlider) return "slider";
+        if (isHitCircle)
+            return "circle";
+        else if (isSlider)
+            return "slider";
         return "spinner";
     }
 
@@ -113,25 +115,25 @@ public class OsuParser {
 
         beatmapController.insertBeatmapSet(beatmapSetId, title, artist,
                 creator, timeString, getBGM()).thenApply(
-                response -> {
-                    if (response.isSuccess()) {
-                        System.out.println("Beatmap set inserted successfully: " + response.getValue().getMessage());
-                    } else {
-                        String errorMessage = response.getError().getMessage();
-                        System.err.println("Failed to insert beatmap set: " + errorMessage);
-                        
-                        // Notify UI about the error
-                        if (errorCallback != null) {
-                            if (errorMessage.contains("already exists")) {
-                                errorCallback.accept("Beatmap set " + beatmapSetId + " already exists");
+                        response -> {
+                            if (response.isSuccess()) {
+                                System.out.println(
+                                        "Beatmap set inserted successfully: " + response.getValue().getMessage());
                             } else {
-                                errorCallback.accept("Failed to insert beatmap set: " + errorMessage);
+                                String errorMessage = response.getError().getMessage();
+                                System.err.println("Failed to insert beatmap set: " + errorMessage);
+
+                                // Notify UI about the error
+                                if (errorCallback != null) {
+                                    if (errorMessage.contains("already exists")) {
+                                        errorCallback.accept("Beatmap set " + beatmapSetId + " already exists");
+                                    } else {
+                                        errorCallback.accept("Failed to insert beatmap set: " + errorMessage);
+                                    }
+                                }
                             }
-                        }
-                    }
-                    return null;
-                }
-        );
+                            return null;
+                        });
     }
 
     public static void insertData() {
@@ -150,25 +152,25 @@ public class OsuParser {
         beatmapController.insertBeatmap(beatmapId, beatmapSetId, version,
                 hpDrainRate, circleSize, overallDifficulty, approachRate,
                 slideMultiplier, sliderTickRate, starRating).thenApply(
-                response -> {
-                    if (response.isSuccess()) {
-                        System.out.println("Beatmap inserted successfully: " + response.getValue().getMessage());
-                    } else {
-                        String errorMessage = response.getError().getMessage();
-                        System.err.println("Failed to insert beatmap: " + errorMessage);
-                        
-                        // Notify UI about the error
-                        if (errorCallback != null) {
-                            if (errorMessage.contains("already exists")) {
-                                errorCallback.accept("Beatmap " + beatmapId + " already exists");
+                        response -> {
+                            if (response.isSuccess()) {
+                                System.out
+                                        .println("Beatmap inserted successfully: " + response.getValue().getMessage());
                             } else {
-                                errorCallback.accept("Failed to insert beatmap: " + errorMessage);
+                                String errorMessage = response.getError().getMessage();
+                                System.err.println("Failed to insert beatmap: " + errorMessage);
+
+                                // Notify UI about the error
+                                if (errorCallback != null) {
+                                    if (errorMessage.contains("already exists")) {
+                                        errorCallback.accept("Beatmap " + beatmapId + " already exists");
+                                    } else {
+                                        errorCallback.accept("Failed to insert beatmap: " + errorMessage);
+                                    }
+                                }
                             }
-                        }
-                    }
-                    return null;
-                }
-        );
+                            return null;
+                        });
     }
 
     public static String getOszPath(Beatmap beatmap) {
@@ -179,10 +181,11 @@ public class OsuParser {
     }
 
     public static void extractAndParse(Beatmap beatmap) {
-//        String oszPath = String.format("./src/main/resources/beatmaps/%s",
-//                getOszPath(beatmap));
+        // String oszPath = String.format("./src/main/resources/beatmaps/%s",
+        // getOszPath(beatmap));
         File oszFile = new File(ResourceManager.getBeatmapDirectory(), getOszPath(beatmap));
-//        String outputPath = String.format("./src/main/resources/temp/%s", beatmap.getBeatmapSetId());
+        // String outputPath = String.format("./src/main/resources/temp/%s",
+        // beatmap.getBeatmapSetId());
         File outputDir = new File(ResourceManager.getTempDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
 
         try {
@@ -225,7 +228,8 @@ public class OsuParser {
 
         while ((line = reader.readLine()) != null) {
             line = line.trim();
-            if (line.isEmpty() || line.startsWith("//")) continue;
+            if (line.isEmpty() || line.startsWith("//"))
+                continue;
             if (line.startsWith("[") && line.endsWith("]")) {
                 section = line.substring(1, line.length() - 1);
                 continue;
@@ -242,7 +246,7 @@ public class OsuParser {
                     parseKeyValue(line, difficulty);
                     break;
                 case "Colours":
-                    if(line.startsWith("Combo")) {
+                    if (line.startsWith("Combo")) {
                         parseKeyValue(line, colours);
                     }
                     break;
@@ -292,25 +296,26 @@ public class OsuParser {
     }
 
     public static String getBgFile() {
-        if(bgFileName.isBlank()) {
+        if (bgFileName.isBlank()) {
             for (String temp : events) {
                 String[] arr = temp.split(",");
                 String fileName = arr[2];
                 bgFileName = fileName.replace("\"", "");
-                if(bgFileName.endsWith(".jpg") || bgFileName.endsWith(".png") || bgFileName.endsWith(".jpeg")) break;
+                if (bgFileName.endsWith(".jpg") || bgFileName.endsWith(".png") || bgFileName.endsWith(".jpeg"))
+                    break;
             }
         }
         return bgFileName;
     }
 
     public static int getBGM() {
-        if(bgm == 0) {
+        if (bgm == 0) {
             String temp = timingPoints.get(0);
             String[] arr = temp.split(",");
             double beatLength = Double.parseDouble(arr[1]);
             bgm = 60000 / beatLength;
         }
-        return (int)bgm;
+        return (int) bgm;
     }
 
     public static double getPreviewTime() {

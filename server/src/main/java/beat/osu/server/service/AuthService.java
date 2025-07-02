@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import beat.osu.server.entities.User;
 import beat.osu.server.handler.RealtimeMessageHandler;
 import beat.osu.server.repositories.UserRepository;
 import beat.osu.shared.common.Error;
@@ -55,7 +56,7 @@ public class AuthService {
                 return Result.failure(Error.validation("There are empty fields!"));
             }
 
-            var user = userRepository.findUserByUsername(request.getUsername());
+            User user = userRepository.findUserByUsername(request.getUsername());
             if (user == null) {
                 return Result.failure(Error.notFound("User not found!"));
             }
@@ -63,6 +64,11 @@ public class AuthService {
             String hashedPassword = hashPassword(request.getPassword());
             if (!user.getPasswordHash().equals(hashedPassword)) {
                 return Result.failure(Error.validation("Invalid password!"));
+            }
+
+            // check if the user is already logged in
+            if (sessionService.getClientIdByUserId(user.getId()) != null) {
+                return Result.failure(Error.validation("User is already logged in!"));
             }
 
             System.out.println("Client " + clientId + " logged in as user: " + user.getUsername());

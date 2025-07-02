@@ -23,7 +23,7 @@ public class BeatmapRepository {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            while(rs.next()) {
+            while (rs.next()) {
                 Beatmap bm = new Beatmap(
                         rs.getInt("id"),
                         rs.getInt("beatmap_set_id"),
@@ -34,8 +34,7 @@ public class BeatmapRepository {
                         rs.getDouble("approach_rate"),
                         rs.getDouble("slider_multiplier"),
                         rs.getDouble("slider_tick_rate"),
-                        rs.getDouble("star_rating")
-                );
+                        rs.getDouble("star_rating"));
                 beatmaps.add(bm);
             }
         } catch (SQLException e) {
@@ -61,8 +60,7 @@ public class BeatmapRepository {
                         rs.getDouble("approach_rate"),
                         rs.getDouble("slider_multiplier"),
                         rs.getDouble("slider_tick_rate"),
-                        rs.getDouble("star_rating")
-                );
+                        rs.getDouble("star_rating"));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -80,8 +78,7 @@ public class BeatmapRepository {
             double approachRate,
             double slideMultiplier,
             double sliderTickRate,
-            double starRating
-    ) throws SQLException {
+            double starRating) throws SQLException {
         String query = "INSERT INTO beatmaps (id, beatmap_set_id, version, hp_drain_rate, circle_size, " +
                 "overall_difficulty, approach_rate, slider_multiplier, slider_tick_rate, star_rating) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
@@ -100,8 +97,8 @@ public class BeatmapRepository {
             statement.executeUpdate();
         } catch (SQLException e) {
             // Check if it's a duplicate key constraint violation
-            if (e.getSQLState() != null && e.getSQLState().equals("23000") && 
-                e.getMessage().contains("Duplicate entry")) {
+            if (e.getSQLState() != null && e.getSQLState().equals("23000") &&
+                    e.getMessage().contains("Duplicate entry")) {
                 throw new SQLException("DUPLICATE_BEATMAP:" + id, e);
             }
             throw e;

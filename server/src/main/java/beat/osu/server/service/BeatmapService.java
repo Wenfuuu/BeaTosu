@@ -52,8 +52,7 @@ public class BeatmapService {
                             beatmapSet.getArtist(),
                             beatmapSet.getCreator(),
                             beatmapSet.getLength(),
-                            beatmapSet.getBpm()
-                    );
+                            beatmapSet.getBpm());
 
                     BeatmapDto beatmapDto = new BeatmapDto(
                             beatmap.getId(),
@@ -66,8 +65,7 @@ public class BeatmapService {
                             beatmap.getSliderMultiplier(),
                             beatmap.getSliderTickRate(),
                             beatmap.getStarRating(),
-                            beatmapSetDto
-                    );
+                            beatmapSetDto);
                     beatmapDtos.add(beatmapDto);
                 } else {
                     return Result.failure(Error.notFound("Beatmap set not found for beatmap ID: " + beatmap.getId()));
@@ -92,8 +90,7 @@ public class BeatmapService {
                     request.getArtist(),
                     request.getCreator(),
                     request.getLength(),
-                    request.getBpm()
-            );
+                    request.getBpm());
 
             System.out.println("Beatmap Set inserted successfully: " + request.getId());
             String message = "Beatmap set inserted successfully with ID: " + request.getId();
@@ -132,8 +129,7 @@ public class BeatmapService {
                     request.getApproachRate(),
                     request.getSliderMultiplier(),
                     request.getSliderTickRate(),
-                    request.getStarRating()
-            );
+                    request.getStarRating());
 
             System.out.println("Beatmap inserted successfully: " + request.getId());
             String message = "Beatmap inserted successfully with ID: " + request.getId();
@@ -157,13 +153,13 @@ public class BeatmapService {
 
         try {
             Beatmap beatmap = beatmapRepository.getBeatmapById(request.getId());
-            
+
             if (beatmap == null) {
                 return Result.failure(Error.notFound("Beatmap not found for ID: " + request.getId()));
             }
 
             BeatmapSet beatmapSet = beatmapSetRepository.getBeatmapSetById(beatmap.getBeatmapSetId());
-            
+
             if (beatmapSet == null) {
                 return Result.failure(Error.notFound("Beatmap set not found for ID: " + beatmap.getBeatmapSetId()));
             }
@@ -174,8 +170,7 @@ public class BeatmapService {
                     beatmapSet.getArtist(),
                     beatmapSet.getCreator(),
                     beatmapSet.getLength(),
-                    beatmapSet.getBpm()
-            );
+                    beatmapSet.getBpm());
 
             BeatmapDto beatmapDto = new BeatmapDto(
                     beatmap.getId(),
@@ -188,8 +183,7 @@ public class BeatmapService {
                     beatmap.getSliderMultiplier(),
                     beatmap.getSliderTickRate(),
                     beatmap.getStarRating(),
-                    beatmapSetDto
-            );
+                    beatmapSetDto);
 
             return Result.success(new GetBeatmapByIdResponse(beatmapDto));
         } catch (RuntimeException e) {

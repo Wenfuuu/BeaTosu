@@ -101,9 +101,9 @@ public class UploadBox extends VBox {
 
     private void handleFileUpload(List<File> files) {
         File beatmapDir = ResourceManager.getBeatmapDirectory();
-        
+
         // Track if there are any duplicate errors
-        final boolean[] hasDuplicateError = {false};
+        final boolean[] hasDuplicateError = { false };
 
         // Set up error callback for OsuParser
         OsuParser.setErrorCallback(message -> {
@@ -111,7 +111,7 @@ public class UploadBox extends VBox {
                 hasDuplicateError[0] = true;
             }
             // if (onUploadProgressCallback != null) {
-            //     Platform.runLater(() -> onUploadProgressCallback.accept(message));
+            // Platform.runLater(() -> onUploadProgressCallback.accept(message));
             // }
         });
 
@@ -232,9 +232,8 @@ public class UploadBox extends VBox {
             @Override
             protected void succeeded() {
                 if (onUploadProgressCallback != null) {
-                    String message = hasDuplicateError[0] ? 
-                        "Upload failed - Beatmap already exists" : 
-                        "Upload completed!";
+                    String message = hasDuplicateError[0] ? "Upload failed - Beatmap already exists"
+                            : "Upload completed!";
                     Platform.runLater(() -> onUploadProgressCallback.accept(message));
 
                     // Clear the message after 2 seconds
