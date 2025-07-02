@@ -69,7 +69,7 @@ public class BeatmapSetRepository {
             String creator,
             String length,
             int bpm
-    ) {
+    ) throws SQLException {
         String query = "INSERT INTO beatmap_sets (id, title, artist, creator, length, bpm) " +
                 "VALUES (?, ?, ?, ?, ?, ?);";
         try {
@@ -82,7 +82,12 @@ public class BeatmapSetRepository {
             statement.setInt(6, bpm);
             statement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            // Check if it's a duplicate key constraint violation
+            if (e.getSQLState() != null && e.getSQLState().equals("23000") && 
+                e.getMessage().contains("Duplicate entry")) {
+                throw new SQLException("DUPLICATE_BEATMAP_SET:" + beatmapSetId, e);
+            }
+            throw e;
         }
     }
 }

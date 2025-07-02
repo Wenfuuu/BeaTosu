@@ -1,5 +1,6 @@
 package beat.osu.server.service;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -98,6 +99,12 @@ public class BeatmapService {
             String message = "Beatmap set inserted successfully with ID: " + request.getId();
 
             return Result.success(new InsertBeatmapSetResponse(message));
+        } catch (SQLException e) {
+            if (e.getMessage().startsWith("DUPLICATE_BEATMAP_SET:")) {
+                String beatmapSetId = e.getMessage().substring("DUPLICATE_BEATMAP_SET:".length());
+                return Result.failure(Error.badRequest("Beatmap set " + beatmapSetId + " already exists"));
+            }
+            return Result.failure(Error.internal("Database error: " + e.getMessage()));
         } catch (RuntimeException e) {
             return Result.failure(Error.internal("Database error: " + e.getMessage()));
         }
@@ -132,6 +139,12 @@ public class BeatmapService {
             String message = "Beatmap inserted successfully with ID: " + request.getId();
 
             return Result.success(new InsertBeatmapResponse(message));
+        } catch (SQLException e) {
+            if (e.getMessage().startsWith("DUPLICATE_BEATMAP:")) {
+                String beatmapId = e.getMessage().substring("DUPLICATE_BEATMAP:".length());
+                return Result.failure(Error.badRequest("Beatmap " + beatmapId + " already exists"));
+            }
+            return Result.failure(Error.internal("Database error: " + e.getMessage()));
         } catch (RuntimeException e) {
             return Result.failure(Error.internal("Database error: " + e.getMessage()));
         }

@@ -8,6 +8,7 @@
     -fx-background-color: rgba(0, 0, 0, 0.7);
     -fx-padding: 10px;
     -fx-background-radius: 5px;
+    -fx-font-family: "Aller";
 }
 
 .search-area {

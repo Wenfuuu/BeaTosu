@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import beat.osu.client.controller.BeatmapController;
 import beat.osu.client.helper.ResourceManager;
@@ -19,6 +20,13 @@ public class OsuParser {
     private static BeatmapController beatmapController = new BeatmapController();
     @Getter
     private static Beatmap currentBeatmap;
+    
+    // Callback for error messages
+    private static Consumer<String> errorCallback;
+    
+    public static void setErrorCallback(Consumer<String> callback) {
+        errorCallback = callback;
+    }
 
     @Getter
     private static Map<String, String> general = new HashMap<>();
@@ -109,7 +117,17 @@ public class OsuParser {
                     if (response.isSuccess()) {
                         System.out.println("Beatmap set inserted successfully: " + response.getValue().getMessage());
                     } else {
-                        System.err.println("Failed to insert beatmap set: " + response.getError().getMessage());
+                        String errorMessage = response.getError().getMessage();
+                        System.err.println("Failed to insert beatmap set: " + errorMessage);
+                        
+                        // Notify UI about the error
+                        if (errorCallback != null) {
+                            if (errorMessage.contains("already exists")) {
+                                errorCallback.accept("Beatmap set " + beatmapSetId + " already exists");
+                            } else {
+                                errorCallback.accept("Failed to insert beatmap set: " + errorMessage);
+                            }
+                        }
                     }
                     return null;
                 }
@@ -136,7 +154,17 @@ public class OsuParser {
                     if (response.isSuccess()) {
                         System.out.println("Beatmap inserted successfully: " + response.getValue().getMessage());
                     } else {
-                        System.err.println("Failed to insert beatmap: " + response.getError().getMessage());
+                        String errorMessage = response.getError().getMessage();
+                        System.err.println("Failed to insert beatmap: " + errorMessage);
+                        
+                        // Notify UI about the error
+                        if (errorCallback != null) {
+                            if (errorMessage.contains("already exists")) {
+                                errorCallback.accept("Beatmap " + beatmapId + " already exists");
+                            } else {
+                                errorCallback.accept("Failed to insert beatmap: " + errorMessage);
+                            }
+                        }
                     }
                     return null;
                 }

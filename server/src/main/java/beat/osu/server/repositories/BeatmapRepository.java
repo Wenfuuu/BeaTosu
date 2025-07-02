@@ -81,7 +81,7 @@ public class BeatmapRepository {
             double slideMultiplier,
             double sliderTickRate,
             double starRating
-    ) {
+    ) throws SQLException {
         String query = "INSERT INTO beatmaps (id, beatmap_set_id, version, hp_drain_rate, circle_size, " +
                 "overall_difficulty, approach_rate, slider_multiplier, slider_tick_rate, star_rating) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
@@ -99,7 +99,12 @@ public class BeatmapRepository {
             statement.setDouble(10, starRating);
             statement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            // Check if it's a duplicate key constraint violation
+            if (e.getSQLState() != null && e.getSQLState().equals("23000") && 
+                e.getMessage().contains("Duplicate entry")) {
+                throw new SQLException("DUPLICATE_BEATMAP:" + id, e);
+            }
+            throw e;
         }
     }
 }

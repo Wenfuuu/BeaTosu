@@ -101,6 +101,19 @@ public class UploadBox extends VBox {
 
     private void handleFileUpload(List<File> files) {
         File beatmapDir = ResourceManager.getBeatmapDirectory();
+        
+        // Track if there are any duplicate errors
+        final boolean[] hasDuplicateError = {false};
+
+        // Set up error callback for OsuParser
+        OsuParser.setErrorCallback(message -> {
+            if (message.contains("already exists") || message.contains("Duplicate")) {
+                hasDuplicateError[0] = true;
+            }
+            // if (onUploadProgressCallback != null) {
+            //     Platform.runLater(() -> onUploadProgressCallback.accept(message));
+            // }
+        });
 
         Task<Void> uploadTask = new Task<>() {
             @Override
@@ -115,12 +128,12 @@ public class UploadBox extends VBox {
 
                     if (!filename.endsWith(".osz"))
                         continue;
-                    
+
                     // Report upload progress
                     if (onUploadProgressCallback != null) {
                         Platform.runLater(() -> onUploadProgressCallback.accept("Uploading " + filename));
                     }
-                    
+
                     try {
                         Files.copy(file.toPath(), destPath, StandardCopyOption.REPLACE_EXISTING);
                         System.out.println("Copied: " + filename);
@@ -219,17 +232,18 @@ public class UploadBox extends VBox {
             @Override
             protected void succeeded() {
                 if (onUploadProgressCallback != null) {
-                    Platform.runLater(() -> onUploadProgressCallback.accept("Upload completed!"));
-                    
+                    String message = hasDuplicateError[0] ? 
+                        "Upload failed - Beatmap already exists" : 
+                        "Upload completed!";
+                    Platform.runLater(() -> onUploadProgressCallback.accept(message));
+
                     // Clear the message after 2 seconds
                     Timeline clearTimeline = new Timeline(
-                            new KeyFrame(Duration.seconds(2), e ->
-                                Platform.runLater(() ->
-                                    onUploadProgressCallback.accept("")))
-                    );
+                            new KeyFrame(Duration.seconds(2),
+                                    e -> Platform.runLater(() -> onUploadProgressCallback.accept(""))));
                     clearTimeline.play();
                 }
-                
+
                 if (onUploadCompleteCallback != null) {
                     onUploadCompleteCallback.run();
                 }
@@ -237,7 +251,11 @@ public class UploadBox extends VBox {
 
             @Override
             protected void failed() {
-                dropText.setText("Upload failed, beatmap already exists");
+                if (onUploadProgressCallback != null) {
+                    Platform.runLater(() -> onUploadProgressCallback.accept("Upload failed - please try again"));
+                } else {
+                    dropText.setText("Upload failed, beatmap already exists");
+                }
             }
         };
 
