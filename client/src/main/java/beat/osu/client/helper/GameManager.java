@@ -29,6 +29,7 @@ import beat.osu.shared.dto.match.events.PlayerFinishedEvent;
 import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.MatchWinCondition;
+import beat.osu.shared.enums.match.PlayerStatus;
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
 import lombok.Getter;
@@ -164,6 +165,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                     System.out.println("sending initial match score event");
                     List<MatchPlayerDto> players = matchDto.getPlayers();
                     for (MatchPlayerDto player : players) {
+                        System.out.println("Processing player status: " + player.getStatus());
+                        if (player.getStatus() != PlayerStatus.PLAYING) continue;
                         MatchScoreEvent event = new MatchScoreEvent(matchDto.getId(), 0,
                                 0, 0, 0, player.getUser());
                         updateMatchScoreEvent(event);

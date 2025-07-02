@@ -62,6 +62,7 @@ import beat.osu.shared.dto.match.responses.TransferHostResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchNameResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchPasswordResponse;
 import beat.osu.shared.dto.match.responses.UpdateMatchWinConditionResponse;
+import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.MatchWinCondition;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.match.PlayerStatus;
@@ -714,6 +715,26 @@ public class MatchView extends Page {
 
     private void onMatchStarted(MatchStartedEvent event) {
         if (event.getMatchId() == this.matchId) {
+            List<MatchPlayerDto> players = event.getMatchDto().getPlayers();
+            UserDto currentUser = AuthManager.getUser();
+            MatchPlayerDto player = players.stream()
+                    .filter(p -> p.getUserId() == currentUser.getId())
+                    .findFirst()
+                    .orElse(null);
+            System.out.println("Match started, player status is " + (player != null ? player.getStatus() : "not found"));
+            if (player == null) return;
+
+            for (MatchPlayerDto matchPlayer : players) {
+                if (matchPlayer.getStatus() == PlayerStatus.READY) matchPlayer.setStatus(PlayerStatus.PLAYING);
+                System.out.println("notifying player status update for user: " + matchPlayer.getUser().getUsername()
+                        + ", status: " + matchPlayer.getStatus());
+                PlayerStatusUpdatedEvent updatedEvent = new PlayerStatusUpdatedEvent(
+                        matchId, matchPlayer.getUserId(), matchPlayer.getStatus());
+                onPlayerStatusUpdated(updatedEvent);
+            }
+
+            boolean isCurrentUserPlaying = player.getStatus() == PlayerStatus.PLAYING;
+            if (!isCurrentUserPlaying) return;
             Platform.runLater(() -> {
                 BgmManager.getInstance().stopBgm();
                 ViewManager.getInstance().showGameView(beatmap, true);

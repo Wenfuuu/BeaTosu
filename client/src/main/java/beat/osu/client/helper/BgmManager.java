@@ -233,7 +233,8 @@ public class BgmManager {
     }
 
     private void setupEndOfMediaBehavior() {
-        if (currentPlayer == null) return;
+        if (currentPlayer == null)
+            return;
 
         switch (currentPlaybackMode) {
             case PREVIEW:

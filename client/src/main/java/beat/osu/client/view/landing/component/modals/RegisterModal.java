@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import beat.osu.client.controller.AuthController;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.view.shared.common.Toast;
 import beat.osu.shared.dto.auth.responses.RegisterResponse;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -207,6 +208,8 @@ public class RegisterModal extends StackPane {
                         if (result.isSuccess()) {
                             RegisterResponse response = result.getValue();
                             System.out.println(response.getMessage());
+                            Toast.success(response.getMessage()).show();
+                            this.setVisible(false);
                         } else {
                             System.err.println(result.getError().getMessage());
                         }

@@ -22,12 +22,12 @@ public class InputManager {
     private static KeyCode keybind1;
     @Getter
     private static KeyCode keybind2;
-    
+
     public static void setKeybind1(KeyCode keybind1) {
         InputManager.keybind1 = keybind1;
         ConfigurationManager.getInstance().setKeybind1(keybind1.name());
     }
-    
+
     public static void setKeybind2(KeyCode keybind2) {
         InputManager.keybind2 = keybind2;
         ConfigurationManager.getInstance().setKeybind2(keybind2.name());
@@ -62,18 +62,18 @@ public class InputManager {
                 if (typedChars.length() > 0) {
                     typedChars.deleteCharAt(typedChars.length() - 1);
                 }
-//                    System.out.println("Typed: " + typedChars);
+                // System.out.println("Typed: " + typedChars);
             } else {
                 pressedKeys.add(keyCode);
             }
 
-//            System.out.println(keyCode);
+            // System.out.println(keyCode);
             if (keyCode.isLetterKey() || keyCode.isDigitKey()) {
                 typedChars.append(keyCode.getChar().toLowerCase().charAt(0));
-//                System.out.println("Typed: " + typedChars);
+                // System.out.println("Typed: " + typedChars);
             } else if (keyCode == KeyCode.SPACE) {
                 typedChars.append(' ');
-//                System.out.println("Typed: " + typedChars);
+                // System.out.println("Typed: " + typedChars);
             }
         });
 

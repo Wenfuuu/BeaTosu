@@ -410,20 +410,11 @@ public class MatchService {
 //            return Result.failure(Error.validation("At least 2 players are required to start the match"));
 //        }
 
-        // Check if all players are ready (optional - you can remove this if not needed)
-//        long readyPlayersCount = players.stream()
-//                .filter(p -> p.getStatus().equals(PlayerStatus.READY))
-//                .count();
-//
-//        if (readyPlayersCount < players.size()) {
-//            return Result.failure(Error.validation("All players must be ready before starting the match"));
-//        }
-
         match.setInProgress(true);
 
-        for (MatchPlayer matchPlayer : players) {
-            matchPlayer.setStatus(PlayerStatus.PLAYING);
-        }
+//        for (MatchPlayer matchPlayer : players) {
+//            if(matchPlayer.getStatus() == PlayerStatus.READY) matchPlayer.setStatus(PlayerStatus.PLAYING);
+//        }
 
         MatchDto matchDto = convertToMatchDto(match);
         String message = "Match started: " + match.getName();

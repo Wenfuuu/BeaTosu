@@ -14,7 +14,7 @@ import java.net.URL;
 public class SfxManager {
     @Getter
     private static double SFX_VOLUME;
-    
+
     public static void setSFX_VOLUME(double SFX_VOLUME) {
         SfxManager.SFX_VOLUME = SFX_VOLUME;
         ConfigurationManager.getInstance().setSfxVolume(SFX_VOLUME);
@@ -24,7 +24,7 @@ public class SfxManager {
         SFX_VOLUME = ConfigurationManager.getInstance().getSfxVolume();
     }
 
-//    private static final String SFX_DIR = "./src/main/resources/assets/sfx/";
+    // private static final String SFX_DIR = "./src/main/resources/assets/sfx/";
     private static URL getSfxResource(String sfxName) {
         return Main.class.getResource("/assets/sfx/" + sfxName);
     }
