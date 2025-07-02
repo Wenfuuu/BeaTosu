@@ -68,7 +68,7 @@ public class AuthService {
 
             // check if the user is already logged in
             if (sessionService.getClientIdByUserId(user.getId()) != null) {
-                return Result.failure(Error.validation("User is already logged in!"));
+                return Result.failure(Error.validation("This account is already logged in!"));
             }
 
             System.out.println("Client " + clientId + " logged in as user: " + user.getUsername());

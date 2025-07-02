@@ -211,6 +211,19 @@ public class GameUI extends Pane {
         }
     }
 
+    public void updateSpectateHealth(double health) {
+        if (healthBar.getProgress() != health) {
+            if (healthAnimation != null) {
+                healthAnimation.stop();
+            }
+
+            healthAnimation = new Timeline(
+                    new KeyFrame(Duration.millis(10),
+                            new KeyValue(animatedHealth, health, Interpolator.EASE_BOTH)));
+            healthAnimation.play();
+        }
+    }
+
     public void updateHealth(double health) {
         if (healthBar.getProgress() != health) {
             if (healthAnimation != null) {

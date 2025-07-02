@@ -658,8 +658,9 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
                 break;
             case HEALTH_CHANGED:
                 Double newHealth = event.getData(Double.class);
+                System.out.println("New health: " + newHealth);
                 if (newHealth != null) {
-                    uiPane.updateHealth(newHealth / 100.0);
+                    uiPane.updateSpectateHealth(newHealth / 100.0);
                 }
                 break;
             case HIT_OBJECT_HIT:
