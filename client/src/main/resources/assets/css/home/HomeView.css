@@ -2,6 +2,14 @@
     -fx-text-fill: white;
 }
 
+.upload-status-label {
+    -fx-font-size: 16px;
+    -fx-text-fill: #ffffff;
+    -fx-background-color: rgba(0, 0, 0, 0.7);
+    -fx-padding: 10px;
+    -fx-background-radius: 5px;
+}
+
 .search-area {
     -fx-background-color: rgba(0, 0, 0, 0.7);
     -fx-background-radius: 0px;

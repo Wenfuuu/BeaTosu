@@ -75,6 +75,7 @@ public class HomeView extends Page {
     private Label contentLabel;
     private Label foundLabel;
     private ComboBox<String> scoreFilterComboBox;
+    private Label uploadStatusLabel;
 
     private FadeTransition hideTransition;
     private FadeTransition showTransition;
@@ -132,6 +133,7 @@ public class HomeView extends Page {
         beatmapContent = new BeatmapContent(beatmaps);
         uploadBox = new UploadBox();
         uploadBox.setOnUploadCompleteCallback(this::refreshBeatmaps);
+        uploadBox.setOnUploadProgressCallback(this::updateUploadStatus);
 
         uploadBox.setMaxWidth(Double.MAX_VALUE);
         uploadBox.setMinWidth(Region.USE_PREF_SIZE);
@@ -141,6 +143,10 @@ public class HomeView extends Page {
         scores = new ArrayList<>();
 
         scoreOverlay = new ScoreOverlay();
+
+        uploadStatusLabel = new Label("");
+        uploadStatusLabel.getStyleClass().add("upload-status-label");
+        uploadStatusLabel.setVisible(false);
 
         scene.setRoot(root);
         URL globalCssUrl = CssManager.getGlobalCssURL();
@@ -180,6 +186,7 @@ public class HomeView extends Page {
         mainLayout.setRight(rightBar);
         mainLayout.setBottom(bottomBar);
         mainLayout.setLeft(leftBar);
+        mainLayout.setCenter(uploadStatusLabel);
 
         root.getChildren().addAll(mainLayout, scoreOverlay);
     }
@@ -238,6 +245,16 @@ public class HomeView extends Page {
         showTransition = new FadeTransition(Duration.millis(500), mainLayout);
         showTransition.setFromValue(0);
         showTransition.setToValue(1);
+    }
+
+    private void updateUploadStatus(String message) {
+        if (message == null || message.trim().isEmpty()) {
+            uploadStatusLabel.setVisible(false);
+            uploadStatusLabel.setText("");
+        } else {
+            uploadStatusLabel.setText(message);
+            uploadStatusLabel.setVisible(true);
+        }
     }
 
     private void setupSearchUpdater() {

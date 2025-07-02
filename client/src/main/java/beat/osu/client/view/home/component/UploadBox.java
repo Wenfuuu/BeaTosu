@@ -5,6 +5,9 @@ import beat.osu.client.helper.ResourceManager;
 import beat.osu.client.helper.StageManager;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.utils.OszExtractor;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -15,6 +18,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.FileChooser;
+import javafx.util.Duration;
 import lombok.Setter;
 
 import java.io.File;
@@ -26,6 +30,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class UploadBox extends VBox {
 
@@ -33,6 +38,8 @@ public class UploadBox extends VBox {
     private FileChooser fileChooser;
     @Setter
     private Runnable onUploadCompleteCallback;
+    @Setter
+    private Consumer<String> onUploadProgressCallback;
 
     public UploadBox() {
         this.dropText = new Label("Upload your beatmap here");
@@ -108,6 +115,12 @@ public class UploadBox extends VBox {
 
                     if (!filename.endsWith(".osz"))
                         continue;
+                    
+                    // Report upload progress
+                    if (onUploadProgressCallback != null) {
+                        Platform.runLater(() -> onUploadProgressCallback.accept("Uploading " + filename));
+                    }
+                    
                     try {
                         Files.copy(file.toPath(), destPath, StandardCopyOption.REPLACE_EXISTING);
                         System.out.println("Copied: " + filename);
@@ -205,6 +218,18 @@ public class UploadBox extends VBox {
 
             @Override
             protected void succeeded() {
+                if (onUploadProgressCallback != null) {
+                    Platform.runLater(() -> onUploadProgressCallback.accept("Upload completed!"));
+                    
+                    // Clear the message after 2 seconds
+                    Timeline clearTimeline = new Timeline(
+                            new KeyFrame(Duration.seconds(2), e ->
+                                Platform.runLater(() ->
+                                    onUploadProgressCallback.accept("")))
+                    );
+                    clearTimeline.play();
+                }
+                
                 if (onUploadCompleteCallback != null) {
                     onUploadCompleteCallback.run();
                 }
