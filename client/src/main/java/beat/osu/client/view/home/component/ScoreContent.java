@@ -7,7 +7,9 @@ import java.util.function.Consumer;
 
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ScreenManager;
 import beat.osu.shared.dto.score.ScoreDto;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
@@ -32,10 +34,12 @@ public class ScoreContent extends ScrollPane {
         Image noRecordsImage = new Image(Objects.requireNonNull(Main.class
                 .getResource("/assets/images/no-records-img.png")).toExternalForm());
         this.noRecordsImageView = new ImageView(noRecordsImage);
-        this.noRecordsImageView.setFitWidth(300);
-        this.noRecordsImageView.setFitHeight(150);
         this.noRecordsImageView.setPreserveRatio(true);
-        
+        this.noRecordsImageView.setSmooth(true);
+        this.noRecordsImageView.setFitWidth(ScreenManager.SCREEN_WIDTH * 0.25);
+
+        StackPane.setMargin(noRecordsImageView, new Insets(ScreenManager.SCREEN_HEIGHT * 0.26, 0, 0, 0));
+
         this.getStyleClass().add("score-content");
         this.setFitToWidth(true);
         this.setHbarPolicy(ScrollBarPolicy.NEVER);

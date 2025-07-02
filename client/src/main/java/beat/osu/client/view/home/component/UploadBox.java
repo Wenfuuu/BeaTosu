@@ -2,6 +2,7 @@ package beat.osu.client.view.home.component;
 
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ResourceManager;
+import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.StageManager;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.utils.OszExtractor;
@@ -54,6 +55,7 @@ public class UploadBox extends VBox {
 
     private void initializeComponents() {
         this.getStyleClass().add("drop-box");
+        this.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.16);
     }
 
     private void setupLayout() {
