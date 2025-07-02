@@ -403,8 +403,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void failGame() {
-        // Notify spectators (this will also remove session after notification
-        // completes)
+        SfxManager.playSfx("failsound.wav");
         notifySpectatorsPlayerExited();
 
         System.out.println("Game failed, stopping game");
@@ -869,6 +868,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         misses++;
         int oldCombo = masterComboNumber;
+        if (oldCombo >= 20) SfxManager.playSfx("combobreak.mp3");
         masterComboNumber = 0;
 
         // Update accuracy

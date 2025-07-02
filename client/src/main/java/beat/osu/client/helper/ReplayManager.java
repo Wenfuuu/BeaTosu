@@ -487,6 +487,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
 
         misses++;
         int oldCombo = masterComboNumber;
+        if (oldCombo >= 20) SfxManager.playSfx("combobreak.mp3");
         masterComboNumber = 0;
 
         // Update accuracy
@@ -507,10 +508,9 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
         notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
 
         // Check for game over (health reaches 0)
-        if (health <= 0) {
-            System.out.println("hp reached 0, stopping game");
-            // failGame();
-        }
+//        if (health <= 0) {
+//            System.out.println("hp reached 0, stopping game");
+//        }
     }
 
     private void updateAccuracy() {
