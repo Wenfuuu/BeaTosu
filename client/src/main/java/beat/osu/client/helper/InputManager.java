@@ -6,7 +6,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -20,11 +19,19 @@ public class InputManager {
     private final StringBuffer typedChars;
 
     @Getter
-    @Setter
-    private static KeyCode keybind1 = KeyCode.Z;
+    private static KeyCode keybind1;
     @Getter
-    @Setter
-    private static KeyCode keybind2 = KeyCode.X;
+    private static KeyCode keybind2;
+    
+    public static void setKeybind1(KeyCode keybind1) {
+        InputManager.keybind1 = keybind1;
+        ConfigurationManager.getInstance().setKeybind1(keybind1.name());
+    }
+    
+    public static void setKeybind2(KeyCode keybind2) {
+        InputManager.keybind2 = keybind2;
+        ConfigurationManager.getInstance().setKeybind2(keybind2.name());
+    }
 
     static {
         keybind1 = KeyCode.valueOf(ConfigurationManager.getInstance().getKeybind1());

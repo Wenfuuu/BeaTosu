@@ -7,15 +7,18 @@ import beat.osu.client.utils.OsuParser;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.io.File;
 import java.net.URL;
 
 public class SfxManager {
     @Getter
-    @Setter
     private static double SFX_VOLUME;
+    
+    public static void setSFX_VOLUME(double SFX_VOLUME) {
+        SfxManager.SFX_VOLUME = SFX_VOLUME;
+        ConfigurationManager.getInstance().setSfxVolume(SFX_VOLUME);
+    }
 
     static {
         SFX_VOLUME = ConfigurationManager.getInstance().getSfxVolume();

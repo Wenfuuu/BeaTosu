@@ -17,8 +17,6 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 public class BgmManager {
@@ -29,8 +27,15 @@ public class BgmManager {
     private MediaPlayer currentPlayer;
 
     @Getter
-    @Setter
     private double BGM_VOLUME;
+
+    public void setBGM_VOLUME(double BGM_VOLUME) {
+        this.BGM_VOLUME = BGM_VOLUME;
+        ConfigurationManager.getInstance().setBgmVolume(BGM_VOLUME);
+        if (currentPlayer != null) {
+            currentPlayer.setVolume(BGM_VOLUME);
+        }
+    }
 
     private PlaybackMode currentPlaybackMode = PlaybackMode.DEFAULT;
 
