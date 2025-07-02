@@ -1,6 +1,8 @@
 package beat.osu.client.view.lobby;
 
 import java.net.URL;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 import beat.osu.client.controller.ChatController;
@@ -16,6 +18,7 @@ import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.PlaylistManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.ViewManager;
+import beat.osu.client.view.lobby.component.cards.MatchCard;
 import beat.osu.client.view.lobby.component.layout.NavigationBar;
 import beat.osu.client.view.lobby.component.layout.TopBar;
 import beat.osu.client.view.lobby.component.modals.CreateMatchModal;
@@ -305,6 +308,10 @@ public class LobbyView extends Page {
             createMatchModal.show();
         });
 
+        navigationBar.getQuickJoinButton().setOnMouseClicked(e -> {
+            quickJoinMatch();
+        });
+
         jukebox.getMediaControls().getPlaylistButton().setOnAction(event -> {
             if (playlistModal.isVisible()) {
                 playlistModal.hide();
@@ -382,5 +389,24 @@ public class LobbyView extends Page {
         });
 
         fadeOut.play();
+    }
+
+    private void quickJoinMatch() {
+        try {
+            List<MatchCard> suitableMatches = matchesPanel.getSuitableMatchesForQuickJoin();
+            
+            if (suitableMatches.isEmpty()) {
+                Toast.error("No suitable matches found!").show();
+                return;
+            }
+            
+            Random random = new Random();
+            MatchCard selectedMatchCard = suitableMatches.get(random.nextInt(suitableMatches.size()));
+            
+            joinMatch(selectedMatchCard.getMatchId(), null);
+            
+        } catch (Exception e) {
+            Toast.error("Failed to quick join: " + e.getMessage()).show();
+        }
     }
 }

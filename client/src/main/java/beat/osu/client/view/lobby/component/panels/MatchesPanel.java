@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import beat.osu.client.controller.MatchController;
 import beat.osu.client.helper.CssManager;
@@ -321,5 +322,18 @@ public class MatchesPanel extends VBox {
         }
         
         return true;
+    }
+    
+    public List<MatchCard> getSuitableMatchesForQuickJoin() {
+        return matchCards.stream()
+            .filter(matchCard -> {
+                boolean hasNoPassword = !matchCard.hasPassword();
+                boolean userHasBeatmap = matchCard.userHasBeatmap();
+                boolean notInProgress = !matchCard.isInProgress();
+                boolean notFull = !matchCard.isFull();
+
+                return hasNoPassword && userHasBeatmap && notInProgress && notFull;
+            })
+            .collect(Collectors.toList());
     }
 }

@@ -654,7 +654,6 @@ public class MatchController {
                 notifyPlayerStatusUpdated(event);
             }
         } else if (message.getType() == RealtimeMessageType.MATCH_COMPLETED) {
-            // redirect player to match results page
             if (message.getPayload() instanceof MatchCompletedEvent) {
                 MatchCompletedEvent event = (MatchCompletedEvent) message.getPayload();
                 notifyMatchCompleted(event);
