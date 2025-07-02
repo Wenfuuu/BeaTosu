@@ -83,7 +83,7 @@ public class SettingsModal extends StackPane {
         // Left Click Keybind
         Label leftClickLabel = new Label("Left Click");
         leftClickLabel.getStyleClass().add("settings-label");
-        leftClickKeybind = new Button("Z");
+        leftClickKeybind = new Button(InputManager.getKeybind1().name());
         leftClickKeybind.getStyleClass().add("keybind-button");
         leftClickKeybind.setMaxWidth(Double.MAX_VALUE);
         VBox leftClickBox = new VBox(10, leftClickLabel, leftClickKeybind);
@@ -91,7 +91,7 @@ public class SettingsModal extends StackPane {
         // Right Click Keybind
         Label rightClickLabel = new Label("Right Click");
         rightClickLabel.getStyleClass().add("settings-label");
-        rightClickKeybind = new Button("X");
+        rightClickKeybind = new Button(InputManager.getKeybind2().name());
         rightClickKeybind.getStyleClass().add("keybind-button");
         rightClickKeybind.setMaxWidth(Double.MAX_VALUE);
         VBox rightClickBox = new VBox(10, rightClickLabel, rightClickKeybind);
@@ -227,7 +227,6 @@ public class SettingsModal extends StackPane {
                     resetKeybindButton(currentKeybindButton);
                     System.out.println("Only letters are allowed for keybinds");
                     Toast.error("Only letters are allowed for keybinds").show();
-                    ;
                     return;
                 }
 

@@ -1,5 +1,6 @@
 package beat.osu.client.helper;
 
+import beat.osu.client.config.ConfigurationManager;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
@@ -24,6 +25,11 @@ public class InputManager {
     @Getter
     @Setter
     private static KeyCode keybind2 = KeyCode.X;
+
+    static {
+        keybind1 = KeyCode.valueOf(ConfigurationManager.getInstance().getKeybind1());
+        keybind2 = KeyCode.valueOf(ConfigurationManager.getInstance().getKeybind2());
+    }
 
     public InputManager(Scene scene) {
         pressedKeys = new HashSet<>();
