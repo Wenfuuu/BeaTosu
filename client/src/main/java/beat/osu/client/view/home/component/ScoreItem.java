@@ -1,7 +1,12 @@
 package beat.osu.client.view.home.component;
 
+import java.io.ByteArrayInputStream;
+import java.net.URL;
+import java.util.Objects;
+
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ScreenManager;
 import beat.osu.shared.dto.score.ScoreDto;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -11,11 +16,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import lombok.Getter;
-
-import java.io.ByteArrayInputStream;
-import java.net.URL;
-import java.util.Objects;
 
 public class ScoreItem extends HBox {
 
@@ -40,48 +42,52 @@ public class ScoreItem extends HBox {
 
         gradeSymbol = new ImageView();
         updateGrade(score.getGrade());
-        gradeSymbol.setFitHeight(40);
+        gradeSymbol.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.05);
         gradeSymbol.setPreserveRatio(true);
 
         String profileImagePath = "/assets/images/avatar-guest.png";
         profileImageView = new ImageView(
                 new Image(Objects.requireNonNull(Main.class.getResource(profileImagePath)).toExternalForm()));
-        profileImageView.setFitHeight(50);
-        profileImageView.setFitWidth(50);
+        profileImageView.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.058);
+        profileImageView.setFitWidth(ScreenManager.SCREEN_HEIGHT * 0.058);
 
         Label usernameLabel = new Label(score.getUsername());
         usernameLabel.getStyleClass().add("score-username");
-        usernameLabel.setMaxWidth(150);
+        usernameLabel.setFont(Font.font("Aller Light", ScreenManager.SCREEN_HEIGHT * 0.022));
 
         String scoreString = String.format("Score: %,d (%dx)", score.getScore(), score.getHighestCombo());
         Label scoreLabel = new Label(scoreString);
         scoreLabel.getStyleClass().add("score-value");
-        VBox scoreInfo = new VBox(3);
+        scoreLabel.setFont(Font.font("Aller Light", ScreenManager.SCREEN_HEIGHT * 0.020));
+        VBox scoreInfo = new VBox();
         scoreInfo.getStyleClass().add("score-info-container");
         scoreInfo.getChildren().addAll(usernameLabel, scoreLabel);
 
-        // Create a spacer to push accuracy to the right
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         Label accuracyLabel = new Label(String.format("%.2f%%", score.getAccuracy()));
         accuracyLabel.getStyleClass().add("score-accuracy");
         accuracyLabel.setAlignment(Pos.CENTER_RIGHT);
+        accuracyLabel.setFont(Font.font("Aller Light", ScreenManager.SCREEN_HEIGHT * 0.020));
+
+        gradeSymbol.setTranslateY(-2);
+        scoreInfo.setTranslateY(-2);
+        accuracyLabel.setTranslateY(-3);
 
         this.getChildren().addAll(profileImageView, gradeSymbol, scoreInfo, spacer, accuracyLabel);
 
         setupUI();
         updateProfilePicture(score.getProfilePicture());
         loadStyles();
+        setupHoverHandlers(usernameLabel, scoreLabel, accuracyLabel);
     }
 
     private void setupUI() {
         this.getStyleClass().add("score-item");
-        this.setSpacing(15);
-        this.setMinHeight(70);
-        this.setPrefHeight(70);
+        this.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.065);
+        this.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.065);
 
-        // Add margin classes for better spacing
         profileImageView.getStyleClass().add("score-profile-picture");
         gradeSymbol.getStyleClass().add("score-grade-symbol");
     }
@@ -119,5 +125,15 @@ public class ScoreItem extends HBox {
             System.err.println("Could not load default avatar: " + e.getMessage());
             profileImageView.setImage(null);
         }
+    }
+
+    private void setupHoverHandlers(Label usernameLabel, Label scoreLabel, Label accuracyLabel) {
+        this.setOnMouseEntered(e -> {
+            this.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
+        });
+
+        this.setOnMouseExited(e -> {
+            this.setStyle("-fx-background-color: rgba(0, 0, 0, 0.25);");
+        });
     }
 }
