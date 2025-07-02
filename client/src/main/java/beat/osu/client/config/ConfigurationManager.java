@@ -12,12 +12,16 @@ public class ConfigurationManager {
 
     private void loadProperties() {
         properties = new Properties();
-        try (InputStream input = getClass().getClassLoader()
-                .getResourceAsStream("config.properties")) {
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties");
+        InputStream settingsInput = getClass().getClassLoader().getResourceAsStream("settings.properties")) {
             if (input == null) {
                 throw new RuntimeException("Unable to find config.properties");
             }
             properties.load(input);
+            if (settingsInput == null) {
+                throw new RuntimeException("Unable to find settings.properties");
+            }
+            properties.load(settingsInput);
         } catch (IOException e) {
             throw new RuntimeException("Error loading configuration", e);
         }
@@ -45,6 +49,31 @@ public class ConfigurationManager {
     private Integer getIntegerProperty(String key) {
         String value = getStringProperty(key);
         return Integer.parseInt(value);
+    }
+
+    private Double getDoubleProperty(String key) {
+        String value = getStringProperty(key);
+        return Double.parseDouble(value);
+    }
+
+    public String getKeybind1() {
+        return getStringProperty("keybind.1");
+    }
+
+    public String getKeybind2() {
+        return getStringProperty("keybind.2");
+    }
+
+    public double getBgmVolume() {
+        return getDoubleProperty("bgm.volume");
+    }
+
+    public double getSfxVolume() {
+        return getDoubleProperty("sfx.volume");
+    }
+
+    public double getBackgroundDim() {
+        return getDoubleProperty("background.dim");
     }
 
     public String getServerHost() {
