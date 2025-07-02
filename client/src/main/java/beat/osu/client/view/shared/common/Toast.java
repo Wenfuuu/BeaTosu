@@ -54,7 +54,7 @@ public class Toast {
 
     private void setText(String message) {
         Text messageText = new Text(message);
-        messageText.setFont(Font.font("Aller Light", 18));
+        messageText.setFont(Font.font("Aller", 18));
         messageText.setFill(Color.WHITE);
         messageText.setWrappingWidth(MAX_TOAST_WIDTH - 80);
         messageText.setTextAlignment(TextAlignment.LEFT);

@@ -204,9 +204,10 @@ public class LoginModal extends StackPane {
                                 if (onLoginSuccessListener != null) {
                                     onLoginSuccessListener.accept(result.getValue().getUser());
                                 }
+
+                                Toast.success(response.getMessage()).show();
                                 hide();
                             } else {
-                                System.err.println(result.getError().getMessage());
                                 Toast.error(result.getError().getMessage()).show();
                             }
                         });

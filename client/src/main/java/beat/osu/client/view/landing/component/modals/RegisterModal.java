@@ -10,6 +10,7 @@ import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.view.shared.common.Toast;
 import beat.osu.shared.dto.auth.responses.RegisterResponse;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -205,14 +206,15 @@ public class RegisterModal extends StackPane {
 
             authController.register(username, password, email, profilePicture, isSupporter)
                     .thenAcceptAsync(result -> {
-                        if (result.isSuccess()) {
-                            RegisterResponse response = result.getValue();
-                            System.out.println(response.getMessage());
-                            Toast.success(response.getMessage()).show();
-                            this.setVisible(false);
-                        } else {
-                            System.err.println(result.getError().getMessage());
-                        }
+                        Platform.runLater(() -> {
+                            if (result.isSuccess()) {
+                                RegisterResponse response = result.getValue();
+                                this.setVisible(false);
+                                Toast.success(response.getMessage()).show();
+                            } else {
+                                Toast.error(result.getError().getMessage()).show();
+                            }
+                        });
                     });
         });
 
