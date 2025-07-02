@@ -934,7 +934,7 @@ public class HitSlider extends HitObject {
                 mouseInBallRadius = isMouseInBallRadius(mouseX, mouseY);
                 boolean previousKeyHolded = this.keyHolded;
                 this.keyHolded = keyHolded;
-                System.out.println("Key holded: " + keyHolded);
+//                System.out.println("Key holded: " + keyHolded);
 
                 // Update colors if the mouse state changed
                 if (previousMouseInBallRadius != mouseInBallRadius ||

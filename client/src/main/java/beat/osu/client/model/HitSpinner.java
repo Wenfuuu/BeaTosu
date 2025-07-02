@@ -2,6 +2,7 @@ package beat.osu.client.model;
 
 import beat.osu.client.Main;
 import beat.osu.client.enums.HitResult;
+import beat.osu.client.helper.SfxManager;
 import beat.osu.client.interfaces.game.HitObjectListener;
 import javafx.animation.*;
 import javafx.scene.Node;
@@ -156,10 +157,12 @@ public class HitSpinner extends HitObject {
                 prevSpin = Math.round(completedSpins);
                 System.out.println("previous completed rotations: " + prevSpin);
                 listener.onHit(this, HitResult.SPIN);
+                SfxManager.playSfx("spinnerspin.wav");
                 if (prevSpin > TARGET_SPINS) {
                     listener.onHit(this, HitResult.COMPLETE_SPIN);
                     int totalRotation = (int) prevSpin;
                     listener.onAdditionalSpin(this, totalRotation - (int) TARGET_SPINS);
+                    SfxManager.playSfx("spinnerbonus.wav");
                 }
             }
         } else if (isHit() && !isActive && !isVisible()) {
