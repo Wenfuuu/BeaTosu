@@ -102,7 +102,7 @@ public class SettingsModal extends StackPane {
         // BGM Volume Section
         Label bgmLabel = new Label("Background Music Volume");
         bgmLabel.getStyleClass().add("settings-label");
-        bgmVolumeSlider = new Slider(0, 1, 0.2);
+        bgmVolumeSlider = new Slider(0, 1, BgmManager.getInstance().getBGM_VOLUME());
         bgmVolumeSlider.getStyleClass().add("settings-slider");
         bgmVolumeSlider.setShowTickLabels(true);
         bgmVolumeSlider.setShowTickMarks(true);

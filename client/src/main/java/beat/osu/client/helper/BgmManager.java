@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import beat.osu.client.config.ConfigurationManager;
 import beat.osu.client.enums.PlaybackMode;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
@@ -20,7 +21,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@NoArgsConstructor
 public class BgmManager {
     private static volatile BgmManager instance;
 
@@ -28,10 +28,15 @@ public class BgmManager {
     private String defaultBgmHash;
     private MediaPlayer currentPlayer;
 
+    @Getter
     @Setter
-    private double BGM_VOLUME = 0.2;
+    private double BGM_VOLUME;
 
     private PlaybackMode currentPlaybackMode = PlaybackMode.DEFAULT;
+
+    private BgmManager() {
+        BGM_VOLUME = ConfigurationManager.getInstance().getBgmVolume();
+    }
 
     public static BgmManager getInstance() {
         if (instance == null) {
