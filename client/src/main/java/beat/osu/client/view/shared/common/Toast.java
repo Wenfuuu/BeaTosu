@@ -7,7 +7,9 @@ import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.SceneManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.StageManager;
-import javafx.animation.*;
+import javafx.animation.PauseTransition;
+import javafx.animation.SequentialTransition;
+import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -15,7 +17,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
@@ -26,9 +27,9 @@ public class Toast {
     private Stage toastStage;
     private HBox root;
     private VBox box;
-    private final int fadeInDelay = 500;
+    private final int slideInDelay = 500;
     private final int toastDelay = 2000;
-    private final int fadeOutDelay = 500;
+    private final int slideOutDelay = 500;
 
     private final double MAX_TOAST_WIDTH = 400;
     private final ToastType type;
@@ -52,10 +53,6 @@ public class Toast {
     }
 
     private void setText(String message) {
-        Text iconText = new Text(type.getIcon());
-        iconText.setFont(Font.font("Aller Light", FontWeight.BOLD, 20));
-        iconText.setFill(Color.web(type.getTextColor()));
-
         Text messageText = new Text(message);
         messageText.setFont(Font.font("Aller Light", 18));
         messageText.setFill(Color.WHITE);
@@ -64,39 +61,30 @@ public class Toast {
 
         HBox contentBox = new HBox(12);
         contentBox.setAlignment(Pos.CENTER_LEFT);
-        contentBox.getChildren().addAll(iconText, messageText);
+        contentBox.getChildren().addAll(messageText);
 
         this.box = new VBox(contentBox);
         box.setMaxWidth(MAX_TOAST_WIDTH);
         box.setAlignment(Pos.CENTER_LEFT);
-        String backgroundColor = type.getBackgroundColor();
-        String shadowColor = getShadowColor(type);
+        String borderColor = type.getBorderColor();
 
         box.setStyle(String.format(
-                "-fx-background-radius: 8px; " +
-                        "-fx-background-color: %s; " +
-                        "-fx-padding: 16px 20px; " +
-                        "-fx-min-width: 250px; " +
-                        "-fx-max-width: %spx; " +
-                        "-fx-effect: dropshadow(gaussian, %s, 10.0, 0.3, 0, 2);",
-                backgroundColor, MAX_TOAST_WIDTH, shadowColor
+                "-fx-background-radius: 12px; " +
+                "-fx-background-color: rgba(0, 0, 0, 0.8); " +
+                "-fx-padding: 10px 6px; " +
+                "-fx-min-width: 250px; " +
+                "-fx-border-color: %s; " +
+                "-fx-border-radius: 8px; " +
+                "-fx-border-width: 2px; " +
+                "-fx-max-width: %spx; ",
+                borderColor, MAX_TOAST_WIDTH
         ));
 
         root.setPadding(new Insets(40));
         root.setStyle("-fx-background-color: transparent;");
-        root.setOpacity(0);
 
         root.getChildren().removeAll();
         root.getChildren().add(box);
-    }
-
-    private String getShadowColor(ToastType type) {
-        switch (type) {
-            case SUCCESS: return "rgba(76, 175, 80, 0.3)";
-            case INFORMATION: return "rgba(33, 150, 243, 0.3)";
-            case ERROR: return "rgba(244, 67, 54, 0.3)";
-            default: return "rgba(0, 0, 0, 0.3)";
-        }
     }
 
     private void initialize() {
@@ -105,8 +93,7 @@ public class Toast {
         toastStage.setResizable(false);
         toastStage.initStyle(StageStyle.TRANSPARENT);
 
-        toastStage.setX(ScreenManager.SCREEN_WIDTH - MAX_TOAST_WIDTH - 50);
-        toastStage.setY(0);
+        toastStage.setY(ScreenManager.SCREEN_HEIGHT - 125);
 
         this.root = new HBox();
 
@@ -128,18 +115,24 @@ public class Toast {
     }
 
     private void animateToast() {
-        FadeTransition fadeIn = new FadeTransition(Duration.millis(fadeInDelay), toastStage.getScene().getRoot());
-        fadeIn.setFromValue(0);
-        fadeIn.setToValue(1);
-
+        double finalX = ScreenManager.SCREEN_WIDTH - MAX_TOAST_WIDTH - 20;
+        toastStage.setX(finalX);
+        
+        double slideDistance = MAX_TOAST_WIDTH + 50;
+        root.setTranslateX(slideDistance);
+        
+        TranslateTransition slideIn = new TranslateTransition(Duration.millis(slideInDelay), root);
+        slideIn.setFromX(slideDistance);
+        slideIn.setToX(0);
+        
         PauseTransition pause = new PauseTransition(Duration.millis(toastDelay));
-
-        FadeTransition fadeOut = new FadeTransition(Duration.millis(fadeOutDelay), toastStage.getScene().getRoot());
-        fadeOut.setFromValue(1);
-        fadeOut.setToValue(0);
-        fadeOut.setOnFinished(e -> toastStage.close());
-
-        SequentialTransition sequence = new SequentialTransition(fadeIn, pause, fadeOut);
+        
+        TranslateTransition slideOut = new TranslateTransition(Duration.millis(slideOutDelay), root);
+        slideOut.setFromX(0);
+        slideOut.setToX(slideDistance);
+        slideOut.setOnFinished(e -> toastStage.close());
+        
+        SequentialTransition sequence = new SequentialTransition(slideIn, pause, slideOut);
         sequence.play();
     }
 }

@@ -4,17 +4,15 @@ import lombok.Getter;
 
 @Getter
 public enum ToastType {
-    SUCCESS("#4CAF50", "#FFFFFF", "✓"),
-    INFORMATION("#2196F3", "#FFFFFF", "ℹ"),
-    ERROR("#F44336", "#FFFFFF", "✕");
+    SUCCESS("#48994b", "#FFFFFF"),
+    INFORMATION("#2196F3", "#FFFFFF"),
+    ERROR("#793622", "#FFFFFF");
 
-    private final String backgroundColor;
+    private final String borderColor;
     private final String textColor;
-    private final String icon;
 
-    ToastType(String backgroundColor, String textColor, String icon) {
-        this.backgroundColor = backgroundColor;
+    ToastType(String borderColor, String textColor) {
+        this.borderColor = borderColor;
         this.textColor = textColor;
-        this.icon = icon;
     }
 }
