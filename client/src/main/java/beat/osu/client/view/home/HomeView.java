@@ -70,9 +70,6 @@ public class HomeView extends Page {
     private ArrayList<Beatmap> beatmaps;
     private ArrayList<ScoreDto> scores;
 
-    private volatile boolean isLoadingBeatmaps = false;
-    private Thread loadingThread = null;
-
     private HBox searchArea;
     private Label searchLabel;
     private Label contentLabel;
@@ -130,6 +127,7 @@ public class HomeView extends Page {
         scoreFilterComboBox.getItems().addAll(ScoreFilter.getAllScoreFilters());
         scoreFilterComboBox.getSelectionModel().selectFirst();
         scoreFilterComboBox.setOpacity(1.0);
+        scoreFilterComboBox.prefWidthProperty().bind(leftBar.widthProperty());
 
         beatmapContent = new BeatmapContent(beatmaps);
         uploadBox = new UploadBox();
