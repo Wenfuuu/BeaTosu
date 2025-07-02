@@ -10,6 +10,7 @@ import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ResourceManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.SfxManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.utils.OsuParser;
 import javafx.animation.FadeTransition;
@@ -153,7 +154,10 @@ public class BeatmapCard extends StackPane {
         infoBox.getChildren().addAll(beatmapNameLabel, beatmapInfoLabel, beatmapVersionLabel, beatmapStarsBox);
         contentContainer.getChildren().addAll(gamemodeBox, infoBox);
 
-        this.setOnMouseEntered(e -> transitionToOrange());
+        this.setOnMouseEntered(e -> {
+            SfxManager.playSfx("select-difficulty.wav");
+            transitionToOrange();
+        });
         this.setOnMouseExited(e -> transitionToPink());
 
         this.getChildren().addAll(beatmapImageView, pinkOverlay, orangeOverlay, contentContainer);

@@ -62,7 +62,6 @@ public class InputManager {
                 if (typedChars.length() > 0) {
                     typedChars.deleteCharAt(typedChars.length() - 1);
                 }
-                // System.out.println("Typed: " + typedChars);
             } else {
                 pressedKeys.add(keyCode);
             }
