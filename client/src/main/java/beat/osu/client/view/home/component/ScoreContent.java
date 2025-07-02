@@ -1,24 +1,41 @@
 package beat.osu.client.view.home.component;
 
-import beat.osu.client.helper.CssManager;
-import beat.osu.shared.dto.score.ScoreDto;
-import javafx.scene.Node;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.VBox;
-import lombok.Setter;
-
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.function.Consumer;
+
+import beat.osu.client.Main;
+import beat.osu.client.helper.CssManager;
+import beat.osu.shared.dto.score.ScoreDto;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import lombok.Setter;
 
 public class ScoreContent extends ScrollPane {
 
     private final VBox scoreListBox;
+    private final StackPane contentContainer;
+    private final ImageView noRecordsImageView;
     @Setter
     private Consumer<ScoreDto> onScoreSelectedCallback;
 
     public ScoreContent(ArrayList<ScoreDto> scores) {
         this.scoreListBox = new VBox();
+        this.contentContainer = new StackPane();
+        
+        Image noRecordsImage = new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/images/no-records-img.png")).toExternalForm());
+        this.noRecordsImageView = new ImageView(noRecordsImage);
+        this.noRecordsImageView.setFitWidth(300);
+        this.noRecordsImageView.setFitHeight(150);
+        this.noRecordsImageView.setPreserveRatio(true);
+        
         this.getStyleClass().add("score-content");
         this.setFitToWidth(true);
         this.setHbarPolicy(ScrollBarPolicy.NEVER);
@@ -34,10 +51,12 @@ public class ScoreContent extends ScrollPane {
 
     private void initializeComponents() {
         scoreListBox.getStyleClass().add("score-list");
+        contentContainer.getChildren().add(scoreListBox);
+        contentContainer.setAlignment(Pos.CENTER);
     }
 
     private void setupLayout() {
-        this.setContent(scoreListBox);
+        this.setContent(contentContainer);
     }
 
     private void loadStyles() {
@@ -51,9 +70,16 @@ public class ScoreContent extends ScrollPane {
 
     public void populateScores(ArrayList<ScoreDto> scores) {
         scoreListBox.getChildren().clear();
-        for (ScoreDto score : scores) {
-            ScoreItem scoreItem = new ScoreItem(score);
-            scoreListBox.getChildren().add(scoreItem);
+        contentContainer.getChildren().clear();
+        
+        if (scores.isEmpty()) {
+            contentContainer.getChildren().add(noRecordsImageView);
+        } else {
+            contentContainer.getChildren().add(scoreListBox);
+            for (ScoreDto score : scores) {
+                ScoreItem scoreItem = new ScoreItem(score);
+                scoreListBox.getChildren().add(scoreItem);
+            }
         }
     }
 
