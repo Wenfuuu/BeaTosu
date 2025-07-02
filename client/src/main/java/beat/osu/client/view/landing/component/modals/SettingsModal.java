@@ -113,7 +113,7 @@ public class SettingsModal extends StackPane {
         // SFX Volume Section
         Label sfxLabel = new Label("Sound Effects Volume");
         sfxLabel.getStyleClass().add("settings-label");
-        sfxVolumeSlider = new Slider(0, 1, 0.2);
+        sfxVolumeSlider = new Slider(0, 1, SfxManager.getSFX_VOLUME());
         sfxVolumeSlider.getStyleClass().add("settings-slider");
         sfxVolumeSlider.setShowTickLabels(true);
         sfxVolumeSlider.setShowTickMarks(true);

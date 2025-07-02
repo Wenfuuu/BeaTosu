@@ -1,18 +1,25 @@
 package beat.osu.client.helper;
 
 import beat.osu.client.Main;
+import beat.osu.client.config.ConfigurationManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.utils.OsuParser;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.io.File;
 import java.net.URL;
 
 public class SfxManager {
+    @Getter
     @Setter
-    private static double SFX_VOLUME = 0.2;
+    private static double SFX_VOLUME;
+
+    static {
+        SFX_VOLUME = ConfigurationManager.getInstance().getSfxVolume();
+    }
 
 //    private static final String SFX_DIR = "./src/main/resources/assets/sfx/";
     private static URL getSfxResource(String sfxName) {
