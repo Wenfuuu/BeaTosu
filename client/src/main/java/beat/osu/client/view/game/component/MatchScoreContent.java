@@ -1,6 +1,11 @@
 package beat.osu.client.view.game.component;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ScreenManager;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
@@ -9,10 +14,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import lombok.Getter;
-
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MatchScoreContent extends ScrollPane {
 
@@ -52,6 +53,14 @@ public class MatchScoreContent extends ScrollPane {
 
     private void setupLayout() {
         this.setContent(scoreListBox);
+
+        this.setMinHeight(ScreenManager.SCREEN_HEIGHT);
+        this.setMaxHeight(ScreenManager.SCREEN_HEIGHT);
+        this.setPrefHeight(ScreenManager.SCREEN_HEIGHT);
+
+        scoreListBox.setMinHeight(ScreenManager.SCREEN_HEIGHT);
+        scoreListBox.setMaxHeight(ScreenManager.SCREEN_HEIGHT);
+        scoreListBox.setPrefHeight(ScreenManager.SCREEN_HEIGHT);
     }
 
     private void loadStyles() {

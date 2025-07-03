@@ -41,6 +41,7 @@
     -fx-background-color: transparent;
     -fx-spacing: 2;
     -fx-padding: 5;
-    -fx-pref-width: 280; /* Fixed width for the list */
+    -fx-pref-width: 280;
     -fx-max-width: 280;
+    -fx-alignment: center-left;
 }

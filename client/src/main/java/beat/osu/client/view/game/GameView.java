@@ -14,13 +14,12 @@ import beat.osu.shared.dto.match.events.MatchScoreEvent;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -113,12 +112,6 @@ public class GameView extends Page implements GameEventListener {
         failOverlay = new FailOverlay();
         matchScoreContent = new MatchScoreContent(new ArrayList<>());
 
-        // Set size constraints for the match score content
-        matchScoreContent.setPrefWidth(300);
-        matchScoreContent.setMaxWidth(300);
-        matchScoreContent.setPrefHeight(400);
-        matchScoreContent.setMaxHeight(400);
-        // Only show in multiplayer mode
         matchScoreContent.setVisible(isMultiplayer);
 
         createGamePane();
@@ -126,7 +119,6 @@ public class GameView extends Page implements GameEventListener {
         root.getChildren().addAll(gamePane, uiPane, matchScoreContent, pauseOverlay,
                 resultOverlay, matchResultOverlay, failOverlay);
 
-        // Set alignment for matchScoreContent to center-left (only if multiplayer)
         if (isMultiplayer) {
             StackPane.setAlignment(matchScoreContent, Pos.CENTER_LEFT);
         }
