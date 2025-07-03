@@ -20,55 +20,9 @@ import beat.osu.shared.dto.beatmap.requests.GetBeatmapByIdRequest;
 import beat.osu.shared.dto.beatmap.responses.GetBeatmapByIdResponse;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
-import beat.osu.shared.dto.match.events.HostChangedEvent;
-import beat.osu.shared.dto.match.events.HostLeftEvent;
-import beat.osu.shared.dto.match.events.MatchBeatmapUpdatedEvent;
-import beat.osu.shared.dto.match.events.MatchChangingBeatmapUpdatedEvent;
-import beat.osu.shared.dto.match.events.MatchCompletedEvent;
-import beat.osu.shared.dto.match.events.MatchCreatedEvent;
-import beat.osu.shared.dto.match.events.MatchEndedEvent;
-import beat.osu.shared.dto.match.events.MatchNameUpdatedEvent;
-import beat.osu.shared.dto.match.events.MatchPasswordUpdatedEvent;
-import beat.osu.shared.dto.match.events.MatchScoreEvent;
-import beat.osu.shared.dto.match.events.MatchStartedEvent;
-import beat.osu.shared.dto.match.events.MatchWinConditionUpdatedEvent;
-import beat.osu.shared.dto.match.events.PlayerFinishedEvent;
-import beat.osu.shared.dto.match.events.PlayerKickedEvent;
-import beat.osu.shared.dto.match.events.PlayerStatusUpdatedEvent;
-import beat.osu.shared.dto.match.events.SlotChangedEvent;
-import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
-import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
-import beat.osu.shared.dto.match.requests.ChangeMatchSlotRequest;
-import beat.osu.shared.dto.match.requests.CreateMatchRequest;
-import beat.osu.shared.dto.match.requests.JoinMatchRequest;
-import beat.osu.shared.dto.match.requests.KickPlayerRequest;
-import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
-import beat.osu.shared.dto.match.requests.PlayerFinishedEventRequest;
-import beat.osu.shared.dto.match.requests.SendMatchScoreEventRequest;
-import beat.osu.shared.dto.match.requests.StartMatchRequest;
-import beat.osu.shared.dto.match.requests.TransferHostRequest;
-import beat.osu.shared.dto.match.requests.UpdateMatchBeatmapRequest;
-import beat.osu.shared.dto.match.requests.UpdateMatchChangingBeatmapRequest;
-import beat.osu.shared.dto.match.requests.UpdateMatchNameRequest;
-import beat.osu.shared.dto.match.requests.UpdateMatchPasswordRequest;
-import beat.osu.shared.dto.match.requests.UpdateMatchWinConditionRequest;
-import beat.osu.shared.dto.match.requests.UpdatePlayerStatusRequest;
-import beat.osu.shared.dto.match.responses.ChangeMatchSlotResponse;
-import beat.osu.shared.dto.match.responses.CreateMatchResponse;
-import beat.osu.shared.dto.match.responses.GetAllMatchesResponse;
-import beat.osu.shared.dto.match.responses.JoinMatchResponse;
-import beat.osu.shared.dto.match.responses.KickPlayerResponse;
-import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
-import beat.osu.shared.dto.match.responses.PlayerFinishedEventResponse;
-import beat.osu.shared.dto.match.responses.SendMatchScoreEventResponse;
-import beat.osu.shared.dto.match.responses.StartMatchResponse;
-import beat.osu.shared.dto.match.responses.TransferHostResponse;
-import beat.osu.shared.dto.match.responses.UpdateMatchBeatmapResponse;
-import beat.osu.shared.dto.match.responses.UpdateMatchChangingBeatmapResponse;
-import beat.osu.shared.dto.match.responses.UpdateMatchNameResponse;
-import beat.osu.shared.dto.match.responses.UpdateMatchPasswordResponse;
-import beat.osu.shared.dto.match.responses.UpdateMatchWinConditionResponse;
-import beat.osu.shared.dto.match.responses.UpdatePlayerStatusResponse;
+import beat.osu.shared.dto.match.events.*;
+import beat.osu.shared.dto.match.requests.*;
+import beat.osu.shared.dto.match.responses.*;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.MatchWinCondition;
 import beat.osu.shared.enums.match.PlayerRole;
@@ -244,6 +198,33 @@ public class MatchService {
         }
 
         return response;
+    }
+
+    public Result<PlayerFailedEventResponse> playerFailed(PlayerFailedEventRequest request, String clientId) {
+        PlayerFailedEvent event = request.getPlayerFailedEvent();
+        int matchId = event.getMatchId();
+        Match match = matches.get(matchId);
+
+        if (match == null) {
+            return Result.failure(Error.notFound("Match not found"));
+        }
+
+        Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
+        if (userId == null) {
+            return Result.failure(Error.unauthorized("User not authenticated"));
+        }
+
+        MatchPlayer player = findPlayerInMatch(matchId, userId);
+        if (player == null) {
+            return Result.failure(Error.validation("Player not found in match"));
+        }
+        player.setStatus(PlayerStatus.FAILED);
+
+        RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.PLAYER_FAILED_EVENT, clientId, event);
+        broadcastMessageToMatchPlayers(clientId, matchId, realtimeMessage);
+
+        return Result.success(new PlayerFailedEventResponse("Player " + event.getUser().getUsername()
+                + " failed in match " + matchId));
     }
 
     public Result<LeaveMatchResponse> leaveMatch(LeaveMatchRequest request, String clientId) {

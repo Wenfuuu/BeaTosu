@@ -1,5 +1,6 @@
 package beat.osu.shared.dto.match.requests;
 
+import beat.osu.shared.dto.match.events.PlayerFailedEvent;
 import beat.osu.shared.dto.match.events.PlayerFinishedEvent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,5 +12,5 @@ import java.io.Serializable;
 public class PlayerFailedEventRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private PlayerFinishedEvent playerFailedEvent;
+    private PlayerFailedEvent playerFailedEvent;
 }

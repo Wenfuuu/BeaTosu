@@ -6,5 +6,6 @@ public enum PlayerStatus {
     READY,
     PLAYING,
     FINISHED,
-    EXITED
+    EXITED,
+    FAILED,
 }
