@@ -746,7 +746,7 @@ public class GameView extends Page implements GameEventListener {
                 break;
             case GAME_FAILED:
                 System.out.println("game failed, show fail overlay here");
-                if(!isMultiplayer) failOverlay.showFailOverlay();
+                failOverlay.showFailOverlay();
                 break;
             case ENTER_BREAK_PERIOD:
                 System.out.println("enter break period");

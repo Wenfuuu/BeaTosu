@@ -32,8 +32,12 @@ public class MatchScoreItem extends HBox {
             username = username + " [Quit]";
         }
         Label usernameLabel = new Label(username);
-        if (event.getMatchPlayer().getStatus() == PlayerStatus.EXITED) usernameLabel.getStyleClass().add("score-username-exited");
-        else usernameLabel.getStyleClass().add("score-username");
+        if (event.getMatchPlayer().getStatus() == PlayerStatus.EXITED ||
+        event.getMatchPlayer().getStatus() == PlayerStatus.FAILED) {
+            usernameLabel.getStyleClass().add("score-username-exited");
+        } else {
+            usernameLabel.getStyleClass().add("score-username");
+        }
         usernameLabel.setMaxWidth(150);
 
         String scoreString = String.format("%,d", event.getScore());

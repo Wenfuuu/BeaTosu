@@ -413,8 +413,13 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             gameState = GameState.FAILED;
             gameLoop.stop();
             BgmManager.getInstance().stopBgm();
+            notifyListeners(new GameEvent(GameEventType.GAME_FAILED, null));
+        } else {
+            MatchPlayerDto matchPlayer = getMatchPlayerByUserId(AuthManager.getUser().getId());
+            if (matchPlayer == null) return;
+            matchPlayer.setStatus(PlayerStatus.FAILED);
+            sendPlayerFailedEvent();
         }
-        notifyListeners(new GameEvent(GameEventType.GAME_FAILED, null));
     }
 
     private void updateGame(long elapsedMillis) {
@@ -596,14 +601,14 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         // spectateEventInProgress = true;
         testCount++;
-        System.out.println("Sending spectate event, count: " + testCount);
+//        System.out.println("Sending spectate event, count: " + testCount);
         try {
             SpectateEvent event = new SpectateEvent(elapsedMillis, replayEvent.getX(),
                     replayEvent.getY(), replayEvent.getKeyMask(), paneWidth, paneHeight,
                     masterComboNumber, score, accuracy, health);
             spectateController.sendSpectateEvent(event).thenApply(response -> {
                 if (response.isSuccess()) {
-                    System.out.println("Spectate event sent successfully: " + response.getValue().getMessage());
+//                    System.out.println("Spectate event sent successfully: " + response.getValue().getMessage());
                     // spectateEventInProgress = false;
                 } else {
                     System.err.println("Failed to send spectate event: " + response.getError().getMessage());
@@ -633,16 +638,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void sendMatchScoreEvent() {
-        if (!isMultiplayer || matchController == null)
-            return;
+        if (!isMultiplayer || matchController == null) return;
 
-        // if (matchScoreEventInProgress) {
-        // System.out.println("Skipping match score event - previous event still in
-        // progress");
-        // return;
-        // }
-
-        // matchScoreEventInProgress = true;
         try {
             MatchPlayerDto matchPlayer = getMatchPlayerByUserId(AuthManager.getUser().getId());
             MatchScoreEvent event = new MatchScoreEvent(matchDto.getId(),
@@ -670,9 +667,31 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         }
     }
 
+    private void sendPlayerFailedEvent() {
+        if (!isMultiplayer) return;
+
+        try {
+            System.out.println("Sending player failed event");
+            PlayerFailedEvent event = new PlayerFailedEvent(matchDto.getId(), AuthManager.getUser());
+            matchController.sendPlayerFailedEvent(event).thenApply(response -> {
+                if (response.isSuccess()) {
+                    System.out.println("Player failed event sent successfully: " + response.getValue().getMessage());
+                } else {
+                    System.err.println("Failed to send player failed event: " + response.getError().getMessage());
+                }
+                return null;
+            }).exceptionally(throwable -> {
+                System.err.println("Exception in sendPlayerFailedEvent: " + throwable.getMessage());
+                return null;
+            });
+        } catch (Exception e) {
+            System.err.println("Error creating player failed event: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     private void sendPlayerFinishedEvent() {
-        if (!isMultiplayer)
-            return;
+        if (!isMultiplayer) return;
 
         try {
             System.out.println("Sending player finished event");
@@ -872,8 +891,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void handleMiss(HitObject hitObject) {
-        if (hitObject instanceof HitSpinner)
-            return;
+        if (hitObject instanceof HitSpinner) return;
         notifyMiss(hitObject);
     }
 
@@ -905,9 +923,9 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
 
         // Check for game over (health reaches 0)
-        if (health <= 0) {
+        if (health <= 0 && !isFailed) {
             System.out.println("hp reached 0, stopping game");
-             failGame();
+            failGame();
         }
     }
 
@@ -999,6 +1017,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         matchController.addUserLeftMatchCallback(this::onUserLeftMatchEvent);
         matchController.addMatchScoreCallback(this::updateMatchScoreEvent);
         matchController.addMatchCompletedCallback(this::onMatchCompletedEvent);
+        matchController.addPlayerFailedCallback(this::onPlayerFailedEvent);
     }
 
     private void onPlayerFailedEvent(PlayerFailedEvent event) {
@@ -1007,11 +1026,12 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             if (existingEvent != null && existingEvent.getUser() != null &&
                     existingEvent.getUser().getId() == event.getUser().getId()) {
                 existingEvent.getMatchPlayer().setStatus(PlayerStatus.FAILED);
+                updateMatchScoreEvent(existingEvent);
                 break;
             }
         }
 
-        notifyListeners(new GameEvent(GameEventType.MATCH_SCORE_CHANGED, multiplayerScores));
+//        notifyListeners(new GameEvent(GameEventType.MATCH_SCORE_CHANGED, multiplayerScores));
     }
 
     private void onUserLeftMatchEvent(UserLeftMatchEvent event) {
@@ -1020,11 +1040,12 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             if (existingEvent != null && existingEvent.getUser() != null &&
                     existingEvent.getUser().getId() == event.getUserId()) {
                 existingEvent.getMatchPlayer().setStatus(PlayerStatus.EXITED);
+                updateMatchScoreEvent(existingEvent);
                 break;
             }
         }
 
-        notifyListeners(new GameEvent(GameEventType.MATCH_SCORE_CHANGED, multiplayerScores));
+//        notifyListeners(new GameEvent(GameEventType.MATCH_SCORE_CHANGED, multiplayerScores));
     }
 
     private void onMatchCompletedEvent(MatchCompletedEvent event) {
@@ -1036,13 +1057,14 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
     private void updateMatchScoreEvent(MatchScoreEvent event) {
         try {
-            if (event == null || event.getUser() == null) {
+            if (event == null || event.getUser() == null || event.getMatchPlayer() == null) {
                 System.err.println("Received null match score event or user");
                 return;
             }
 
             System.out.println("Received match score, user: " + event.getUser().getUsername() +
-                    ", score: " + event.getScore() + ", combo: " + event.getCombo());
+                    ", score: " + event.getScore() + ", combo: " + event.getCombo() +
+                    " status" + event.getMatchPlayer().getStatus());
 
             // Check if multiplayer components are still valid
             if (matchDto == null) {
@@ -1056,8 +1078,9 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 MatchScoreEvent existingEvent = multiplayerScores.get(i);
                 if (existingEvent != null && existingEvent.getUser() != null &&
                         existingEvent.getUser().getId() == event.getUser().getId()) {
-                    if (event.getScore() != 0)
+                    if (event.getScore() != 0) {
                         multiplayerScores.set(i, event);
+                    }
                     found = true;
                     break;
                 }
