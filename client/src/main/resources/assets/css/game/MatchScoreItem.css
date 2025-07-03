@@ -1,5 +1,5 @@
 .score-item {
-    -fx-font-family: 'Aller';
+    -fx-font-family: 'Aller Light';
     -fx-background-color: rgba(0, 0, 0, 0.25);
     -fx-background-radius: 0;
     -fx-padding: 4 8 4 6;
@@ -7,8 +7,6 @@
     -fx-border-width: 0;
     -fx-border-radius: 0;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0.0, 0, 2);
-    -fx-pref-width: 260;
-    -fx-max-width: 260;
 }
 
 .score-profile-picture {
@@ -21,28 +19,17 @@
 }
 
 .score-username {
-    -fx-font-family: 'Aller';
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
     -fx-text-fill: #FFFFFF;
 }
 
 .score-username-exited {
-    -fx-font-family: 'Aller';
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
     -fx-text-fill: #FF0000;
 }
 
 .score-value {
-    -fx-font-family: 'Aller Light';
-    -fx-font-size: 13px;
-    -fx-text-fill: rgba(255, 255, 255, 0.8);
+    -fx-text-fill: rgb(255, 255, 255);
 }
 
 .score-combo {
-    -fx-font-family: 'Aller Light';
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #597D75;
+    -fx-text-fill: #FFFFFF;
 }

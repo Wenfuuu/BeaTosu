@@ -80,7 +80,7 @@ public class ScoreItem extends HBox {
         setupUI();
         updateProfilePicture(score.getProfilePicture());
         loadStyles();
-        setupHoverHandlers(usernameLabel, scoreLabel, accuracyLabel);
+        setupHoverHandlers();
     }
 
     private void setupUI() {
@@ -127,7 +127,7 @@ public class ScoreItem extends HBox {
         }
     }
 
-    private void setupHoverHandlers(Label usernameLabel, Label scoreLabel, Label accuracyLabel) {
+    private void setupHoverHandlers() {
         this.setOnMouseEntered(e -> {
             this.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
         });

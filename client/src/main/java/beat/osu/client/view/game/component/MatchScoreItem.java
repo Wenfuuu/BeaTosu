@@ -2,8 +2,10 @@ package beat.osu.client.view.game.component;
 
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ScreenManager;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
 import beat.osu.shared.enums.match.PlayerStatus;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -12,6 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 
 import java.io.ByteArrayInputStream;
 import java.net.URL;
@@ -24,36 +27,41 @@ public class MatchScoreItem extends HBox {
         String profileImagePath = "/assets/images/avatar-guest.png";
         profileImageView = new ImageView(
                 new Image(Objects.requireNonNull(Main.class.getResource(profileImagePath)).toExternalForm()));
-        profileImageView.setFitHeight(50);
-        profileImageView.setFitWidth(50);
+        profileImageView.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.058);
+        profileImageView.setFitWidth(ScreenManager.SCREEN_HEIGHT * 0.058);
+        HBox.setMargin(profileImageView, new Insets(0, 8, 0, 0));
 
         String username = event.getUser().getUsername();
         if (event.getMatchPlayer().getStatus() == PlayerStatus.EXITED) {
             username = username + " [Quit]";
         }
+
         Label usernameLabel = new Label(username);
-        if (event.getMatchPlayer().getStatus() == PlayerStatus.EXITED ||
-        event.getMatchPlayer().getStatus() == PlayerStatus.FAILED) {
+        usernameLabel.setFont(new Font("Aller Light", ScreenManager.SCREEN_HEIGHT * 0.022));
+
+        if (event.getMatchPlayer().getStatus() == PlayerStatus.EXITED || event.getMatchPlayer().getStatus() == PlayerStatus.FAILED) {
             usernameLabel.getStyleClass().add("score-username-exited");
         } else {
             usernameLabel.getStyleClass().add("score-username");
         }
-        usernameLabel.setMaxWidth(150);
 
         String scoreString = String.format("%,d", event.getScore());
         Label scoreLabel = new Label(scoreString);
         scoreLabel.getStyleClass().add("score-value");
-        VBox scoreInfo = new VBox(3);
+        scoreLabel.setFont(new Font("Aller Light", ScreenManager.SCREEN_HEIGHT * 0.019));
+
+        VBox scoreInfo = new VBox(0);
         scoreInfo.getStyleClass().add("score-info-container");
         scoreInfo.getChildren().addAll(usernameLabel, scoreLabel);
 
-        // Create a spacer to push accuracy to the right
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         Label comboLabel = new Label(String.format("%dx", event.getCombo()));
+        comboLabel.setFont(new Font("Aller Light", ScreenManager.SCREEN_HEIGHT * 0.019));
         comboLabel.getStyleClass().add("score-combo");
         comboLabel.setAlignment(Pos.BOTTOM_RIGHT);
+        HBox.setMargin(comboLabel, new Insets(0, 4, 0, 0));
 
         this.getChildren().addAll(profileImageView, scoreInfo, spacer, comboLabel);
 
@@ -64,11 +72,9 @@ public class MatchScoreItem extends HBox {
 
     private void setupUI() {
         this.getStyleClass().add("score-item");
-        this.setSpacing(15);
-        this.setMinHeight(70);
-        this.setPrefHeight(70);
+        this.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.065);
+        this.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.065);
 
-        // Add margin classes for better spacing
         profileImageView.getStyleClass().add("score-profile-picture");
     }
 

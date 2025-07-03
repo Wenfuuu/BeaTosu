@@ -1055,7 +1055,7 @@ public class MatchView extends Page {
                 if (isHost) {
                     int readyCount = getReadyPlayersCount();
 
-                    if (readyCount == 0) {
+                    if (readyCount == 1) {
                         return BlueButtonState.NOT_READY;
                     } else if (areAllPlayersReady()) {
                         return BlueButtonState.START_GAME;
