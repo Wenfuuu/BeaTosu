@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import beat.osu.client.controller.MatchController;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.view.lobby.component.cards.MatchCard;
 import beat.osu.client.view.lobby.component.ui.MatchFilters;
 import beat.osu.shared.dto.match.MatchDto;
@@ -27,6 +28,8 @@ import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -50,6 +53,7 @@ public class MatchesPanel extends VBox {
     private Map<Integer, MatchCard> matchCardMap;
     private VBox matchesContainer;
     private ScrollPane matchesScrollPane;
+    private Label noMatchesLabel;
 
     private MatchController matchController;
 
@@ -82,10 +86,16 @@ public class MatchesPanel extends VBox {
         matchesScrollPane = new ScrollPane(matchesContainer);
         VBox.setMargin(matchesScrollPane, new Insets(8, 0, 0, 12));
         matchesScrollPane.getStyleClass().add("matches-scroll-pane");
+
+        noMatchesLabel = new Label("There are no matches available.\nClick 'New Game' to start a new game!");
+        noMatchesLabel.getStyleClass().add("no-matches-label");
+        noMatchesLabel.setAlignment(Pos.CENTER);
+        noMatchesLabel.setVisible(false);
+        VBox.setMargin(noMatchesLabel, new Insets(ScreenManager.SCREEN_HEIGHT * 0.14, 0, 0, 0));
     }
 
     private void setLayout() {
-        this.getChildren().addAll(matchFilters, matchesScrollPane);
+        this.getChildren().addAll(matchFilters, matchesScrollPane, noMatchesLabel);
     }
 
     private void loadStyles() {
@@ -127,18 +137,21 @@ public class MatchesPanel extends VBox {
         
         matchCards.add(matchCard);
         matchCardMap.put(match.getId(), matchCard);
-        
+
         Platform.runLater(() -> {
             if (shouldShowMatch(matchCard)) {
                 matchCard.setOpacity(0);
                 matchesContainer.getChildren().add(matchCard);
-                
+
+                updateNoMatchesMessageVisibility();
+                notifyMatchCountUpdate();
+
                 FadeTransition fadeIn = new FadeTransition(Duration.millis(300), matchCard);
                 fadeIn.setFromValue(0);
                 fadeIn.setToValue(1);
-                fadeIn.setOnFinished(e -> notifyMatchCountUpdate());
                 fadeIn.play();
             } else {
+                updateNoMatchesMessageVisibility();
                 notifyMatchCountUpdate();
             }
         });
@@ -150,6 +163,7 @@ public class MatchesPanel extends VBox {
             for (MatchDto match : matches) {
                 addMatch(match);
             }
+            updateNoMatchesMessageVisibility();
             notifyMatchCountUpdate();
         });
     }
@@ -283,10 +297,12 @@ public class MatchesPanel extends VBox {
             fadeOut.setToValue(0);
             fadeOut.setOnFinished(e -> {
                 matchesContainer.getChildren().remove(matchCard);
+                updateNoMatchesMessageVisibility();
                 notifyMatchCountUpdate();
             });
             fadeOut.play();
         } else {
+            updateNoMatchesMessageVisibility();
             notifyMatchCountUpdate();
         }
     }
@@ -311,8 +327,15 @@ public class MatchesPanel extends VBox {
                     matchesContainer.getChildren().add(matchCard);
                 }
             }
+            updateNoMatchesMessageVisibility();
             notifyMatchCountUpdate();
         });
+    }
+    
+    private void updateNoMatchesMessageVisibility() {
+        boolean hasVisibleMatches = !matchesContainer.getChildren().isEmpty();
+        noMatchesLabel.setVisible(!hasVisibleMatches);
+        noMatchesLabel.setManaged(!hasVisibleMatches);
     }
 
     private boolean shouldShowMatch(MatchCard matchCard) {

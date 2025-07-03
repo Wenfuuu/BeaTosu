@@ -43,3 +43,13 @@
     -fx-pref-height: 0;
     -fx-opacity: 0;
 }
+
+.no-matches-label {
+    -fx-alignment: center;
+    -fx-font-family: 'Aller';
+    -fx-font-weight: bold;
+    -fx-font-size: 32px;
+    -fx-text-alignment: center;
+    -fx-pref-width: 100%;
+    -fx-max-width: infinity;
+}
