@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import beat.osu.client.Main;
 import beat.osu.client.controller.*;
@@ -33,6 +34,7 @@ import beat.osu.client.view.shared.common.Toast;
 import beat.osu.client.view.shared.jukebox.Jukebox;
 import beat.osu.client.view.shared.jukebox.modals.PlaylistModal;
 import beat.osu.shared.common.Result;
+import beat.osu.shared.dto.auth.responses.LogoutResponse;
 import beat.osu.shared.dto.beatmap.BeatmapDto;
 import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
 import beat.osu.shared.dto.beatmap.responses.GetBeatmapByIdResponse;
@@ -356,7 +358,7 @@ public class LandingView extends Page {
         chatPanel = new ChatPanel(chatController, selectChannelModal, onlineUsersPanel, banchoButtons);
 
         viewUserModal = new ViewUserModal(sessionController);
-        profileModal = new ProfileModal(authController);
+        profileModal = new ProfileModal();
 
         banchoPanelsContainer = new VBox();
         banchoPanelsContainer.setVisible(false);
@@ -551,6 +553,24 @@ public class LandingView extends Page {
             loginModal.hide();
             registerModal.setVisible(true);
             registerModal.toFront();
+        });
+
+        profileModal.getSignOutButton().setOnMouseClicked(e -> {
+            try {
+                Result<LogoutResponse> response = authController.logout().get();
+
+                if (response.isSuccess()) {
+                    profileModal.hide();
+                    AuthManager.logout();
+                    topBar.resetUserCard();
+                    SfxManager.playSfx("menuhit.wav");
+                    Toast.success(response.getValue().getMessage()).show();
+                } else {
+                    Toast.error("Failed to sign out: " + response.getError().getMessage()).show();
+                }
+            } catch (InterruptedException | ExecutionException ex) {
+                throw new RuntimeException(ex);
+            }
         });
 
         root.setOnMouseClicked(e -> {

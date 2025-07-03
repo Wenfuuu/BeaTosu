@@ -1,13 +1,10 @@
 package beat.osu.client.view.shared.bancho.modals;
 
 import beat.osu.client.controller.AuthController;
-import beat.osu.client.controller.SessionController;
 import beat.osu.client.helper.*;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
 import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
 import beat.osu.client.view.shared.common.Toast;
-import beat.osu.shared.common.Result;
-import beat.osu.shared.dto.auth.responses.LogoutResponse;
 import beat.osu.shared.dto.user.UserDto;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
@@ -15,22 +12,20 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import lombok.Getter;
 
 import java.net.URL;
-import java.util.concurrent.ExecutionException;
 
 public class ProfileModal extends VBox {
 
     private UserCard userCard;
+
+    @Getter
     private Button signOutButton;
     private Button closeButton;
     private VBox buttonsContainer;
 
-    private AuthController authController;
-
-    public ProfileModal(AuthController authController) {
-        this.authController = authController;
-
+    public ProfileModal() {
         initializeComponents();
         setLayout();
         setupStyling();
@@ -49,22 +44,6 @@ public class ProfileModal extends VBox {
 
         signOutButton.getStyleClass().addAll("modal-button", "sign-out-button");
         closeButton.getStyleClass().addAll("modal-button", "close-button");
-
-        signOutButton.setOnAction(event -> {
-            try {
-                Result<LogoutResponse> response = authController.logout().get();
-
-                if (response.isSuccess()) {
-                    hide();
-                    AuthManager.logout();
-                    Toast.success(response.getValue().getMessage()).show();
-                } else {
-                    Toast.error("Failed to sign out: " + response.getError().getMessage()).show();
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-        });
 
         closeButton.setOnAction(event -> {
             SfxManager.playSfx("menuback.wav");

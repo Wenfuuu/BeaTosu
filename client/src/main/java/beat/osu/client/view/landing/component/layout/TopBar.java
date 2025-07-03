@@ -237,4 +237,30 @@ public class TopBar extends HBox {
             userCard.setOnMouseClicked(handler);
         }
     }
+
+    public void resetUserCard() {
+        if (userCard != null) {
+            this.getChildren().remove(userCard);
+        }
+
+        userCard = new UserCard(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                UserCardBehavior.EMPTY
+        );
+
+        if (userCardClickHandler != null) {
+            userCard.setOnMouseClicked(userCardClickHandler);
+        }
+
+        this.getChildren().add(0, userCard);
+    }
 }
