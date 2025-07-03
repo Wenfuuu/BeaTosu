@@ -9,6 +9,7 @@ import beat.osu.client.controller.SpectateController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.SfxManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
 import beat.osu.client.view.shared.common.Toast;
@@ -94,7 +95,10 @@ public class ViewUserModal extends VBox {
         startChatButton.getStyleClass().addAll("modal-button", "chat-button");
         closeButton.getStyleClass().addAll("modal-button", "close-button");
 
-        closeButton.setOnAction(event -> hide());
+        closeButton.setOnAction(event -> {
+            SfxManager.playSfx("menuback.wav");
+            hide();
+        });
 
         buttonsContainer = new VBox();
         buttonsContainer.setAlignment(Pos.CENTER);
@@ -102,6 +106,7 @@ public class ViewUserModal extends VBox {
         buttonsContainer.getChildren().addAll(startSpectateButton, startChatButton, closeButton);
 
         startSpectateButton.setOnAction(event -> {
+            SfxManager.playSfx("menuhit.wav");
             if (onStartSpectateCallback != null && userCard != null) {
                 UserDto user = AuthManager.getUser();
                 Integer beatmapId = fetchPlayingBeatmapId(userCard.getUserId());
@@ -123,6 +128,7 @@ public class ViewUserModal extends VBox {
         });
 
         startChatButton.setOnAction(event -> {
+            SfxManager.playSfx("menuhit.wav");
             if (onStartChatCallback != null && userCard != null) {
                 PrivateChatDto privateChat = new PrivateChatDto(
                     userCard.getUserId(),

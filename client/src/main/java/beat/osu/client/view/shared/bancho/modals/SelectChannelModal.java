@@ -10,6 +10,7 @@ import beat.osu.client.controller.ChannelController;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.SfxManager;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.shared.bancho.cards.ChannelCard;
 import beat.osu.client.view.shared.bancho.panels.ChatPanel;
@@ -113,6 +114,7 @@ public class SelectChannelModal extends VBox {
         closeButton.getStyleClass().add("close-button");
         closeButton.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.56 + 30);
         closeButton.setOnAction(e -> {
+            SfxManager.playSfx("menuback.wav");
             this.hide();
             banchoButtons.show();
 
@@ -162,7 +164,11 @@ public class SelectChannelModal extends VBox {
                 channel.isJoined()
             );
             
-            card.setOnMouseClicked(e -> handleChannelClick(card, channel));
+            card.setOnMouseClicked(e -> {
+                SfxManager.playSfx("menuhit.wav");
+                handleChannelClick(card, channel);
+            });
+            card.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
             
             channelCards.add(card);
             channelContainer.getChildren().add(card);

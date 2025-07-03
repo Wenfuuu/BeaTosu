@@ -10,6 +10,7 @@ import java.util.Map;
 import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.LocaleManager;
+import beat.osu.client.helper.SfxManager;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
 import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
 import beat.osu.client.view.shared.bancho.tabs.SortUserTabs;
@@ -212,6 +213,7 @@ public class OnlineUsersPanel extends VBox {
         
         userCard.setOnMouseClicked(event -> {
             if (userCardClickCallback != null) {
+                SfxManager.playSfx("menuhit.wav");
                 userCardClickCallback.onUserCardClicked(userCard);
             }
         });

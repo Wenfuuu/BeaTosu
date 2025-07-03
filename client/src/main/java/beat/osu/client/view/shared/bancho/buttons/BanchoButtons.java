@@ -1,5 +1,6 @@
 package beat.osu.client.view.shared.bancho.buttons;
 
+import beat.osu.client.helper.SfxManager;
 import beat.osu.client.view.shared.bancho.panels.ChatPanel;
 import beat.osu.client.view.shared.bancho.panels.OnlineUsersPanel;
 import beat.osu.client.view.landing.component.layout.BottomBar;
@@ -30,6 +31,18 @@ public class BanchoButtons extends HBox {
         this.setSpacing(8);
 
         this.getChildren().addAll(onlineUsersButton, chatToggleButton);
+
+        handleEvents();
+    }
+
+    private void handleEvents() {
+        onlineUsersButton.setOnMouseEntered(e -> {
+            SfxManager.playSfx("menuhover.wav");
+        });
+
+        chatToggleButton.setOnMouseEntered(e -> {
+            SfxManager.playSfx("menuhover.wav");
+        });
     }
 
     public void toggleChat(ChatPanel chatPanel, BottomBar bottomBar, OnlineUsersPanel onlineUsersPanel, TopBar topBar) {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import beat.osu.client.helper.SfxManager;
 import beat.osu.client.view.shared.bancho.buttons.SortUsersButton;
 import javafx.geometry.Insets;
 import javafx.scene.layout.HBox;
@@ -38,7 +39,10 @@ public class SortUserTabs extends HBox {
         buttons.add(timeZoneButton);
 
         for (SortUsersButton button : buttons) {
-            button.setOnAction(event -> selectButton(button));
+            button.setOnAction(event -> {
+                SfxManager.playSfx("menuhit.wav");
+                selectButton(button);
+            });
         }
 
         this.getChildren().addAll(nameButton, rankButton, locationButton, timeZoneButton);

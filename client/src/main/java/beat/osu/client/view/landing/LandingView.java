@@ -644,6 +644,7 @@ public class LandingView extends Page {
         });
 
         banchoButtons.getOnlineUsersButton().setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuhit.wav");
             if (banchoButtons.getOnlineUsersButton().isOnlineUserShown()) {
                 onlineUsersPanel.hide();
                 topBar.setFullOpacity();
@@ -663,6 +664,7 @@ public class LandingView extends Page {
         });
 
         banchoButtons.getChatToggleButton().setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuhit.wav");
             if (banchoButtons.getChatToggleButton().isChatVisible()) {
                 chatPanel.hide();
                 bottomBar.setFullOpacity();

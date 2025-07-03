@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import beat.osu.client.helper.SfxManager;
 import beat.osu.client.view.shared.bancho.buttons.AddChatButton;
 import beat.osu.client.view.shared.bancho.buttons.ChatTabButton;
 import beat.osu.shared.dto.chat.ChannelDto;
@@ -167,7 +168,10 @@ public class ChatTabs extends HBox {
         this.getChildren().add(addChatButton);
         for (ChannelDto channel : joinedChannels) {
             ChatTabButton tabButton = new ChatTabButton(channel.getName());
-            tabButton.setOnAction(e -> selectTab(channel));
+            tabButton.setOnAction(e -> {
+                SfxManager.playSfx("menuhit.wav");
+                selectTab(channel);
+            });
             tabButton.setOnCloseAction(this::handleTabClose);
             if (currentSelectedTab instanceof ChannelDto && Objects.equals(((ChannelDto) currentSelectedTab).getId(), channel.getId())) {
                 tabButton.setSelected(true);
@@ -177,7 +181,10 @@ public class ChatTabs extends HBox {
         for (PrivateChatDto privateChat : privateChats) {
             String tabName = privateChat.getOtherUserName();
             ChatTabButton tabButton = new ChatTabButton(tabName);
-            tabButton.setOnAction(e -> selectTab(privateChat));
+            tabButton.setOnAction(e -> {
+                SfxManager.playSfx("menuhit.wav");
+                selectTab(privateChat);
+            });
             tabButton.setOnCloseAction(this::handleTabClose);
             if (currentSelectedTab instanceof PrivateChatDto && ((PrivateChatDto) currentSelectedTab).getOtherUserId() == privateChat.getOtherUserId()) {
                 tabButton.setSelected(true);
