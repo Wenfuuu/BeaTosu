@@ -129,20 +129,7 @@ public class ChatPanel extends VBox {
         hideTransition.play();
     }
 
-    private void setupInputFieldSounds() {
-        chatField.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.BACK_SPACE) {
-                SfxManager.playSfx("key-delete.mp3");
-            } else {
-                int randomKeyPress = (int) (Math.random() * 4) + 1;
-                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
-            }
-        });
-    }
-
     private void setupEventHandlers() {
-        setupInputFieldSounds();
-
         chatController.addJoinedChannelsUpdatedCallback(() -> {
             Platform.runLater(() -> {
                 chatTabs.setJoinedChannels(chatController.getJoinedChannels());
@@ -224,6 +211,15 @@ public class ChatPanel extends VBox {
         chatField = new TextField();
         chatField.getStyleClass().add("chat-input");
         chatField.setOnKeyPressed(event -> {
+            chatField.setOnKeyPressed(e -> {
+                if (e.getCode() == KeyCode.BACK_SPACE) {
+                    SfxManager.playSfx("key-delete.mp3");
+                } else {
+                    int randomKeyPress = (int) (Math.random() * 4) + 1;
+                    SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+                }
+            });
+
             if (event.getCode() == KeyCode.ENTER) {
                 sendMessage();
             }

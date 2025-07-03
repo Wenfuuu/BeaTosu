@@ -1,6 +1,7 @@
 package beat.osu.client.view.game;
 
 import beat.osu.client.Main;
+import beat.osu.client.config.ConfigurationManager;
 import beat.osu.client.enums.HitResult;
 import beat.osu.client.events.game.*;
 import beat.osu.client.helper.*;
@@ -41,7 +42,7 @@ public class GameView extends Page implements GameEventListener {
     private final double PLAYFIELD_OFFSET_X_IN_REF = 64.0;
     private final double PLAYFIELD_OFFSET_Y_IN_REF = 56.0;
 
-    private final double INITIAL_OPACITY = 0.75;
+    private final double INITIAL_OPACITY = ConfigurationManager.getInstance().getBackgroundDim();
 
     private final double circleSize; // Default Circle Size (CS) if parsing fails
     private double osuPixelDiameter; // Diameter in original osu! coordinates
@@ -456,7 +457,7 @@ public class GameView extends Page implements GameEventListener {
     private void enterBreakPeriod() {
         FadeTransition fade = new FadeTransition(Duration.millis(1000), backgroundOverlay);
         fade.setFromValue(backgroundOverlay.getOpacity());
-        fade.setToValue(0.5);
+        fade.setToValue(INITIAL_OPACITY - 0.25);
         fade.play();
     }
 
@@ -565,7 +566,7 @@ public class GameView extends Page implements GameEventListener {
         backgroundOverlay.setStyle("-fx-background-color: rgba(18, 18, 18);");
         backgroundOverlay.prefWidthProperty().bind(root.widthProperty());
         backgroundOverlay.prefHeightProperty().bind(root.heightProperty());
-        backgroundOverlay.setOpacity(0.5);
+        backgroundOverlay.setOpacity(INITIAL_OPACITY - 0.25);
 
         // Add the overlay pane to the root
         root.getChildren().addAll(backgroundOverlay);
