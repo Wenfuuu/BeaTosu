@@ -682,6 +682,7 @@ public class LandingView extends Page {
         });
 
         jukebox.getMediaControls().getPlaylistButton().setOnAction(event -> {
+            SfxManager.playSfx("menuhit.wav");
             if (playlistModal.isVisible()) {
                 playlistModal.hide();
                 if (!banchoButtons.isVisible()) {
