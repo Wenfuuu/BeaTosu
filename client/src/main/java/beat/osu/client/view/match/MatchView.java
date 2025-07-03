@@ -171,8 +171,9 @@ public class MatchView extends Page {
         this.beatmap = convertBeatmapDtoToBeatmap(matchDto.getBeatmap());
         this.winCondition = matchDto.getWinCondition();
 
-        inputManager.setSfxDisabled(false);
         setupView();
+        inputManager.setSfxDisabled(false);
+
         handleEvent();
         updateBlueButtonState();
     }
@@ -941,7 +942,7 @@ public class MatchView extends Page {
         try {
             Result<ChangeMatchSlotResponse> result = matchController.changeMatchSlot(matchId, targetSlotIndex).get();
             if (result.isSuccess()) {
-                Toast.success(result.getValue().getMessage()).show();
+                System.out.println(result.getValue().getMessage());
             } else {
                 Toast.error("Failed to change slot: " + result.getError().getMessage()).show();
             }
