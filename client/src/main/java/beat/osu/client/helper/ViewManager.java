@@ -13,7 +13,6 @@ import beat.osu.client.view.lobby.LobbyView;
 import beat.osu.client.view.game.ReplayView;
 import beat.osu.client.view.match.MatchView;
 import beat.osu.client.view.shared.common.Toast;
-import beat.osu.client.view.upload.UploadPage;
 import beat.osu.client.events.game.ReplayEvent;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.game.SpectateDto;
@@ -117,11 +116,6 @@ public class ViewManager {
     public void showSpectateView(Beatmap beatmap, SpectateDto spectateDto) {
         SpectateView spectateView = new SpectateView(primaryStage, beatmap, spectateDto, spectateController);
         sceneManager.transitionToPage(spectateView);
-    }
-
-    public void showUploadPage() {
-        UploadPage uploadPage = new UploadPage(primaryStage);
-        sceneManager.transitionToPage(uploadPage);
     }
 
     public void leaveCurrentMatch() {
