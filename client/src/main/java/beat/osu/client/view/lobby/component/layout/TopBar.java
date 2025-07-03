@@ -25,7 +25,7 @@ public class TopBar extends HBox {
         titleLabel = new Label("Multiplayer Lobby");
         titleLabel.getStyleClass().add("title-label");
 
-        matchCountLabel = new Label("Showing 308 of 308 matches");
+        matchCountLabel = new Label("Showing 0 of 0 matches");
         matchCountLabel.getStyleClass().add("match-count-label");
 
         this.getStyleClass().add("top-bar");
@@ -44,5 +44,9 @@ public class TopBar extends HBox {
         } else {
             System.err.println("CSS file not found!");
         }
+    }
+
+    public void updateMatchCount(int filteredCount, int totalCount) {
+        matchCountLabel.setText("Showing " + filteredCount + " of " + totalCount + " matches");
     }
 }

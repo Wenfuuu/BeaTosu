@@ -104,6 +104,10 @@ public class LobbyView extends Page {
         topBar = new TopBar();
         navigationBar = new NavigationBar();
         matchesPanel = new MatchesPanel(matchController);
+        
+        matchesPanel.setMatchCountUpdateCallback((filteredCount, totalCount) -> {
+            topBar.updateMatchCount(filteredCount, totalCount);
+        });
 
         playlistModal = new PlaylistModal();
         PlaylistManager.getInstance().addListener(playlistModal);
