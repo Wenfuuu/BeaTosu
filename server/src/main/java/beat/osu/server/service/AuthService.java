@@ -10,11 +10,14 @@ import beat.osu.server.repositories.UserRepository;
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.auth.requests.LoginRequest;
+import beat.osu.shared.dto.auth.requests.LogoutRequest;
 import beat.osu.shared.dto.auth.requests.RegisterRequest;
 import beat.osu.shared.dto.auth.responses.LoginResponse;
+import beat.osu.shared.dto.auth.responses.LogoutResponse;
 import beat.osu.shared.dto.auth.responses.RegisterResponse;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.dto.user.events.UserConnectedEvent;
+import beat.osu.shared.dto.user.events.UserDisconnectedEvent;
 import beat.osu.shared.enums.message.RealtimeMessageType;
 import beat.osu.shared.models.RealtimeMessage;
 import lombok.AllArgsConstructor;
@@ -66,7 +69,6 @@ public class AuthService {
                 return Result.failure(Error.validation("Invalid password!"));
             }
 
-            // check if the user is already logged in
             if (sessionService.getClientIdByUserId(user.getId()) != null) {
                 return Result.failure(Error.validation("This account is already logged in!"));
             }
@@ -89,6 +91,39 @@ public class AuthService {
             return Result.success(new LoginResponse(message, userData));
         } catch (Exception e) {
             return Result.failure(Error.internal("Login failed: " + e.getMessage()));
+        }
+    }
+
+    public Result<LogoutResponse> logoutUser(LogoutRequest request, String clientId) {
+        try {
+            Integer userId = (Integer) sessionService.getSessionValue(clientId, "userId");
+            if (userId == null) {
+                return Result.failure(Error.unauthorized("User not authenticated"));
+            }
+
+            User user = userRepository.findUserById(userId);
+            if (user == null) {
+                return Result.failure(Error.notFound("User not found"));
+            }
+
+            UserDto userData = new UserDto(user.getId(), user.getUsername(), user.getEmail(), user.getCountryCode(),
+                    user.getProfilePicture(), user.getPerformance(), user.getAccuracy(), user.getPlayCount(), user.getLevel(), userRepository.getUserRank(user.getId()), user.isSupporter());
+            
+            UserDisconnectedEvent event = new UserDisconnectedEvent(userData);
+            RealtimeMessage userDisconnectedMessage = new RealtimeMessage(
+                    RealtimeMessageType.USER_DISCONNECTED,
+                    "SYSTEM",
+                    event
+            );
+            
+            sessionService.removeSessionValue(clientId, "userId");
+            
+            RealtimeMessageHandler.broadcastToAll(userDisconnectedMessage);
+
+            String message = "Successfully logged out!";
+            return Result.success(new LogoutResponse(message));
+        } catch (Exception e) {
+            return Result.failure(Error.internal("Logout failed: " + e.getMessage()));
         }
     }
 

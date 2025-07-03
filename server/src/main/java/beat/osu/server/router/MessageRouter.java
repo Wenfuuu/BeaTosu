@@ -13,6 +13,7 @@ import beat.osu.server.service.UserService;
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.auth.requests.LoginRequest;
+import beat.osu.shared.dto.auth.requests.LogoutRequest;
 import beat.osu.shared.dto.auth.requests.RegisterRequest;
 import beat.osu.shared.dto.beatmap.requests.GetBeatmapByIdRequest;
 import beat.osu.shared.dto.beatmap.requests.InsertBeatmapRequest;
@@ -24,7 +25,22 @@ import beat.osu.shared.dto.chat.requests.SendPrivateChatMessageRequest;
 import beat.osu.shared.dto.game.requests.NotifySpectateStatusRequest;
 import beat.osu.shared.dto.game.requests.SendSpectateEventRequest;
 import beat.osu.shared.dto.game.requests.StartSpectateRequest;
-import beat.osu.shared.dto.match.requests.*;
+import beat.osu.shared.dto.match.requests.ChangeMatchSlotRequest;
+import beat.osu.shared.dto.match.requests.CreateMatchRequest;
+import beat.osu.shared.dto.match.requests.JoinMatchRequest;
+import beat.osu.shared.dto.match.requests.KickPlayerRequest;
+import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
+import beat.osu.shared.dto.match.requests.PlayerFailedEventRequest;
+import beat.osu.shared.dto.match.requests.PlayerFinishedEventRequest;
+import beat.osu.shared.dto.match.requests.SendMatchScoreEventRequest;
+import beat.osu.shared.dto.match.requests.StartMatchRequest;
+import beat.osu.shared.dto.match.requests.TransferHostRequest;
+import beat.osu.shared.dto.match.requests.UpdateMatchBeatmapRequest;
+import beat.osu.shared.dto.match.requests.UpdateMatchChangingBeatmapRequest;
+import beat.osu.shared.dto.match.requests.UpdateMatchNameRequest;
+import beat.osu.shared.dto.match.requests.UpdateMatchPasswordRequest;
+import beat.osu.shared.dto.match.requests.UpdateMatchWinConditionRequest;
+import beat.osu.shared.dto.match.requests.UpdatePlayerStatusRequest;
 import beat.osu.shared.dto.score.requests.GetScoreRequest;
 import beat.osu.shared.dto.score.requests.InsertScoreRequest;
 import beat.osu.shared.dto.session.requests.CreateSessionDataRequest;
@@ -116,6 +132,8 @@ public class MessageRouter {
                 return authService.registerUser((RegisterRequest) request.getPayload(), clientId);
             case LOGIN:
                 return authService.loginUser((LoginRequest) request.getPayload(), clientId);
+            case LOGOUT:
+                return authService.logoutUser((LogoutRequest) request.getPayload(), clientId);
             default:
                 return Result.failure(Error.validation("Unknown authentication action: " + request.getAction()));
         }

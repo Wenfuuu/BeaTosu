@@ -10,6 +10,7 @@ public enum MessageAction implements Serializable {
     // Auth actions
     REGISTER,
     LOGIN,
+    LOGOUT,
 
     // User actions
     GET_USERNAME_BY_ID,
