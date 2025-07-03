@@ -39,6 +39,11 @@ public class MatchesPanel extends VBox {
         void onMatchCardClicked(MatchCard matchCard);
     }
 
+    @FunctionalInterface
+    public interface MatchCountUpdateCallback {
+        void onMatchCountUpdated(int filteredCount, int totalCount);
+    }
+
     private MatchFilters matchFilters;
 
     private final List<MatchCard> matchCards;
@@ -50,6 +55,9 @@ public class MatchesPanel extends VBox {
 
     @Setter
     private MatchCardClickCallback matchCardClickCallback;
+    
+    @Setter
+    private MatchCountUpdateCallback matchCountUpdateCallback;
 
     public MatchesPanel(MatchController matchController) {
         this.matchController = matchController;
@@ -128,7 +136,10 @@ public class MatchesPanel extends VBox {
                 FadeTransition fadeIn = new FadeTransition(Duration.millis(300), matchCard);
                 fadeIn.setFromValue(0);
                 fadeIn.setToValue(1);
+                fadeIn.setOnFinished(e -> notifyMatchCountUpdate());
                 fadeIn.play();
+            } else {
+                notifyMatchCountUpdate();
             }
         });
     }
@@ -139,6 +150,7 @@ public class MatchesPanel extends VBox {
             for (MatchDto match : matches) {
                 addMatch(match);
             }
+            notifyMatchCountUpdate();
         });
     }
     
@@ -269,8 +281,13 @@ public class MatchesPanel extends VBox {
             FadeTransition fadeOut = new FadeTransition(Duration.millis(300), matchCard);
             fadeOut.setFromValue(1);
             fadeOut.setToValue(0);
-            fadeOut.setOnFinished(e -> matchesContainer.getChildren().remove(matchCard));
+            fadeOut.setOnFinished(e -> {
+                matchesContainer.getChildren().remove(matchCard);
+                notifyMatchCountUpdate();
+            });
             fadeOut.play();
+        } else {
+            notifyMatchCountUpdate();
         }
     }
     
@@ -294,6 +311,7 @@ public class MatchesPanel extends VBox {
                     matchesContainer.getChildren().add(matchCard);
                 }
             }
+            notifyMatchCountUpdate();
         });
     }
 
@@ -335,5 +353,19 @@ public class MatchesPanel extends VBox {
                 return hasNoPassword && userHasBeatmap && notInProgress && notFull;
             })
             .collect(Collectors.toList());
+    }
+    
+    public int getTotalMatchCount() {
+        return matchCards.size();
+    }
+    
+    public int getFilteredMatchCount() {
+        return matchesContainer.getChildren().size();
+    }
+    
+    private void notifyMatchCountUpdate() {
+        if (matchCountUpdateCallback != null) {
+            matchCountUpdateCallback.onMatchCountUpdated(getFilteredMatchCount(), getTotalMatchCount());
+        }
     }
 }
