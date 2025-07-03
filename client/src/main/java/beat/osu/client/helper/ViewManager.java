@@ -30,6 +30,7 @@ public class ViewManager {
     private LobbyView lobbyView;
 
     private UserController userController;
+    private AuthController authController;
     private BeatmapController beatmapController;
     private ConnectedUsersController connectedUsersController;
     private ChannelController channelController;
@@ -64,7 +65,7 @@ public class ViewManager {
     }
 
     public void initializeViews() {
-        landingView = new LandingView(primaryStage, connectedUsersController, chatController, sessionController, spectateController);
+        landingView = new LandingView(primaryStage, authController, connectedUsersController, chatController, sessionController, spectateController);
         homeView = new HomeView(primaryStage);
         lobbyView = new LobbyView(primaryStage, connectedUsersController, chatController, sessionController, spectateController, matchController);
     }
@@ -138,6 +139,7 @@ public class ViewManager {
 
     private void initializeControllers() {
         userController = new UserController();
+        authController = new AuthController();
         beatmapController = new BeatmapController();
         connectedUsersController = new ConnectedUsersController();
         channelController = new ChannelController();

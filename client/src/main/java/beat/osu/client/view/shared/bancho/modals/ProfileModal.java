@@ -1,17 +1,13 @@
 package beat.osu.client.view.shared.bancho.modals;
 
+import beat.osu.client.controller.AuthController;
 import beat.osu.client.controller.SessionController;
-import beat.osu.client.helper.AuthManager;
-import beat.osu.client.helper.CssManager;
-import beat.osu.client.helper.ScreenManager;
-import beat.osu.client.helper.SfxManager;
+import beat.osu.client.helper.*;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
 import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
 import beat.osu.client.view.shared.common.Toast;
 import beat.osu.shared.common.Result;
-import beat.osu.shared.dto.chat.PrivateChatDto;
-import beat.osu.shared.dto.game.SpectateDto;
-import beat.osu.shared.dto.session.responses.GetSessionDataResponse;
+import beat.osu.shared.dto.auth.responses.LogoutResponse;
 import beat.osu.shared.dto.user.UserDto;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
@@ -21,6 +17,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 public class ProfileModal extends VBox {
 
@@ -29,7 +26,11 @@ public class ProfileModal extends VBox {
     private Button closeButton;
     private VBox buttonsContainer;
 
-    public ProfileModal() {
+    private AuthController authController;
+
+    public ProfileModal(AuthController authController) {
+        this.authController = authController;
+
         initializeComponents();
         setLayout();
         setupStyling();
@@ -48,6 +49,22 @@ public class ProfileModal extends VBox {
 
         signOutButton.getStyleClass().addAll("modal-button", "sign-out-button");
         closeButton.getStyleClass().addAll("modal-button", "close-button");
+
+        signOutButton.setOnAction(event -> {
+            try {
+                Result<LogoutResponse> response = authController.logout().get();
+
+                if (response.isSuccess()) {
+                    hide();
+                    AuthManager.logout();
+                    Toast.success(response.getValue().getMessage()).show();
+                } else {
+                    Toast.error("Failed to sign out: " + response.getError().getMessage()).show();
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         closeButton.setOnAction(event -> {
             SfxManager.playSfx("menuback.wav");

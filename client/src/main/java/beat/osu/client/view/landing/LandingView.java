@@ -79,6 +79,7 @@ public class LandingView extends Page {
 
     private VBox banchoPanelsContainer;
 
+    private final AuthController authController;
     private final ConnectedUsersController connectedUsersController;
     private final ChatController chatController;
     private final SessionController sessionController;
@@ -99,11 +100,12 @@ public class LandingView extends Page {
     private FadeTransition subMenuFadeIn;
     private FadeTransition subMenuFadeOut;
 
-    public LandingView(Stage stage, ConnectedUsersController connectedUsersController,
+    public LandingView(Stage stage, AuthController authController, ConnectedUsersController connectedUsersController,
             ChatController chatController, SessionController sessionController,
             SpectateController spectateController) {
         super(stage);
 
+        this.authController = authController;
         this.connectedUsersController = connectedUsersController;
         this.chatController = chatController;
         this.sessionController = sessionController;
@@ -354,7 +356,7 @@ public class LandingView extends Page {
         chatPanel = new ChatPanel(chatController, selectChannelModal, onlineUsersPanel, banchoButtons);
 
         viewUserModal = new ViewUserModal(sessionController);
-        profileModal = new ProfileModal();
+        profileModal = new ProfileModal(authController);
 
         banchoPanelsContainer = new VBox();
         banchoPanelsContainer.setVisible(false);
