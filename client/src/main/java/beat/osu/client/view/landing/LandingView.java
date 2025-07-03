@@ -563,6 +563,7 @@ public class LandingView extends Page {
                     profileModal.hide();
                     AuthManager.logout();
                     topBar.resetUserCard();
+                    updateBanchoButtonsVisibility();
                     SfxManager.playSfx("menuhit.wav");
                     Toast.success(response.getValue().getMessage()).show();
                 } else {
