@@ -12,6 +12,7 @@ import lombok.Getter;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MatchScoreContent extends ScrollPane {
 
@@ -63,9 +64,9 @@ public class MatchScoreContent extends ScrollPane {
     }
 
     public void populateScores(ArrayList<MatchScoreEvent> matchScores) {
-        System.out.println("Populating match scores: " + matchScores.size());
+        List<MatchScoreEvent> safeCopy = new ArrayList<>(matchScores);
         scoreListBox.getChildren().clear();
-        for (MatchScoreEvent score : matchScores) {
+        for (MatchScoreEvent score : safeCopy) {
             MatchScoreItem scoreItem = new MatchScoreItem(score);
             scoreListBox.getChildren().add(scoreItem);
         }

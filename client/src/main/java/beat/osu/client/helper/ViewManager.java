@@ -20,6 +20,7 @@ import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
 import javafx.stage.Stage;
 import lombok.Getter;
+import lombok.Setter;
 
 public class ViewManager {
     private static SceneManager sceneManager;
@@ -43,6 +44,7 @@ public class ViewManager {
     private static volatile ViewManager instance;
 
     @Getter
+    @Setter
     private MatchDto currentMatchDto;
 
     public static ViewManager getInstance() {
