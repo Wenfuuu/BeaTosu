@@ -183,6 +183,7 @@ public class HomeView extends Page {
     public void onShow() {
         setInputManager();
         if (inputManager != null) {
+            inputManager.setSfxDisabled(false);
             inputManager.clearTypedChars();
             lastSearchQuery = "";
             contentLabel.setText("Type to search!");

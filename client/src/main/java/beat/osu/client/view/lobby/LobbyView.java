@@ -239,6 +239,7 @@ public class LobbyView extends Page {
 
         BgmManager.getInstance().changePlaybackMode(PlaybackMode.PLAYLIST);
         setInputManager();
+        inputManager.setSfxDisabled(false);
         playlistModal.setInputManager(inputManager);
 
         banchoPanelsContainer.setVisible(true);

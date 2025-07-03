@@ -20,6 +20,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -188,7 +189,42 @@ public class RegisterModal extends StackPane {
         root.getChildren().addAll(title, inputBox, buttonBox);
     }
 
+    private void setupInputFieldSounds() {
+        // Username field sound effects
+        usernameField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.BACK_SPACE) {
+                SfxManager.playSfx("key-delete.mp3");
+            } else {
+                int randomKeyPress = (int) (Math.random() * 4) + 1;
+                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+            }
+        });
+
+        // Email field sound effects
+        emailField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.BACK_SPACE) {
+                SfxManager.playSfx("key-delete.mp3");
+            } else {
+                int randomKeyPress = (int) (Math.random() * 4) + 1;
+                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+            }
+        });
+
+        // Password field sound effects
+        passwordField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.BACK_SPACE) {
+                SfxManager.playSfx("key-delete.mp3");
+            } else {
+                int randomKeyPress = (int) (Math.random() * 4) + 1;
+                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+            }
+        });
+    }
+
     private void handleEvents() {
+        // Add keyboard sound effects for input fields
+        setupInputFieldSounds();
+        
         createButton.setOnMouseEntered(e -> {
             SfxManager.playSfx("menuhover.wav");
         });

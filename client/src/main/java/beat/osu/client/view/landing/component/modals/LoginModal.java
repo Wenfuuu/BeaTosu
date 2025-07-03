@@ -31,6 +31,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -187,7 +188,32 @@ public class LoginModal extends StackPane {
         return null;
     }
 
+    private void setupInputFieldSounds() {
+        // Username field sound effects
+        userInput.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.BACK_SPACE) {
+                SfxManager.playSfx("key-delete.mp3");
+            } else {
+                int randomKeyPress = (int) (Math.random() * 4) + 1;
+                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+            }
+        });
+
+        // Password field sound effects
+        passInput.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.BACK_SPACE) {
+                SfxManager.playSfx("key-delete.mp3");
+            } else {
+                int randomKeyPress = (int) (Math.random() * 4) + 1;
+                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+            }
+        });
+    }
+
     private void handleComponentEvents() {
+        // Add keyboard sound effects for input fields
+        setupInputFieldSounds();
+        
         signInButton.setOnMouseEntered(e -> {
             SfxManager.playSfx("menuhover.wav");
         });

@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import beat.osu.client.controller.ChatController;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.SfxManager;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.shared.bancho.buttons.ChatTabButton;
 import beat.osu.client.view.shared.bancho.modals.SelectChannelModal;
@@ -63,8 +64,8 @@ public class ChatPanel extends VBox {
             System.err.println("CSS file not found!");
         }
 
-        setupEventHandlers();
         setupUI();
+        setupEventHandlers();
     }
 
     public void show() {
@@ -128,7 +129,20 @@ public class ChatPanel extends VBox {
         hideTransition.play();
     }
 
+    private void setupInputFieldSounds() {
+        chatField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.BACK_SPACE) {
+                SfxManager.playSfx("key-delete.mp3");
+            } else {
+                int randomKeyPress = (int) (Math.random() * 4) + 1;
+                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+            }
+        });
+    }
+
     private void setupEventHandlers() {
+        setupInputFieldSounds();
+
         chatController.addJoinedChannelsUpdatedCallback(() -> {
             Platform.runLater(() -> {
                 chatTabs.setJoinedChannels(chatController.getJoinedChannels());

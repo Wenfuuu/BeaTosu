@@ -68,6 +68,7 @@ public class GameView extends Page implements GameEventListener {
     public GameView(Stage stage, Beatmap selectedBeatmap, boolean isMultiplayer) {
         super(stage);
         setupView();
+        inputManager.setSfxDisabled(true);
 
         this.beatmap = selectedBeatmap;
         this.circleSize = selectedBeatmap.getCircleSize();

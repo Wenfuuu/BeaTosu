@@ -6,6 +6,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -22,6 +23,8 @@ public class InputManager {
     private static KeyCode keybind1;
     @Getter
     private static KeyCode keybind2;
+    @Setter
+    private boolean sfxDisabled = false;
 
     public static void setKeybind1(KeyCode keybind1) {
         InputManager.keybind1 = keybind1;
@@ -62,8 +65,11 @@ public class InputManager {
                 if (typedChars.length() > 0) {
                     typedChars.deleteCharAt(typedChars.length() - 1);
                 }
+                if (!sfxDisabled) SfxManager.playSfx("key-delete.mp3");
             } else {
                 pressedKeys.add(keyCode);
+                int randomKeyPress = (int) (Math.random() * 4) + 1;
+                if (!sfxDisabled) SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
             }
 
             // System.out.println(keyCode);

@@ -171,6 +171,7 @@ public class MatchView extends Page {
         this.beatmap = convertBeatmapDtoToBeatmap(matchDto.getBeatmap());
         this.winCondition = matchDto.getWinCondition();
 
+        inputManager.setSfxDisabled(false);
         setupView();
         handleEvent();
         updateBlueButtonState();

@@ -102,6 +102,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
     public ReplayView(Stage stage, UserController userController, Beatmap selectedBeatmap, int playingUserId, ArrayList<ReplayEvent> replayEvents) {
         super(stage);
         setupView();
+        inputManager.setSfxDisabled(true);
 
         this.userController = userController;
 

@@ -81,6 +81,7 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
     public SpectateView(Stage stage, Beatmap beatmap, SpectateDto spectateDto, SpectateController spectateController) {
         super(stage);
         setupView();
+        inputManager.setSfxDisabled(true);
 
         this.spectateController = spectateController;
         this.beatmap = beatmap;
