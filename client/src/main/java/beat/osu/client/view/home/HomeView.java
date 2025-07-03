@@ -13,7 +13,14 @@ import beat.osu.client.controller.BeatmapController;
 import beat.osu.client.controller.ScoreController;
 import beat.osu.client.enums.ScoreFilter;
 import beat.osu.client.events.game.ReplayEvent;
-import beat.osu.client.helper.*;
+import beat.osu.client.helper.AuthManager;
+import beat.osu.client.helper.BackgroundManager;
+import beat.osu.client.helper.BgmManager;
+import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.ResourceManager;
+import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.SfxManager;
+import beat.osu.client.helper.ViewManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.utils.OsuParser;
@@ -403,6 +410,7 @@ public class HomeView extends Page {
     private void setupCallbacks() {
         beatmapContent.setOnBeatmapSelectedCallback(this::onBeatmapSelected);
         beatmapContent.setOnBeatmapSelectedWithBackgroundCallback(this::onBeatmapSelected);
+        beatmapContent.setOnBeatmapPlayCallback(this::startGame);
         scoreContent.setOnScoreSelectedCallback(this::onScoreSelected);
     }
 
@@ -491,6 +499,7 @@ public class HomeView extends Page {
         beatmapContent = new BeatmapContent(beatmaps);
         beatmapContent.setOnBeatmapSelectedCallback(this::onBeatmapSelected);
         beatmapContent.setOnBeatmapSelectedWithBackgroundCallback(this::onBeatmapSelected);
+        beatmapContent.setOnBeatmapPlayCallback(this::startGame);
 
         leftBar.getChildren().clear();
         Region spacer = new Region();
@@ -505,6 +514,18 @@ public class HomeView extends Page {
         lastSearchQuery = "";
         if (inputManager != null) {
             inputManager.clearTypedChars();
+        }
+    }
+
+    private void startGame(Beatmap beatmap) {
+        if (beatmap != null) {
+            SfxManager.playSfx("menuhit.wav");
+            System.out.println("Starting game for beatmap: " + beatmap.getBeatmapSet().getTitle());
+            BgmManager.getInstance().stopBgm();
+            if (searchUpdateTimeline != null) {
+                searchUpdateTimeline.stop();
+            }
+            ViewManager.getInstance().showGameView(beatmap, false);
         }
     }
 }

@@ -38,6 +38,8 @@ public class BeatmapContent extends ScrollPane {
     private Consumer<Beatmap> onBeatmapSelectedCallback;
     @Setter
     private BiConsumer<Beatmap, Boolean> onBeatmapSelectedWithBackgroundCallback;
+    @Setter
+    private Consumer<Beatmap> onBeatmapPlayCallback;
 
     public BeatmapContent(ArrayList<Beatmap> beatmaps) {
         this.virtualContainer = new Pane();
@@ -145,13 +147,20 @@ public class BeatmapContent extends ScrollPane {
     }
 
     private void onBeatmapCardClicked(BeatmapCard clickedCard) {
+        boolean wasAlreadySelected = selectedBeatmap != null && selectedBeatmap.equals(clickedCard.getBeatmap());
+        
         renderedCards.values().forEach(card -> card.setSelected(false));
-
         clickedCard.setSelected(true);
         selectedBeatmap = clickedCard.getBeatmap();
 
-        if (onBeatmapSelectedCallback != null) {
-            onBeatmapSelectedCallback.accept(selectedBeatmap);
+        if (wasAlreadySelected) {
+            if (onBeatmapPlayCallback != null) {
+                onBeatmapPlayCallback.accept(selectedBeatmap);
+            }
+        } else {
+            if (onBeatmapSelectedCallback != null) {
+                onBeatmapSelectedCallback.accept(selectedBeatmap);
+            }
         }
     }
 
