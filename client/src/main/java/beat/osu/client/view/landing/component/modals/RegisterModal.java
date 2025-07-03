@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import beat.osu.client.controller.AuthController;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.SfxManager;
 import beat.osu.client.view.shared.common.Toast;
 import beat.osu.shared.dto.auth.responses.RegisterResponse;
 import javafx.application.Platform;
@@ -188,7 +189,12 @@ public class RegisterModal extends StackPane {
     }
 
     private void handleEvents() {
+        createButton.setOnMouseEntered(e -> {
+            SfxManager.playSfx("menuhover.wav");
+        });
+
         createButton.setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuhit.wav");
             String username = usernameField.getText();
             String password = passwordField.getText();
             String email = emailField.getText();
@@ -218,7 +224,19 @@ public class RegisterModal extends StackPane {
                     });
         });
 
+        cancelButton.setOnMouseEntered(e -> {
+            SfxManager.playSfx("menuhover.wav");
+        });
+
         cancelButton.setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuback.wav");
+            // clear all input fields
+            usernameField.clear();
+            emailField.clear();
+            passwordField.clear();
+            profileImageView.setImage(null);
+            placeholderLabel.setText("Click here to upload image");
+            supporterCheckBox.setSelected(false);
             this.setVisible(false);
         });
 

@@ -155,7 +155,7 @@ public class BeatmapCard extends StackPane {
         contentContainer.getChildren().addAll(gamemodeBox, infoBox);
 
         this.setOnMouseEntered(e -> {
-            SfxManager.playSfx("select-difficulty.wav");
+            SfxManager.playSfx("select-beatmap.mp3");
             transitionToOrange();
         });
         this.setOnMouseExited(e -> transitionToPink());

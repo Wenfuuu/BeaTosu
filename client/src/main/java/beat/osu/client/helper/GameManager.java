@@ -362,6 +362,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             Result<LeaveMatchResponse> response = matchController.leaveMatch(matchDto.getId()).get();
             if (response.isSuccess()) {
                 LeaveMatchResponse leaveMatchResponse = response.getValue();
+                Toast.success(leaveMatchResponse.getMessage()).show();
                 ViewManager.getInstance().showLobbyView();
             } else {
                 Toast.error("Failed to leave match: " + response.getError().getMessage()).show();

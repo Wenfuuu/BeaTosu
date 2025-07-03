@@ -516,6 +516,7 @@ public class LandingView extends Page {
 
         topBar.setUserCardClickHandler(e -> {
             if (!loginModal.isShowing() && !registerModal.isVisible()) {
+                SfxManager.playSfx("menuhit.wav");
                 loginModal.clearFields();
                 if (chatPanel.isVisible()) {
                     chatPanel.hide();
@@ -596,9 +597,11 @@ public class LandingView extends Page {
         });
 
         menuButtons.getPlayButton().setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuhit.wav");
             showSubMenu();
         });
         menuButtons.getOptionButton().setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuhit.wav");
             if (loginModal.isShowing())
                 loginModal.hide();
 
@@ -611,10 +614,12 @@ public class LandingView extends Page {
             }
         });
         menuButtons.getExitButton().setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuhit.wav");
             stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
         });
 
         subMenuButtons.getSoloButton().setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuhit.wav");
             hideSubMenu();
             toggleMenuPanel();
             hideAllModals();
@@ -622,6 +627,7 @@ public class LandingView extends Page {
         });
 
         subMenuButtons.getMultiButton().setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuhit.wav");
             if (!AuthManager.isAuthenticated()) {
                 Toast.error("You must be logged in to play online!").show();
                 return;
@@ -633,6 +639,7 @@ public class LandingView extends Page {
         });
 
         subMenuButtons.getBackButton().setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuback.wav");
             hideSubMenu();
         });
 

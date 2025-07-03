@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter;
 
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.SfxManager;
 import beat.osu.client.utils.BeatmapUtils;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
 import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;

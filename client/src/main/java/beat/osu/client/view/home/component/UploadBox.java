@@ -1,9 +1,6 @@
 package beat.osu.client.view.home.component;
 
-import beat.osu.client.helper.CssManager;
-import beat.osu.client.helper.ResourceManager;
-import beat.osu.client.helper.ScreenManager;
-import beat.osu.client.helper.StageManager;
+import beat.osu.client.helper.*;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.utils.OszExtractor;
 import javafx.animation.KeyFrame;
@@ -75,6 +72,10 @@ public class UploadBox extends VBox {
     }
 
     private void handleEvent() {
+        this.setOnMouseEntered(event -> {
+            SfxManager.playSfx("menuhover.wav");
+        });
+
         this.setOnDragOver(event -> {
             if (event.getGestureSource() != this && event.getDragboard().hasFiles()) {
                 event.acceptTransferModes(TransferMode.COPY);

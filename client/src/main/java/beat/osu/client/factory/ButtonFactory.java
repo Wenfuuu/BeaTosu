@@ -127,6 +127,7 @@ public class ButtonFactory {
                     scaleDown.setInterpolator(Interpolator.EASE_OUT);
 
                     button.setOnMouseEntered(e -> {
+                        SfxManager.playSfx("menuhover.wav");
                         scaleDown.stop();
                         normalImageView.setVisible(false);
                         hoveredImageView.setVisible(true);

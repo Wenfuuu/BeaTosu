@@ -75,7 +75,6 @@ public class HomeView extends Page {
     private Label contentLabel;
     private Label foundLabel;
     private ComboBox<String> scoreFilterComboBox;
-    private Label uploadStatusLabel;
 
     private FadeTransition hideTransition;
     private FadeTransition showTransition;
@@ -144,10 +143,6 @@ public class HomeView extends Page {
 
         scoreOverlay = new ScoreOverlay();
 
-        uploadStatusLabel = new Label("");
-        uploadStatusLabel.getStyleClass().add("upload-status-label");
-        uploadStatusLabel.setVisible(false);
-
         scene.setRoot(root);
         URL globalCssUrl = CssManager.getGlobalCssURL();
         if (globalCssUrl != null) {
@@ -186,7 +181,6 @@ public class HomeView extends Page {
         mainLayout.setRight(rightBar);
         mainLayout.setBottom(bottomBar);
         mainLayout.setLeft(leftBar);
-        mainLayout.setCenter(uploadStatusLabel);
 
         root.getChildren().addAll(mainLayout, scoreOverlay);
     }
@@ -248,12 +242,8 @@ public class HomeView extends Page {
     }
 
     private void updateUploadStatus(String message) {
-        if (message == null || message.trim().isEmpty()) {
-            uploadStatusLabel.setVisible(false);
-            uploadStatusLabel.setText("");
-        } else {
-            uploadStatusLabel.setText(message);
-            uploadStatusLabel.setVisible(true);
+        if (message != null && !message.trim().isEmpty()) {
+            Toast.success(message).show();
         }
     }
 

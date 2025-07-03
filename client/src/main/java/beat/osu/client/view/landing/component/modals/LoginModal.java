@@ -8,6 +8,7 @@ import beat.osu.client.factory.ButtonFactory;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.SfxManager;
 import beat.osu.client.view.landing.component.layout.TopBar;
 import beat.osu.client.view.landing.component.ui.LightRays;
 import beat.osu.client.view.landing.component.ui.Visualizer;
@@ -187,7 +188,12 @@ public class LoginModal extends StackPane {
     }
 
     private void handleComponentEvents() {
+        signInButton.setOnMouseEntered(e -> {
+            SfxManager.playSfx("menuhover.wav");
+        });
+
         signInButton.setOnAction(e -> {
+            SfxManager.playSfx("menuhit.wav");
             String username = userInput.getText();
             String password = passInput.getText();
 
@@ -214,7 +220,12 @@ public class LoginModal extends StackPane {
                     });
         });
 
+        createAccountButton.setOnMouseEntered(e -> {
+            SfxManager.playSfx("menuhover.wav");
+        });
+
         createAccountButton.setOnAction(e -> {
+            SfxManager.playSfx("menuhit.wav");
             if (onCreateAccountListener != null) {
                 onCreateAccountListener.run();
             }
