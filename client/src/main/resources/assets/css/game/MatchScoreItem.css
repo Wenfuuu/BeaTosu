@@ -20,6 +20,7 @@
 
 .score-username {
     -fx-text-fill: #FFFFFF;
+    -fx-translate-y: -2;
 }
 
 .score-username-exited {
@@ -31,5 +32,5 @@
 }
 
 .score-combo {
-    -fx-text-fill: #FFFFFF;
+    -fx-text-fill: #597D75;
 }

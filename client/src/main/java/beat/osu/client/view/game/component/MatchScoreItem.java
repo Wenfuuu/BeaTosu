@@ -37,7 +37,7 @@ public class MatchScoreItem extends HBox {
         }
 
         Label usernameLabel = new Label(username);
-        usernameLabel.setFont(new Font("Aller Light", ScreenManager.SCREEN_HEIGHT * 0.022));
+        usernameLabel.setFont(new Font("Aller Light", ScreenManager.SCREEN_HEIGHT * 0.023));
 
         if (event.getMatchPlayer().getStatus() == PlayerStatus.EXITED || event.getMatchPlayer().getStatus() == PlayerStatus.FAILED) {
             usernameLabel.getStyleClass().add("score-username-exited");
@@ -50,20 +50,26 @@ public class MatchScoreItem extends HBox {
         scoreLabel.getStyleClass().add("score-value");
         scoreLabel.setFont(new Font("Aller Light", ScreenManager.SCREEN_HEIGHT * 0.019));
 
-        VBox scoreInfo = new VBox(0);
-        scoreInfo.getStyleClass().add("score-info-container");
-        scoreInfo.getChildren().addAll(usernameLabel, scoreLabel);
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+        Region vSpacer = new Region();
+        HBox.setHgrow(vSpacer, Priority.ALWAYS);
 
         Label comboLabel = new Label(String.format("%dx", event.getCombo()));
-        comboLabel.setFont(new Font("Aller Light", ScreenManager.SCREEN_HEIGHT * 0.019));
+        comboLabel.setFont(new Font("Aller Light", ScreenManager.SCREEN_HEIGHT * 0.018));
         comboLabel.getStyleClass().add("score-combo");
         comboLabel.setAlignment(Pos.BOTTOM_RIGHT);
-        HBox.setMargin(comboLabel, new Insets(0, 4, 0, 0));
 
-        this.getChildren().addAll(profileImageView, scoreInfo, spacer, comboLabel);
+        HBox bottomInfo = new HBox(0);
+        bottomInfo.getChildren().addAll(scoreLabel, vSpacer, comboLabel);
+
+        Region hSpacer = new Region();
+        HBox.setHgrow(hSpacer, Priority.ALWAYS);
+
+        VBox scoreInfo = new VBox(2);
+        scoreInfo.getStyleClass().add("score-info-container");
+        scoreInfo.getChildren().addAll(usernameLabel, hSpacer, bottomInfo);
+        HBox.setHgrow(scoreInfo, Priority.ALWAYS);
+
+        this.getChildren().addAll(profileImageView, scoreInfo);
 
         setupUI();
         updateProfilePicture(event.getUser().getProfilePicture());
