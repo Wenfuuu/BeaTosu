@@ -24,21 +24,7 @@ import beat.osu.shared.dto.chat.requests.SendPrivateChatMessageRequest;
 import beat.osu.shared.dto.game.requests.NotifySpectateStatusRequest;
 import beat.osu.shared.dto.game.requests.SendSpectateEventRequest;
 import beat.osu.shared.dto.game.requests.StartSpectateRequest;
-import beat.osu.shared.dto.match.requests.ChangeMatchSlotRequest;
-import beat.osu.shared.dto.match.requests.CreateMatchRequest;
-import beat.osu.shared.dto.match.requests.JoinMatchRequest;
-import beat.osu.shared.dto.match.requests.KickPlayerRequest;
-import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
-import beat.osu.shared.dto.match.requests.PlayerFinishedEventRequest;
-import beat.osu.shared.dto.match.requests.SendMatchScoreEventRequest;
-import beat.osu.shared.dto.match.requests.StartMatchRequest;
-import beat.osu.shared.dto.match.requests.TransferHostRequest;
-import beat.osu.shared.dto.match.requests.UpdateMatchBeatmapRequest;
-import beat.osu.shared.dto.match.requests.UpdateMatchChangingBeatmapRequest;
-import beat.osu.shared.dto.match.requests.UpdateMatchNameRequest;
-import beat.osu.shared.dto.match.requests.UpdateMatchPasswordRequest;
-import beat.osu.shared.dto.match.requests.UpdateMatchWinConditionRequest;
-import beat.osu.shared.dto.match.requests.UpdatePlayerStatusRequest;
+import beat.osu.shared.dto.match.requests.*;
 import beat.osu.shared.dto.score.requests.GetScoreRequest;
 import beat.osu.shared.dto.score.requests.InsertScoreRequest;
 import beat.osu.shared.dto.session.requests.CreateSessionDataRequest;
@@ -221,6 +207,8 @@ public class MessageRouter {
                 return matchService.updatePlayerStatus((UpdatePlayerStatusRequest) request.getPayload(), clientId);
             case PLAYER_FINISHED_MATCH:
                 return matchService.playerFinishedMatch((PlayerFinishedEventRequest) request.getPayload(), clientId);
+            case PLAYER_FAILED_MATCH:
+                return matchService.playerFailed((PlayerFailedEventRequest) request.getPayload(), clientId);
             default:
                 return Result.failure(Error.validation("Unknown match action: " + request.getAction()));
         }

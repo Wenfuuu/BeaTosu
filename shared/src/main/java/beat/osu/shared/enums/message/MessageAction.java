@@ -51,6 +51,7 @@ public enum MessageAction implements Serializable {
     START_MATCH,
     SEND_MATCH_SCORE_EVENT,
     PLAYER_FINISHED_MATCH,
+    PLAYER_FAILED_MATCH,
 
     // Session actions
     CREATE_SESSION_DATA,

@@ -11,55 +11,9 @@ import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.beatmap.BeatmapDto;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
-import beat.osu.shared.dto.match.events.HostChangedEvent;
-import beat.osu.shared.dto.match.events.HostLeftEvent;
-import beat.osu.shared.dto.match.events.MatchBeatmapUpdatedEvent;
-import beat.osu.shared.dto.match.events.MatchChangingBeatmapUpdatedEvent;
-import beat.osu.shared.dto.match.events.MatchCompletedEvent;
-import beat.osu.shared.dto.match.events.MatchCreatedEvent;
-import beat.osu.shared.dto.match.events.MatchEndedEvent;
-import beat.osu.shared.dto.match.events.MatchNameUpdatedEvent;
-import beat.osu.shared.dto.match.events.MatchPasswordUpdatedEvent;
-import beat.osu.shared.dto.match.events.MatchScoreEvent;
-import beat.osu.shared.dto.match.events.MatchStartedEvent;
-import beat.osu.shared.dto.match.events.MatchWinConditionUpdatedEvent;
-import beat.osu.shared.dto.match.events.PlayerFinishedEvent;
-import beat.osu.shared.dto.match.events.PlayerKickedEvent;
-import beat.osu.shared.dto.match.events.PlayerStatusUpdatedEvent;
-import beat.osu.shared.dto.match.events.SlotChangedEvent;
-import beat.osu.shared.dto.match.events.UserJoinedMatchEvent;
-import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
-import beat.osu.shared.dto.match.requests.ChangeMatchSlotRequest;
-import beat.osu.shared.dto.match.requests.CreateMatchRequest;
-import beat.osu.shared.dto.match.requests.JoinMatchRequest;
-import beat.osu.shared.dto.match.requests.KickPlayerRequest;
-import beat.osu.shared.dto.match.requests.LeaveMatchRequest;
-import beat.osu.shared.dto.match.requests.PlayerFinishedEventRequest;
-import beat.osu.shared.dto.match.requests.SendMatchScoreEventRequest;
-import beat.osu.shared.dto.match.requests.StartMatchRequest;
-import beat.osu.shared.dto.match.requests.TransferHostRequest;
-import beat.osu.shared.dto.match.requests.UpdateMatchBeatmapRequest;
-import beat.osu.shared.dto.match.requests.UpdateMatchChangingBeatmapRequest;
-import beat.osu.shared.dto.match.requests.UpdateMatchNameRequest;
-import beat.osu.shared.dto.match.requests.UpdateMatchPasswordRequest;
-import beat.osu.shared.dto.match.requests.UpdateMatchWinConditionRequest;
-import beat.osu.shared.dto.match.requests.UpdatePlayerStatusRequest;
-import beat.osu.shared.dto.match.responses.ChangeMatchSlotResponse;
-import beat.osu.shared.dto.match.responses.CreateMatchResponse;
-import beat.osu.shared.dto.match.responses.GetAllMatchesResponse;
-import beat.osu.shared.dto.match.responses.JoinMatchResponse;
-import beat.osu.shared.dto.match.responses.KickPlayerResponse;
-import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
-import beat.osu.shared.dto.match.responses.PlayerFinishedEventResponse;
-import beat.osu.shared.dto.match.responses.SendMatchScoreEventResponse;
-import beat.osu.shared.dto.match.responses.StartMatchResponse;
-import beat.osu.shared.dto.match.responses.TransferHostResponse;
-import beat.osu.shared.dto.match.responses.UpdateMatchBeatmapResponse;
-import beat.osu.shared.dto.match.responses.UpdateMatchChangingBeatmapResponse;
-import beat.osu.shared.dto.match.responses.UpdateMatchNameResponse;
-import beat.osu.shared.dto.match.responses.UpdateMatchPasswordResponse;
-import beat.osu.shared.dto.match.responses.UpdateMatchWinConditionResponse;
-import beat.osu.shared.dto.match.responses.UpdatePlayerStatusResponse;
+import beat.osu.shared.dto.match.events.*;
+import beat.osu.shared.dto.match.requests.*;
+import beat.osu.shared.dto.match.responses.*;
 import beat.osu.shared.enums.match.MatchWinCondition;
 import beat.osu.shared.enums.match.PlayerRole;
 import beat.osu.shared.enums.match.PlayerStatus;
@@ -94,6 +48,7 @@ public class MatchController {
     private final List<Consumer<MatchChangingBeatmapUpdatedEvent>> matchChangingBeatmapUpdatedCallbacks = new ArrayList<>();
     private final List<Consumer<MatchWinConditionUpdatedEvent>> matchWinConditionUpdatedCallbacks = new ArrayList<>();
     private final List<Consumer<PlayerStatusUpdatedEvent>> playerStatusUpdatedCallbacks = new ArrayList<>();
+    private final List<Consumer<PlayerFailedEvent>> playerFailedCallbacks = new ArrayList<>();
 
     public MatchController() {
         this.clientService = ClientService.getInstance();
@@ -169,6 +124,10 @@ public class MatchController {
         playerStatusUpdatedCallbacks.add(callback);
     }
 
+    public void addPlayerFailedCallback(Consumer<PlayerFailedEvent> callback) {
+        playerFailedCallbacks.add(callback);
+    }
+
     public void removeMatchCreatedCallback(Consumer<MatchCreatedEvent> callback) {
         matchCreatedCallbacks.remove(callback);
     }
@@ -235,6 +194,10 @@ public class MatchController {
 
     public void removePlayerStatusUpdatedCallback(Consumer<PlayerStatusUpdatedEvent> callback) {
         playerStatusUpdatedCallbacks.remove(callback);
+    }
+
+    public void removePlayerFailedCallback(Consumer<PlayerFailedEvent> callback) {
+        playerFailedCallbacks.remove(callback);
     }
 
     private void setupRealtimeHandler() {
@@ -415,6 +378,26 @@ public class MatchController {
                 Result<?> result = (Result<?>) response;
                 if (result.isSuccess()) {
                     return Result.success((SendMatchScoreEventResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
+    }
+
+    public CompletableFuture<Result<PlayerFailedEventResponse>> sendPlayerFailedEvent(PlayerFailedEvent event) {
+        PlayerFailedEventRequest requestData = new PlayerFailedEventRequest(event);
+        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.PLAYER_FAILED_MATCH, requestData);
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendRequest(request).get();
+
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((PlayerFailedEventResponse) result.getValue());
                 } else {
                     return Result.failure(result.getError());
                 }
@@ -657,6 +640,11 @@ public class MatchController {
             if (message.getPayload() instanceof MatchCompletedEvent) {
                 MatchCompletedEvent event = (MatchCompletedEvent) message.getPayload();
                 notifyMatchCompleted(event);
+            }
+        } else if (message.getType() == RealtimeMessageType.PLAYER_FAILED_EVENT) {
+            if (message.getPayload() instanceof PlayerFailedEvent) {
+                PlayerFailedEvent event = (PlayerFailedEvent) message.getPayload();
+                notifyPlayerFailed(event);
             }
         }
     }
@@ -943,6 +931,16 @@ public class MatchController {
                 callback.accept(event);
             } catch (Exception e) {
                 System.err.println("Error in player status updated callback: " + e.getMessage());
+            }
+        }
+    }
+
+    private void notifyPlayerFailed(PlayerFailedEvent event) {
+        for (Consumer<PlayerFailedEvent> callback : playerFailedCallbacks) {
+            try {
+                callback.accept(event);
+            } catch (Exception e) {
+                System.err.println("Error in player failed callback: " + e.getMessage());
             }
         }
     }
