@@ -3,6 +3,7 @@ package beat.osu.client.view.game.component;
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
+import beat.osu.shared.enums.match.PlayerStatus;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -26,8 +27,13 @@ public class MatchScoreItem extends HBox {
         profileImageView.setFitHeight(50);
         profileImageView.setFitWidth(50);
 
-        Label usernameLabel = new Label(event.getUser().getUsername());
-        usernameLabel.getStyleClass().add("score-username");
+        String username = event.getUser().getUsername();
+        if (event.getMatchPlayer().getStatus() == PlayerStatus.EXITED) {
+            username = username + " [Quit]";
+        }
+        Label usernameLabel = new Label(username);
+        if (event.getMatchPlayer().getStatus() == PlayerStatus.EXITED) usernameLabel.getStyleClass().add("score-username-exited");
+        else usernameLabel.getStyleClass().add("score-username");
         usernameLabel.setMaxWidth(150);
 
         String scoreString = String.format("%,d", event.getScore());

@@ -25,6 +25,7 @@ public class BgmManager {
     private String currentBgmHash = null;
     private String defaultBgmHash;
     private MediaPlayer currentPlayer;
+    private PlaybackMode currentPlaybackMode = PlaybackMode.DEFAULT;
 
     @Getter
     private double BGM_VOLUME;
@@ -36,8 +37,6 @@ public class BgmManager {
             currentPlayer.setVolume(BGM_VOLUME);
         }
     }
-
-    private PlaybackMode currentPlaybackMode = PlaybackMode.DEFAULT;
 
     private BgmManager() {
         BGM_VOLUME = ConfigurationManager.getInstance().getBgmVolume();
@@ -101,6 +100,7 @@ public class BgmManager {
 
     public void playPreviewBgm(boolean fromAnotherPage) {
         System.out.println("calling playPreviewBgm, fromAnotherPage: " + fromAnotherPage);
+
 
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
         File tempDir = ResourceManager.getTempDirectory();

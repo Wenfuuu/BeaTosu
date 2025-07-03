@@ -1,5 +1,6 @@
 package beat.osu.shared.dto.match.events;
 
+import beat.osu.shared.dto.match.MatchPlayerDto;
 import beat.osu.shared.dto.user.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,5 +17,6 @@ public class MatchScoreEvent implements Serializable {
     private int highestCombo;
     private int combo;
     private double accuracy;
+    private MatchPlayerDto matchPlayer;
     private UserDto user;
 }

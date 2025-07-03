@@ -406,9 +406,9 @@ public class MatchService {
         }
 
         Set<MatchPlayer> players = matchPlayers.get(matchId);
-//        if (players == null || players.size() < 2) {
-//            return Result.failure(Error.validation("At least 2 players are required to start the match"));
-//        }
+        if (players == null || players.size() < 2) {
+            return Result.failure(Error.validation("At least 2 players are required to start the match"));
+        }
 
         match.setInProgress(true);
 

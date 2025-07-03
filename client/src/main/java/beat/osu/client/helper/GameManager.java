@@ -26,6 +26,7 @@ import beat.osu.shared.dto.match.MatchPlayerDto;
 import beat.osu.shared.dto.match.events.MatchCompletedEvent;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
 import beat.osu.shared.dto.match.events.PlayerFinishedEvent;
+import beat.osu.shared.dto.match.events.UserLeftMatchEvent;
 import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.enums.match.MatchWinCondition;
@@ -92,6 +93,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private int highestCombo = 0;
     private boolean perfectCombo = true;
     private boolean imperfectOrMissed = false;
+    private boolean isFailed = false;
 
     // Multiplayer score tracking
     @Getter
@@ -167,7 +169,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                         System.out.println("Processing player status: " + player.getStatus());
                         if (player.getStatus() != PlayerStatus.PLAYING) continue;
                         MatchScoreEvent event = new MatchScoreEvent(matchDto.getId(), 0,
-                                0, 0, 0, player.getUser());
+                                0, 0, 0, player, player.getUser());
                         updateMatchScoreEvent(event);
                     }
                 }
@@ -403,13 +405,18 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void failGame() {
-        SfxManager.playSfx("failsound.wav");
-        notifySpectatorsPlayerExited();
+        if (isFailed) return;
+        isFailed = true;
 
-        System.out.println("Game failed, stopping game");
-        gameState = GameState.FAILED;
-        gameLoop.stop();
-        BgmManager.getInstance().stopBgm();
+        if (!isMultiplayer) {
+            SfxManager.playSfx("failsound.wav");
+            notifySpectatorsPlayerExited();
+
+            System.out.println("Game failed, stopping game");
+            gameState = GameState.FAILED;
+            gameLoop.stop();
+            BgmManager.getInstance().stopBgm();
+        }
         notifyListeners(new GameEvent(GameEventType.GAME_FAILED, null));
     }
 
@@ -617,6 +624,17 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         }
     }
 
+    private MatchPlayerDto getMatchPlayerByUserId(int userId) {
+        if (matchDto == null || matchDto.getPlayers() == null) return null;
+
+        for (MatchPlayerDto player : matchDto.getPlayers()) {
+            if (player.getUser().getId() == userId) {
+                return player;
+            }
+        }
+        return null;
+    }
+
     private void sendMatchScoreEvent() {
         if (!isMultiplayer || matchController == null)
             return;
@@ -629,8 +647,9 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         // matchScoreEventInProgress = true;
         try {
+            MatchPlayerDto matchPlayer = getMatchPlayerByUserId(AuthManager.getUser().getId());
             MatchScoreEvent event = new MatchScoreEvent(matchDto.getId(),
-                    score, masterComboNumber, highestCombo, accuracy, AuthManager.getUser());
+                    score, masterComboNumber, highestCombo, accuracy, matchPlayer, AuthManager.getUser());
             matchController.sendMatchScoreEvent(event).thenApply(response -> {
                 if (response.isSuccess()) {
                     System.out.println("Match score event sent successfully: " + response.getValue().getMessage());
@@ -891,7 +910,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         // Check for game over (health reaches 0)
         if (health <= 0) {
             System.out.println("hp reached 0, stopping game");
-            // failGame();
+             failGame();
         }
     }
 
@@ -980,8 +999,22 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void setupMatchCallbacks() {
+        matchController.addUserLeftMatchCallback(this::onUserLeftMatchEvent);
         matchController.addMatchScoreCallback(this::updateMatchScoreEvent);
         matchController.addMatchCompletedCallback(this::onMatchCompletedEvent);
+    }
+
+    private void onUserLeftMatchEvent(UserLeftMatchEvent event) {
+        for (int i = 0; i < multiplayerScores.size(); i++) {
+            MatchScoreEvent existingEvent = multiplayerScores.get(i);
+            if (existingEvent != null && existingEvent.getUser() != null &&
+                    existingEvent.getUser().getId() == event.getUserId()) {
+                existingEvent.getMatchPlayer().setStatus(PlayerStatus.EXITED);
+                break;
+            }
+        }
+
+        notifyListeners(new GameEvent(GameEventType.MATCH_SCORE_CHANGED, multiplayerScores));
     }
 
     private void onMatchCompletedEvent(MatchCompletedEvent event) {
@@ -1019,8 +1052,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                     break;
                 }
             }
-            if (!found)
-                multiplayerScores.add(event);
+            if (!found) multiplayerScores.add(event);
 
             if (matchDto.getWinCondition() == MatchWinCondition.SCORE) {
                 multiplayerScores.sort((a, b) -> Integer.compare(b.getScore(), a.getScore()));
