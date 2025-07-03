@@ -13,13 +13,7 @@ import beat.osu.client.controller.BeatmapController;
 import beat.osu.client.controller.ScoreController;
 import beat.osu.client.enums.ScoreFilter;
 import beat.osu.client.events.game.ReplayEvent;
-import beat.osu.client.helper.AuthManager;
-import beat.osu.client.helper.BackgroundManager;
-import beat.osu.client.helper.BgmManager;
-import beat.osu.client.helper.CssManager;
-import beat.osu.client.helper.ResourceManager;
-import beat.osu.client.helper.ScreenManager;
-import beat.osu.client.helper.ViewManager;
+import beat.osu.client.helper.*;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
 import beat.osu.client.utils.OsuParser;
@@ -420,7 +414,17 @@ public class HomeView extends Page {
             }
         });
 
+        bottomBar.getLogoView().setOnMouseEntered(e -> {
+            SfxManager.playSfx("menuhover.wav");
+            bottomBar.getOnHoverTransition().play();
+        });
+
+        bottomBar.getLogoView().setOnMouseExited(e -> {
+            bottomBar.getOnExitTransition().play();
+        });
+
         bottomBar.getLogoView().setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuhit.wav");
             System.out.println("clicking play button");
             Beatmap selectedBeatmap = beatmapContent.getSelectedBeatmap();
             if (selectedBeatmap != null) {

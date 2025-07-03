@@ -3,6 +3,7 @@ package beat.osu.client.view.home.component;
 import beat.osu.client.Main;
 import beat.osu.client.factory.ButtonFactory;
 import beat.osu.client.helper.CssManager;
+import javafx.animation.ScaleTransition;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
@@ -10,6 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.util.Duration;
 import lombok.Getter;
 
 import java.net.URL;
@@ -20,6 +22,10 @@ public class BottomBar extends HBox {
     private Button backButton;
     @Getter
     private ImageView logoView;
+    @Getter
+    private ScaleTransition onHoverTransition;
+    @Getter
+    private ScaleTransition onExitTransition;
     private Region spacer;
 
     public BottomBar() {
@@ -27,6 +33,7 @@ public class BottomBar extends HBox {
 
         initializeComponents();
         setupLayout();
+        setupAnimations();
         loadStyles();
     }
 
@@ -51,6 +58,17 @@ public class BottomBar extends HBox {
         this.getChildren().addAll(backButton, spacer, logoView);
         this.setAlignment(Pos.CENTER);
         this.toFront();
+    }
+
+    private void setupAnimations() {
+        // Scale transition for the logo
+        onHoverTransition = new ScaleTransition(Duration.millis(200), logoView);
+        onHoverTransition.setToX(2.2);
+        onHoverTransition.setToY(2.2);
+
+        onExitTransition = new ScaleTransition(Duration.millis(200), logoView);
+        onExitTransition.setToX(2);
+        onExitTransition.setToY(2);
     }
 
     private void loadStyles() {
