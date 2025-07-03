@@ -213,7 +213,7 @@ public class LoginModal extends StackPane {
     private void handleComponentEvents() {
         // Add keyboard sound effects for input fields
         setupInputFieldSounds();
-        
+
         signInButton.setOnMouseEntered(e -> {
             SfxManager.playSfx("menuhover.wav");
         });

@@ -109,7 +109,8 @@ public class RegisterModal extends StackPane {
         emailLabel.getStyleClass().add("label");
         emailField = new TextField();
         emailInputBox = new HBox(10, emailLabel, emailField);
-        emailHint = new Label("Will be used for notifications, account verification and in the case you forget your password. No spam, ever. Make sure to get it right!");
+        emailHint = new Label(
+                "Will be used for notifications, account verification and in the case you forget your password. No spam, ever. Make sure to get it right!");
         emailHint.setWrapText(true);
         emailHint.getStyleClass().add("hint");
 
@@ -118,7 +119,8 @@ public class RegisterModal extends StackPane {
         passwordLabel.getStyleClass().add("label");
         passwordField = new PasswordField();
         passwordInputBox = new HBox(10, passwordLabel, passwordField);
-        passwordHint = new Label("At least 8 characters long. Choose something long but also something you will remember, like a line from your favourite song.");
+        passwordHint = new Label(
+                "At least 8 characters long. Choose something long but also something you will remember, like a line from your favourite song.");
         passwordHint.setWrapText(true);
         passwordHint.getStyleClass().add("hint");
 
@@ -127,15 +129,15 @@ public class RegisterModal extends StackPane {
         profilePictureBox.getStyleClass().add("profile-picture-box");
         profilePictureLabel = new Label("Profile Picture:");
         profilePictureLabel.getStyleClass().add("label");
-        
+
         profileImageView = new ImageView();
         profileImageView.setFitWidth(ScreenManager.SCREEN_WIDTH * 0.30);
         profileImageView.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.35);
         profileImageView.setPreserveRatio(true);
-        
+
         placeholderLabel = new Label("Click here to upload image");
         placeholderLabel.getStyleClass().add("upload-placeholder");
-        
+
         imageContainer = new StackPane();
         imageContainer.getChildren().addAll(profileImageView, placeholderLabel);
         imageContainer.getStyleClass().add("image-upload-container");
@@ -143,15 +145,17 @@ public class RegisterModal extends StackPane {
         imageContainer.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.30);
         imageContainer.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.33);
         imageContainer.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.33);
-        
-        profilePictureHint = new Label("Optional: Upload a profile picture. It will be displayed on your profile and in game lobbies.");
+
+        profilePictureHint = new Label(
+                "Optional: Upload a profile picture. It will be displayed on your profile and in game lobbies.");
         profilePictureHint.setWrapText(true);
         profilePictureHint.getStyleClass().add("hint");
 
         supporterBox = new VBox(5);
         supporterCheckBox = new CheckBox("Register as osu! supporter");
         supporterCheckBox.getStyleClass().add("supporter-checkbox");
-        supporterLabel = new Label("Optional: Become an osu! supporter to help keep the game free and get some cool perks!");
+        supporterLabel = new Label(
+                "Optional: Become an osu! supporter to help keep the game free and get some cool perks!");
         supporterLabel.setWrapText(true);
         supporterLabel.getStyleClass().add("hint");
 
@@ -224,7 +228,7 @@ public class RegisterModal extends StackPane {
     private void handleEvents() {
         // Add keyboard sound effects for input fields
         setupInputFieldSounds();
-        
+
         createButton.setOnMouseEntered(e -> {
             SfxManager.playSfx("menuhover.wav");
         });
@@ -281,8 +285,7 @@ public class RegisterModal extends StackPane {
             fileChooser.setTitle("Select Profile Picture");
             fileChooser.getExtensionFilters().addAll(
                     new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"),
-                    new FileChooser.ExtensionFilter("All Files", "*.*")
-            );
+                    new FileChooser.ExtensionFilter("All Files", "*.*"));
 
             selectedImageFile = fileChooser.showOpenDialog(this.getScene().getWindow());
 

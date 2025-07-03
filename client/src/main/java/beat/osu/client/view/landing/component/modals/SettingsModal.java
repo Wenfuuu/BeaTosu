@@ -1,5 +1,6 @@
 package beat.osu.client.view.landing.component.modals;
 
+import beat.osu.client.config.ConfigurationManager;
 import beat.osu.client.factory.ButtonFactory;
 import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
@@ -33,16 +34,22 @@ public class SettingsModal extends StackPane {
     private TranslateTransition slideIn;
     private TranslateTransition slideOut;
     private boolean isModalVisible = false;
-    private Slider bgmVolumeSlider;
-    private Slider sfxVolumeSlider;
     private Button backButton;
-    private Label volumeLabel;
+
+    // General components
+    private Label gameplayLabel;
+    private Slider backgroundDimSlider;
 
     // Keybind components
     private Label keybindLabel;
     private Button leftClickKeybind;
     private Button rightClickKeybind;
     private Button currentKeybindButton; // Track which button is being configured
+
+    // Volume components
+    private Label volumeLabel;
+    private Slider bgmVolumeSlider;
+    private Slider sfxVolumeSlider;
 
     public SettingsModal() {
         initialize();
@@ -76,6 +83,17 @@ public class SettingsModal extends StackPane {
         formContainer.setMaxHeight(Region.USE_PREF_SIZE);
         formContainer.setAlignment(Pos.TOP_LEFT);
 
+        gameplayLabel = new Label("GAMEPLAY");
+        gameplayLabel.getStyleClass().add("settings-title");
+
+        Label backgroundDimLabel = new Label("Background Dim");
+        backgroundDimLabel.getStyleClass().add("settings-label");
+        backgroundDimSlider = new Slider(0.25, 1, ConfigurationManager.getInstance().getBackgroundDim());
+        backgroundDimSlider.getStyleClass().add("settings-slider");
+        backgroundDimSlider.setMajorTickUnit(0.25);
+        backgroundDimSlider.setBlockIncrement(0.1);
+        VBox generalBox = new VBox(10, backgroundDimLabel, backgroundDimSlider);
+
         // Keybind Settings Section
         keybindLabel = new Label("KEYBINDS");
         keybindLabel.getStyleClass().add("settings-title");
@@ -104,8 +122,8 @@ public class SettingsModal extends StackPane {
         bgmLabel.getStyleClass().add("settings-label");
         bgmVolumeSlider = new Slider(0, 1, BgmManager.getInstance().getBGM_VOLUME());
         bgmVolumeSlider.getStyleClass().add("settings-slider");
-        bgmVolumeSlider.setShowTickLabels(true);
-        bgmVolumeSlider.setShowTickMarks(true);
+//        bgmVolumeSlider.setShowTickLabels(true);
+//        bgmVolumeSlider.setShowTickMarks(true);
         bgmVolumeSlider.setMajorTickUnit(0.25);
         bgmVolumeSlider.setBlockIncrement(0.1);
         VBox bgmBox = new VBox(10, bgmLabel, bgmVolumeSlider);
@@ -115,8 +133,8 @@ public class SettingsModal extends StackPane {
         sfxLabel.getStyleClass().add("settings-label");
         sfxVolumeSlider = new Slider(0, 1, SfxManager.getSFX_VOLUME());
         sfxVolumeSlider.getStyleClass().add("settings-slider");
-        sfxVolumeSlider.setShowTickLabels(true);
-        sfxVolumeSlider.setShowTickMarks(true);
+//        sfxVolumeSlider.setShowTickLabels(true);
+//        sfxVolumeSlider.setShowTickMarks(true);
         sfxVolumeSlider.setMajorTickUnit(0.25);
         sfxVolumeSlider.setBlockIncrement(0.1);
         VBox sfxBox = new VBox(10, sfxLabel, sfxVolumeSlider);
@@ -130,7 +148,9 @@ public class SettingsModal extends StackPane {
                 rightClickBox,
                 volumeLabel,
                 bgmBox,
-                sfxBox);
+                sfxBox,
+                gameplayLabel,
+                generalBox);
 
         this.getChildren().addAll(formContainer, backButton);
         StackPane.setAlignment(formContainer, Pos.CENTER_RIGHT);
@@ -257,14 +277,16 @@ public class SettingsModal extends StackPane {
 
         // Volume slider handlers
         bgmVolumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("BGM Volume changed to: " + newValue);
             BgmManager.getInstance().setBGM_VOLUME((Double) newValue);
             BgmManager.getInstance().getCurrentPlayer().setVolume((Double) newValue);
         });
 
         sfxVolumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("SFX Volume changed to: " + newValue);
             SfxManager.setSFX_VOLUME((Double) newValue);
+        });
+
+        backgroundDimSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            ConfigurationManager.getInstance().setBackgroundDim((Double) newValue);
         });
 
         backButton.setOnAction(e -> hide());

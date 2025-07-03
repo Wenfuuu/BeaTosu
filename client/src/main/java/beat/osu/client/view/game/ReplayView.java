@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import beat.osu.client.Main;
+import beat.osu.client.config.ConfigurationManager;
 import beat.osu.client.controller.UserController;
 import beat.osu.client.enums.HitResult;
 import beat.osu.client.events.game.AdditionalSpinEvent;
@@ -66,7 +67,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
     private final double PLAYFIELD_OFFSET_X_IN_REF = 64.0;
     private final double PLAYFIELD_OFFSET_Y_IN_REF = 56.0;
 
-    private double INITIAL_OPACITY = 0.75;
+    private final double INITIAL_OPACITY = ConfigurationManager.getInstance().getBackgroundDim();
 
     private final double circleSize;
     private double osuPixelDiameter;
@@ -99,7 +100,8 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
     private EndReplayButton endReplayButton;
     private TranslateTransition marqueeAnimation;
 
-    public ReplayView(Stage stage, UserController userController, Beatmap selectedBeatmap, int playingUserId, ArrayList<ReplayEvent> replayEvents) {
+    public ReplayView(Stage stage, UserController userController, Beatmap selectedBeatmap, int playingUserId,
+            ArrayList<ReplayEvent> replayEvents) {
         super(stage);
         setupView();
         inputManager.setSfxDisabled(true);
@@ -444,7 +446,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
     private void enterBreakPeriod() {
         FadeTransition fade = new FadeTransition(Duration.millis(1000), backgroundOverlay);
         fade.setFromValue(backgroundOverlay.getOpacity());
-        fade.setToValue(0.5);
+        fade.setToValue(INITIAL_OPACITY - 0.25);
         fade.play();
     }
 
@@ -545,7 +547,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
         backgroundOverlay.setStyle("-fx-background-color: rgba(18, 18, 18);");
         backgroundOverlay.prefWidthProperty().bind(root.widthProperty());
         backgroundOverlay.prefHeightProperty().bind(root.heightProperty());
-        backgroundOverlay.setOpacity(0.5);
+        backgroundOverlay.setOpacity(INITIAL_OPACITY - 0.25);
 
         // Add the overlay pane to the root
         root.getChildren().addAll(backgroundOverlay);
@@ -768,7 +770,8 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
                         beatmap.getVersion());
 
                 marqueeLabel = new Label(marqueeText);
-                marqueeLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Aller Light'; -fx-font-size: " + ScreenManager.SCREEN_HEIGHT * 0.02 + "px;");
+                marqueeLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Aller Light'; -fx-font-size: "
+                        + ScreenManager.SCREEN_HEIGHT * 0.02 + "px;");
 
                 endReplayButton = new EndReplayButton();
 
@@ -798,8 +801,9 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
                 marqueeLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Aller Light'; -fx-font-size: 20px;");
 
                 endReplayButton = new EndReplayButton();
-                endReplayButton.setBackground(new Background(new BackgroundFill(Color.color(1, 0.2, 0.2, 0.5), CornerRadii.EMPTY, Insets.EMPTY)));
-                
+                endReplayButton.setBackground(new Background(
+                        new BackgroundFill(Color.color(1, 0.2, 0.2, 0.5), CornerRadii.EMPTY, Insets.EMPTY)));
+
                 endReplayButton.setOnMouseClicked(e -> {
                     SfxManager.playSfx("pause-click.wav");
                     ViewManager.getInstance().showHomeView();
