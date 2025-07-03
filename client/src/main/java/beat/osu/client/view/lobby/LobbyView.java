@@ -361,7 +361,7 @@ public class LobbyView extends Page {
             if (response.isSuccess()) {
                 JoinMatchResponse joinResponse = response.getValue();
                 ViewManager.getInstance().showMatchView(joinResponse.getMatch());
-                Toast.success("Successfully joined lobby: " + joinResponse.getMessage()).show();
+                Toast.success(joinResponse.getMessage()).show();
             } else {
                 Toast.error("Failed to join match: " + response.getError().getMessage()).show();
             }

@@ -445,7 +445,7 @@ public class MatchView extends Page {
                     chatPanel.getChatTabs().selectTab(response.getValue().getChannel());
                     Toast.success("Successfully joined lobby!").show();
                 } else {
-                    Toast.error("Failed to join lobby: " + response.getError().getMessage()).show();
+                    Toast.error(response.getError().getMessage()).show();
                 }
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
@@ -456,9 +456,9 @@ public class MatchView extends Page {
 
         matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
             if (result.isSuccess()) {
-                System.out.println("Successfully updated status to: NOT_READY");
+                System.out.println("Successfully updated status to NOT_READY");
             } else {
-                Toast.error("Failed to update status: " + result.getError().getMessage()).show();
+                Toast.error(result.getError().getMessage()).show();
             }
         });
         updateBlueButtonState();
@@ -491,7 +491,7 @@ public class MatchView extends Page {
                 Result<LeaveMatchResponse> response = matchController.leaveMatch(matchId).get();
                 if (response.isSuccess()) {
                     LeaveMatchResponse leaveMatchResponse = response.getValue();
-                    Toast.success("Successfully left match: " + leaveMatchResponse.getMessage()).show();
+                    Toast.success(leaveMatchResponse.getMessage()).show();
                     ViewManager.getInstance().showLobbyView();
                 } else {
                     Toast.error("Failed to leave match: " + response.getError().getMessage()).show();
@@ -634,10 +634,10 @@ public class MatchView extends Page {
                         Toast.success("Beatmap updated successfully!").show();
                         System.out.println("Successfully updated beatmap to: " + selectedBeatmap.getBeatmapSet().getTitle() + " [" + selectedBeatmap.getVersion() + "]");
                     } else {
-                        Toast.error("Failed to update beatmap: " + result.getError().getMessage()).show();
+                        Toast.error(result.getError().getMessage()).show();
                     }
                 } catch (Exception ex) {
-                    Toast.error("Error updating beatmap: " + ex.getMessage()).show();
+                    Toast.error(ex.getMessage()).show();
                 }
             });
             selectBeatmapModal.show();
@@ -657,7 +657,7 @@ public class MatchView extends Page {
                     changePasswordModal.hide();
                     Toast.success(result.getValue().getMessage()).show();
                 } else {
-                    Toast.error("Failed to update match password: " + result.getError().getMessage()).show();
+                    Toast.error(result.getError().getMessage()).show();
                 }
             } catch (InterruptedException | ExecutionException ex) {
                 throw new RuntimeException(ex);
