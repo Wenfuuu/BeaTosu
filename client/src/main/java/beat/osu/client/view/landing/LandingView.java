@@ -23,6 +23,7 @@ import beat.osu.client.view.landing.component.ui.Visualizer;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
 import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
+import beat.osu.client.view.shared.bancho.modals.ProfileModal;
 import beat.osu.client.view.shared.bancho.modals.SelectChannelModal;
 import beat.osu.client.view.shared.bancho.modals.ViewUserModal;
 import beat.osu.client.view.shared.bancho.panels.ChatPanel;
@@ -72,7 +73,9 @@ public class LandingView extends Page {
     private ChatPanel chatPanel;
     private SelectChannelModal selectChannelModal;
     private BanchoButtons banchoButtons;
+
     private ViewUserModal viewUserModal;
+    private ProfileModal profileModal;
 
     private VBox banchoPanelsContainer;
 
@@ -351,6 +354,7 @@ public class LandingView extends Page {
         chatPanel = new ChatPanel(chatController, selectChannelModal, onlineUsersPanel, banchoButtons);
 
         viewUserModal = new ViewUserModal(sessionController);
+        profileModal = new ProfileModal();
 
         banchoPanelsContainer = new VBox();
         banchoPanelsContainer.setVisible(false);
@@ -491,6 +495,9 @@ public class LandingView extends Page {
 
         root.getChildren().add(viewUserModal);
         StackPane.setAlignment(viewUserModal, Pos.CENTER);
+
+        root.getChildren().add(profileModal);
+        StackPane.setAlignment(profileModal, Pos.CENTER);
     }
 
     @Override
@@ -522,7 +529,12 @@ public class LandingView extends Page {
                     chatPanel.hide();
                     bottomBar.setFullOpacity();
                 }
-                loginModal.show();
+
+                if (AuthManager.isAuthenticated()) {
+                    profileModal.show();
+                } else {
+                    loginModal.show();
+                }
             }
         });
 

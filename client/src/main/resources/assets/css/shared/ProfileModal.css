@@ -1,0 +1,33 @@
+.profile-modal {
+    -fx-background-color: rgba(0, 0, 0, 0.90);
+}
+
+.buttons-container {
+    -fx-alignment: center;
+    -fx-spacing: 24;
+    -fx-vgrow: always;
+}
+
+.modal-button {
+    -fx-padding: 2px 20px 2px 20px;
+    -fx-text-fill: white;
+    -fx-font-family: 'Aller';
+    -fx-font-size: 48px;
+    -fx-border-radius: 5;
+    -fx-alignment: center;
+}
+
+.modal-button .text {
+    -fx-effect: dropshadow(one-pass-box, black, 1, 0, 1, 1),
+    dropshadow(one-pass-box, black, 1, 0, -1, 1),
+    dropshadow(one-pass-box, black, 1, 0, 1, -1),
+    dropshadow(one-pass-box, black, 1, 0, -1, -1);
+}
+
+.sign-out-button {
+    -fx-background-color: linear-gradient(to bottom, #C27B06, #E08A02);
+}
+
+.close-button {
+    -fx-background-color: linear-gradient(to bottom, #808080, #949494);
+}
