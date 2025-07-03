@@ -250,6 +250,7 @@ public class MatchService {
         removePlayerFromMatch(matchId, userId);
 
         String message = "Successfully left match: " + match.getName();
+        Set<MatchPlayer> remainingPlayers = matchPlayers.get(matchId);
 
         if (playerRole.equals(PlayerRole.HOST)) {
             handleHostLeaving(matchId, userId);
@@ -257,16 +258,20 @@ public class MatchService {
             UserLeftMatchEvent event = new UserLeftMatchEvent(matchId, userId);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_LEFT_MATCH, clientId, event);
             RealtimeMessageHandler.broadcastToAll(realtimeMessage);
-            
-            Set<MatchPlayer> remainingPlayers = matchPlayers.get(matchId);
-            if (remainingPlayers == null || remainingPlayers.isEmpty()) {
-                removeMatch(matchId);
-            }
         }
 
-        Result<LeaveMatchResponse> response = Result.success(new LeaveMatchResponse(message));
+        for (MatchPlayer remainingPlayer : remainingPlayers) {
+            System.out.println("Remaining player id " + remainingPlayer.getUserId()
+                    + ", status: " + remainingPlayer.getStatus());
+        }
+        if (remainingPlayers.isEmpty()) {
+            removeMatch(matchId);
+        }
+        boolean playerExists = remainingPlayers.stream()
+                .allMatch(p -> p.getStatus() != PlayerStatus.PLAYING);
+        if (playerExists) match.setInProgress(false);
 
-        return response;
+        return Result.success(new LeaveMatchResponse(message));
     }
 
     public Result<KickPlayerResponse> kickPlayer(KickPlayerRequest request, String clientId) {

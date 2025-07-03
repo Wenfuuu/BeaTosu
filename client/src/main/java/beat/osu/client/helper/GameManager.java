@@ -464,6 +464,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 }
             } else {
                 // clean up and notify exit
+                gameLoop.stop();
                 exitMatch();
             }
 
@@ -1064,7 +1065,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
             System.out.println("Received match score, user: " + event.getUser().getUsername() +
                     ", score: " + event.getScore() + ", combo: " + event.getCombo() +
-                    " status" + event.getMatchPlayer().getStatus());
+                    " status: " + event.getMatchPlayer().getStatus());
 
             // Check if multiplayer components are still valid
             if (matchDto == null) {
