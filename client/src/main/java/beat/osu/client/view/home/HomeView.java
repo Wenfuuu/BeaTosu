@@ -201,9 +201,9 @@ public class HomeView extends Page {
     private void createSearchArea() {
         searchArea = new HBox();
         searchArea.getStyleClass().add("search-area");
-        searchArea.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.20);
-        searchArea.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.20);
-        searchArea.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.20);
+        searchArea.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.30);
+        searchArea.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.30);
+        searchArea.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.30);
 
         VBox searchContent = new VBox();
 

@@ -21,21 +21,20 @@
 
 .search-label {
     -fx-text-fill: #B7E468;
-    -fx-font-size: 14px;
+    -fx-font-size: 24px;
     -fx-font-weight: bold;
-    -fx-font-family: "Aller Light";
+    -fx-font-family: "Aller";
 }
-
 .search-content-label {
     -fx-text-fill: white;
-    -fx-font-size: 14px;
+    -fx-font-size: 22px;
     -fx-font-weight: bold;
-    -fx-font-family: "Aller Light";
+    -fx-font-family: "Aller";
 }
 
 .search-found-label {
     -fx-text-fill: white;
-    -fx-font-size: 14px;
+    -fx-font-size: 20px;
     -fx-font-weight: normal;
     -fx-font-family: "Aller Light";
 }
