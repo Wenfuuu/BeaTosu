@@ -9,6 +9,7 @@ import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -47,8 +48,29 @@ public class CreateMatchModal extends VBox {
         setLayout();
         loadStyles();
         setupEventHandlers();
+        setupInputFieldSounds();
 
         this.setVisible(false);
+    }
+
+    private void setupInputFieldSounds() {
+        gameTextField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.BACK_SPACE) {
+                SfxManager.playSfx("key-delete.mp3");
+            } else {
+                int randomKeyPress = (int) (Math.random() * 4) + 1;
+                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+            }
+        });
+
+        passwordField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.BACK_SPACE) {
+                SfxManager.playSfx("key-delete.mp3");
+            } else {
+                int randomKeyPress = (int) (Math.random() * 4) + 1;
+                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+            }
+        });
     }
 
     private void initializeComponents() {

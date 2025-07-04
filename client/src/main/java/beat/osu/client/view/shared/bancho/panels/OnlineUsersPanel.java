@@ -26,6 +26,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -115,6 +116,18 @@ public class OnlineUsersPanel extends VBox {
         setupUserCallbacks();
         setupUserCountSubscription();
         setupSearchListener();
+        setupInputFieldSounds();
+    }
+
+    private void setupInputFieldSounds() {
+        searchField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.BACK_SPACE) {
+                SfxManager.playSfx("key-delete.mp3");
+            } else {
+                int randomKeyPress = (int) (Math.random() * 4) + 1;
+                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+            }
+        });
     }
     
     public void show() {

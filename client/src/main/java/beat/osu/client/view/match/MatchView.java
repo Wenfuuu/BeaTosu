@@ -19,6 +19,7 @@ import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.PlaylistManager;
 import beat.osu.client.helper.ResourceManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.SfxManager;
 import beat.osu.client.helper.ViewManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
@@ -76,6 +77,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -177,6 +179,18 @@ public class MatchView extends Page {
 
         handleEvent();
         updateBlueButtonState();
+        setupInputFieldSounds();
+    }
+
+    private void setupInputFieldSounds() {
+        gameNameTextField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.BACK_SPACE) {
+                SfxManager.playSfx("key-delete.mp3");
+            } else {
+                int randomKeyPress = (int) (Math.random() * 4) + 1;
+                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+            }
+        });
     }
 
     @Override

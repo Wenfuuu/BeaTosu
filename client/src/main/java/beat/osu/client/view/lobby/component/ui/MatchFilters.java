@@ -3,10 +3,12 @@ package beat.osu.client.view.lobby.component.ui;
 import java.net.URL;
 
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.SfxManager;
 import javafx.geometry.Insets;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
@@ -30,6 +32,18 @@ public class MatchFilters extends HBox {
         initializeComponents();
         setLayout();
         loadStyles();
+        setupInputFieldSounds();
+    }
+
+    private void setupInputFieldSounds() {
+        searchTextField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.BACK_SPACE) {
+                SfxManager.playSfx("key-delete.mp3");
+            } else {
+                int randomKeyPress = (int) (Math.random() * 4) + 1;
+                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+            }
+        });
     }
 
     private void initializeComponents() {

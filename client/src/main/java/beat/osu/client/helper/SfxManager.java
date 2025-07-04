@@ -67,7 +67,7 @@ public class SfxManager {
     }
 
     public static void playSfx(String sfxName) {
-//        System.out.println("Playing SFX: " + sfxName);
+        // System.out.println("Playing SFX: " + sfxName);
         URL sfxUrl = getSfxResource(sfxName);
         Media media = null;
 
