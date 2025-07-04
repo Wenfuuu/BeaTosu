@@ -1,6 +1,7 @@
 package beat.osu.client.view.game.component;
 
 import beat.osu.client.factory.ButtonFactory;
+import beat.osu.client.helper.ScreenManager;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -33,7 +34,7 @@ public class FailOverlay extends StackPane {
         this.setVisible(false);
 
         pauseLabel = new Label("FAILED");
-        pauseLabel.setFont(Font.font("Arial", FontWeight.BOLD, 48));
+        pauseLabel.setFont(new Font("Aller Light", ScreenManager.SCREEN_HEIGHT / 22.5));
         pauseLabel.setTextFill(Color.WHITE);
         pauseLabel.setEffect(new DropShadow(10, Color.BLACK));
 
