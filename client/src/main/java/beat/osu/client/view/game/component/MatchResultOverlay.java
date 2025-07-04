@@ -3,7 +3,6 @@ package beat.osu.client.view.game.component;
 import beat.osu.client.Main;
 import beat.osu.client.events.game.GameEndEvent;
 import beat.osu.client.factory.ButtonFactory;
-import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
@@ -67,7 +66,7 @@ public class MatchResultOverlay extends BorderPane {
 
     @Getter
     private final FadeTransition showTransition;
-    private final MatchScoreContent matchScoreContent;
+    private final MatchResultContent matchResultContent;
 
     public MatchResultOverlay() {
         this.setVisible(false);
@@ -188,11 +187,11 @@ public class MatchResultOverlay extends BorderPane {
         gradeSymbol.setFitHeight(175);
         gradeSymbol.setPreserveRatio(true);
 
-        matchScoreContent = new MatchScoreContent(new ArrayList<>());
-        matchScoreContent.setPrefWidth(300);
-        matchScoreContent.setMaxWidth(300);
-        matchScoreContent.setPrefHeight(400);
-        matchScoreContent.setMaxHeight(400);
+        matchResultContent = new MatchResultContent(new ArrayList<>());
+        matchResultContent.setPrefWidth(300);
+        matchResultContent.setMaxWidth(300);
+        matchResultContent.setPrefHeight(400);
+        matchResultContent.setMaxHeight(400);
 
         initializeComponents();
         setupLayout();
@@ -224,7 +223,7 @@ public class MatchResultOverlay extends BorderPane {
                 gameEndEvent.getGreatHits(), gameEndEvent.getKatuHits(),
                 gameEndEvent.getGoodHits(), gameEndEvent.getMisses());
 
-        matchScoreContent.populateScores(matchScores);
+        matchResultContent.populateScores(matchScores);
     }
 
     private void updateScore(long score) {
@@ -406,7 +405,7 @@ public class MatchResultOverlay extends BorderPane {
         VBox rightStats = new VBox(20);
         rightStats.setAlignment(Pos.CENTER);
 
-        rightStats.getChildren().addAll(gradeSymbol, matchScoreContent);
+        rightStats.getChildren().addAll(gradeSymbol, matchResultContent);
 
         Pane contentPane = new Pane();
         contentPane.getChildren().addAll(rankingView, scoreContainer,
