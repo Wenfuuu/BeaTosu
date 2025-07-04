@@ -42,7 +42,7 @@
 }
 
 .settings-slider .thumb {
-    -fx-background-color: #109ec5;
+    -fx-background-color: #EC758D;
     -fx-background-radius: 8px;
     -fx-pref-width: 16px;
     -fx-pref-height: 16px;
@@ -50,15 +50,15 @@
 }
 
 .settings-slider .thumb:hover {
-    -fx-background-color: #0d89a8;
+    -fx-background-color: #E95A7B;
 }
 
 .settings-slider .thumb:pressed {
-    -fx-background-color: #0a7490;
+    -fx-background-color: #E63F69;
 }
 
 .settings-slider .colored-track {
-    -fx-background-color: #109ec5;
+    -fx-background-color: #EC758D;
     -fx-background-radius: 2px;
 }
 
@@ -102,4 +102,39 @@
     -fx-border-color: #FFFFFF !important;
     -fx-text-fill: #FFFFFF !important;
     -fx-effect: dropshadow(gaussian, rgba(16, 158, 197, 0.5), 5, 0.0, 0, 2) !important;
+}
+
+/* Settings Checkbox Styles */
+.settings-checkbox {
+    -fx-spacing: 8px;
+    -fx-label-padding: 0 0 0 8px;
+}
+
+.settings-checkbox .text {
+    -fx-font-family: "Aller Light";
+    -fx-fill: #FFFFFF;
+    -fx-font-size: 16px;
+    -fx-padding: 0;
+}
+
+.settings-checkbox .box {
+    -fx-background-color: transparent;
+    -fx-border-color: #EC758D;
+    -fx-border-radius: 50%;
+    -fx-background-radius: 50%;
+    -fx-border-width: 2px;
+    -fx-padding: 2px;
+    -fx-min-width: 20px;
+    -fx-min-height: 20px;
+    -fx-max-width: 20px;
+    -fx-max-height: 20px;
+}
+
+.settings-checkbox:selected .box {
+    -fx-background-color: #EC758D;
+    -fx-border-color: #EC758D;
+}
+
+.settings-checkbox .mark {
+    -fx-background-color: transparent;
 }

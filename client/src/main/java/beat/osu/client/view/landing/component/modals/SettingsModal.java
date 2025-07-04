@@ -18,6 +18,7 @@ import javafx.scene.CacheHint;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.BorderPane;
@@ -50,6 +51,7 @@ public class SettingsModal extends StackPane {
     private Label volumeLabel;
     private Slider bgmVolumeSlider;
     private Slider sfxVolumeSlider;
+    private CheckBox ignoreBeatmapHitsoundsCheckBox;
 
     public SettingsModal() {
         initialize();
@@ -122,8 +124,8 @@ public class SettingsModal extends StackPane {
         bgmLabel.getStyleClass().add("settings-label");
         bgmVolumeSlider = new Slider(0, 1, BgmManager.getInstance().getBGM_VOLUME());
         bgmVolumeSlider.getStyleClass().add("settings-slider");
-//        bgmVolumeSlider.setShowTickLabels(true);
-//        bgmVolumeSlider.setShowTickMarks(true);
+        // bgmVolumeSlider.setShowTickLabels(true);
+        // bgmVolumeSlider.setShowTickMarks(true);
         bgmVolumeSlider.setMajorTickUnit(0.25);
         bgmVolumeSlider.setBlockIncrement(0.1);
         VBox bgmBox = new VBox(10, bgmLabel, bgmVolumeSlider);
@@ -133,11 +135,17 @@ public class SettingsModal extends StackPane {
         sfxLabel.getStyleClass().add("settings-label");
         sfxVolumeSlider = new Slider(0, 1, SfxManager.getSFX_VOLUME());
         sfxVolumeSlider.getStyleClass().add("settings-slider");
-//        sfxVolumeSlider.setShowTickLabels(true);
-//        sfxVolumeSlider.setShowTickMarks(true);
+        // sfxVolumeSlider.setShowTickLabels(true);
+        // sfxVolumeSlider.setShowTickMarks(true);
         sfxVolumeSlider.setMajorTickUnit(0.25);
         sfxVolumeSlider.setBlockIncrement(0.1);
         VBox sfxBox = new VBox(10, sfxLabel, sfxVolumeSlider);
+
+        // Ignore Beatmap Hitsounds Checkbox
+        ignoreBeatmapHitsoundsCheckBox = new CheckBox("Ignore beatmap hitsounds");
+        ignoreBeatmapHitsoundsCheckBox.getStyleClass().add("settings-checkbox");
+        ignoreBeatmapHitsoundsCheckBox.setSelected(false); // Default to false, you can get this from a config manager
+                                                           // if needed
 
         backButton = ButtonFactory.createBackButton();
         StackPane.setAlignment(backButton, Pos.BOTTOM_LEFT);
@@ -149,6 +157,7 @@ public class SettingsModal extends StackPane {
                 volumeLabel,
                 bgmBox,
                 sfxBox,
+                ignoreBeatmapHitsoundsCheckBox,
                 gameplayLabel,
                 generalBox);
 
@@ -287,6 +296,13 @@ public class SettingsModal extends StackPane {
 
         backgroundDimSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             ConfigurationManager.getInstance().setBackgroundDim((Double) newValue);
+        });
+
+        // Checkbox event handler
+        ignoreBeatmapHitsoundsCheckBox.setOnAction(e -> {
+            boolean ignoreHitsounds = ignoreBeatmapHitsoundsCheckBox.isSelected();
+            // TODO: Save this setting to configuration manager or handle the logic
+            System.out.println("Ignore beatmap hitsounds: " + ignoreHitsounds);
         });
 
         backButton.setOnAction(e -> hide());
