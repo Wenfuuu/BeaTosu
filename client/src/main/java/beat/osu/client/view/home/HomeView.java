@@ -81,6 +81,7 @@ public class HomeView extends Page {
     private FadeTransition showTransition;
 
     private String lastSearchQuery = "";
+    private String persistedSearchQuery = "";
     private Timeline searchUpdateTimeline;
 
     public HomeView(Stage stage) {
@@ -175,7 +176,6 @@ public class HomeView extends Page {
         leftBar.getChildren().addAll(scoreFilterComboBox, scoreContent, spacer, uploadBox);
         rightBar.getChildren().addAll(searchArea, beatmapContent);
 
-        // Ensure beatmapContent grows to fill available space in rightBar
         VBox.setVgrow(beatmapContent, Priority.ALWAYS);
 
         mainLayout.setTop(topBar);
@@ -193,7 +193,19 @@ public class HomeView extends Page {
             inputManager.setSfxDisabled(false);
             inputManager.clearTypedChars();
             lastSearchQuery = "";
-            contentLabel.setText("Type to search!");
+            
+            if (!persistedSearchQuery.isEmpty()) {
+                int matchesFound = beatmapContent.filterBeatmaps(persistedSearchQuery);
+                inputManager.setTypedChars(persistedSearchQuery);
+                contentLabel.setText(persistedSearchQuery);
+                foundLabel.setText(String.format("%d matches found", matchesFound));
+                foundLabel.setVisible(true);
+                foundLabel.setManaged(true);
+            } else {
+                contentLabel.setText("Type to search!");
+                foundLabel.setVisible(false);
+                foundLabel.setManaged(false);
+            }
         }
         if (searchUpdateTimeline != null) {
             searchUpdateTimeline.play();
@@ -262,6 +274,7 @@ public class HomeView extends Page {
 
         if (!currentQuery.equals(lastSearchQuery)) {
             lastSearchQuery = currentQuery;
+            persistedSearchQuery = currentQuery;
 
             int matchesFound = beatmapContent.filterBeatmaps(currentQuery);
             if (currentQuery.isEmpty()) {

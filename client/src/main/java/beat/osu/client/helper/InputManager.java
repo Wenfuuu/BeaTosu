@@ -54,6 +54,10 @@ public class InputManager {
         return typedChars.toString();
     }
 
+    public void setTypedChars(String chars) {
+        typedChars.append(chars);
+    }
+
     public void clearTypedChars() {
         typedChars.setLength(0);
     }
@@ -72,13 +76,10 @@ public class InputManager {
                 if (!sfxDisabled) SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
             }
 
-            // System.out.println(keyCode);
             if (keyCode.isLetterKey() || keyCode.isDigitKey()) {
                 typedChars.append(keyCode.getChar().toLowerCase().charAt(0));
-                // System.out.println("Typed: " + typedChars);
             } else if (keyCode == KeyCode.SPACE) {
                 typedChars.append(' ');
-                // System.out.println("Typed: " + typedChars);
             }
         });
 
