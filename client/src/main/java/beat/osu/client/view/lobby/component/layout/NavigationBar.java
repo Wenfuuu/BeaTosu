@@ -2,6 +2,7 @@ package beat.osu.client.view.lobby.component.layout;
 
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.SfxManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -34,6 +35,10 @@ public class NavigationBar extends HBox {
         backButton = new Button("Back to Menu");
         newGameButton = new Button("New Game");
         quickJoinButton = new Button("Quick Join");
+
+        backButton.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
+        newGameButton.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
+        quickJoinButton.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
 
         backButton.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.22);
         newGameButton.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.22);
