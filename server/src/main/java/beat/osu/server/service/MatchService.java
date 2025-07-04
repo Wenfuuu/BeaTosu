@@ -258,11 +258,11 @@ public class MatchService {
 
         if (playerRole.equals(PlayerRole.HOST)) {
             handleHostLeaving(matchId, userId);
-        } else {
-            UserLeftMatchEvent event = new UserLeftMatchEvent(matchId, userId);
-            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_LEFT_MATCH, clientId, event);
-            RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
+
+        UserLeftMatchEvent event = new UserLeftMatchEvent(matchId, userId);
+        RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_LEFT_MATCH, clientId, event);
+        RealtimeMessageHandler.broadcastToAll(realtimeMessage);
 
         for (MatchPlayer remainingPlayer : remainingPlayers) {
             System.out.println("Remaining player id " + remainingPlayer.getUserId()

@@ -1026,26 +1026,25 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             if (existingEvent != null && existingEvent.getUser() != null &&
                     existingEvent.getUser().getId() == event.getUser().getId()) {
                 existingEvent.getMatchPlayer().setStatus(PlayerStatus.FAILED);
-                updateMatchScoreEvent(existingEvent);
+//                updateMatchScoreEvent(existingEvent);
                 break;
             }
         }
 
-//        notifyListeners(new GameEvent(GameEventType.MATCH_SCORE_CHANGED, multiplayerScores));
+        notifyListeners(new GameEvent(GameEventType.MATCH_SCORE_CHANGED, multiplayerScores));
     }
 
     private void onUserLeftMatchEvent(UserLeftMatchEvent event) {
-        for (int i = 0; i < multiplayerScores.size(); i++) {
-            MatchScoreEvent existingEvent = multiplayerScores.get(i);
+        for (MatchScoreEvent existingEvent : multiplayerScores) {
             if (existingEvent != null && existingEvent.getUser() != null &&
                     existingEvent.getUser().getId() == event.getUserId()) {
                 existingEvent.getMatchPlayer().setStatus(PlayerStatus.EXITED);
-                updateMatchScoreEvent(existingEvent);
+//                updateMatchScoreEvent(existingEvent);
                 break;
             }
         }
 
-//        notifyListeners(new GameEvent(GameEventType.MATCH_SCORE_CHANGED, multiplayerScores));
+        notifyListeners(new GameEvent(GameEventType.MATCH_SCORE_CHANGED, multiplayerScores));
     }
 
     private void onMatchCompletedEvent(MatchCompletedEvent event) {

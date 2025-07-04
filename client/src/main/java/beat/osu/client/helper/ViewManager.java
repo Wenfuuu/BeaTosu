@@ -45,7 +45,6 @@ public class ViewManager {
     private static volatile ViewManager instance;
 
     @Getter
-    @Setter
     private MatchDto currentMatchDto;
 
     public static ViewManager getInstance() {

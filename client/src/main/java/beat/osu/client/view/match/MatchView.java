@@ -742,7 +742,7 @@ public class MatchView extends Page {
             if (!isCurrentUserPlaying) return;
             Platform.runLater(() -> {
                 BgmManager.getInstance().stopBgm();
-                ViewManager.getInstance().setCurrentMatchDto(event.getMatchDto());
+//                ViewManager.getInstance().setCurrentMatchDto(event.getMatchDto());
                 ViewManager.getInstance().showGameView(beatmap, true);
             });
         }

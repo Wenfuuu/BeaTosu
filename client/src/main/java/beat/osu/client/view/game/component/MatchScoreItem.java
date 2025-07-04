@@ -32,6 +32,7 @@ public class MatchScoreItem extends HBox {
         HBox.setMargin(profileImageView, new Insets(0, 8, 0, 0));
 
         String username = event.getUser().getUsername();
+        System.out.println("Match player status " + event.getMatchPlayer().getStatus() + " for user " + username);
         if (event.getMatchPlayer().getStatus() == PlayerStatus.EXITED) {
             username = username + " [Quit]";
         }
