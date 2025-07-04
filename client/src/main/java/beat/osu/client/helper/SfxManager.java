@@ -7,7 +7,6 @@ import beat.osu.client.utils.OsuParser;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.io.File;
 import java.net.URL;
@@ -15,16 +14,25 @@ import java.net.URL;
 public class SfxManager {
     @Getter
     private static double SFX_VOLUME;
-    @Setter
-    private static boolean ignoreBeatmapSFX = true;
+    private static boolean ignoreBeatmapSFX;
 
     public static void setSFX_VOLUME(double SFX_VOLUME) {
         SfxManager.SFX_VOLUME = SFX_VOLUME;
         ConfigurationManager.getInstance().setSfxVolume(SFX_VOLUME);
     }
 
+    public static void setIgnoreBeatmapSFX(boolean ignore) {
+        SfxManager.ignoreBeatmapSFX = ignore;
+        ConfigurationManager.getInstance().setIgnoreBeatmapHitsounds(ignore);
+    }
+
+    public static boolean isIgnoreBeatmapSFX() {
+        return ignoreBeatmapSFX;
+    }
+
     static {
         SFX_VOLUME = ConfigurationManager.getInstance().getSfxVolume();
+        ignoreBeatmapSFX = ConfigurationManager.getInstance().getIgnoreBeatmapHitsounds();
     }
 
     // private static final String SFX_DIR = "./src/main/resources/assets/sfx/";

@@ -89,6 +89,11 @@ public class ConfigurationManager {
         return getDoubleProperty("background.dim");
     }
 
+    public boolean getIgnoreBeatmapHitsounds() {
+        String value = getStringProperty("ignore.beatmap.hitsounds");
+        return value != null ? Boolean.parseBoolean(value) : true; // Default to true
+    }
+
     public String getServerHost() {
         return getStringProperty("server.host");
     }
@@ -127,8 +132,7 @@ public class ConfigurationManager {
 
         File settingsFile = new File(settingsFilePath);
         try (FileOutputStream output = new FileOutputStream(settingsFile)) {
-            settingsProperties.store(output, "");
-            // System.out.println("Successfully wrote settings to: " + settingsFilePath);
+            settingsProperties.store(output, null);
         } catch (IOException e) {
             throw e;
         }
@@ -152,6 +156,10 @@ public class ConfigurationManager {
 
     public void setBackgroundDim(double dim) {
         updateSetting("background.dim", String.valueOf(dim));
+    }
+
+    public void setIgnoreBeatmapHitsounds(boolean ignore) {
+        updateSetting("ignore.beatmap.hitsounds", String.valueOf(ignore));
     }
 
     private String findSourceSettingsFile() {

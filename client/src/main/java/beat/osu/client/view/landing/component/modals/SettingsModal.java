@@ -144,8 +144,7 @@ public class SettingsModal extends StackPane {
         // Ignore Beatmap Hitsounds Checkbox
         ignoreBeatmapHitsoundsCheckBox = new CheckBox("Ignore beatmap hitsounds");
         ignoreBeatmapHitsoundsCheckBox.getStyleClass().add("settings-checkbox");
-        ignoreBeatmapHitsoundsCheckBox.setSelected(false); // Default to false, you can get this from a config manager
-                                                           // if needed
+        ignoreBeatmapHitsoundsCheckBox.setSelected(SfxManager.isIgnoreBeatmapSFX());
 
         backButton = ButtonFactory.createBackButton();
         StackPane.setAlignment(backButton, Pos.BOTTOM_LEFT);
@@ -301,7 +300,7 @@ public class SettingsModal extends StackPane {
         // Checkbox event handler
         ignoreBeatmapHitsoundsCheckBox.setOnAction(e -> {
             boolean ignoreHitsounds = ignoreBeatmapHitsoundsCheckBox.isSelected();
-            // TODO: Save this setting to configuration manager or handle the logic
+            SfxManager.setIgnoreBeatmapSFX(ignoreHitsounds);
             System.out.println("Ignore beatmap hitsounds: " + ignoreHitsounds);
         });
 
