@@ -258,6 +258,11 @@ public class BeatmapContent extends ScrollPane {
             }
             
             if (selectedIndex >= 0) {
+                if (selectedIndex == 0) {
+                    this.setVvalue(0.0);
+                    return;
+                }
+                
                 double totalHeight = filteredBeatmaps.size() * BEATMAP_CARD_HEIGHT;
                 double viewportHeight = getViewportHeight();
                 double targetY = selectedIndex * BEATMAP_CARD_HEIGHT + 60;
