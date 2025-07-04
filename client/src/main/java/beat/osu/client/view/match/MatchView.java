@@ -140,7 +140,6 @@ public class MatchView extends Page {
     private PauseTransition changeGameNameTransition;
     private Label beatmapLabel;
     private Button changeBeatmapButton;
-    private Button updateBeatmapButton;
     private BeatmapCard beatmapCard;
     private VBox rightContent;
     private Label winConditionLabel;
@@ -492,6 +491,7 @@ public class MatchView extends Page {
 
     public void handleEvent() {
         banchoButtons.getOnlineUsersButton().setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuhit.wav");
             if (banchoButtons.getOnlineUsersButton().isOnlineUserShown()) {
                 onlineUsersPanel.hide();
                 banchoButtons.getOnlineUsersButton().setOnlineUsersHiddenIcon();
@@ -503,7 +503,12 @@ public class MatchView extends Page {
             }
         });
 
+        leaveMatchButton.setOnMouseEntered(e -> {
+            SfxManager.playSfx("menuhover.wav");
+        });
+
         leaveMatchButton.setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuback.wav");
             try {
                 Result<LeaveMatchResponse> response = matchController.leaveMatch(matchId).get();
                 if (response.isSuccess()) {
@@ -518,7 +523,12 @@ public class MatchView extends Page {
             }
         });
 
+        blueButton.setOnMouseEntered(e -> {
+            SfxManager.playSfx("menuhover.wav");
+        });
+
         blueButton.setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuhit.wav");
             PlayerStatus currentStatus = getCurrentUserStatus();
             BlueButtonState currentState = currentBlueButtonState;
             
@@ -573,6 +583,7 @@ public class MatchView extends Page {
         });
 
         hostActionsModal.getTransferHostButton().setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuhit.wav");
             MatchPlayerDto selectedPlayer = selectedPlayerForHostAction;
             if (selectedPlayer != null) {
                 try {
@@ -593,6 +604,7 @@ public class MatchView extends Page {
         });
 
         hostActionsModal.getKickPlayerButton().setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuhit.wav");
             MatchPlayerDto selectedPlayer = selectedPlayerForHostAction;
             if (selectedPlayer != null) {
                 try {
@@ -612,6 +624,7 @@ public class MatchView extends Page {
         });
 
         hostActionsModal.getUserOptionsButton().setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuhit.wav");
             MatchPlayerDto selectedPlayer = selectedPlayerForHostAction;
             if (selectedPlayer != null) {
                 UserCard userCard = new UserCard(
@@ -635,11 +648,21 @@ public class MatchView extends Page {
             }
         });
 
+        changePasswordButton.setOnMouseEntered(e -> {
+            SfxManager.playSfx("menuhover.wav");
+        });
+
         changePasswordButton.setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuhit.wav");
             changePasswordModal.show();
         });
 
+        changeBeatmapButton.setOnMouseEntered(e -> {
+            SfxManager.playSfx("menuhover.wav");
+        });
+
         changeBeatmapButton.setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuhit.wav");
             selectBeatmapModal.setInputManager(inputManager);
             selectBeatmapModal.setCurrentMatchBeatmap(beatmap);
             selectBeatmapModal.setOnBeatmapSelectedCallback(selectedBeatmap -> {
@@ -661,6 +684,7 @@ public class MatchView extends Page {
         });
 
         changePasswordModal.getConfirmButton().setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuhit.wav");
             try {
                 String newPassword = changePasswordModal.getPassword();
                 if (newPassword == null || newPassword.isEmpty()) {

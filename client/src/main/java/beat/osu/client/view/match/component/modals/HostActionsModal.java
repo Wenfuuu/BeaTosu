@@ -2,6 +2,7 @@ package beat.osu.client.view.match.component.modals;
 
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.SfxManager;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -47,6 +48,11 @@ public class HostActionsModal extends VBox {
         kickPlayerButton = new Button("2. Kick the user");
         userOptionsButton = new Button("3. User Options");
         cancelButton = new Button("4. Cancel");
+
+        transferHostButton.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
+        kickPlayerButton.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
+        userOptionsButton.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
+        cancelButton.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
 
         transferHostButton.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.52);
         kickPlayerButton.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.52);
