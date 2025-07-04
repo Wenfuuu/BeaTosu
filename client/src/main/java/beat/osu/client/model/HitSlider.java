@@ -413,6 +413,7 @@ public class HitSlider extends HitObject {
         System.out.println("Current tick index: " + currentTickIndex + ", total ticks: " + sliderTicks.size());
         for (int i = 0; i < sliderTicks.size() && i < currentTickIndex; i++) {
             if (sliderTicks.get(i).isVisible()) {
+                SfxManager.playSfx("soft-slidertick.wav");
                 sliderTicks.get(i).setVisible(false);
                 // Optional: Add a small scale/fade animation here for visual feedback
             }
