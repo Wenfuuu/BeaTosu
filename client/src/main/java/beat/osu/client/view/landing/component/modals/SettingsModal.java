@@ -21,6 +21,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -248,6 +249,9 @@ public class SettingsModal extends StackPane {
         });
 
         this.setOnKeyPressed(event -> {
+            int randomKeyPress = (int) (Math.random() * 4) + 1;
+            SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+
             System.out.println("Key pressed: " + event.getCode());
             if (currentKeybindButton != null) {
                 currentKeybindButton.getStyleClass().remove("keybind-button-waiting");
@@ -299,6 +303,7 @@ public class SettingsModal extends StackPane {
 
         // Checkbox event handler
         ignoreBeatmapHitsoundsCheckBox.setOnAction(e -> {
+            SfxManager.playSfx("menuhit.wav");
             boolean ignoreHitsounds = ignoreBeatmapHitsoundsCheckBox.isSelected();
             SfxManager.setIgnoreBeatmapSFX(ignoreHitsounds);
             System.out.println("Ignore beatmap hitsounds: " + ignoreHitsounds);

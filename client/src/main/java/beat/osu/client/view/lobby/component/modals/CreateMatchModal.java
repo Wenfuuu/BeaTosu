@@ -89,6 +89,7 @@ public class CreateMatchModal extends VBox {
         passwordCheckBox.getStyleClass().add("password-checkbox");
 
         passwordCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            SfxManager.playSfx("menuhit.wav");
             passwordBox.setVisible(newVal);
         });
 

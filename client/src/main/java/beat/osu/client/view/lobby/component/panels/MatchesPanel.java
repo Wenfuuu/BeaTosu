@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import beat.osu.client.controller.MatchController;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.SfxManager;
 import beat.osu.client.view.lobby.component.cards.MatchCard;
 import beat.osu.client.view.lobby.component.ui.MatchFilters;
 import beat.osu.shared.dto.match.MatchDto;
@@ -308,10 +309,22 @@ public class MatchesPanel extends VBox {
     }
     
     private void setupFilterCallbacks() {
-        matchFilters.getOwnedBeatmapsCheckBox().setOnAction(e -> applyFilters());
-        matchFilters.getShowFullCheckBox().setOnAction(e -> applyFilters());
-        matchFilters.getShowLockedCheckBox().setOnAction(e -> applyFilters());
-        matchFilters.getShowInProgressCheckBox().setOnAction(e -> applyFilters());
+        matchFilters.getOwnedBeatmapsCheckBox().setOnAction(e -> {
+            SfxManager.playSfx("menuhit.wav");
+            applyFilters();
+        });
+        matchFilters.getShowFullCheckBox().setOnAction(e -> {
+            SfxManager.playSfx("menuhit.wav");
+            applyFilters();
+        });
+        matchFilters.getShowLockedCheckBox().setOnAction(e -> {
+            SfxManager.playSfx("menuhit.wav");
+            applyFilters();
+        });
+        matchFilters.getShowInProgressCheckBox().setOnAction(e -> {
+            SfxManager.playSfx("menuhit.wav");
+            applyFilters();
+        });
         
         matchFilters.getSearchTextField().textProperty().addListener((observable, oldValue, newValue) -> {
             applyFilters();

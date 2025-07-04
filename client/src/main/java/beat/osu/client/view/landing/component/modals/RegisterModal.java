@@ -233,6 +233,10 @@ public class RegisterModal extends StackPane {
             SfxManager.playSfx("menuhover.wav");
         });
 
+        supporterCheckBox.setOnAction(e -> {
+            SfxManager.playSfx("menuhit.wav");
+        });
+
         createButton.setOnMouseClicked(e -> {
             SfxManager.playSfx("menuhit.wav");
             String username = usernameField.getText();
