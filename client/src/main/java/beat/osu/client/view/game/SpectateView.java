@@ -132,6 +132,7 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
 
     private void onPlayerExited(String message) {
         Platform.runLater(() -> {
+            spectatePauseOverlay.setVisible(true);
             spectatePauseOverlay.getPauseLabel().setText(message);
             BgmManager.getInstance().stopBgm();
         });
@@ -704,8 +705,7 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
                 }
                 break;
             case SPECTATE_EXIT:
-                if (spectatePauseOverlay.isVisible())
-                    sm.stopSpectate();
+                sm.stopSpectate();
                 break;
             case ENTER_BREAK_PERIOD:
                 System.out.println("enter break period");

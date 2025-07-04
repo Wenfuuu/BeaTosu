@@ -131,6 +131,20 @@ public class GameView extends Page implements GameEventListener {
             // gamePane.getChildren().add(hitObject.getNode());
             gamePane.getChildren().add(0, hitObject.getNode());
         }
+
+//        String imagePath = "/assets/images/arrow-warning.png";
+//        Image arrowImage = new Image(Objects.requireNonNull(Main.class
+//                .getResource(imagePath)).toExternalForm());
+//        ImageView arrowImageView = new ImageView(arrowImage);
+//        arrowImageView.setFitWidth(150);
+//        arrowImageView.setFitHeight(150);
+//
+//        // set image to center
+//        arrowImageView.setLayoutX(gamePane.getWidth() / 2 - arrowImageView.getFitWidth() / 2);
+//        arrowImageView.setLayoutY(gamePane.getHeight() / 2 - arrowImageView.getFitHeight() / 2);
+//
+//        // Add the image to the game pane
+//        gamePane.getChildren().add(arrowImageView);
     }
 
     private void handleEvent() {
@@ -214,8 +228,7 @@ public class GameView extends Page implements GameEventListener {
                 break;
         }
 
-        if (imagePath.isEmpty())
-            return;
+        if (imagePath.isEmpty()) return;
         Image hitImage = new Image(Objects.requireNonNull(Main.class
                 .getResource(imagePath)).toExternalForm());
         ImageView hitImageView = new ImageView(hitImage);

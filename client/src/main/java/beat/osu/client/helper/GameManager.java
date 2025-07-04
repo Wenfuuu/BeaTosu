@@ -443,6 +443,11 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                     System.out.println("Entering break period");
                     gameState = GameState.BREAK_PERIOD;
                     notifyListeners(new GameEvent(GameEventType.ENTER_BREAK_PERIOD, null));
+                } else {
+                    if (elapsedMillis >= endTime - 2000) { // 2 seconds before end
+                        System.out.println("Exiting break period soon, preparing to resume");
+                        notifyListeners(new GameEvent(GameEventType.PRE_EXIT_BREAK_PERIOD, null));
+                    }
                 }
                 break;
             }
@@ -1026,7 +1031,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             if (existingEvent != null && existingEvent.getUser() != null &&
                     existingEvent.getUser().getId() == event.getUser().getId()) {
                 existingEvent.getMatchPlayer().setStatus(PlayerStatus.FAILED);
-//                updateMatchScoreEvent(existingEvent);
                 break;
             }
         }
@@ -1039,7 +1043,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             if (existingEvent != null && existingEvent.getUser() != null &&
                     existingEvent.getUser().getId() == event.getUserId()) {
                 existingEvent.getMatchPlayer().setStatus(PlayerStatus.EXITED);
-//                updateMatchScoreEvent(existingEvent);
                 break;
             }
         }

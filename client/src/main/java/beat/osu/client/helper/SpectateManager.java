@@ -430,8 +430,10 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
             long elapsedMillis = event.getCurrentTime();
             boolean keyPressed = processSpectateEvents(event);
             int oldCombo = masterComboNumber;
-            if (oldCombo >= 20) SfxManager.playSfx("combobreak.mp3");
             masterComboNumber = event.getCombo();
+            if (oldCombo >= 20 && masterComboNumber < oldCombo) {
+                SfxManager.playSfx("combobreak.mp3");
+            }
             score = event.getScore();
             accuracy = event.getAccuracy();
             health = event.getHealth();
