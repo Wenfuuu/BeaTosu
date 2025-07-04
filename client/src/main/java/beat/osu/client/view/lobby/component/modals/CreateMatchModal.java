@@ -114,6 +114,9 @@ public class CreateMatchModal extends VBox {
         startGameButton = new Button("1. Start Game");
         cancelButton = new Button("2. Cancel");
 
+        startGameButton.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
+        cancelButton.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
+
         startGameButton.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.52);
         cancelButton.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.52);
 
@@ -168,6 +171,7 @@ public class CreateMatchModal extends VBox {
 
     private void setupEventHandlers() {
         startGameButton.setOnAction(event -> {
+            SfxManager.playSfx("menuhit.wav");
             String gameName = gameTextField.getText();
             String password = passwordField.getText();
             String maxPlayersSelection = maxPlayersComboBox.getSelectionModel().getSelectedItem();

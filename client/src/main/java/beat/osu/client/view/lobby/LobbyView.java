@@ -278,6 +278,7 @@ public class LobbyView extends Page {
         playlistModal.setInputManager(inputManager);
 
         matchesPanel.setMatchCardClickCallback(matchCard -> {
+            SfxManager.playSfx("menuhit.wav");
             boolean hasPassword = matchCard.hasPassword();
             
             if (hasPassword) {
@@ -288,6 +289,7 @@ public class LobbyView extends Page {
         });
 
         banchoButtons.getOnlineUsersButton().setOnMouseClicked(e -> {
+            SfxManager.playSfx("menuhit.wav");
             if (banchoButtons.getOnlineUsersButton().isOnlineUserShown()) {
                 onlineUsersPanel.hide();
                 banchoButtons.getOnlineUsersButton().setOnlineUsersHiddenIcon();
@@ -315,6 +317,7 @@ public class LobbyView extends Page {
         });
 
         jukebox.getMediaControls().getPlaylistButton().setOnAction(event -> {
+            SfxManager.playSfx("menuhit.wav");
             if (playlistModal.isVisible()) {
                 playlistModal.hide();
                 banchoPanelsContainer.setVisible(true);
@@ -340,14 +343,17 @@ public class LobbyView extends Page {
         });
 
         createMatchModal.getCancelButton().setOnAction(e -> {
+            SfxManager.playSfx("menuback.wav");
             createMatchModal.hide();
         });
 
         joinMatchModal.getCancelButton().setOnAction(e -> {
+            SfxManager.playSfx("menuback.wav");
             joinMatchModal.hide();
         });
 
         joinMatchModal.getJoinGameButton().setOnAction(e -> {
+            SfxManager.playSfx("menuhit.wav");
             Integer matchId = joinMatchModal.getSelectedMatchId();
             String password = joinMatchModal.getPassword();
 

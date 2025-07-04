@@ -4,6 +4,7 @@ import java.net.URL;
 
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.SfxManager;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -57,6 +58,9 @@ public class JoinMatchModal extends VBox {
 
         joinGameButton = new Button("1. Join Game");
         cancelButton = new Button("2. Cancel");
+
+        joinGameButton.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
+        cancelButton.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
 
         joinGameButton.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.52);
         cancelButton.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.52);
