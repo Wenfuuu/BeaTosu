@@ -17,6 +17,7 @@ import beat.osu.client.events.game.ReplayEvent;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.game.SpectateDto;
 import beat.osu.shared.dto.match.MatchDto;
+import beat.osu.shared.dto.match.responses.GetMatchByIdResponse;
 import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
 import javafx.stage.Stage;
 import lombok.Getter;
@@ -44,6 +45,7 @@ public class ViewManager {
     private static volatile ViewManager instance;
 
     @Getter
+    @Setter
     private MatchDto currentMatchDto;
 
     public static ViewManager getInstance() {
@@ -86,8 +88,23 @@ public class ViewManager {
         sceneManager.transitionToPage(lobbyView);
     }
 
+    private void getMatchById(int matchId) {
+        try {
+            Result<GetMatchByIdResponse> response = matchController.getMatchById(matchId).get();
+            if (response.isSuccess()) {
+                currentMatchDto = response.getValue().getMatch();
+            } else {
+                System.out.println("Failed to fetch match: " + response.getError().getMessage());
+//                Toast.error("Failed to fetch match: " + response.getError().getMessage()).show();
+            }
+        } catch (InterruptedException | ExecutionException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
     public void backToMatchView() {
         if (currentMatchDto != null) {
+            getMatchById(currentMatchDto.getId());
             MatchView matchView = new MatchView(primaryStage, currentMatchDto, connectedUsersController, chatController,
                     matchController, sessionController, beatmapController);
             matchView.onShow();
