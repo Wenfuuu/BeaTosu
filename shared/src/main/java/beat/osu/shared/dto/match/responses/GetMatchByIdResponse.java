@@ -13,5 +13,5 @@ import java.io.Serializable;
 public class GetMatchByIdResponse implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private MatchDto matches;
+    private MatchDto match;
 }

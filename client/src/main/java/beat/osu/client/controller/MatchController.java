@@ -227,24 +227,25 @@ public class MatchController {
         }
     }
 
-    public CompletableFuture<Result<CreateMatchResponse>> createMatch(String gameName, String password, int maxPlayers, int beatmapId) {
-         CreateMatchRequest requestData =  new CreateMatchRequest(gameName, password, maxPlayers, beatmapId);
-         RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.CREATE_MATCH, requestData);
+    public CompletableFuture<Result<CreateMatchResponse>> createMatch(String gameName, String password, int maxPlayers,
+            int beatmapId) {
+        CreateMatchRequest requestData = new CreateMatchRequest(gameName, password, maxPlayers, beatmapId);
+        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.CREATE_MATCH, requestData);
 
-         return CompletableFuture.supplyAsync(() -> {
-             try {
-                 Object response = clientService.getConnection().sendRequest(request).get();
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendRequest(request).get();
 
-                 Result<?> result = (Result<?>) response;
-                 if (result.isSuccess()) {
-                     return Result.success((CreateMatchResponse) result.getValue());
-                 } else {
-                     return Result.failure(result.getError());
-                 }
-             } catch (Exception e) {
-                 return Result.failure(Error.network(e.getMessage()));
-             }
-         });
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((CreateMatchResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
     }
 
     public CompletableFuture<Result<JoinMatchResponse>> joinMatch(int matchId, String password) {
@@ -258,6 +259,26 @@ public class MatchController {
                 Result<?> result = (Result<?>) response;
                 if (result.isSuccess()) {
                     return Result.success((JoinMatchResponse) result.getValue());
+                } else {
+                    return Result.failure(result.getError());
+                }
+            } catch (Exception e) {
+                return Result.failure(Error.network(e.getMessage()));
+            }
+        });
+    }
+
+    public CompletableFuture<Result<GetMatchByIdResponse>> getMatchById(int matchId) {
+        GetMatchByIdRequest requestData = new GetMatchByIdRequest(matchId);
+        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.GET_MATCH_BY_ID, requestData);
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Object response = clientService.getConnection().sendRequest(request).get();
+
+                Result<?> result = (Result<?>) response;
+                if (result.isSuccess()) {
+                    return Result.success((GetMatchByIdResponse) result.getValue());
                 } else {
                     return Result.failure(result.getError());
                 }
@@ -369,7 +390,8 @@ public class MatchController {
 
     public CompletableFuture<Result<SendMatchScoreEventResponse>> sendMatchScoreEvent(MatchScoreEvent event) {
         SendMatchScoreEventRequest requestData = new SendMatchScoreEventRequest(event);
-        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.SEND_MATCH_SCORE_EVENT, requestData);
+        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.SEND_MATCH_SCORE_EVENT,
+                requestData);
 
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -409,7 +431,8 @@ public class MatchController {
 
     public CompletableFuture<Result<PlayerFinishedEventResponse>> sendPlayerFinishedEvent(PlayerFinishedEvent event) {
         PlayerFinishedEventRequest requestData = new PlayerFinishedEventRequest(event);
-        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.PLAYER_FINISHED_MATCH, requestData);
+        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.PLAYER_FINISHED_MATCH,
+                requestData);
 
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -429,7 +452,8 @@ public class MatchController {
 
     public CompletableFuture<Result<UpdateMatchPasswordResponse>> updateMatchPassword(int matchId, String newPassword) {
         UpdateMatchPasswordRequest requestData = new UpdateMatchPasswordRequest(matchId, newPassword);
-        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.UPDATE_MATCH_PASSWORD, requestData);
+        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.UPDATE_MATCH_PASSWORD,
+                requestData);
 
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -467,9 +491,11 @@ public class MatchController {
         });
     }
 
-    public CompletableFuture<Result<UpdateMatchWinConditionResponse>> updateMatchWinCondition(int matchId, MatchWinCondition newWinCondition) {
+    public CompletableFuture<Result<UpdateMatchWinConditionResponse>> updateMatchWinCondition(int matchId,
+            MatchWinCondition newWinCondition) {
         UpdateMatchWinConditionRequest requestData = new UpdateMatchWinConditionRequest(matchId, newWinCondition);
-        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.UPDATE_MATCH_WIN_CONDITION, requestData);
+        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.UPDATE_MATCH_WIN_CONDITION,
+                requestData);
 
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -487,7 +513,8 @@ public class MatchController {
         });
     }
 
-    public CompletableFuture<Result<UpdatePlayerStatusResponse>> updatePlayerStatus(int matchId, PlayerStatus newStatus) {
+    public CompletableFuture<Result<UpdatePlayerStatusResponse>> updatePlayerStatus(int matchId,
+            PlayerStatus newStatus) {
         UpdatePlayerStatusRequest requestData = new UpdatePlayerStatusRequest(matchId, newStatus);
         RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.UPDATE_PLAYER_STATUS, requestData);
 
@@ -527,9 +554,12 @@ public class MatchController {
         });
     }
 
-    public CompletableFuture<Result<UpdateMatchChangingBeatmapResponse>> updateMatchChangingBeatmap(int matchId, boolean isChangingBeatmap) {
-        UpdateMatchChangingBeatmapRequest requestData = new UpdateMatchChangingBeatmapRequest(matchId, isChangingBeatmap);
-        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.UPDATE_MATCH_CHANGING_BEATMAP, requestData);
+    public CompletableFuture<Result<UpdateMatchChangingBeatmapResponse>> updateMatchChangingBeatmap(int matchId,
+            boolean isChangingBeatmap) {
+        UpdateMatchChangingBeatmapRequest requestData = new UpdateMatchChangingBeatmapRequest(matchId,
+                isChangingBeatmap);
+        RequestMessage request = new RequestMessage(MessageType.MATCH, MessageAction.UPDATE_MATCH_CHANGING_BEATMAP,
+                requestData);
 
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -753,7 +783,7 @@ public class MatchController {
         for (MatchDto match : matches) {
             if (match.getId() == matchId) {
                 match.getPlayers().removeIf(p -> p.getUserId() == previousHostUserId);
-                
+
                 for (MatchPlayerDto player : match.getPlayers()) {
                     if (player.getUserId() == newHostUserId) {
                         player.setRole(PlayerRole.HOST);

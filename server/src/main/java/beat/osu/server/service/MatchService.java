@@ -34,7 +34,8 @@ public class MatchService {
 
     private final Map<Integer, Match> matches = new ConcurrentHashMap<>();
     private final Map<Integer, Set<MatchPlayer>> matchPlayers = new ConcurrentHashMap<>(); // matchId -> players
-    private final Map<Integer, Integer> userToMatch = new ConcurrentHashMap<>(); // userId -> matchId (since user can only be in one match)
+    private final Map<Integer, Integer> userToMatch = new ConcurrentHashMap<>(); // userId -> matchId (since user can
+                                                                                 // only be in one match)
 
     private final SessionService sessionService;
     private final UserService userService;
@@ -60,7 +61,8 @@ public class MatchService {
 
     private MatchPlayer findPlayerInMatch(int matchId, int userId) {
         Set<MatchPlayer> players = matchPlayers.get(matchId);
-        if (players == null) return null;
+        if (players == null)
+            return null;
         return players.stream()
                 .filter(player -> player.getUserId() == userId)
                 .findFirst()
@@ -69,11 +71,11 @@ public class MatchService {
 
     private void removePlayerFromMatch(int matchId, int userId) {
         Set<MatchPlayer> players = matchPlayers.get(matchId);
-        
+
         if (players != null) {
             players.removeIf(player -> player.getUserId() == userId);
         }
-        
+
         userToMatch.remove(userId);
     }
 
@@ -116,14 +118,14 @@ public class MatchService {
                 false,
                 request.getMaxPlayerCount(),
                 request.getBeatmapId(),
-                MatchWinCondition.SCORE
-        );
+                MatchWinCondition.SCORE);
 
         matches.put(matchId, match);
         matchPlayers.put(matchId, ConcurrentHashMap.newKeySet());
 
         int hostPlayerId = matchPlayerIdGenerator.getAndIncrement();
-        MatchPlayer hostPlayer = new MatchPlayer(hostPlayerId, matchId, userId, PlayerRole.HOST, PlayerStatus.NOT_READY, 0);
+        MatchPlayer hostPlayer = new MatchPlayer(hostPlayerId, matchId, userId, PlayerRole.HOST, PlayerStatus.NOT_READY,
+                0);
         matchPlayers.get(matchId).add(hostPlayer);
         userToMatch.put(userId, matchId);
 
@@ -181,7 +183,8 @@ public class MatchService {
         }
 
         int newPlayerId = matchPlayerIdGenerator.getAndIncrement();
-        MatchPlayer newPlayer = new MatchPlayer(newPlayerId, matchId, userId, PlayerRole.PLAYER, PlayerStatus.NOT_READY, availableSlot);
+        MatchPlayer newPlayer = new MatchPlayer(newPlayerId, matchId, userId, PlayerRole.PLAYER, PlayerStatus.NOT_READY,
+                availableSlot);
         matchPlayers.get(matchId).add(newPlayer);
         userToMatch.put(userId, matchId);
 
@@ -193,7 +196,8 @@ public class MatchService {
 
         if (response.isSuccess()) {
             UserJoinedMatchEvent event = new UserJoinedMatchEvent(match.getId(), matchPlayerDto);
-            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_JOINED_MATCH, clientId, event);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_JOINED_MATCH, clientId,
+                    event);
             RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
 
@@ -314,7 +318,8 @@ public class MatchService {
 
         if (response.isSuccess()) {
             PlayerKickedEvent event = new PlayerKickedEvent(matchId, playerToKickId);
-            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.PLAYER_KICKED_FROM_MATCH, clientId, event);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.PLAYER_KICKED_FROM_MATCH,
+                    clientId, event);
             RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
 
@@ -356,7 +361,8 @@ public class MatchService {
         newHostPlayer.setRole(PlayerRole.HOST);
         currentPlayer.setRole(PlayerRole.PLAYER);
 
-        Result<TransferHostResponse> response = Result.success(new TransferHostResponse("Host transferred to user id " + newHostPlayer.getUserId()));
+        Result<TransferHostResponse> response = Result
+                .success(new TransferHostResponse("Host transferred to user id " + newHostPlayer.getUserId()));
         if (response.isSuccess()) {
             HostChangedEvent event = new HostChangedEvent(matchId, newHostUserId, currentUserId);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.HOST_CHANGED, clientId, event);
@@ -400,9 +406,10 @@ public class MatchService {
 
         match.setInProgress(true);
 
-//        for (MatchPlayer matchPlayer : players) {
-//            if(matchPlayer.getStatus() == PlayerStatus.READY) matchPlayer.setStatus(PlayerStatus.PLAYING);
-//        }
+        // for (MatchPlayer matchPlayer : players) {
+        // if(matchPlayer.getStatus() == PlayerStatus.READY)
+        // matchPlayer.setStatus(PlayerStatus.PLAYING);
+        // }
 
         MatchDto matchDto = convertToMatchDto(match);
         String message = "Match started: " + match.getName();
@@ -418,7 +425,8 @@ public class MatchService {
         return response;
     }
 
-    public Result<SendMatchScoreEventResponse> sendMatchScoreEvent(SendMatchScoreEventRequest request, String clientId) {
+    public Result<SendMatchScoreEventResponse> sendMatchScoreEvent(SendMatchScoreEventRequest request,
+            String clientId) {
         MatchScoreEvent event = request.getMatchScoreEvent();
         int matchId = event.getMatchId();
         Match match = matches.get(matchId);
@@ -438,7 +446,8 @@ public class MatchService {
         return Result.success(new SendMatchScoreEventResponse("Match score event sent successfully"));
     }
 
-    public Result<PlayerFinishedEventResponse> playerFinishedMatch(PlayerFinishedEventRequest request, String clientId) {
+    public Result<PlayerFinishedEventResponse> playerFinishedMatch(PlayerFinishedEventRequest request,
+            String clientId) {
         PlayerFinishedEvent event = request.getPlayerFinishedEvent();
         int matchId = event.getMatchId();
         int userId = event.getUser().getId();
@@ -472,7 +481,8 @@ public class MatchService {
 
     private void sendMatchCompletedEvent(int matchId, String clientId) {
         Match match = matches.get(matchId);
-        if (match == null) return;
+        if (match == null)
+            return;
 
         MatchCompletedEvent event = new MatchCompletedEvent(matchId);
         RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_COMPLETED, clientId, event);
@@ -509,13 +519,13 @@ public class MatchService {
         Set<MatchPlayer> players = matchPlayers.get(matchId);
         boolean slotOccupied = players.stream()
                 .anyMatch(p -> p.getSlotIndex() == newSlotIndex && p.getUserId() != userId);
-        
+
         if (slotOccupied) {
             return Result.failure(Error.validation("Target slot is already occupied"));
         }
 
         int oldSlotIndex = player.getSlotIndex();
-        
+
         if (oldSlotIndex == newSlotIndex) {
             return Result.failure(Error.validation("You are already in that slot"));
         }
@@ -534,7 +544,8 @@ public class MatchService {
         return response;
     }
 
-    public Result<UpdateMatchPasswordResponse> updateMatchPassword(UpdateMatchPasswordRequest request, String clientId) {
+    public Result<UpdateMatchPasswordResponse> updateMatchPassword(UpdateMatchPasswordRequest request,
+            String clientId) {
         int matchId = request.getMatchId();
         String newPassword = request.getNewPassword();
 
@@ -562,12 +573,14 @@ public class MatchService {
         }
 
         match.setPassword(newPassword);
-        
-        Result<UpdateMatchPasswordResponse> response = Result.success(new UpdateMatchPasswordResponse("Successfully updated match password!"));
+
+        Result<UpdateMatchPasswordResponse> response = Result
+                .success(new UpdateMatchPasswordResponse("Successfully updated match password!"));
 
         if (response.isSuccess()) {
             MatchPasswordUpdatedEvent event = new MatchPasswordUpdatedEvent(matchId);
-            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_PASSWORD_UPDATED, clientId, event);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_PASSWORD_UPDATED, clientId,
+                    event);
             RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
 
@@ -605,7 +618,8 @@ public class MatchService {
 
         if (response.isSuccess()) {
             MatchNameUpdatedEvent event = new MatchNameUpdatedEvent(matchId, newName.trim());
-            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_NAME_UPDATED, clientId, event);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_NAME_UPDATED, clientId,
+                    event);
             RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
 
@@ -645,19 +659,22 @@ public class MatchService {
         BeatmapDto beatmapDto = beatmapResult.getValue().getBeatmap();
         match.setBeatmapId(newBeatmapId);
 
-        String message = "Match beatmap updated to " + beatmapDto.getBeatmapSetDto().getTitle() + " [" + beatmapDto.getVersion() + "]";
+        String message = "Match beatmap updated to " + beatmapDto.getBeatmapSetDto().getTitle() + " ["
+                + beatmapDto.getVersion() + "]";
         Result<UpdateMatchBeatmapResponse> response = Result.success(new UpdateMatchBeatmapResponse(message));
 
         if (response.isSuccess()) {
             MatchBeatmapUpdatedEvent event = new MatchBeatmapUpdatedEvent(matchId, beatmapDto);
-            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_BEATMAP_UPDATED, clientId, event);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_BEATMAP_UPDATED, clientId,
+                    event);
             RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
 
         return response;
     }
 
-    public Result<UpdateMatchChangingBeatmapResponse> updateMatchChangingBeatmap(UpdateMatchChangingBeatmapRequest request, String clientId) {
+    public Result<UpdateMatchChangingBeatmapResponse> updateMatchChangingBeatmap(
+            UpdateMatchChangingBeatmapRequest request, String clientId) {
         int matchId = request.getMatchId();
         boolean isChangingBeatmap = request.isChangingBeatmap();
 
@@ -679,18 +696,21 @@ public class MatchService {
         match.setChangingBeatmap(isChangingBeatmap);
 
         String message = "Match changing beatmap status updated to " + (isChangingBeatmap ? "true" : "false");
-        Result<UpdateMatchChangingBeatmapResponse> response = Result.success(new UpdateMatchChangingBeatmapResponse(message));
+        Result<UpdateMatchChangingBeatmapResponse> response = Result
+                .success(new UpdateMatchChangingBeatmapResponse(message));
 
         if (response.isSuccess()) {
             MatchChangingBeatmapUpdatedEvent event = new MatchChangingBeatmapUpdatedEvent(matchId, isChangingBeatmap);
-            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_CHANGING_BEATMAP_UPDATED, clientId, event);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_CHANGING_BEATMAP_UPDATED,
+                    clientId, event);
             RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
 
         return response;
     }
 
-    public Result<UpdateMatchWinConditionResponse> updateMatchWinCondition(UpdateMatchWinConditionRequest request, String clientId) {
+    public Result<UpdateMatchWinConditionResponse> updateMatchWinCondition(UpdateMatchWinConditionRequest request,
+            String clientId) {
         int matchId = request.getMatchId();
         MatchWinCondition newWinCondition = request.getNewWinCondition();
 
@@ -716,12 +736,14 @@ public class MatchService {
         MatchWinCondition oldWinCondition = match.getWinCondition();
         match.setWinCondition(newWinCondition);
 
-        String message = "Match win condition updated from '" + oldWinCondition.getDisplayName() + "' to '" + newWinCondition.getDisplayName() + "'";
+        String message = "Match win condition updated from '" + oldWinCondition.getDisplayName() + "' to '"
+                + newWinCondition.getDisplayName() + "'";
         Result<UpdateMatchWinConditionResponse> response = Result.success(new UpdateMatchWinConditionResponse(message));
 
         if (response.isSuccess()) {
             MatchWinConditionUpdatedEvent event = new MatchWinConditionUpdatedEvent(matchId, newWinCondition);
-            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_WIN_CONDITION_UPDATED, clientId, event);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_WIN_CONDITION_UPDATED,
+                    clientId, event);
             RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
 
@@ -756,7 +778,7 @@ public class MatchService {
         }
 
         PlayerStatus oldStatus = player.getStatus();
-        
+
         if (oldStatus == newStatus) {
             return Result.failure(Error.validation("Player status is already " + newStatus.name()));
         }
@@ -768,7 +790,8 @@ public class MatchService {
 
         if (response.isSuccess()) {
             PlayerStatusUpdatedEvent event = new PlayerStatusUpdatedEvent(matchId, userId, newStatus);
-            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.PLAYER_STATUS_UPDATED, clientId, event);
+            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.PLAYER_STATUS_UPDATED, clientId,
+                    event);
             broadcastMessageToMatchPlayers(clientId, matchId, realtimeMessage);
         }
 
@@ -793,8 +816,7 @@ public class MatchService {
                         user.getPlayCount(),
                         user.getLevel(),
                         userService.getUserRank(user.getId()),
-                        user.isSupporter()
-                );
+                        user.isSupporter());
 
                 MatchPlayerDto playerDto = new MatchPlayerDto(
                         player.getId(),
@@ -803,8 +825,7 @@ public class MatchService {
                         userDto,
                         player.getRole(),
                         player.getStatus(),
-                        player.getSlotIndex()
-                );
+                        player.getSlotIndex());
                 playerDtos.add(playerDto);
             }
         }
@@ -841,8 +862,7 @@ public class MatchService {
                 lowestRank,
                 highestRank,
                 match.getWinCondition(),
-                playerDtos
-        );
+                playerDtos);
     }
 
     private MatchPlayerDto convertToMatchPlayerDto(MatchPlayer player) {
@@ -862,8 +882,7 @@ public class MatchService {
                 user.getPlayCount(),
                 user.getLevel(),
                 userService.getUserRank(user.getId()),
-                user.isSupporter()
-        );
+                user.isSupporter());
 
         return new MatchPlayerDto(
                 player.getId(),
@@ -872,8 +891,7 @@ public class MatchService {
                 userDto,
                 player.getRole(),
                 player.getStatus(),
-                player.getSlotIndex()
-        );
+                player.getSlotIndex());
     }
 
     private int findAvailableSlot(int matchId) {
@@ -881,10 +899,10 @@ public class MatchService {
         if (match == null) {
             return -1;
         }
-        
+
         Set<MatchPlayer> players = matchPlayers.get(matchId);
         Set<Integer> occupiedSlots = new HashSet<>();
-        
+
         if (players != null) {
             for (MatchPlayer player : players) {
                 occupiedSlots.add(player.getSlotIndex());
@@ -901,13 +919,14 @@ public class MatchService {
 
     private void handleHostLeaving(int matchId, int previousHostUserId) {
         Set<MatchPlayer> players = matchPlayers.get(matchId);
-        
+
         if (players != null && !players.isEmpty()) {
             MatchPlayer newHost = players.iterator().next();
             newHost.setRole(PlayerRole.HOST);
 
             HostLeftEvent hostLeftEvent = new HostLeftEvent(matchId, previousHostUserId, newHost.getUserId());
-            RealtimeMessage hostLeftMessage = new RealtimeMessage(RealtimeMessageType.HOST_LEFT, "SYSTEM", hostLeftEvent);
+            RealtimeMessage hostLeftMessage = new RealtimeMessage(RealtimeMessageType.HOST_LEFT, "SYSTEM",
+                    hostLeftEvent);
             RealtimeMessageHandler.broadcastToAll(hostLeftMessage);
         } else {
             removeMatch(matchId);
@@ -921,11 +940,11 @@ public class MatchService {
                 userToMatch.remove(player.getUserId());
             }
         }
-        
+
         MatchEndedEvent event = new MatchEndedEvent(matchId);
         RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_ENDED, "SYSTEM", event);
         RealtimeMessageHandler.broadcastToAll(realtimeMessage);
-        
+
         matches.remove(matchId);
         matchPlayers.remove(matchId);
     }
@@ -962,9 +981,9 @@ public class MatchService {
             if (players != null) {
                 MatchPlayer userPlayer = findPlayerInMatch(matchId, userId);
                 boolean wasHost = userPlayer != null && PlayerRole.HOST.equals(userPlayer.getRole());
-                
+
                 removePlayerFromMatch(matchId, userId);
-                
+
                 if (wasHost) {
                     handleHostLeaving(matchId, userId);
                 } else {
@@ -977,7 +996,15 @@ public class MatchService {
         }
     }
 
-    public Match getMatchById(int matchId) {
-        return matches.get(matchId);
+    public Result<GetMatchByIdResponse> getMatchById(GetMatchByIdRequest request, String clientId) {
+        int matchId = request.getId();
+
+        Match match = matches.get(matchId);
+        if (match == null) {
+            return Result.failure(Error.notFound("Match with id " + matchId + " not found"));
+        }
+
+        MatchDto matchDto = convertToMatchDto(match);
+        return Result.success(new GetMatchByIdResponse(matchDto));
     }
 }

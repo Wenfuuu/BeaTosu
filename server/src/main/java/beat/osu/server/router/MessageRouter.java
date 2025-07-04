@@ -195,6 +195,8 @@ public class MessageRouter {
         switch (request.getAction()) {
             case GET_ALL_MATCHES:
                 return matchService.getAllMatches(clientId);
+            case GET_MATCH_BY_ID:
+                return matchService.getMatchById((GetMatchByIdRequest) request.getPayload(), clientId);
             case CREATE_MATCH:
                 return matchService.createMatch((CreateMatchRequest) request.getPayload(), clientId);
             case JOIN_MATCH:
