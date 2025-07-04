@@ -91,6 +91,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private boolean perfectCombo = true;
     private boolean imperfectOrMissed = false;
     private boolean isFailed = false;
+    private boolean isPreExit = false;
 
     // Multiplayer score tracking
     @Getter
@@ -444,9 +445,12 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                     gameState = GameState.BREAK_PERIOD;
                     notifyListeners(new GameEvent(GameEventType.ENTER_BREAK_PERIOD, null));
                 } else {
-                    if (elapsedMillis >= endTime - 2000) { // 2 seconds before end
+                    if (elapsedMillis + 1000 >= endTime) {
                         System.out.println("Exiting break period soon, preparing to resume");
-                        notifyListeners(new GameEvent(GameEventType.PRE_EXIT_BREAK_PERIOD, null));
+                        if (!isPreExit) {
+                            notifyListeners(new GameEvent(GameEventType.PRE_EXIT_BREAK_PERIOD, null));
+                            isPreExit = true;
+                        }
                     }
                 }
                 break;
@@ -456,6 +460,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         // Return to playing state if not in break period time
         if (!inBreakPeriod && gameState == GameState.BREAK_PERIOD) {
             System.out.println("Exiting break period, returning to playing state");
+            isPreExit = false;
             gameState = GameState.PLAYING;
             notifyListeners(new GameEvent(GameEventType.EXIT_BREAK_PERIOD, null));
         }
@@ -931,7 +936,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         // Check for game over (health reaches 0)
         if (health <= 0 && !isFailed) {
             System.out.println("hp reached 0, stopping game");
-            failGame();
+//            failGame();
         }
     }
 

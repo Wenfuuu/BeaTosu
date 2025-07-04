@@ -64,6 +64,7 @@ public class GameView extends Page implements GameEventListener {
     // additional spins
     private Image[] digitImages;
     private ArrayList<Animation> animationList;
+    private ImageView[] arrowImageViews; // Arrow warning images (4 corners)
 
     public GameView(Stage stage, Beatmap selectedBeatmap, boolean isMultiplayer) {
         super(stage);
@@ -128,23 +129,22 @@ public class GameView extends Page implements GameEventListener {
         gamePane = new Pane();
         gamePane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.1);");
         for (HitObject hitObject : gm.getHitObjects()) {
-            // gamePane.getChildren().add(hitObject.getNode());
             gamePane.getChildren().add(0, hitObject.getNode());
         }
 
-//        String imagePath = "/assets/images/arrow-warning.png";
-//        Image arrowImage = new Image(Objects.requireNonNull(Main.class
-//                .getResource(imagePath)).toExternalForm());
-//        ImageView arrowImageView = new ImageView(arrowImage);
-//        arrowImageView.setFitWidth(150);
-//        arrowImageView.setFitHeight(150);
-//
-//        // set image to center
-//        arrowImageView.setLayoutX(gamePane.getWidth() / 2 - arrowImageView.getFitWidth() / 2);
-//        arrowImageView.setLayoutY(gamePane.getHeight() / 2 - arrowImageView.getFitHeight() / 2);
-//
-//        // Add the image to the game pane
-//        gamePane.getChildren().add(arrowImageView);
+        String imagePath = "/assets/images/arrow-warning.png";
+        Image arrowImage = new Image(Objects.requireNonNull(Main.class
+                .getResource(imagePath)).toExternalForm());
+
+        arrowImageViews = new ImageView[4];
+        for (int i = 0; i < 4; i++) {
+            arrowImageViews[i] = new ImageView(arrowImage);
+            arrowImageViews[i].setFitWidth(200);
+            arrowImageViews[i].setFitHeight(200);
+            arrowImageViews[i].setVisible(false);
+
+            gamePane.getChildren().add(0, arrowImageViews[i]);
+        }
     }
 
     private void handleEvent() {
@@ -560,6 +560,21 @@ public class GameView extends Page implements GameEventListener {
             inputOverlayPanel.setLayoutX(paneWidth - 100);
             inputOverlayPanel.setLayoutY(paneHeight * 0.5 - inputOverlayPanel.getHeight() / 2);
         }
+
+        // Update arrow warning positions (4 corners)
+        if (arrowImageViews != null) {
+            arrowImageViews[0].setLayoutX(50);
+            arrowImageViews[0].setLayoutY(50);
+
+            arrowImageViews[1].setLayoutX(paneWidth - arrowImageViews[1].getFitWidth() - 50);
+            arrowImageViews[1].setLayoutY(50);
+
+            arrowImageViews[2].setLayoutX(50);
+            arrowImageViews[2].setLayoutY(paneHeight - arrowImageViews[2].getFitHeight() - 50);
+
+            arrowImageViews[3].setLayoutX(paneWidth - arrowImageViews[3].getFitWidth() - 50);
+            arrowImageViews[3].setLayoutY(paneHeight - arrowImageViews[3].getFitHeight() - 50);
+        }
     }
 
     @Override
@@ -761,10 +776,54 @@ public class GameView extends Page implements GameEventListener {
                 System.out.println("exit break period");
                 exitBreakPeriod();
                 break;
+            case PRE_EXIT_BREAK_PERIOD:
+                System.out.println("pre exit break period - showing arrow warning");
+                showArrowWarning();
+                break;
             case GAME_OFFSET_COMPLETED:
                 System.out.println("game offset completed, decreasing background opacity");
                 exitBreakPeriod();
                 break;
         }
+    }
+
+    private void showArrowWarning() {
+        if (arrowImageViews == null) return;
+
+        Timeline flickerTimeline = new Timeline();
+
+        for (ImageView arrowImageView : arrowImageViews) {
+            arrowImageView.setVisible(true);
+            arrowImageView.setOpacity(0);
+        }
+
+        for (int i = 0; i < 8; i++) {
+            double startTime = i * 125; // Each flicker cycle is 125ms (1000ms / 8)
+            double fadeInTime = startTime + 40; // Fade in for 40ms
+            double fadeOutTime = startTime + 85; // Fade out for 85ms
+
+            for (ImageView arrowImageView : arrowImageViews) {
+                KeyFrame fadeIn = new KeyFrame(
+                        Duration.millis(fadeInTime),
+                        new KeyValue(arrowImageView.opacityProperty(), 1.0));
+
+                KeyFrame fadeOut = new KeyFrame(
+                        Duration.millis(fadeOutTime),
+                        new KeyValue(arrowImageView.opacityProperty(), 0.0));
+
+                flickerTimeline.getKeyFrames().addAll(fadeIn, fadeOut);
+            }
+        }
+
+        flickerTimeline.setOnFinished(e -> {
+            for (ImageView arrowImageView : arrowImageViews) {
+                arrowImageView.setVisible(false);
+                arrowImageView.setOpacity(0);
+            }
+            animationList.remove(flickerTimeline);
+        });
+
+        animationList.add(flickerTimeline);
+        flickerTimeline.play();
     }
 }
