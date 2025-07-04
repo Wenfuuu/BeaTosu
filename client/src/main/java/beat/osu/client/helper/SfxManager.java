@@ -7,6 +7,7 @@ import beat.osu.client.utils.OsuParser;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.File;
 import java.net.URL;
@@ -14,6 +15,8 @@ import java.net.URL;
 public class SfxManager {
     @Getter
     private static double SFX_VOLUME;
+    @Setter
+    private static boolean ignoreBeatmapSFX = true;
 
     public static void setSFX_VOLUME(double SFX_VOLUME) {
         SfxManager.SFX_VOLUME = SFX_VOLUME;
@@ -56,21 +59,19 @@ public class SfxManager {
     }
 
     public static void playSfx(String sfxName) {
-        System.out.println("Playing SFX: " + sfxName);
+//        System.out.println("Playing SFX: " + sfxName);
         URL sfxUrl = getSfxResource(sfxName);
         Media media = null;
 
-        if (sfxUrl != null) {
-            media = new Media(sfxUrl.toString());
-        } else {
-            Beatmap beatmap = OsuParser.getCurrentBeatmap();
-            File beatmapDir = new File(ResourceManager.getTempDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
-            File sfxFile = new File(beatmapDir, sfxName);
-            if (!sfxFile.exists()) {
-                System.err.println("SFX file not found in both SFX and TEMP directories: " + sfxName);
-                return;
-            }
+        Beatmap beatmap = OsuParser.getCurrentBeatmap();
+        File beatmapDir = new File(ResourceManager.getTempDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
+        File sfxFile = new File(beatmapDir, sfxName);
+        if (sfxFile.exists() && !ignoreBeatmapSFX) {
+            System.out.println("Beatmap SFX found!");
             media = new Media(sfxFile.toURI().toString());
+        } else {
+            System.out.println("Playing default SFX");
+            media = new Media(sfxUrl.toString());
         }
 
         MediaPlayer player = new MediaPlayer(media);
