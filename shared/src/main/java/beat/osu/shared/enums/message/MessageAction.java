@@ -37,6 +37,7 @@ public enum MessageAction implements Serializable {
 
     // Match actions
     GET_ALL_MATCHES,
+    GET_MATCH_BY_ID,
     CREATE_MATCH,
     JOIN_MATCH,
     LEAVE_MATCH,

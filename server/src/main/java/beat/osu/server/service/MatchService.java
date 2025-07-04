@@ -271,9 +271,6 @@ public class MatchService {
                 .allMatch(p -> p.getStatus() != PlayerStatus.PLAYING);
         if (playerExists) {
             match.setInProgress(false);
-            MatchCompletedEvent event = new MatchCompletedEvent(matchId);
-            RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_COMPLETED, clientId, event);
-            RealtimeMessageHandler.broadcastToAll(realtimeMessage);
         }
 
         return Result.success(new LeaveMatchResponse(message));

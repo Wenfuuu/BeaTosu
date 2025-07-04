@@ -1022,8 +1022,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void onPlayerFailedEvent(PlayerFailedEvent event) {
-        for (int i = 0; i < multiplayerScores.size(); i++) {
-            MatchScoreEvent existingEvent = multiplayerScores.get(i);
+        for (MatchScoreEvent existingEvent : multiplayerScores) {
             if (existingEvent != null && existingEvent.getUser() != null &&
                     existingEvent.getUser().getId() == event.getUser().getId()) {
                 existingEvent.getMatchPlayer().setStatus(PlayerStatus.FAILED);
