@@ -379,10 +379,10 @@ public class HitSlider extends HitObject {
                 }
 
                 // Create the tick circle
-                Circle tick = new Circle(tickPos.getX(), tickPos.getY(), TICK_RADIUS);
-                tick.setFill(Color.WHITE.deriveColor(1, 1, 1, 0.8));
-                tick.setStroke(Color.GRAY);
-                tick.setStrokeWidth(1);
+                Circle tick = new Circle(tickPos.getX(), tickPos.getY(), TICK_RADIUS - 2);
+                tick.setFill(Color.TRANSPARENT);
+                tick.setStroke(Color.WHITE);
+                tick.setStrokeWidth(5);
 
                 sliderTicks.add(tick);
                 group.getChildren().add(tick);
