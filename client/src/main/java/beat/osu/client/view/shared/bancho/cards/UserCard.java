@@ -5,8 +5,11 @@ import java.net.URL;
 import java.util.Objects;
 
 import beat.osu.client.Main;
+import beat.osu.client.controller.UserController;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.shared.dto.user.UserDto;
+import beat.osu.shared.dto.user.events.UserUpdatedEvent;
 import javafx.animation.ParallelTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -61,6 +64,8 @@ public class UserCard extends HBox {
     private ParallelTransition currentTransition;
     private UserCardBehavior behavior;
 
+    private UserController userController;
+
     public UserCard(Integer userId, String username, String countryCode, byte[] profilePicture,
                     Integer performance, Double accuracy, Integer playCount, Integer level, Integer rank, Boolean isSupporter,
                     UserCardBehavior behavior) {
@@ -75,13 +80,36 @@ public class UserCard extends HBox {
         this.level = level;
         this.rank = rank;
         this.isSupporter = isSupporter;
+        this.userController = new UserController();
 
         initializeComponents();
         setupLayout();
         setupStyling();
         updateUserInfo();
+        setupUserCallbacks();
         
         setBehavior(behavior);
+    }
+
+    private void onUserUpdated(UserUpdatedEvent event) {
+        UserDto userDto = event.getUserDto();
+        if (userDto == null) return;
+        this.userId = userDto.getId();
+        this.username = userDto.getUsername();
+        this.countryCode = userDto.getCountryCode();
+        this.profilePicture = userDto.getProfilePicture();
+        this.performance = userDto.getPerformance();
+        this.accuracy = userDto.getAccuracy();
+        this.playCount = userDto.getPlayCount();
+        this.level = userDto.getLevel();
+        this.rank = userDto.getRank();
+        this.isSupporter = userDto.isSupporter();
+        // call the update methods
+        updateUserInfo();
+    }
+
+    private void setupUserCallbacks() {
+        userController.addUserUpdatedCallback(this::onUserUpdated);
     }
 
     private void initializeComponents() {
