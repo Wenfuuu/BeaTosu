@@ -259,7 +259,8 @@ public class HomeView extends Page {
 
     private void updateUploadStatus(String message) {
         if (message != null && !message.trim().isEmpty()) {
-            Toast.success(message).show();
+            if (message.contains("failed")) Toast.error(message).show();
+            else Toast.success(message).show();
         }
     }
 

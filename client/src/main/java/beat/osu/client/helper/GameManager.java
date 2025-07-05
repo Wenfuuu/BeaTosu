@@ -1260,12 +1260,50 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             if (!found)
                 multiplayerScores.add(event);
 
+            // Sort by win condition, but prioritize player status (EXITED/FAILED go to
+            // bottom)
             if (matchDto.getWinCondition() == MatchWinCondition.SCORE) {
-                multiplayerScores.sort((a, b) -> Integer.compare(b.getScore(), a.getScore()));
+                multiplayerScores.sort((a, b) -> {
+                    boolean aIsInactive = a.getMatchPlayer().getStatus() == PlayerStatus.EXITED ||
+                            a.getMatchPlayer().getStatus() == PlayerStatus.FAILED;
+                    boolean bIsInactive = b.getMatchPlayer().getStatus() == PlayerStatus.EXITED ||
+                            b.getMatchPlayer().getStatus() == PlayerStatus.FAILED;
+
+                    if (aIsInactive && !bIsInactive)
+                        return 1;
+                    if (!aIsInactive && bIsInactive)
+                        return -1;
+
+                    return Integer.compare(b.getScore(), a.getScore());
+                });
             } else if (matchDto.getWinCondition() == MatchWinCondition.COMBO) {
-                multiplayerScores.sort((a, b) -> Integer.compare(b.getHighestCombo(), a.getHighestCombo()));
+                multiplayerScores.sort((a, b) -> {
+                    boolean aIsInactive = a.getMatchPlayer().getStatus() == PlayerStatus.EXITED ||
+                            a.getMatchPlayer().getStatus() == PlayerStatus.FAILED;
+                    boolean bIsInactive = b.getMatchPlayer().getStatus() == PlayerStatus.EXITED ||
+                            b.getMatchPlayer().getStatus() == PlayerStatus.FAILED;
+
+                    if (aIsInactive && !bIsInactive)
+                        return 1;
+                    if (!aIsInactive && bIsInactive)
+                        return -1;
+
+                    return Integer.compare(b.getHighestCombo(), a.getHighestCombo());
+                });
             } else if (matchDto.getWinCondition() == MatchWinCondition.ACCURACY) {
-                multiplayerScores.sort((a, b) -> Double.compare(b.getAccuracy(), a.getAccuracy()));
+                multiplayerScores.sort((a, b) -> {
+                    boolean aIsInactive = a.getMatchPlayer().getStatus() == PlayerStatus.EXITED ||
+                            a.getMatchPlayer().getStatus() == PlayerStatus.FAILED;
+                    boolean bIsInactive = b.getMatchPlayer().getStatus() == PlayerStatus.EXITED ||
+                            b.getMatchPlayer().getStatus() == PlayerStatus.FAILED;
+
+                    if (aIsInactive && !bIsInactive)
+                        return 1;
+                    if (!aIsInactive && bIsInactive)
+                        return -1;
+
+                    return Double.compare(b.getAccuracy(), a.getAccuracy());
+                });
             }
 
             notifyListeners(new GameEvent(GameEventType.MATCH_SCORE_CHANGED, multiplayerScores));
