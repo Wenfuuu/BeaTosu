@@ -103,6 +103,7 @@ CREATE TABLE `users` (
   `accuracy` decimal(5,2) DEFAULT NULL,
   `play_count` int(10) DEFAULT NULL,
   `level` int(10) DEFAULT NULL,
+  `experience` int(10) DEFAULT NULL,
   `is_supporter` BOOLEAN NOT NULL DEFAULT false
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -110,9 +111,9 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `email`, `password_hash`, `country_code`, `profile_picture`, `performance`, `accuracy`, `play_count`, `level`, `is_supporter`) VALUES
-  (1, 'wenfu', 'bertrand13022005@gmail.com', 'd1ea055730ff077714908cd3a849632a849764d05a0ecf45d98483f7e08cf0ea', 'ID', NULL, 3234, '94.67', 1023, 78, false),
-  (2, 'artificed', 'artificed@gmail.com', 'cad8c22a24ea48ea0050614ae74f2e059efbb58ab5c8c23ec03c5d65a9700890', 'US', NULL, 7313, '78.23', 1343, 94, true);
+INSERT INTO `users` (`id`, `username`, `email`, `password_hash`, `country_code`, `profile_picture`, `performance`, `accuracy`, `play_count`, `level`, `experience`, `is_supporter`) VALUES
+  (1, 'wenfu', 'bertrand13022005@gmail.com', 'd1ea055730ff077714908cd3a849632a849764d05a0ecf45d98483f7e08cf0ea', 'ID', NULL, 3234, '94.67', 1023, 78, 15600, false),
+  (2, 'artificed', 'artificed@gmail.com', 'cad8c22a24ea48ea0050614ae74f2e059efbb58ab5c8c23ec03c5d65a9700890', 'US', NULL, 7313, '78.23', 1343, 94, 28800, true);
 
 -- --------------------------------------------------------
 
