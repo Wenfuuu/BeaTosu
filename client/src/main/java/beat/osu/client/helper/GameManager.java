@@ -23,6 +23,8 @@ import beat.osu.shared.dto.match.MatchPlayerDto;
 import beat.osu.shared.dto.match.events.*;
 import beat.osu.shared.dto.match.responses.CreateMatchResponse;
 import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
+import beat.osu.shared.dto.score.ScoreDto;
+import beat.osu.shared.dto.score.responses.GetAllScoresResponse;
 import beat.osu.shared.dto.user.UserDto;
 import beat.osu.shared.dto.user.responses.UpdateUserResponse;
 import beat.osu.shared.enums.match.MatchWinCondition;
@@ -179,7 +181,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         // ((AR * 10) * Accuracy) * (1/2) * 100 * Grade
         double ar = beatmap.getApproachRate();
-        double performance = ((ar * 10) * accuracy) * (1.0 / 2.0) * 100 * gradeValue;
+        double performance = ((((ar * 10) * accuracy) * (1.0 / 2.0)) / 100) * gradeValue;
         return (int) Math.round(performance);
     }
 
@@ -369,6 +371,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         gameLoop.stop();
 
         String grade = calculateGrade();
+        int performance = calculatePerformance(grade);
         System.out.println("Game ended with grade: " + grade);
         LocalDateTime now = LocalDateTime.now();
 
@@ -390,21 +393,69 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 throw new RuntimeException(e);
             }
 
-            insertScore(user.getId(), grade, now);
-
             // update user stats
-            updateUserStats(user);
+            updateUserStats(user, performance);
+
+            insertScore(user.getId(), grade, now);
         }
         notifySpectatorsPlayerExited();
     }
 
-    private void updateUserStats(UserDto user) {
+    private void updateUserStats(UserDto user, int performance) {
         if (user == null)
             return;
         user.addExperience(score);
         user.updateAccuracy(accuracy);
-        // update pp
 
+        // Update PP only if this score gives higher PP than previous best
+        updateUserPerformancePoints(user, performance);
+    }
+
+    private void updateUserPerformancePoints(UserDto user, int newPerformance) {
+        try {
+            Result<GetAllScoresResponse> scoresResult = scoreController.getScoresByBeatmapId(beatmap.getBeatmapId()).get();
+
+            if (scoresResult.isSuccess()) {
+                GetAllScoresResponse scoresResponse = scoresResult.getValue();
+
+                int previousBestPP = 0;
+                boolean userHasPreviousScore = false;
+
+                for (ScoreDto scoreDto : scoresResponse.getScores()) {
+                    if (scoreDto.getUserId() == user.getId()) {
+                        userHasPreviousScore = true;
+                        // Calculate PP for this previous score
+                        int scorePP = calculatePerformance(scoreDto.getGrade());
+                        if (scorePP > previousBestPP) {
+                            previousBestPP = scorePP;
+                        }
+                    }
+                }
+
+                if (!userHasPreviousScore) {
+                    user.setPerformance(user.getPerformance() + newPerformance);
+                    System.out.println("Added " + newPerformance + " PP (first score on this beatmap)");
+                } else if (newPerformance > previousBestPP) {
+                    int ppDifference = newPerformance - previousBestPP;
+                    user.setPerformance(user.getPerformance() + ppDifference);
+                    System.out.println("Updated PP by " + ppDifference + " (new best: " + newPerformance
+                            + ", previous best: " + previousBestPP + ")");
+                } else {
+                    System.out.println("No PP change (new: " + newPerformance + ", current best: " + previousBestPP + ")");
+                }
+
+                updateUserInDatabase(user);
+            } else {
+                System.err.println("Failed to fetch scores for PP calculation: " + scoresResult.getError().getMessage());
+                updateUserInDatabase(user);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            System.err.println("Error updating user performance points: " + e.getMessage());
+            updateUserInDatabase(user);
+        }
+    }
+
+    private void updateUserInDatabase(UserDto user) {
         try {
             Result<UpdateUserResponse> response = userController.updateUser(user).get();
             if (response.isSuccess()) {
