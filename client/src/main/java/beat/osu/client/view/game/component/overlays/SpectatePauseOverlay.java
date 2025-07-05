@@ -1,4 +1,4 @@
-package beat.osu.client.view.game.component;
+package beat.osu.client.view.game.component.overlays;
 
 import beat.osu.client.helper.ScreenManager;
 import javafx.geometry.Pos;

@@ -1,11 +1,8 @@
-package beat.osu.client.view.game.component;
-
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+package beat.osu.client.view.game.component.ui;
 
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.view.game.component.cards.MatchScoreItem;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
@@ -15,13 +12,17 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import lombok.Getter;
 
-public class MatchScoreContent extends ScrollPane {
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MatchResultContent extends ScrollPane {
 
     private final VBox scoreListBox;
     @Getter
     private SequentialTransition hideTransition;
 
-    public MatchScoreContent(ArrayList<MatchScoreEvent> matchScores) {
+    public MatchResultContent(ArrayList<MatchScoreEvent> matchScores) {
         this.scoreListBox = new VBox();
         this.getStyleClass().add("match-score-content");
         this.setFitToWidth(false);
@@ -54,17 +55,13 @@ public class MatchScoreContent extends ScrollPane {
     private void setupLayout() {
         this.setContent(scoreListBox);
 
-        this.setMinHeight(ScreenManager.SCREEN_HEIGHT);
-        this.setMaxHeight(ScreenManager.SCREEN_HEIGHT);
-        this.setPrefHeight(ScreenManager.SCREEN_HEIGHT);
-
-        scoreListBox.setMinHeight(ScreenManager.SCREEN_HEIGHT);
-        scoreListBox.setMaxHeight(ScreenManager.SCREEN_HEIGHT);
-        scoreListBox.setPrefHeight(ScreenManager.SCREEN_HEIGHT);
+        scoreListBox.setMinHeight(ScreenManager.SCREEN_HEIGHT / 3);
+        scoreListBox.setMaxHeight(ScreenManager.SCREEN_HEIGHT / 3);
+        scoreListBox.setPrefHeight(ScreenManager.SCREEN_HEIGHT / 3);
     }
 
     private void loadStyles() {
-        URL cssUrl = CssManager.getGameCssURL("MatchScoreContent.css");
+        URL cssUrl = CssManager.getGameCssURL("MatchResultContent.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {

@@ -1,4 +1,4 @@
-package beat.osu.client.view.game.component;
+package beat.osu.client.view.game.component.ui;
 
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;

@@ -1,7 +1,8 @@
-package beat.osu.client.view.game.component;
+package beat.osu.client.view.game.component.overlays;
 
 import beat.osu.client.factory.ButtonFactory;
 import beat.osu.client.helper.ScreenManager;
+import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -10,30 +11,37 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.util.Duration;
 import lombok.Getter;
 
 @Getter
-public class PauseOverlay extends StackPane {
+public class FailOverlay extends StackPane {
     private final Label pauseLabel;
-    private final Button continueButton;
     private final Button retryButton;
     private final Button leaveButton;
 
-    public PauseOverlay() {
+    public void showFailOverlay() {
+        this.setVisible(true);
+        FadeTransition fadeTransition = new FadeTransition(Duration.millis(500), this);
+        fadeTransition.setFromValue(0);
+        fadeTransition.setToValue(1);
+        fadeTransition.play();
+    }
+
+    public FailOverlay() {
         this.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);");
         this.setVisible(false);
 
-        pauseLabel = new Label("PAUSED");
-        pauseLabel.setFont(new Font("Aller Light", ScreenManager.SCREEN_HEIGHT / 15));
+        pauseLabel = new Label("FAILED");
+        pauseLabel.setFont(new Font("Aller Light", ScreenManager.SCREEN_HEIGHT / 22.5));
         pauseLabel.setTextFill(Color.WHITE);
         pauseLabel.setEffect(new DropShadow(10, Color.BLACK));
 
-        continueButton = ButtonFactory.createContinueButton();
         retryButton = ButtonFactory.createRetryButton();
         leaveButton = ButtonFactory.createLeaveButton();
 
         VBox pauseContent = new VBox(20);
-        pauseContent.getChildren().addAll(pauseLabel, continueButton, retryButton, leaveButton);
+        pauseContent.getChildren().addAll(pauseLabel, retryButton, leaveButton);
         pauseContent.setAlignment(Pos.CENTER);
 
         this.getChildren().add(pauseContent);

@@ -11,8 +11,8 @@ import beat.osu.client.interfaces.game.CoordinateConverter;
 import beat.osu.client.interfaces.game.GameEventListener;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.HitObject;
-import beat.osu.client.view.game.component.GameUI;
-import beat.osu.client.view.game.component.SpectatePauseOverlay;
+import beat.osu.client.view.game.component.ui.GameUI;
+import beat.osu.client.view.game.component.overlays.SpectatePauseOverlay;
 import beat.osu.client.view.shared.common.Page;
 import beat.osu.client.view.shared.replay.EndReplayButton;
 import beat.osu.shared.dto.game.SpectateDto;
@@ -32,7 +32,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 

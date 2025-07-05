@@ -1,10 +1,11 @@
-package beat.osu.client.view.game.component;
+package beat.osu.client.view.game.component.overlays;
 
 import beat.osu.client.Main;
 import beat.osu.client.events.game.GameEndEvent;
 import beat.osu.client.factory.ButtonFactory;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.model.Beatmap;
+import beat.osu.client.view.game.component.ui.MatchResultContent;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
