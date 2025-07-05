@@ -2,6 +2,7 @@ package beat.osu.client.view.shared.jukebox;
 
 import java.net.URL;
 
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.events.song.SongChangeEvent;
 import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
@@ -82,37 +83,37 @@ public class Jukebox extends StackPane implements SongEventListener {
     }
 
     private void setupEventHandlers() {
-        mediaControls.getPlayButton().setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
+        mediaControls.getPlayButton().setOnMouseEntered(e -> SfxManager.playMenuSfx(SfxType.MENU_HOVER));
         mediaControls.getPlayButton().setOnAction(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             BgmManager.getInstance().resumeBgm();
         });
 
-        mediaControls.getPauseButton().setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
+        mediaControls.getPauseButton().setOnMouseEntered(e -> SfxManager.playMenuSfx(SfxType.MENU_HOVER));
         mediaControls.getPauseButton().setOnAction(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             BgmManager.getInstance().pauseBgm();
         });
 
-        mediaControls.getStopButton().setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
+        mediaControls.getStopButton().setOnMouseEntered(e -> SfxManager.playMenuSfx(SfxType.MENU_HOVER));
         mediaControls.getStopButton().setOnAction(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             BgmManager.getInstance().stopBgm();
         });
 
-        mediaControls.getNextButton().setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
+        mediaControls.getNextButton().setOnMouseEntered(e -> SfxManager.playMenuSfx(SfxType.MENU_HOVER));
         mediaControls.getNextButton().setOnAction(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             playlistModal.playNextSong();
         });
 
-        mediaControls.getPrevButton().setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
+        mediaControls.getPrevButton().setOnMouseEntered(e -> SfxManager.playMenuSfx(SfxType.MENU_HOVER));
         mediaControls.getPrevButton().setOnAction(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             playlistModal.playPreviousSong();
         });
 
-        mediaControls.getPlaylistButton().setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
+        mediaControls.getPlaylistButton().setOnMouseEntered(e -> SfxManager.playMenuSfx(SfxType.MENU_HOVER));
     }
 
     private void animateCurrentSongCardIn(CurrentSongCard songBox) {

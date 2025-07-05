@@ -2,6 +2,7 @@ package beat.osu.client.view.lobby.component.ui;
 
 import java.net.URL;
 
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.SfxManager;
 import javafx.geometry.Insets;
@@ -38,10 +39,9 @@ public class MatchFilters extends HBox {
     private void setupInputFieldSounds() {
         searchTextField.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.BACK_SPACE) {
-                SfxManager.playSfx("key-delete.mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_DELETE);
             } else {
-                int randomKeyPress = (int) (Math.random() * 4) + 1;
-                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_PRESS);
             }
         });
     }

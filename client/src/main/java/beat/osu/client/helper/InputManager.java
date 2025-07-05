@@ -1,6 +1,7 @@
 package beat.osu.client.helper;
 
 import beat.osu.client.config.ConfigurationManager;
+import beat.osu.client.enums.SfxType;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
@@ -79,11 +80,14 @@ public class InputManager {
                 if (typedChars.length() > 0) {
                     typedChars.deleteCharAt(typedChars.length() - 1);
                 }
-                if (!sfxDisabled) SfxManager.playSfx("key-delete.mp3");
+                if (!sfxDisabled) {
+                    SfxManager.playMenuSfx(SfxType.KEY_DELETE);
+                }
             } else {
                 pressedKeys.add(keyCode);
-                int randomKeyPress = (int) (Math.random() * 4) + 1;
-                if (!sfxDisabled) SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+                if (!sfxDisabled) {
+                    SfxManager.playMenuSfx(SfxType.KEY_PRESS);
+                }
             }
 
             if (keyCode.isLetterKey() || keyCode.isDigitKey()) {

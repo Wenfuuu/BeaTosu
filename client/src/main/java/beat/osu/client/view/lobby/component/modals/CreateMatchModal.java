@@ -1,6 +1,7 @@
 package beat.osu.client.view.lobby.component.modals;
 
 import beat.osu.client.controller.MatchController;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.*;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.view.shared.common.Toast;
@@ -57,19 +58,17 @@ public class CreateMatchModal extends VBox {
     private void setupInputFieldSounds() {
         gameTextField.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.BACK_SPACE) {
-                SfxManager.playSfx("key-delete.mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_DELETE);
             } else {
-                int randomKeyPress = (int) (Math.random() * 4) + 1;
-                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_PRESS);
             }
         });
 
         passwordField.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.BACK_SPACE) {
-                SfxManager.playSfx("key-delete.mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_DELETE);
             } else {
-                int randomKeyPress = (int) (Math.random() * 4) + 1;
-                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_PRESS);
             }
         });
     }
@@ -90,7 +89,7 @@ public class CreateMatchModal extends VBox {
         passwordCheckBox.getStyleClass().add("password-checkbox");
 
         passwordCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             passwordBox.setVisible(newVal);
         });
 
@@ -116,8 +115,8 @@ public class CreateMatchModal extends VBox {
         startGameButton = new Button("1. Start Game");
         cancelButton = new Button("2. Cancel");
 
-        startGameButton.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
-        cancelButton.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
+        startGameButton.setOnMouseEntered(e -> SfxManager.playMenuSfx(SfxType.MENU_HOVER));
+        cancelButton.setOnMouseEntered(e -> SfxManager.playMenuSfx(SfxType.MENU_HOVER));
 
         startGameButton.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.52);
         cancelButton.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.52);
@@ -173,7 +172,7 @@ public class CreateMatchModal extends VBox {
 
     private void setupEventHandlers() {
         maxPlayersComboBox.showingProperty().addListener((obs, wasShowing, isNowShowing) -> {
-            SfxManager.playSfx("select-expand.mp3");
+            SfxManager.playMenuSfx(SfxType.SELECT_EXPAND);
         });
 
         maxPlayersComboBox.setCellFactory(listView -> {
@@ -187,7 +186,7 @@ public class CreateMatchModal extends VBox {
 
             cell.setOnMouseEntered(event -> {
                 if (!cell.isEmpty()) {
-                    SfxManager.playSfx("menuhover.wav");
+                    SfxManager.playMenuSfx(SfxType.MENU_HOVER);
                 }
             });
 
@@ -195,11 +194,11 @@ public class CreateMatchModal extends VBox {
         });
 
         maxPlayersComboBox.setOnAction(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
         });
 
         startGameButton.setOnAction(event -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             String gameName = gameTextField.getText();
             String password = passwordField.getText();
             String maxPlayersSelection = maxPlayersComboBox.getSelectionModel().getSelectedItem();

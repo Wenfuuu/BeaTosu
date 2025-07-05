@@ -402,7 +402,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
             return;
         // play sfx
         for (String sfx : hitObject.getSfxFilenames()) {
-            SfxManager.playSfx(sfx);
+            SfxManager.playBeatmapSfx(sfx);
         }
         // Determine hit result based on timing
         if (hitResult == HitResult.MISS)
@@ -495,7 +495,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
 
         misses++;
         int oldCombo = masterComboNumber;
-        if (oldCombo >= 20) SfxManager.playSfx("combobreak.mp3");
+        if (oldCombo >= 20) SfxManager.playBeatmapSfx("combobreak.mp3");
         masterComboNumber = 0;
 
         // Update accuracy

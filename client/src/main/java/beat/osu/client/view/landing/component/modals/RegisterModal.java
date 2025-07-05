@@ -6,6 +6,7 @@ import java.net.URL;
 import java.nio.file.Files;
 
 import beat.osu.client.controller.AuthController;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.SfxManager;
@@ -194,51 +195,44 @@ public class RegisterModal extends StackPane {
     }
 
     private void setupInputFieldSounds() {
-        // Username field sound effects
         usernameField.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.BACK_SPACE) {
-                SfxManager.playSfx("key-delete.mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_DELETE);
             } else {
-                int randomKeyPress = (int) (Math.random() * 4) + 1;
-                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_PRESS);
             }
         });
 
-        // Email field sound effects
         emailField.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.BACK_SPACE) {
-                SfxManager.playSfx("key-delete.mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_DELETE);
             } else {
-                int randomKeyPress = (int) (Math.random() * 4) + 1;
-                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_PRESS);
             }
         });
 
-        // Password field sound effects
         passwordField.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.BACK_SPACE) {
-                SfxManager.playSfx("key-delete.mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_DELETE);
             } else {
-                int randomKeyPress = (int) (Math.random() * 4) + 1;
-                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_PRESS);
             }
         });
     }
 
     private void handleEvents() {
-        // Add keyboard sound effects for input fields
         setupInputFieldSounds();
 
         createButton.setOnMouseEntered(e -> {
-            SfxManager.playSfx("menuhover.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HOVER);
         });
 
         supporterCheckBox.setOnAction(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
         });
 
         createButton.setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             String username = usernameField.getText();
             String password = passwordField.getText();
             String email = emailField.getText();
@@ -269,11 +263,11 @@ public class RegisterModal extends StackPane {
         });
 
         cancelButton.setOnMouseEntered(e -> {
-            SfxManager.playSfx("menuhover.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HOVER);
         });
 
         cancelButton.setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuback.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_BACK);
             // clear all input fields
             usernameField.clear();
             emailField.clear();

@@ -1,5 +1,6 @@
 package beat.osu.client.view.home.component;
 
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.*;
 import beat.osu.client.utils.OsuParser;
 import beat.osu.client.utils.OszExtractor;
@@ -73,7 +74,7 @@ public class UploadBox extends VBox {
 
     private void handleEvent() {
         this.setOnMouseEntered(event -> {
-            SfxManager.playSfx("menuhover.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HOVER);
         });
 
         this.setOnDragOver(event -> {

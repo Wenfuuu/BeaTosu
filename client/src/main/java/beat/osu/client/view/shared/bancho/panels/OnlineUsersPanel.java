@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import beat.osu.client.controller.ConnectedUsersController;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.LocaleManager;
 import beat.osu.client.helper.SfxManager;
@@ -122,10 +123,9 @@ public class OnlineUsersPanel extends VBox {
     private void setupInputFieldSounds() {
         searchField.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.BACK_SPACE) {
-                SfxManager.playSfx("key-delete.mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_DELETE);
             } else {
-                int randomKeyPress = (int) (Math.random() * 4) + 1;
-                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_PRESS);
             }
         });
     }
@@ -227,7 +227,7 @@ public class OnlineUsersPanel extends VBox {
         
         userCard.setOnMouseClicked(event -> {
             if (userCardClickCallback != null) {
-                SfxManager.playSfx("menuhit.wav");
+                SfxManager.playMenuSfx(SfxType.MENU_HIT);
                 userCardClickCallback.onUserCardClicked(userCard);
             }
         });

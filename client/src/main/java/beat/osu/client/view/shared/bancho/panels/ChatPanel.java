@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 import beat.osu.client.controller.ChatController;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.SfxManager;
 import beat.osu.client.view.shared.bancho.buttons.BanchoButtons;
@@ -212,10 +213,10 @@ public class ChatPanel extends VBox {
         chatField.getStyleClass().add("chat-input");
         chatField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.BACK_SPACE) {
-                SfxManager.playSfx("key-delete.mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_DELETE);
             } else {
                 int randomKeyPress = (int) (Math.random() * 4) + 1;
-                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_PRESS);
             }
 
             if (event.getCode() == KeyCode.ENTER) {

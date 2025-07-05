@@ -12,6 +12,7 @@ import java.util.Set;
 import beat.osu.client.controller.BeatmapController;
 import beat.osu.client.controller.ScoreController;
 import beat.osu.client.enums.ScoreFilter;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.events.game.ReplayEvent;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.BackgroundManager;
@@ -430,7 +431,7 @@ public class HomeView extends Page {
 
     private void handleEvent() {
         scoreFilterComboBox.showingProperty().addListener((obs, wasShowing, isNowShowing) -> {
-            SfxManager.playSfx("select-expand.mp3");
+            SfxManager.playMenuSfx(SfxType.SELECT_EXPAND);
         });
 
         scoreFilterComboBox.setCellFactory(listView -> {
@@ -444,7 +445,7 @@ public class HomeView extends Page {
 
             cell.setOnMouseEntered(event -> {
                 if (!cell.isEmpty()) {
-                    SfxManager.playSfx("menuhover.wav");
+                    SfxManager.playMenuSfx(SfxType.MENU_HOVER);
                 }
             });
 
@@ -452,7 +453,7 @@ public class HomeView extends Page {
         });
 
         scoreFilterComboBox.setOnAction(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             Beatmap selectedBeatmap = beatmapContent.getSelectedBeatmap();
             if (selectedBeatmap != null) {
                 scores = fetchScores(selectedBeatmap);
@@ -461,7 +462,7 @@ public class HomeView extends Page {
         });
 
         bottomBar.getLogoView().setOnMouseEntered(e -> {
-            SfxManager.playSfx("menuhover.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HOVER);
             bottomBar.getOnHoverTransition().play();
         });
 
@@ -470,7 +471,7 @@ public class HomeView extends Page {
         });
 
         bottomBar.getLogoView().setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             System.out.println("clicking play button");
             Beatmap selectedBeatmap = beatmapContent.getSelectedBeatmap();
             if (selectedBeatmap != null) {
@@ -556,7 +557,7 @@ public class HomeView extends Page {
 
     private void startGame(Beatmap beatmap) {
         if (beatmap != null) {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             System.out.println("Starting game for beatmap: " + beatmap.getBeatmapSet().getTitle());
             BgmManager.getInstance().stopBgm();
             if (searchUpdateTimeline != null) {

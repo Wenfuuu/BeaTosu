@@ -1,6 +1,7 @@
 package beat.osu.client.view.landing.component.modals;
 
 import beat.osu.client.config.ConfigurationManager;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.factory.ButtonFactory;
 import beat.osu.client.helper.BgmManager;
 import beat.osu.client.helper.CssManager;
@@ -249,8 +250,7 @@ public class SettingsModal extends StackPane {
         });
 
         this.setOnKeyPressed(event -> {
-            int randomKeyPress = (int) (Math.random() * 4) + 1;
-            SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+            SfxManager.playMenuSfx(SfxType.KEY_PRESS);
 
             System.out.println("Key pressed: " + event.getCode());
             if (currentKeybindButton != null) {
@@ -287,7 +287,6 @@ public class SettingsModal extends StackPane {
             }
         });
 
-        // Volume slider handlers
         bgmVolumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             BgmManager.getInstance().setBGM_VOLUME((Double) newValue);
             BgmManager.getInstance().getCurrentPlayer().setVolume((Double) newValue);
@@ -301,9 +300,8 @@ public class SettingsModal extends StackPane {
             ConfigurationManager.getInstance().setBackgroundDim((Double) newValue);
         });
 
-        // Checkbox event handler
         ignoreBeatmapHitsoundsCheckBox.setOnAction(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             boolean ignoreHitsounds = ignoreBeatmapHitsoundsCheckBox.isSelected();
             SfxManager.setIgnoreBeatmapSFX(ignoreHitsounds);
             System.out.println("Ignore beatmap hitsounds: " + ignoreHitsounds);

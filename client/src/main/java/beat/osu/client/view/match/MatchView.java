@@ -12,6 +12,7 @@ import beat.osu.client.controller.ConnectedUsersController;
 import beat.osu.client.controller.MatchController;
 import beat.osu.client.controller.SessionController;
 import beat.osu.client.enums.PlaybackMode;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.BgmManager;
@@ -181,10 +182,9 @@ public class MatchView extends Page {
     private void setupInputFieldSounds() {
         gameNameTextField.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.BACK_SPACE) {
-                SfxManager.playSfx("key-delete.mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_DELETE);
             } else {
-                int randomKeyPress = (int) (Math.random() * 4) + 1;
-                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_PRESS);
             }
         });
     }
@@ -489,7 +489,7 @@ public class MatchView extends Page {
 
     public void handleEvent() {
         winConditionComboBox.showingProperty().addListener((obs, wasShowing, isNowShowing) -> {
-            SfxManager.playSfx("select-expand.mp3");
+            SfxManager.playMenuSfx(SfxType.SELECT_EXPAND);
         });
 
         winConditionComboBox.setCellFactory(listView -> {
@@ -503,7 +503,7 @@ public class MatchView extends Page {
 
             cell.setOnMouseEntered(event -> {
                 if (!cell.isEmpty()) {
-                    SfxManager.playSfx("menuhover.wav");
+                    SfxManager.playMenuSfx(SfxType.MENU_HOVER);
                 }
             });
 
@@ -511,7 +511,7 @@ public class MatchView extends Page {
         });
 
         banchoButtons.getOnlineUsersButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             if (banchoButtons.getOnlineUsersButton().isOnlineUserShown()) {
                 onlineUsersPanel.hide();
                 banchoButtons.getOnlineUsersButton().setOnlineUsersHiddenIcon();
@@ -524,11 +524,11 @@ public class MatchView extends Page {
         });
 
         leaveMatchButton.setOnMouseEntered(e -> {
-            SfxManager.playSfx("menuhover.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HOVER);
         });
 
         leaveMatchButton.setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuback.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_BACK);
             try {
                 Result<LeaveMatchResponse> response = matchController.leaveMatch(matchId).get();
                 if (response.isSuccess()) {
@@ -544,11 +544,11 @@ public class MatchView extends Page {
         });
 
         blueButton.setOnMouseEntered(e -> {
-            SfxManager.playSfx("menuhover.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HOVER);
         });
 
         blueButton.setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             PlayerStatus currentStatus = getCurrentUserStatus();
             BlueButtonState currentState = currentBlueButtonState;
             
@@ -603,7 +603,7 @@ public class MatchView extends Page {
         });
 
         hostActionsModal.getTransferHostButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             MatchPlayerDto selectedPlayer = selectedPlayerForHostAction;
             if (selectedPlayer != null) {
                 try {
@@ -624,7 +624,7 @@ public class MatchView extends Page {
         });
 
         hostActionsModal.getKickPlayerButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             MatchPlayerDto selectedPlayer = selectedPlayerForHostAction;
             if (selectedPlayer != null) {
                 try {
@@ -644,7 +644,7 @@ public class MatchView extends Page {
         });
 
         hostActionsModal.getUserOptionsButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             MatchPlayerDto selectedPlayer = selectedPlayerForHostAction;
             if (selectedPlayer != null) {
                 UserCard userCard = new UserCard(
@@ -670,20 +670,20 @@ public class MatchView extends Page {
         });
 
         changePasswordButton.setOnMouseEntered(e -> {
-            SfxManager.playSfx("menuhover.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HOVER);
         });
 
         changePasswordButton.setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             changePasswordModal.show();
         });
 
         changeBeatmapButton.setOnMouseEntered(e -> {
-            SfxManager.playSfx("menuhover.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HOVER);
         });
 
         changeBeatmapButton.setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             selectBeatmapModal.setInputManager(inputManager);
             selectBeatmapModal.setCurrentMatchBeatmap(beatmap);
             selectBeatmapModal.setOnBeatmapSelectedCallback(selectedBeatmap -> {
@@ -705,7 +705,7 @@ public class MatchView extends Page {
         });
 
         changePasswordModal.getConfirmButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             try {
                 String newPassword = changePasswordModal.getPassword();
                 if (newPassword == null || newPassword.isEmpty()) {
@@ -1047,7 +1047,7 @@ public class MatchView extends Page {
             });
 
             winConditionComboBox.setOnAction(e -> {
-                SfxManager.playSfx("menuhit.wav");
+                SfxManager.playMenuSfx(SfxType.MENU_HIT);
                 System.out.println("Win condition changed to: " + winConditionComboBox.getValue());
                 try {
                     MatchWinCondition newWinCondition = MatchWinCondition.fromString(winConditionComboBox.getValue());

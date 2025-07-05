@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.SfxManager;
 import beat.osu.client.view.shared.bancho.buttons.SortUsersButton;
 import javafx.geometry.Insets;
@@ -40,7 +41,7 @@ public class SortUserTabs extends HBox {
 
         for (SortUsersButton button : buttons) {
             button.setOnAction(event -> {
-                SfxManager.playSfx("menuhit.wav");
+                SfxManager.playMenuSfx(SfxType.MENU_HIT);
                 selectButton(button);
             });
         }

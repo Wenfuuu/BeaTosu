@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.SfxManager;
 import beat.osu.client.view.shared.bancho.buttons.AddChatButton;
 import beat.osu.client.view.shared.bancho.buttons.ChatTabButton;
@@ -169,7 +170,7 @@ public class ChatTabs extends HBox {
         for (ChannelDto channel : joinedChannels) {
             ChatTabButton tabButton = new ChatTabButton(channel.getName());
             tabButton.setOnAction(e -> {
-                SfxManager.playSfx("menuhit.wav");
+                SfxManager.playMenuSfx(SfxType.MENU_HIT);
                 selectTab(channel);
             });
             tabButton.setOnCloseAction(this::handleTabClose);
@@ -182,7 +183,7 @@ public class ChatTabs extends HBox {
             String tabName = privateChat.getOtherUserName();
             ChatTabButton tabButton = new ChatTabButton(tabName);
             tabButton.setOnAction(e -> {
-                SfxManager.playSfx("menuhit.wav");
+                SfxManager.playMenuSfx(SfxType.MENU_HIT);
                 selectTab(privateChat);
             });
             tabButton.setOnCloseAction(this::handleTabClose);

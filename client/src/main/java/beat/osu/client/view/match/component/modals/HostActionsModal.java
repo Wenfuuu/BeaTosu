@@ -1,5 +1,6 @@
 package beat.osu.client.view.match.component.modals;
 
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.SfxManager;
@@ -49,10 +50,10 @@ public class HostActionsModal extends VBox {
         userOptionsButton = new Button("3. User Options");
         cancelButton = new Button("4. Cancel");
 
-        transferHostButton.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
-        kickPlayerButton.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
-        userOptionsButton.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
-        cancelButton.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
+        transferHostButton.setOnMouseEntered(e -> SfxManager.playMenuSfx(SfxType.MENU_HOVER));
+        kickPlayerButton.setOnMouseEntered(e -> SfxManager.playMenuSfx(SfxType.MENU_HOVER));
+        userOptionsButton.setOnMouseEntered(e -> SfxManager.playMenuSfx(SfxType.MENU_HOVER));
+        cancelButton.setOnMouseEntered(e -> SfxManager.playMenuSfx(SfxType.MENU_HOVER));
 
         transferHostButton.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.52);
         kickPlayerButton.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.52);

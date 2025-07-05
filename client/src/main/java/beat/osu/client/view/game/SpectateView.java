@@ -4,6 +4,7 @@ import beat.osu.client.Main;
 import beat.osu.client.config.ConfigurationManager;
 import beat.osu.client.controller.SpectateController;
 import beat.osu.client.enums.HitResult;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.events.game.*;
 import beat.osu.client.helper.*;
 import beat.osu.client.interfaces.game.CoordinateConverter;
@@ -187,7 +188,7 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
         endReplayButton = new EndReplayButton();
 
         endReplayButton.setOnMouseClicked(e -> {
-            SfxManager.playSfx("pause-click.wav");
+            SfxManager.playMenuSfx(SfxType.PAUSE_CLICK);
             sm.stopSpectate();
             ViewManager.getInstance().showLandingView();
         });

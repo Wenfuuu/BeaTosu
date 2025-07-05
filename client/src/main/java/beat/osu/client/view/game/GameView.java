@@ -3,6 +3,7 @@ package beat.osu.client.view.game;
 import beat.osu.client.Main;
 import beat.osu.client.config.ConfigurationManager;
 import beat.osu.client.enums.HitResult;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.events.game.*;
 import beat.osu.client.helper.*;
 import beat.osu.client.interfaces.game.GameEventListener;
@@ -172,18 +173,18 @@ public class GameView extends Page implements GameEventListener {
         });
 
         pauseOverlay.getContinueButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("pause-click.wav");
+            SfxManager.playMenuSfx(SfxType.PAUSE_CLICK);
             gm.resumeGame();
         });
 
         pauseOverlay.getRetryButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("pause-click.wav");
+            SfxManager.playMenuSfx(SfxType.PAUSE_CLICK);
             gm.notifySpectatorsPlayerExited();
             ViewManager.getInstance().showGameView(beatmap, false);
         });
 
         pauseOverlay.getLeaveButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("pause-click.wav");
+            SfxManager.playMenuSfx(SfxType.PAUSE_CLICK);
             gm.notifySpectatorsPlayerExited();
             ViewManager.getInstance().showHomeView();
         });
@@ -209,12 +210,12 @@ public class GameView extends Page implements GameEventListener {
         });
 
         failOverlay.getRetryButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("pause-click.wav");
+            SfxManager.playMenuSfx(SfxType.PAUSE_CLICK);
             ViewManager.getInstance().showGameView(beatmap, false);
         });
 
         failOverlay.getLeaveButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("pause-click.wav");
+            SfxManager.playMenuSfx(SfxType.PAUSE_CLICK);
             ViewManager.getInstance().showHomeView();
         });
     }

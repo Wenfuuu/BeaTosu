@@ -140,7 +140,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
         if (!(hitObject instanceof HitCircle)) return;
         // play sfx
         for (String sfx : hitObject.getSfxFilenames()) {
-            SfxManager.playSfx(sfx);
+            SfxManager.playBeatmapSfx(sfx);
         }
         // Determine hit result based on timing
         if (hitResult == HitResult.MISS)
@@ -441,7 +441,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
             int oldCombo = masterComboNumber;
             masterComboNumber = event.getCombo();
             if (oldCombo >= 20 && masterComboNumber < oldCombo) {
-                SfxManager.playSfx("combobreak.mp3");
+                SfxManager.playBeatmapSfx("combobreak.mp3");
             }
             score = event.getScore();
             accuracy = event.getAccuracy();

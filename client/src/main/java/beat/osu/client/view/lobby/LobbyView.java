@@ -11,6 +11,7 @@ import beat.osu.client.controller.MatchController;
 import beat.osu.client.controller.SessionController;
 import beat.osu.client.controller.SpectateController;
 import beat.osu.client.enums.PlaybackMode;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.*;
 import beat.osu.client.view.lobby.component.cards.MatchCard;
 import beat.osu.client.view.lobby.component.layout.NavigationBar;
@@ -279,7 +280,7 @@ public class LobbyView extends Page {
         playlistModal.setInputManager(inputManager);
 
         matchesPanel.setMatchCardClickCallback(matchCard -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             boolean hasPassword = matchCard.hasPassword();
             
             if (hasPassword) {
@@ -290,7 +291,7 @@ public class LobbyView extends Page {
         });
 
         banchoButtons.getOnlineUsersButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             if (banchoButtons.getOnlineUsersButton().isOnlineUserShown()) {
                 onlineUsersPanel.hide();
                 banchoButtons.getOnlineUsersButton().setOnlineUsersHiddenIcon();
@@ -303,22 +304,22 @@ public class LobbyView extends Page {
         });
 
         navigationBar.getBackButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuback.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_BACK);
             ViewManager.getInstance().showLandingView();
         });
 
         navigationBar.getNewGameButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             createMatchModal.show();
         });
 
         navigationBar.getQuickJoinButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             quickJoinMatch();
         });
 
         jukebox.getMediaControls().getPlaylistButton().setOnAction(event -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             if (playlistModal.isVisible()) {
                 playlistModal.hide();
                 banchoPanelsContainer.setVisible(true);
@@ -344,17 +345,17 @@ public class LobbyView extends Page {
         });
 
         createMatchModal.getCancelButton().setOnAction(e -> {
-            SfxManager.playSfx("menuback.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_BACK);
             createMatchModal.hide();
         });
 
         joinMatchModal.getCancelButton().setOnAction(e -> {
-            SfxManager.playSfx("menuback.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_BACK);
             joinMatchModal.hide();
         });
 
         joinMatchModal.getJoinGameButton().setOnAction(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             Integer matchId = joinMatchModal.getSelectedMatchId();
             String password = joinMatchModal.getPassword();
 

@@ -1,5 +1,6 @@
 package beat.osu.client.view.landing.component.controls;
 
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.SfxManager;
 import javafx.animation.FadeTransition;
@@ -116,7 +117,7 @@ public class SubMenuButtons extends VBox {
                     );
                     
                     button.setOnMouseEntered(e -> {
-                        SfxManager.playSfx("menuhover.wav");
+                        SfxManager.playMenuSfx(SfxType.MENU_HOVER);
                         hoverInTransition.stop();
                         hoverOutTransition.stop();
                         button.setTranslateX(0);

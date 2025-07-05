@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import beat.osu.client.controller.ChannelController;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
@@ -74,10 +75,9 @@ public class SelectChannelModal extends VBox {
     private void setupInputFieldSounds() {
         searchField.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.BACK_SPACE) {
-                SfxManager.playSfx("key-delete.mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_DELETE);
             } else {
-                int randomKeyPress = (int) (Math.random() * 4) + 1;
-                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_PRESS);
             }
         });
     }
@@ -127,7 +127,7 @@ public class SelectChannelModal extends VBox {
         closeButton.getStyleClass().add("close-button");
         closeButton.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.56 + 30);
         closeButton.setOnAction(e -> {
-            SfxManager.playSfx("menuback.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_BACK);
             this.hide();
             banchoButtons.show();
 
@@ -178,10 +178,12 @@ public class SelectChannelModal extends VBox {
             );
             
             card.setOnMouseClicked(e -> {
-                SfxManager.playSfx("menuhit.wav");
+                SfxManager.playMenuSfx(SfxType.MENU_HIT);
                 handleChannelClick(card, channel);
             });
-            card.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
+            card.setOnMouseEntered(e -> {
+                SfxManager.playMenuSfx(SfxType.MENU_HOVER);
+            });
             
             channelCards.add(card);
             channelContainer.getChildren().add(card);

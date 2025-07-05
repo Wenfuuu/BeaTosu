@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import beat.osu.client.Main;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ResourceManager;
 import beat.osu.client.helper.ScreenManager;
@@ -155,7 +156,7 @@ public class BeatmapCard extends StackPane {
         contentContainer.getChildren().addAll(gamemodeBox, infoBox);
 
         this.setOnMouseEntered(e -> {
-            SfxManager.playSfx("select-beatmap.mp3");
+            SfxManager.playMenuSfx(SfxType.SELECT_BEATMAP);
             transitionToOrange();
         });
         this.setOnMouseExited(e -> transitionToPink());

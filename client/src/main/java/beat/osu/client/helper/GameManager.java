@@ -1,10 +1,7 @@
 package beat.osu.client.helper;
 
 import beat.osu.client.controller.*;
-import beat.osu.client.enums.GameEventType;
-import beat.osu.client.enums.GameState;
-import beat.osu.client.enums.HealthRecover;
-import beat.osu.client.enums.HitResult;
+import beat.osu.client.enums.*;
 import beat.osu.client.events.game.*;
 import beat.osu.client.factory.HitObjectFactory;
 import beat.osu.client.interfaces.game.HitObjectListener;
@@ -293,7 +290,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             public void handle(long now) {
                 if (inputManager.checkCheat() && !inputManager.isSfxDisabled()) {
                     isCheatcodeActive = true;
-                    SfxManager.playSfx("menuhit.wav");
+                    SfxManager.playMenuSfx(SfxType.MENU_HIT);
                     Toast.success("Cheatcode betty activated, now you can't die!").show();
                 }
 
@@ -548,7 +545,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             return;
 
         if (!isMultiplayer) {
-            SfxManager.playSfx("failsound.wav");
+            SfxManager.playBeatmapSfx("failsound.wav");
             notifySpectatorsPlayerExited();
 
             System.out.println("Game failed, stopping game");
@@ -595,10 +592,10 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                             String grade = calculateSectionGrade();
 
                             if (health < 50) {
-                                SfxManager.playSfx("sectionfail.wav");
+                                SfxManager.playBeatmapSfx("sectionfail.wav");
                                 notifyListeners(new GameEvent(GameEventType.SECTION_FAIL, null));
                             } else {
-                                SfxManager.playSfx("sectionpass.wav");
+                                SfxManager.playBeatmapSfx("sectionpass.wav");
                                 notifyListeners(new GameEvent(GameEventType.SECTION_PASS, null));
                             }
                             isHalfBreakperiod = true;
@@ -988,7 +985,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             return;
         // play sfx
         for (String sfx : hitObject.getSfxFilenames()) {
-            SfxManager.playSfx(sfx);
+            SfxManager.playBeatmapSfx(sfx);
         }
         // Determine hit result based on timing
         if (hitResult == HitResult.MISS)
@@ -1082,7 +1079,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         misses++;
         int oldCombo = masterComboNumber;
         if (oldCombo >= 20)
-            SfxManager.playSfx("combobreak.mp3");
+            SfxManager.playBeatmapSfx("combobreak.mp3");
         masterComboNumber = 0;
 
         // Update accuracy

@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 import beat.osu.client.Main;
 import beat.osu.client.controller.*;
 import beat.osu.client.enums.PlaybackMode;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.*;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
@@ -528,7 +529,7 @@ public class LandingView extends Page {
 
         topBar.setUserCardClickHandler(e -> {
             if (!loginModal.isShowing() && !registerModal.isVisible()) {
-                SfxManager.playSfx("menuhit.wav");
+                SfxManager.playMenuSfx(SfxType.MENU_HIT);
                 loginModal.clearFields();
                 if (chatPanel.isVisible()) {
                     chatPanel.hide();
@@ -565,7 +566,7 @@ public class LandingView extends Page {
                     AuthManager.logout();
                     topBar.resetUserCard();
                     updateBanchoButtonsVisibility();
-                    SfxManager.playSfx("menuhit.wav");
+                    SfxManager.playMenuSfx(SfxType.MENU_HIT);
                     Toast.success(response.getValue().getMessage()).show();
                 } else {
                     Toast.error("Failed to sign out: " + response.getError().getMessage()).show();
@@ -633,11 +634,11 @@ public class LandingView extends Page {
         });
 
         menuButtons.getPlayButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             showSubMenu();
         });
         menuButtons.getOptionButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             if (loginModal.isShowing())
                 loginModal.hide();
 
@@ -650,12 +651,12 @@ public class LandingView extends Page {
             }
         });
         menuButtons.getExitButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
         });
 
         subMenuButtons.getSoloButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             hideSubMenu();
             toggleMenuPanel();
             hideAllModals();
@@ -663,7 +664,7 @@ public class LandingView extends Page {
         });
 
         subMenuButtons.getMultiButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             if (!AuthManager.isAuthenticated()) {
                 Toast.error("You must be logged in to play online!").show();
                 return;
@@ -675,12 +676,12 @@ public class LandingView extends Page {
         });
 
         subMenuButtons.getBackButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuback.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_BACK);
             hideSubMenu();
         });
 
         banchoButtons.getOnlineUsersButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             if (banchoButtons.getOnlineUsersButton().isOnlineUserShown()) {
                 onlineUsersPanel.hide();
                 topBar.setFullOpacity();
@@ -700,7 +701,7 @@ public class LandingView extends Page {
         });
 
         banchoButtons.getChatToggleButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             if (banchoButtons.getChatToggleButton().isChatVisible()) {
                 chatPanel.hide();
                 bottomBar.setFullOpacity();
@@ -720,7 +721,7 @@ public class LandingView extends Page {
         });
 
         jukebox.getMediaControls().getPlaylistButton().setOnAction(event -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             if (playlistModal.isVisible()) {
                 playlistModal.hide();
                 if (!banchoButtons.isVisible()) {

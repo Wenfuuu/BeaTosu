@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.function.Consumer;
 
 import beat.osu.client.controller.AuthController;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.factory.ButtonFactory;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.CssManager;
@@ -189,37 +190,32 @@ public class LoginModal extends StackPane {
     }
 
     private void setupInputFieldSounds() {
-        // Username field sound effects
         userInput.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.BACK_SPACE) {
-                SfxManager.playSfx("key-delete.mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_DELETE);
             } else {
-                int randomKeyPress = (int) (Math.random() * 4) + 1;
-                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_PRESS);
             }
         });
 
-        // Password field sound effects
         passInput.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.BACK_SPACE) {
-                SfxManager.playSfx("key-delete.mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_DELETE);
             } else {
-                int randomKeyPress = (int) (Math.random() * 4) + 1;
-                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_PRESS);
             }
         });
     }
 
     private void handleComponentEvents() {
-        // Add keyboard sound effects for input fields
         setupInputFieldSounds();
 
         signInButton.setOnMouseEntered(e -> {
-            SfxManager.playSfx("menuhover.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HOVER);
         });
 
         signInButton.setOnAction(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             String username = userInput.getText();
             String password = passInput.getText();
 
@@ -247,11 +243,11 @@ public class LoginModal extends StackPane {
         });
 
         createAccountButton.setOnMouseEntered(e -> {
-            SfxManager.playSfx("menuhover.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HOVER);
         });
 
         createAccountButton.setOnAction(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             if (onCreateAccountListener != null) {
                 onCreateAccountListener.run();
             }

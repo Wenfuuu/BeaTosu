@@ -8,6 +8,7 @@ import beat.osu.client.Main;
 import beat.osu.client.config.ConfigurationManager;
 import beat.osu.client.controller.UserController;
 import beat.osu.client.enums.HitResult;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.events.game.AdditionalSpinEvent;
 import beat.osu.client.events.game.ComboChangeEvent;
 import beat.osu.client.events.game.CursorMoveEvent;
@@ -189,17 +190,17 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
 
     private void handleEvent() {
         pauseOverlay.getContinueButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("pause-click.wav");
+            SfxManager.playMenuSfx(SfxType.PAUSE_CLICK);
             rm.resumeReplay();
         });
 
         pauseOverlay.getRetryButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("pause-click.wav");
+            SfxManager.playMenuSfx(SfxType.PAUSE_CLICK);
             ViewManager.getInstance().showReplayView(beatmap, playingUserId, replayEvents);
         });
 
         pauseOverlay.getLeaveButton().setOnMouseClicked(e -> {
-            SfxManager.playSfx("pause-click.wav");
+            SfxManager.playMenuSfx(SfxType.PAUSE_CLICK);
             ViewManager.getInstance().showHomeView();
         });
     }
@@ -820,7 +821,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
                 endReplayButton = new EndReplayButton();
 
                 endReplayButton.setOnMouseClicked(e -> {
-                    SfxManager.playSfx("pause-click.wav");
+                    SfxManager.playMenuSfx(SfxType.PAUSE_CLICK);
                     rm.stopReplay();
                     ViewManager.getInstance().showHomeView();
                 });
@@ -849,7 +850,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
                         new BackgroundFill(Color.color(1, 0.2, 0.2, 0.5), CornerRadii.EMPTY, Insets.EMPTY)));
 
                 endReplayButton.setOnMouseClicked(e -> {
-                    SfxManager.playSfx("pause-click.wav");
+                    SfxManager.playMenuSfx(SfxType.PAUSE_CLICK);
                     ViewManager.getInstance().showHomeView();
                 });
 

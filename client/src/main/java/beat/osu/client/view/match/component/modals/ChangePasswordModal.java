@@ -1,5 +1,6 @@
 package beat.osu.client.view.match.component.modals;
 
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.SfxManager;
@@ -50,10 +51,9 @@ public class ChangePasswordModal extends VBox {
     private void setupInputFieldSounds() {
         passwordField.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.BACK_SPACE) {
-                SfxManager.playSfx("key-delete.mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_DELETE);
             } else {
-                int randomKeyPress = (int) (Math.random() * 4) + 1;
-                SfxManager.playSfx("key-press-" + randomKeyPress + ".mp3");
+                SfxManager.playMenuSfx(SfxType.KEY_PRESS);
             }
         });
     }
@@ -73,8 +73,8 @@ public class ChangePasswordModal extends VBox {
         confirmButton = new Button("1. OK");
         cancelButton = new Button("2. Cancel");
 
-        confirmButton.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
-        cancelButton.setOnMouseEntered(e -> SfxManager.playSfx("menuhover.wav"));
+        confirmButton.setOnMouseEntered(e -> SfxManager.playMenuSfx(SfxType.MENU_HOVER));
+        cancelButton.setOnMouseEntered(e -> SfxManager.playMenuSfx(SfxType.MENU_HOVER));
 
         confirmButton.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.52);
         cancelButton.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.52);
@@ -136,7 +136,7 @@ public class ChangePasswordModal extends VBox {
 
     private void handleEvent() {
         cancelButton.setOnAction(e -> {
-            SfxManager.playSfx("menuback.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_BACK);
             hide();
         });
     }

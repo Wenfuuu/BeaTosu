@@ -1,6 +1,7 @@
 package beat.osu.client.view.shared.bancho.modals;
 
 import beat.osu.client.controller.AuthController;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.*;
 import beat.osu.client.view.shared.bancho.cards.UserCard;
 import beat.osu.client.view.shared.bancho.cards.UserCardBehavior;
@@ -46,7 +47,7 @@ public class ProfileModal extends VBox {
         closeButton.getStyleClass().addAll("modal-button", "close-button");
 
         closeButton.setOnAction(event -> {
-            SfxManager.playSfx("menuback.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_BACK);
             hide();
         });
 

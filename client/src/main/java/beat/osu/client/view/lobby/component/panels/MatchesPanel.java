@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import beat.osu.client.controller.MatchController;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.SfxManager;
@@ -310,19 +311,19 @@ public class MatchesPanel extends VBox {
     
     private void setupFilterCallbacks() {
         matchFilters.getOwnedBeatmapsCheckBox().setOnAction(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             applyFilters();
         });
         matchFilters.getShowFullCheckBox().setOnAction(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             applyFilters();
         });
         matchFilters.getShowLockedCheckBox().setOnAction(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             applyFilters();
         });
         matchFilters.getShowInProgressCheckBox().setOnAction(e -> {
-            SfxManager.playSfx("menuhit.wav");
+            SfxManager.playMenuSfx(SfxType.MENU_HIT);
             applyFilters();
         });
         

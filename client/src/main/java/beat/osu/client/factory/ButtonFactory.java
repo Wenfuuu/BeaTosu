@@ -1,6 +1,7 @@
 package beat.osu.client.factory;
 
 import beat.osu.client.Main;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.BackgroundManager;
 import beat.osu.client.helper.SfxManager;
 import javafx.animation.Interpolator;
@@ -21,7 +22,7 @@ public class ButtonFactory {
 
         button.setOnMouseEntered(e -> {
             button.setStyle("-fx-padding: 0; -fx-border-width: 0; -fx-background-color: rgba(255, 255, 255, 0.2);");
-            SfxManager.playSfx("pause-hover.wav");
+            SfxManager.playMenuSfx(SfxType.PAUSE_HOVER);
         });
         button.setOnMouseExited(e -> {
             button.setStyle("-fx-padding: 0; -fx-border-width: 0; -fx-background-color: transparent;");
@@ -127,7 +128,7 @@ public class ButtonFactory {
                     scaleDown.setInterpolator(Interpolator.EASE_OUT);
 
                     button.setOnMouseEntered(e -> {
-                        SfxManager.playSfx("menuhover.wav");
+                        SfxManager.playMenuSfx(SfxType.MENU_HOVER);
                         scaleDown.stop();
                         normalImageView.setVisible(false);
                         hoveredImageView.setVisible(true);
