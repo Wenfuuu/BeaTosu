@@ -32,6 +32,7 @@ import beat.osu.shared.dto.session.requests.CreateSessionDataRequest;
 import beat.osu.shared.dto.session.requests.GetSessionDataRequest;
 import beat.osu.shared.dto.session.requests.RemoveSessionDataRequest;
 import beat.osu.shared.dto.user.requests.GetUsernameByIdRequest;
+import beat.osu.shared.dto.user.requests.UpdateUserRequest;
 import beat.osu.shared.models.RequestMessage;
 import lombok.RequiredArgsConstructor;
 
@@ -52,11 +53,11 @@ public class MessageRouter {
     public void cleanupDisconnectedUser(int userId) {
         try {
             System.out.println("Cleaning up disconnected user: " + userId);
-            
+
             matchService.removeUserFromAllMatches(userId);
             channelService.removeUserFromAllChannels(userId);
             spectateService.removeUserFromAllSpectating(userId);
-            
+
             System.out.println("Successfully cleaned up disconnected user: " + userId);
         } catch (Exception e) {
             System.err.println("Error cleaning up disconnected user " + userId + ": " + e.getMessage());
@@ -106,6 +107,8 @@ public class MessageRouter {
         switch (request.getAction()) {
             case GET_USERNAME_BY_ID:
                 return userService.getUsernameById((GetUsernameByIdRequest) request.getPayload());
+            case UPDATE_USER:
+                return userService.updateUser((UpdateUserRequest) request.getPayload());
             default:
                 return Result.failure(Error.validation("Unknown user action: " + request.getAction()));
         }
@@ -170,7 +173,8 @@ public class MessageRouter {
     private Object handlePrivateChatRequest(RequestMessage request, String clientId) {
         switch (request.getAction()) {
             case SEND_PRIVATE_CHAT_MESSAGE:
-                return privateChatService.sendPrivateMessage((SendPrivateChatMessageRequest) request.getPayload(), clientId);
+                return privateChatService.sendPrivateMessage((SendPrivateChatMessageRequest) request.getPayload(),
+                        clientId);
             default:
                 return Result.failure(Error.validation("Unknown private chat action: " + request.getAction()));
         }
@@ -205,9 +209,11 @@ public class MessageRouter {
             case UPDATE_MATCH_BEATMAP:
                 return matchService.updateMatchBeatmap((UpdateMatchBeatmapRequest) request.getPayload(), clientId);
             case UPDATE_MATCH_CHANGING_BEATMAP:
-                return matchService.updateMatchChangingBeatmap((UpdateMatchChangingBeatmapRequest) request.getPayload(), clientId);
+                return matchService.updateMatchChangingBeatmap((UpdateMatchChangingBeatmapRequest) request.getPayload(),
+                        clientId);
             case UPDATE_MATCH_WIN_CONDITION:
-                return matchService.updateMatchWinCondition((UpdateMatchWinConditionRequest) request.getPayload(), clientId);
+                return matchService.updateMatchWinCondition((UpdateMatchWinConditionRequest) request.getPayload(),
+                        clientId);
             case UPDATE_PLAYER_STATUS:
                 return matchService.updatePlayerStatus((UpdatePlayerStatusRequest) request.getPayload(), clientId);
             case PLAYER_FINISHED_MATCH:
@@ -241,7 +247,8 @@ public class MessageRouter {
             case STOP_SPECTATE:
                 return spectateService.stopSpectating(clientId);
             case CHANGE_SPECTATE_STATUS:
-                return spectateService.notifySpectatorsStatusChange((NotifySpectateStatusRequest) request.getPayload(), clientId);
+                return spectateService.notifySpectatorsStatusChange((NotifySpectateStatusRequest) request.getPayload(),
+                        clientId);
             case PLAYER_EXIT_GAME:
                 return spectateService.notifySpectatorsPlayerExited(clientId);
             default:

@@ -3,6 +3,7 @@ package beat.osu.shared.enums.message;
 import java.io.Serializable;
 
 public enum RealtimeMessageType implements Serializable {
+    USER_UPDATED,
     USER_CONNECTED,
     USER_DISCONNECTED,
 

@@ -13,6 +13,7 @@ public enum MessageAction implements Serializable {
     LOGOUT,
 
     // User actions
+    UPDATE_USER,
     GET_USERNAME_BY_ID,
 
     // Beatmap actions

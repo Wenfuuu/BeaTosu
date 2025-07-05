@@ -92,6 +92,29 @@ public class UserRepository {
         }
     }
 
+    public void updateUser(User user) {
+        String query = "UPDATE users SET username = ?, email = ?, country_code = ?, profile_picture = ?, " +
+                "performance = ?, accuracy = ?, play_count = ?, level = ?, experience = ?, is_supporter = ? " +
+                "WHERE id = ?;";
+        try {
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setString(1, user.getUsername());
+            statement.setString(2, user.getEmail());
+            statement.setString(3, user.getCountryCode());
+            statement.setBytes(4, user.getProfilePicture());
+            statement.setInt(5, user.getPerformance());
+            statement.setDouble(6, user.getAccuracy());
+            statement.setInt(7, user.getPlayCount());
+            statement.setInt(8, user.getLevel());
+            statement.setInt(9, user.getExperience());
+            statement.setBoolean(10, user.isSupporter());
+            statement.setInt(11, user.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public int getUserRank(int userId) {
         User user = findUserById(userId);
         if (user == null) {
