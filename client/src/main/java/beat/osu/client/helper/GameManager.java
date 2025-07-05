@@ -420,8 +420,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void updateUserStats(UserDto user, int performance) {
-        if (user == null)
-            return;
+        if (user == null) return;
         user.addExperience(score);
         user.updateAccuracy(accuracy);
 
@@ -600,8 +599,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                             }
                             isHalfBreakperiod = true;
                         }
-                    } else {
-                        isHalfBreakperiod = false;
                     }
 
                     if (elapsedMillis + 1000 >= endTime) {
@@ -619,6 +616,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         // Return to playing state if not in break period time
         if (!inBreakPeriod && gameState == GameState.BREAK_PERIOD) {
             System.out.println("Exiting break period, returning to playing state");
+            isHalfBreakperiod = false;
             isPreExit = false;
             gameState = GameState.PLAYING;
             notifyListeners(new GameEvent(GameEventType.EXIT_BREAK_PERIOD, null));

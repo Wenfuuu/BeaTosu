@@ -68,6 +68,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     private boolean perfectCombo = true;
     private boolean imperfectOrMissed = false;
     private boolean isPreExit = false;
+    private boolean isHalfBreakperiod = false;
 
     private void updateMousePosition(double x, double y) {
         this.currentMouseX = coordinateConverter.convertReplayMouseX(x);
@@ -167,7 +168,8 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
         }
 
         replayState = ReplayState.PLAYING;
-        if (bgmStarted) BgmManager.getInstance().resumeBgm();
+        if (bgmStarted)
+            BgmManager.getInstance().resumeBgm();
         resumeAllAnimations();
         notifyListeners(new GameEvent(GameEventType.REPLAY_RESUMED, null));
     }
@@ -194,6 +196,23 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
                     gameState = GameState.BREAK_PERIOD;
                     notifyListeners(new GameEvent(GameEventType.ENTER_BREAK_PERIOD, null));
                 } else {
+                    int totalBreakTime = endTime - startTime;
+                    // check if elapsedMillis has passed half of the break period
+                    if (totalBreakTime >= 3000 && elapsedMillis >= startTime + totalBreakTime / 2) {
+                        if (!isHalfBreakperiod) {
+                            System.out.println("Half break period reached, notifying listeners");
+
+                            if (health < 50) {
+                                SfxManager.playBeatmapSfx("sectionfail.wav");
+                                notifyListeners(new GameEvent(GameEventType.SECTION_FAIL, null));
+                            } else {
+                                SfxManager.playBeatmapSfx("sectionpass.wav");
+                                notifyListeners(new GameEvent(GameEventType.SECTION_PASS, null));
+                            }
+                            isHalfBreakperiod = true;
+                        }
+                    }
+
                     if (elapsedMillis + 1000 >= endTime) {
                         System.out.println("Exiting break period soon, preparing to resume");
                         if (!isPreExit) {
@@ -208,6 +227,8 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
 
         if (!inBreakPeriod && gameState == GameState.BREAK_PERIOD) {
             System.out.println("Exiting break period, returning to playing state");
+            isHalfBreakperiod = false;
+            isPreExit = false;
             gameState = GameState.PLAYING;
             notifyListeners(new GameEvent(GameEventType.EXIT_BREAK_PERIOD, null));
         }
@@ -226,14 +247,15 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
         }
 
         boolean keyPressed = processReplayEvents(elapsedMillis);
-//        System.out.println("key pressed: " + keyPressed);
+        // System.out.println("key pressed: " + keyPressed);
 
         Iterator<HitObject> iterator = hitObjects.iterator();
         while (iterator.hasNext()) {
             HitObject hitObject = iterator.next();
             hitObject.update(elapsedMillis);
             if (hitObject instanceof HitSpinner) {
-                if(keyHolded) ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
+                if (keyHolded)
+                    ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
             } else if (hitObject instanceof HitSlider) {
                 ((HitSlider) hitObject).updateSlider(currentMouseX, currentMouseY, keyHolded);
             }
@@ -495,7 +517,8 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
 
         misses++;
         int oldCombo = masterComboNumber;
-        if (oldCombo >= 20) SfxManager.playBeatmapSfx("combobreak.mp3");
+        if (oldCombo >= 20)
+            SfxManager.playBeatmapSfx("combobreak.mp3");
         masterComboNumber = 0;
 
         // Update accuracy
@@ -516,9 +539,9 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
         notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
 
         // Check for game over (health reaches 0)
-//        if (health <= 0) {
-//            System.out.println("hp reached 0, stopping game");
-//        }
+        // if (health <= 0) {
+        // System.out.println("hp reached 0, stopping game");
+        // }
     }
 
     private void updateAccuracy() {

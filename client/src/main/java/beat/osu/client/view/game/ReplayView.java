@@ -90,6 +90,8 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
     private ArrayList<Animation> animationList;
     private ImageView cursorImage;
     private ImageView[] arrowImageViews; // Arrow warning images (4 corners)
+    private ImageView sectionpassImageView;
+    private ImageView sectionfailImageView;
     private double currentMasterScaleFactor = 1.0;
     private double currentViewportTopLeftX = 0.0;
     private double currentViewportTopLeftY = 0.0;
@@ -184,6 +186,22 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
             // Add the image to the replay pane
             replayPane.getChildren().add(0, arrowImageViews[i]);
         }
+
+        String sectionPassImagePath = "/assets/images/section-pass.png";
+        sectionpassImageView = new ImageView(new Image(Objects.requireNonNull(Main.class
+                .getResource(sectionPassImagePath)).toExternalForm()));
+        sectionpassImageView.setFitWidth(250);
+        sectionpassImageView.setFitHeight(200);
+        sectionpassImageView.setVisible(false);
+        replayPane.getChildren().add(0, sectionpassImageView);
+
+        String sectionFailImagePath = "/assets/images/section-fail.png";
+        sectionfailImageView = new ImageView(new Image(Objects.requireNonNull(Main.class
+                .getResource(sectionFailImagePath)).toExternalForm()));
+        sectionfailImageView.setFitWidth(250);
+        sectionfailImageView.setFitHeight(250);
+        sectionfailImageView.setVisible(false);
+        replayPane.getChildren().add(0, sectionfailImageView);
 
         replayPane.getChildren().add(cursorImage);
     }
@@ -577,6 +595,16 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
             arrowImageViews[3].setLayoutX(paneWidth - arrowImageViews[3].getFitWidth() - 50);
             arrowImageViews[3].setLayoutY(paneHeight - arrowImageViews[3].getFitHeight() - 50);
         }
+
+        // set section pass and fail images to center
+        if (sectionpassImageView != null) {
+            sectionpassImageView.setLayoutX(paneWidth / 2 - sectionpassImageView.getFitWidth() / 2);
+            sectionpassImageView.setLayoutY(paneHeight / 2 - sectionpassImageView.getFitHeight() / 2);
+        }
+        if (sectionfailImageView != null) {
+            sectionfailImageView.setLayoutX(paneWidth / 2 - sectionfailImageView.getFitWidth() / 2);
+            sectionfailImageView.setLayoutY(paneHeight / 2 - sectionfailImageView.getFitHeight() / 2);
+        }
     }
 
     @Override
@@ -732,6 +760,14 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
             case PRE_EXIT_BREAK_PERIOD:
                 System.out.println("pre exit break period - showing arrow warning");
                 showArrowWarning();
+                break;
+            case SECTION_PASS:
+                System.out.println("section pass - showing section pass effect");
+                showSectionPassEffect();
+                break;
+            case SECTION_FAIL:
+                System.out.println("section fail - showing section fail effect");
+                showSectionFailEffect();
                 break;
             case GAME_OFFSET_COMPLETED:
                 System.out.println("game offset completed, decreasing background opacity");
@@ -891,29 +927,22 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
         if (arrowImageViews == null)
             return;
 
-        // Create flicker effect for all 4 arrow images
         Timeline flickerTimeline = new Timeline();
-
-        // Make all arrows visible and set initial opacity
         for (ImageView arrowImageView : arrowImageViews) {
             arrowImageView.setVisible(true);
             arrowImageView.setOpacity(0);
         }
 
-        // Create keyframes for flicker effect (flicker 8 times over 1 second)
         for (int i = 0; i < 8; i++) {
-            double startTime = i * 125; // Each flicker cycle is 125ms (1000ms / 8)
-            double fadeInTime = startTime + 40; // Fade in for 40ms
-            double fadeOutTime = startTime + 85; // Fade out for 85ms
+            double startTime = i * 125;
+            double fadeInTime = startTime + 40;
+            double fadeOutTime = startTime + 85;
 
-            // Create fade in and out keyframes for all 4 arrows
             for (ImageView arrowImageView : arrowImageViews) {
-                // Fade in
                 KeyFrame fadeIn = new KeyFrame(
                         Duration.millis(fadeInTime),
                         new KeyValue(arrowImageView.opacityProperty(), 1.0));
 
-                // Fade out
                 KeyFrame fadeOut = new KeyFrame(
                         Duration.millis(fadeOutTime),
                         new KeyValue(arrowImageView.opacityProperty(), 0.0));
@@ -922,7 +951,6 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
             }
         }
 
-        // Hide all arrows after animation completes
         flickerTimeline.setOnFinished(e -> {
             for (ImageView arrowImageView : arrowImageViews) {
                 arrowImageView.setVisible(false);
@@ -931,7 +959,94 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
             animationList.remove(flickerTimeline);
         });
 
-        // Add to animation list and play
+        animationList.add(flickerTimeline);
+        flickerTimeline.play();
+    }
+
+    private void showSectionPassEffect() {
+        if (sectionpassImageView == null)
+            return;
+
+        Timeline flickerTimeline = new Timeline();
+        sectionpassImageView.setVisible(true);
+        sectionpassImageView.setOpacity(0);
+
+        for (int i = 0; i < 2; i++) {
+            double flickerStart = i * 250;
+            double fadeInTime = flickerStart + 50;
+            double fadeOutTime = flickerStart + 200;
+
+            KeyFrame fadeIn = new KeyFrame(
+                    Duration.millis(fadeInTime),
+                    new KeyValue(sectionpassImageView.opacityProperty(), 1.0));
+
+            KeyFrame fadeOut = new KeyFrame(
+                    Duration.millis(fadeOutTime),
+                    new KeyValue(sectionpassImageView.opacityProperty(), 0.0));
+
+            flickerTimeline.getKeyFrames().addAll(fadeIn, fadeOut);
+        }
+
+        KeyFrame stayVisible = new KeyFrame(
+                Duration.millis(500),
+                new KeyValue(sectionpassImageView.opacityProperty(), 1.0));
+
+        KeyFrame finalFadeOut = new KeyFrame(
+                Duration.millis(1000),
+                new KeyValue(sectionpassImageView.opacityProperty(), 0.0));
+
+        flickerTimeline.getKeyFrames().addAll(stayVisible, finalFadeOut);
+
+        flickerTimeline.setOnFinished(e -> {
+            sectionpassImageView.setVisible(false);
+            sectionpassImageView.setOpacity(0);
+            animationList.remove(flickerTimeline);
+        });
+
+        animationList.add(flickerTimeline);
+        flickerTimeline.play();
+    }
+
+    private void showSectionFailEffect() {
+        if (sectionfailImageView == null)
+            return;
+
+        Timeline flickerTimeline = new Timeline();
+        sectionfailImageView.setVisible(true);
+        sectionfailImageView.setOpacity(0);
+
+        for (int i = 0; i < 2; i++) {
+            double flickerStart = i * 250;
+            double fadeInTime = flickerStart + 50;
+            double fadeOutTime = flickerStart + 200;
+
+            KeyFrame fadeIn = new KeyFrame(
+                    Duration.millis(fadeInTime),
+                    new KeyValue(sectionfailImageView.opacityProperty(), 1.0));
+
+            KeyFrame fadeOut = new KeyFrame(
+                    Duration.millis(fadeOutTime),
+                    new KeyValue(sectionfailImageView.opacityProperty(), 0.0));
+
+            flickerTimeline.getKeyFrames().addAll(fadeIn, fadeOut);
+        }
+
+        KeyFrame stayVisible = new KeyFrame(
+                Duration.millis(500),
+                new KeyValue(sectionfailImageView.opacityProperty(), 1.0));
+
+        KeyFrame finalFadeOut = new KeyFrame(
+                Duration.millis(1000),
+                new KeyValue(sectionfailImageView.opacityProperty(), 0.0));
+
+        flickerTimeline.getKeyFrames().addAll(stayVisible, finalFadeOut);
+
+        flickerTimeline.setOnFinished(e -> {
+            sectionfailImageView.setVisible(false);
+            sectionfailImageView.setOpacity(0);
+            animationList.remove(flickerTimeline);
+        });
+
         animationList.add(flickerTimeline);
         flickerTimeline.play();
     }

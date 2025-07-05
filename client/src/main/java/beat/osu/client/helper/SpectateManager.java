@@ -62,6 +62,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     private boolean perfectCombo = true;
     private boolean imperfectOrMissed = false;
     private boolean isPreExit = false;
+    private boolean isHalfBreakperiod = false;
 
     private boolean firstSpectateEvent = true;
     private volatile boolean spectateStoppingFlag = false;
@@ -137,7 +138,8 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
         hitObject.setHit(true);
         hitObject.playHitEffect();
 
-        if (!(hitObject instanceof HitCircle)) return;
+        if (!(hitObject instanceof HitCircle))
+            return;
         // play sfx
         for (String sfx : hitObject.getSfxFilenames()) {
             SfxManager.playBeatmapSfx(sfx);
@@ -169,10 +171,10 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
                 new HitObjectEvent(hitObject, HitResult.MISS, false, true)));
 
         // Check for game over (health reaches 0)
-//        if (health <= 0) {
-//            System.out.println("hp reached 0, stopping game");
-            // failGame();
-//        }
+        // if (health <= 0) {
+        // System.out.println("hp reached 0, stopping game");
+        // failGame();
+        // }
     }
 
     private long getHitWindow() {
@@ -377,14 +379,17 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
                 firstSpectateEvent = false;
                 // clear all hit objects that has hit time before the first event
                 hitObjects.removeIf(hitObject -> hitObject.getHitTime() < event.getCurrentTime());
-                if (event.getCurrentTime() <= 0) return;
+                if (event.getCurrentTime() <= 0)
+                    return;
                 BgmManager.getInstance().getCurrentPlayer().seek(Duration.millis(event.getCurrentTime()));
                 BgmManager.getInstance().playGameBgm();
-            }else {
-                if (event.getCurrentTime() <= 0) return;
+            } else {
+                if (event.getCurrentTime() <= 0)
+                    return;
                 System.out.println("Current time: " + event.getCurrentTime());
                 System.out.println("Current BGM time: " + BgmManager.getInstance().getCurrentPlayer().getCurrentTime());
-                // seek bgm duration to the current time of the event if has difference more than 50ms
+                // seek bgm duration to the current time of the event if has difference more
+                // than 50ms
                 Duration currentBgmTime = BgmManager.getInstance().getCurrentPlayer().getCurrentTime();
                 if (Math.abs(currentBgmTime.toMillis() - event.getCurrentTime()) > 50) {
                     BgmManager.getInstance().getCurrentPlayer().seek(Duration.millis(event.getCurrentTime()));
@@ -406,6 +411,23 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
                         gameState = GameState.BREAK_PERIOD;
                         notifyListeners(new GameEvent(GameEventType.ENTER_BREAK_PERIOD, null));
                     } else {
+                        int totalBreakTime = endTime - startTime;
+                        // check if elapsedMillis has passed half of the break period
+                        if (totalBreakTime >= 3000 && event.getCurrentTime() >= startTime + totalBreakTime / 2) {
+                            if (!isHalfBreakperiod) {
+                                System.out.println("Half break period reached, notifying listeners");
+
+                                if (health < 50) {
+                                    SfxManager.playBeatmapSfx("sectionfail.wav");
+                                    notifyListeners(new GameEvent(GameEventType.SECTION_FAIL, null));
+                                } else {
+                                    SfxManager.playBeatmapSfx("sectionpass.wav");
+                                    notifyListeners(new GameEvent(GameEventType.SECTION_PASS, null));
+                                }
+                                isHalfBreakperiod = true;
+                            }
+                        }
+
                         if (event.getCurrentTime() + 1000 >= endTime) {
                             System.out.println("Exiting break period soon, preparing to resume");
                             if (!isPreExit) {
@@ -426,6 +448,8 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
 
             if (!inBreakPeriod && gameState == GameState.BREAK_PERIOD) {
                 System.out.println("Exiting break period, returning to playing state");
+                isHalfBreakperiod = false;
+                isPreExit = false;
                 gameState = GameState.PLAYING;
                 notifyListeners(new GameEvent(GameEventType.EXIT_BREAK_PERIOD, null));
             }
@@ -458,7 +482,8 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
                 HitObject hitObject = iterator.next();
                 hitObject.update(elapsedMillis);
                 if (hitObject instanceof HitSpinner) {
-                    if(keyHolded) ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
+                    if (keyHolded)
+                        ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
                 } else if (hitObject instanceof HitSlider) {
                     ((HitSlider) hitObject).updateSlider(currentMouseX, currentMouseY, keyHolded);
                 }
@@ -522,8 +547,10 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
 
     private void updateSpectateStatus(SpectateStatusEvent event) {
         System.out.println("Received spectate status event, spectate pause status: " + event.isPaused());
-        if (event.isPaused()) pauseAllAnimations();
-        else resumeAllAnimations();
+        if (event.isPaused())
+            pauseAllAnimations();
+        else
+            resumeAllAnimations();
     }
 
     private void setupSpectateCallbacks() {
