@@ -15,6 +15,7 @@ import java.net.URL;
 public class SfxManager {
     @Getter
     private static double SFX_VOLUME;
+    @Getter
     private static boolean ignoreBeatmapSFX;
 
     public static void setSFX_VOLUME(double SFX_VOLUME) {
@@ -27,16 +28,11 @@ public class SfxManager {
         ConfigurationManager.getInstance().setIgnoreBeatmapHitsounds(ignore);
     }
 
-    public static boolean isIgnoreBeatmapSFX() {
-        return ignoreBeatmapSFX;
-    }
-
     static {
         SFX_VOLUME = ConfigurationManager.getInstance().getSfxVolume();
         ignoreBeatmapSFX = ConfigurationManager.getInstance().getIgnoreBeatmapHitsounds();
     }
 
-    // private static final String SFX_DIR = "./src/main/resources/assets/sfx/";
     private static URL getSfxResource(String sfxName) {
         return Main.class.getResource("/assets/sfx/" + sfxName);
     }

@@ -252,6 +252,7 @@ public class RegisterModal extends StackPane {
                     .thenAcceptAsync(result -> {
                         Platform.runLater(() -> {
                             if (result.isSuccess()) {
+                                clearFields();
                                 RegisterResponse response = result.getValue();
                                 this.setVisible(false);
                                 Toast.success(response.getMessage()).show();
@@ -268,13 +269,7 @@ public class RegisterModal extends StackPane {
 
         cancelButton.setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_BACK);
-            // clear all input fields
-            usernameField.clear();
-            emailField.clear();
-            passwordField.clear();
-            profileImageView.setImage(null);
-            placeholderLabel.setText("Click here to upload image");
-            supporterCheckBox.setSelected(false);
+            clearFields();
             this.setVisible(false);
         });
 
@@ -293,5 +288,14 @@ public class RegisterModal extends StackPane {
                 placeholderLabel.setVisible(false);
             }
         });
+    }
+
+    private void clearFields() {
+        usernameField.clear();
+        emailField.clear();
+        passwordField.clear();
+        profileImageView.setImage(null);
+        placeholderLabel.setText("Click here to upload image");
+        supporterCheckBox.setSelected(false);
     }
 }
