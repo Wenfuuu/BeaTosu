@@ -241,27 +241,26 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
         arrowImageViews = new ImageView[4];
         for (int i = 0; i < 4; i++) {
             arrowImageViews[i] = new ImageView(arrowImage);
-            arrowImageViews[i].setFitWidth(200);
-            arrowImageViews[i].setFitHeight(200);
-            arrowImageViews[i].setVisible(false); // Initially invisible
+            arrowImageViews[i].setFitWidth(ScreenManager.SCREEN_HEIGHT / 5);
+            arrowImageViews[i].setFitHeight(ScreenManager.SCREEN_HEIGHT / 5);
+            arrowImageViews[i].setVisible(false);
 
-            // Add the image to the spectate pane
             spectatePane.getChildren().add(0, arrowImageViews[i]);
         }
 
         String sectionPassImagePath = "/assets/images/section-pass.png";
         sectionpassImageView = new ImageView(new Image(Objects.requireNonNull(Main.class
                 .getResource(sectionPassImagePath)).toExternalForm()));
-        sectionpassImageView.setFitWidth(250);
-        sectionpassImageView.setFitHeight(200);
+        sectionpassImageView.setFitWidth(ScreenManager.SCREEN_HEIGHT / 4);
+        sectionpassImageView.setFitHeight(ScreenManager.SCREEN_HEIGHT / 5);
         sectionpassImageView.setVisible(false);
         spectatePane.getChildren().add(0, sectionpassImageView);
 
         String sectionFailImagePath = "/assets/images/section-fail.png";
         sectionfailImageView = new ImageView(new Image(Objects.requireNonNull(Main.class
                 .getResource(sectionFailImagePath)).toExternalForm()));
-        sectionfailImageView.setFitWidth(250);
-        sectionfailImageView.setFitHeight(250);
+        sectionfailImageView.setFitWidth(ScreenManager.SCREEN_HEIGHT / 4);
+        sectionfailImageView.setFitHeight(ScreenManager.SCREEN_HEIGHT / 4);
         sectionfailImageView.setVisible(false);
         spectatePane.getChildren().add(0, sectionfailImageView);
 
