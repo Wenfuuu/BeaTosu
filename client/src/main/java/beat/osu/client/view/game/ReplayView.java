@@ -800,7 +800,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
 
         userController.getUsernameById(playingUserId).thenAccept(result -> {
             Platform.runLater(() -> {
-                String username = "Unknown Player";
+                String username = "Guest";
                 if (result.isSuccess()) {
                     username = result.getValue().getUsername();
                 } else {

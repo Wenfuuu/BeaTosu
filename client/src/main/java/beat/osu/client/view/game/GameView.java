@@ -10,6 +10,7 @@ import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.HitObject;
 import beat.osu.client.view.game.component.*;
 import beat.osu.client.view.shared.common.Page;
+import beat.osu.client.view.shared.common.Toast;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
 import javafx.animation.*;
 import javafx.application.Platform;
@@ -174,7 +175,10 @@ public class GameView extends Page implements GameEventListener {
         });
 
         resultOverlay.getReplayButton().setOnMouseClicked(e -> {
-            int currentUserId = AuthManager.getUser().getId();
+            int currentUserId = 0;
+            if (AuthManager.isAuthenticated()) {
+                currentUserId = AuthManager.getUser().getId();
+            }
             ViewManager.getInstance().showReplayView(beatmap, currentUserId, gm.getReplayEvents());
         });
 
