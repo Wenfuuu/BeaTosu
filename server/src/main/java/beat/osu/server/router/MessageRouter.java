@@ -108,7 +108,7 @@ public class MessageRouter {
             case GET_USERNAME_BY_ID:
                 return userService.getUsernameById((GetUsernameByIdRequest) request.getPayload());
             case UPDATE_USER:
-                return userService.updateUser((UpdateUserRequest) request.getPayload());
+                return userService.updateUser((UpdateUserRequest) request.getPayload(), clientId);
             default:
                 return Result.failure(Error.validation("Unknown user action: " + request.getAction()));
         }

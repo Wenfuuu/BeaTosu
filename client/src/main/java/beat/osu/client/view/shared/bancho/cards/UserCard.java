@@ -67,8 +67,8 @@ public class UserCard extends HBox {
     private UserController userController;
 
     public UserCard(Integer userId, String username, String countryCode, byte[] profilePicture,
-                    Integer performance, Double accuracy, Integer playCount, Integer level, Integer rank, Boolean isSupporter,
-                    UserCardBehavior behavior) {
+            Integer performance, Double accuracy, Integer playCount, Integer level, Integer rank, Boolean isSupporter,
+            UserCardBehavior behavior) {
         super(10);
         this.userId = userId;
         this.username = username;
@@ -93,7 +93,13 @@ public class UserCard extends HBox {
 
     private void onUserUpdated(UserUpdatedEvent event) {
         UserDto userDto = event.getUserDto();
-        if (userDto == null) return;
+        if (userDto == null)
+            return;
+
+        if (this.userId == null || !this.userId.equals(userDto.getId())) {
+            return;
+        }
+
         this.userId = userDto.getId();
         this.username = userDto.getUsername();
         this.countryCode = userDto.getCountryCode();
@@ -155,7 +161,7 @@ public class UserCard extends HBox {
         timeStats.setAlignment(Pos.TOP_LEFT);
         timeStats.getStyleClass().add("user-stats");
         timeStats.getChildren().add(timeLabel);
-        
+
         timeStats.setOpacity(0.0);
 
         contentContainer = new StackPane();
@@ -252,13 +258,13 @@ public class UserCard extends HBox {
         } else {
             performanceLabel.setText("Performance: 0pp");
         }
-        
+
         if (accuracy != null) {
             accuracyLabel.setText("Accuracy: " + String.format("%.2f", accuracy) + "%");
         } else {
             accuracyLabel.setText("Accuracy: 0.00%");
         }
-        
+
         if (playCount != null && level != null) {
             playCountLabel.setText("Play Count: " + String.format("%,d", playCount) + " (Lv" + level + ")");
         } else {
@@ -363,19 +369,19 @@ public class UserCard extends HBox {
         if (this.behavior != null) {
             this.behavior.removeBehavior(this);
         }
-        
+
         this.behavior = behavior;
-        
+
         if (this.behavior != null) {
             this.behavior.setupBehavior(this);
         }
-        
+
         updateHoverStyling();
     }
 
     private void updateHoverStyling() {
         this.getStyleClass().removeAll("user-card-hoverable", "user-card-static");
-        
+
         if (behavior == UserCardBehavior.HOVER_TIME_COUNTRY) {
             this.getStyleClass().add("user-card-hoverable");
         } else if (behavior == UserCardBehavior.STATIC) {

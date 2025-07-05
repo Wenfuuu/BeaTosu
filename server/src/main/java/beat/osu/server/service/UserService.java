@@ -1,14 +1,19 @@
 package beat.osu.server.service;
 
 import beat.osu.server.entities.User;
+import beat.osu.server.handler.RealtimeMessageHandler;
 import beat.osu.server.repositories.UserRepository;
 import beat.osu.shared.common.Error;
 import beat.osu.shared.common.Result;
+import beat.osu.shared.dto.match.responses.UpdateMatchWinConditionResponse;
 import beat.osu.shared.dto.user.UserDto;
+import beat.osu.shared.dto.user.events.UserUpdatedEvent;
 import beat.osu.shared.dto.user.requests.GetUsernameByIdRequest;
 import beat.osu.shared.dto.user.responses.GetUsernameByIdResponse;
 import beat.osu.shared.dto.user.requests.UpdateUserRequest;
 import beat.osu.shared.dto.user.responses.UpdateUserResponse;
+import beat.osu.shared.enums.message.RealtimeMessageType;
+import beat.osu.shared.models.RealtimeMessage;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -39,11 +44,10 @@ public class UserService {
         }
     }
 
-    public Result<UpdateUserResponse> updateUser(UpdateUserRequest request) {
+    public Result<UpdateUserResponse> updateUser(UpdateUserRequest request, String clientId) {
         try {
             UserDto userDto = request.getUser();
 
-            // Convert UserDto to User entity
             User user = new User(
                     userDto.getId(),
                     userDto.getUsername(),
@@ -62,7 +66,21 @@ public class UserService {
             userRepository.updateUser(user);
 
             String message = "User updated successfully";
-            return Result.success(new UpdateUserResponse(message));
+
+            Result<UpdateUserResponse> response = Result.success(new UpdateUserResponse(message));
+
+            if (response.isSuccess()) {
+                UserUpdatedEvent event = new UserUpdatedEvent(new UserDto(
+                        user.getId(), user.getUsername(), user.getEmail(), user.getCountryCode(),
+                        user.getProfilePicture(), user.getPerformance(), user.getAccuracy(), user.getPlayCount(), user.getLevel(),
+                        user.getExperience(), userRepository.getUserRank(user.getId()), user.isSupporter()
+                ));
+                RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_UPDATED,
+                        clientId, event);
+                RealtimeMessageHandler.broadcastToAll(realtimeMessage);
+            }
+
+            return response;
         } catch (Exception e) {
             return Result.failure(Error.internal("Failed to update user: " + e.getMessage()));
         }
