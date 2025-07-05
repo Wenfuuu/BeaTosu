@@ -18,5 +18,6 @@ public class User {
     private double accuracy;
     private int playCount;
     private int level;
+    private int experience;
     private boolean isSupporter;
 }

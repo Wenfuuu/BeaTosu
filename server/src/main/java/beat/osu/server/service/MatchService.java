@@ -815,6 +815,7 @@ public class MatchService {
                         user.getAccuracy(),
                         user.getPlayCount(),
                         user.getLevel(),
+                        user.getExperience(),
                         userService.getUserRank(user.getId()),
                         user.isSupporter());
 
@@ -881,6 +882,7 @@ public class MatchService {
                 user.getAccuracy(),
                 user.getPlayCount(),
                 user.getLevel(),
+                user.getExperience(),
                 userService.getUserRank(user.getId()),
                 user.isSupporter());
 

@@ -15,9 +15,11 @@ public class UserRepository {
         this.conn = Connect.getInstance().getConn();
     }
 
-    public void insertUser(String username, String email, String password, String countryCode, byte[] profilePicture, boolean isSupporter) {
-        String query = "INSERT INTO users (username, email, password_hash, country_code, profile_picture, performance, accuracy, play_count, level, is_supporter) " +
-                "VALUES (?, ?, ?, ?, ?, 0, 0.00, 0, 1, ?);";
+    public void insertUser(String username, String email, String password, String countryCode, byte[] profilePicture,
+            boolean isSupporter) {
+        String query = "INSERT INTO users (username, email, password_hash, country_code, profile_picture, performance, accuracy, play_count, level, experience, is_supporter) "
+                +
+                "VALUES (?, ?, ?, ?, ?, 0, 0.00, 0, 1, 0, ?);";
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, username);
@@ -51,8 +53,8 @@ public class UserRepository {
                         rs.getDouble("accuracy"),
                         rs.getInt("play_count"),
                         rs.getInt("level"),
-                        rs.getBoolean("is_supporter")
-                );
+                        rs.getInt("experience"),
+                        rs.getBoolean("is_supporter"));
             } else {
                 return null;
             }
@@ -80,8 +82,8 @@ public class UserRepository {
                         rs.getDouble("accuracy"),
                         rs.getInt("play_count"),
                         rs.getInt("level"),
-                        rs.getBoolean("is_supporter")
-                );
+                        rs.getInt("experience"),
+                        rs.getBoolean("is_supporter"));
             } else {
                 return null;
             }
@@ -95,13 +97,13 @@ public class UserRepository {
         if (user == null) {
             return -1;
         }
-        
+
         String query = "SELECT COUNT(*) + 1 as user_rank FROM users WHERE performance > ?";
         try {
             PreparedStatement ps = conn.prepareStatement(query);
             ps.setInt(1, user.getPerformance());
             ResultSet rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 return rs.getInt("user_rank");
             }

@@ -130,7 +130,8 @@ public class ClientHandler implements Runnable {
                     disconnectedUser = new UserDto(
                             user.getId(), user.getUsername(), user.getEmail(), user.getCountryCode(),
                             user.getProfilePicture(), user.getPerformance(), user.getAccuracy(),
-                            user.getPlayCount(), user.getLevel(), userService.getUserRank(user.getId()), user.isSupporter()
+                            user.getPlayCount(), user.getLevel(), user.getExperience(),
+                            userService.getUserRank(user.getId()), user.isSupporter()
                     );
                 }
                 

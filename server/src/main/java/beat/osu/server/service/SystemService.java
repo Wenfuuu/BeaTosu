@@ -48,6 +48,7 @@ public class SystemService {
                         user.getAccuracy(),
                         user.getPlayCount(),
                         user.getLevel(),
+                        user.getExperience(),
                         userRepository.getUserRank(userId),
                         user.isSupporter()
                 ));

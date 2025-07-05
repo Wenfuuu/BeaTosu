@@ -78,7 +78,8 @@ public class AuthService {
 
             String message = "Successfully logged in as " + user.getUsername() + "!";
             UserDto userData = new UserDto(user.getId(), user.getUsername(), user.getEmail(), user.getCountryCode(),
-                    user.getProfilePicture(), user.getPerformance(), user.getAccuracy(), user.getPlayCount(), user.getLevel(), userRepository.getUserRank(user.getId()), user.isSupporter());
+                    user.getProfilePicture(), user.getPerformance(), user.getAccuracy(), user.getPlayCount(), user.getLevel(),
+                    user.getExperience(), userRepository.getUserRank(user.getId()), user.isSupporter());
 
             UserConnectedEvent event = new UserConnectedEvent(userData);
             RealtimeMessage userConnectedMessage = new RealtimeMessage(
@@ -107,7 +108,8 @@ public class AuthService {
             }
 
             UserDto userData = new UserDto(user.getId(), user.getUsername(), user.getEmail(), user.getCountryCode(),
-                    user.getProfilePicture(), user.getPerformance(), user.getAccuracy(), user.getPlayCount(), user.getLevel(), userRepository.getUserRank(user.getId()), user.isSupporter());
+                    user.getProfilePicture(), user.getPerformance(), user.getAccuracy(), user.getPlayCount(), user.getLevel(),
+                    user.getExperience(), userRepository.getUserRank(user.getId()), user.isSupporter());
             
             UserDisconnectedEvent event = new UserDisconnectedEvent(userData);
             RealtimeMessage userDisconnectedMessage = new RealtimeMessage(
