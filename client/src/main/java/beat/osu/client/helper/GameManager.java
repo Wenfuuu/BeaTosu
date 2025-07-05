@@ -92,6 +92,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private boolean imperfectOrMissed = false;
     private boolean isFailed = false;
     private boolean isPreExit = false;
+    private boolean isCheatcodeActive = false;
 
     // Multiplayer score tracking
     @Getter
@@ -233,6 +234,12 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
+                if (inputManager.checkCheat() && !inputManager.isSfxDisabled()) {
+                    isCheatcodeActive = true;
+                    SfxManager.playSfx("menuhit.wav");
+                    Toast.success("Cheatcode betty activated, now you can't die!").show();
+                }
+
                 if (gameState == GameState.PAUSED) {
                     return;
                 }
@@ -335,20 +342,21 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 score, highestCombo, accuracy, perfectHits, gekiHits, greatHits, greatKatuHits, goodHits,
                 misses, grade, now)));
 
-        UserDto user = AuthManager.getUser();
-        if (user == null)
-            return;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        String formatted = now.format(formatter);
-        String osrFileName = String.format("%s-%s-%s.osr",
-                user.getId(), beatmap.getBeatmapId(), formatted.replace("/", "-").replace(":", "-"));
-        try {
-            ReplayUtils.saveReplay(replayEvents, osrFileName);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        if (isFailed || isCheatcodeActive) {
+            UserDto user = AuthManager.getUser();
+            if (user == null) return;
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+            String formatted = now.format(formatter);
+            String osrFileName = String.format("%s-%s-%s.osr",
+                    user.getId(), beatmap.getBeatmapId(), formatted.replace("/", "-").replace(":", "-"));
+            try {
+                ReplayUtils.saveReplay(replayEvents, osrFileName);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
-        insertScore(user.getId(), grade, now);
+            insertScore(user.getId(), grade, now);
+        }
         notifySpectatorsPlayerExited();
     }
 
@@ -405,6 +413,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private void failGame() {
         if (isFailed) return;
         isFailed = true;
+        if (isCheatcodeActive) return;
 
         if (!isMultiplayer) {
             SfxManager.playSfx("failsound.wav");

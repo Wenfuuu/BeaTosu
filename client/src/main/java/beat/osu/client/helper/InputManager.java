@@ -23,6 +23,7 @@ public class InputManager {
     private static KeyCode keybind1;
     @Getter
     private static KeyCode keybind2;
+    @Getter
     @Setter
     private boolean sfxDisabled = false;
 
@@ -60,6 +61,15 @@ public class InputManager {
 
     public void clearTypedChars() {
         typedChars.setLength(0);
+    }
+
+    public boolean checkCheat() {
+        String cheatCode = "betty";
+        if (typedChars.toString().equalsIgnoreCase(cheatCode)) {
+            clearTypedChars();
+            return true;
+        }
+        return false;
     }
 
     private void handlePlayerInput(Scene scene) {

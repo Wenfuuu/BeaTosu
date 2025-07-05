@@ -742,11 +742,14 @@ public class GameView extends Page implements GameEventListener {
                 System.out.println("pausing game, show pause menu here");
                 pauseAllAnimations();
                 pauseOverlay.setVisible(true);
+                inputManager.setSfxDisabled(false);
+                inputManager.clearTypedChars();
                 break;
             case GAME_RESUMED:
                 System.out.println("resuming game, hide pause menu here");
                 resumeAllAnimations();
                 pauseOverlay.setVisible(false);
+                inputManager.setSfxDisabled(true);
                 break;
             case GAME_ENDED:
                 System.out.println("game ended, show result overlay here");
