@@ -66,6 +66,8 @@ public class GameView extends Page implements GameEventListener {
     private Image[] digitImages;
     private ArrayList<Animation> animationList;
     private ImageView[] arrowImageViews; // Arrow warning images (4 corners)
+    private ImageView sectionpassImageView;
+    private ImageView sectionfailImageView;
 
     public GameView(Stage stage, Beatmap selectedBeatmap, boolean isMultiplayer) {
         super(stage);
@@ -133,9 +135,9 @@ public class GameView extends Page implements GameEventListener {
             gamePane.getChildren().add(0, hitObject.getNode());
         }
 
-        String imagePath = "/assets/images/arrow-warning.png";
+        String arrowImagePath = "/assets/images/arrow-warning.png";
         Image arrowImage = new Image(Objects.requireNonNull(Main.class
-                .getResource(imagePath)).toExternalForm());
+                .getResource(arrowImagePath)).toExternalForm());
 
         arrowImageViews = new ImageView[4];
         for (int i = 0; i < 4; i++) {
@@ -146,6 +148,22 @@ public class GameView extends Page implements GameEventListener {
 
             gamePane.getChildren().add(0, arrowImageViews[i]);
         }
+
+        String sectionPassImagePath = "/assets/images/section-pass.png";
+        sectionpassImageView = new ImageView(new Image(Objects.requireNonNull(Main.class
+                .getResource(sectionPassImagePath)).toExternalForm()));
+        sectionpassImageView.setFitWidth(250);
+        sectionpassImageView.setFitHeight(200);
+        sectionpassImageView.setVisible(false);
+        gamePane.getChildren().add(0, sectionpassImageView);
+
+        String sectionFailImagePath = "/assets/images/section-fail.png";
+        sectionfailImageView = new ImageView(new Image(Objects.requireNonNull(Main.class
+                .getResource(sectionFailImagePath)).toExternalForm()));
+        sectionfailImageView.setFitWidth(250);
+        sectionfailImageView.setFitHeight(250);
+        sectionfailImageView.setVisible(false);
+        gamePane.getChildren().add(0, sectionfailImageView);
     }
 
     private void handleEvent() {
@@ -232,7 +250,8 @@ public class GameView extends Page implements GameEventListener {
                 break;
         }
 
-        if (imagePath.isEmpty()) return;
+        if (imagePath.isEmpty())
+            return;
         Image hitImage = new Image(Objects.requireNonNull(Main.class
                 .getResource(imagePath)).toExternalForm());
         ImageView hitImageView = new ImageView(hitImage);
@@ -579,6 +598,16 @@ public class GameView extends Page implements GameEventListener {
             arrowImageViews[3].setLayoutX(paneWidth - arrowImageViews[3].getFitWidth() - 50);
             arrowImageViews[3].setLayoutY(paneHeight - arrowImageViews[3].getFitHeight() - 50);
         }
+
+        // set section pass and fail images to center
+        if (sectionpassImageView != null) {
+            sectionpassImageView.setLayoutX(paneWidth / 2 - sectionpassImageView.getFitWidth() / 2);
+            sectionpassImageView.setLayoutY(paneHeight / 2 - sectionpassImageView.getFitHeight() / 2);
+        }
+        if (sectionfailImageView != null) {
+            sectionfailImageView.setLayoutX(paneWidth / 2 - sectionfailImageView.getFitWidth() / 2);
+            sectionfailImageView.setLayoutY(paneHeight / 2 - sectionfailImageView.getFitHeight() / 2);
+        }
     }
 
     @Override
@@ -788,10 +817,12 @@ public class GameView extends Page implements GameEventListener {
                 showArrowWarning();
                 break;
             case SECTION_PASS:
-
+                System.out.println("section pass - showing section pass effect");
+                showSectionPassEffect();
                 break;
             case SECTION_FAIL:
-
+                System.out.println("section fail - showing section fail effect");
+                showSectionFailEffect();
                 break;
             case GAME_OFFSET_COMPLETED:
                 System.out.println("game offset completed, decreasing background opacity");
@@ -801,7 +832,8 @@ public class GameView extends Page implements GameEventListener {
     }
 
     private void showArrowWarning() {
-        if (arrowImageViews == null) return;
+        if (arrowImageViews == null)
+            return;
 
         Timeline flickerTimeline = new Timeline();
 
@@ -833,6 +865,94 @@ public class GameView extends Page implements GameEventListener {
                 arrowImageView.setVisible(false);
                 arrowImageView.setOpacity(0);
             }
+            animationList.remove(flickerTimeline);
+        });
+
+        animationList.add(flickerTimeline);
+        flickerTimeline.play();
+    }
+
+    private void showSectionPassEffect() {
+        if (sectionpassImageView == null) return;
+
+        Timeline flickerTimeline = new Timeline();
+        sectionpassImageView.setVisible(true);
+        sectionpassImageView.setOpacity(0);
+
+        for (int i = 0; i < 2; i++) {
+            double flickerStart = i * 250;
+            double fadeInTime = flickerStart + 50;
+            double fadeOutTime = flickerStart + 200;
+
+            KeyFrame fadeIn = new KeyFrame(
+                    Duration.millis(fadeInTime),
+                    new KeyValue(sectionpassImageView.opacityProperty(), 1.0));
+
+            KeyFrame fadeOut = new KeyFrame(
+                    Duration.millis(fadeOutTime),
+                    new KeyValue(sectionpassImageView.opacityProperty(), 0.0));
+
+            flickerTimeline.getKeyFrames().addAll(fadeIn, fadeOut);
+        }
+
+        // After 500ms: stay visible for 250ms
+        KeyFrame stayVisible = new KeyFrame(
+                Duration.millis(500),
+                new KeyValue(sectionpassImageView.opacityProperty(), 1.0));
+
+        // Last 250ms: fade out
+        KeyFrame finalFadeOut = new KeyFrame(
+                Duration.millis(1000),
+                new KeyValue(sectionpassImageView.opacityProperty(), 0.0));
+
+        flickerTimeline.getKeyFrames().addAll(stayVisible, finalFadeOut);
+
+        flickerTimeline.setOnFinished(e -> {
+            sectionpassImageView.setVisible(false);
+            sectionpassImageView.setOpacity(0);
+            animationList.remove(flickerTimeline);
+        });
+
+        animationList.add(flickerTimeline);
+        flickerTimeline.play();
+    }
+
+    private void showSectionFailEffect() {
+        if (sectionfailImageView == null) return;
+
+        Timeline flickerTimeline = new Timeline();
+        sectionfailImageView.setVisible(true);
+        sectionfailImageView.setOpacity(0);
+
+        for (int i = 0; i < 2; i++) {
+            double flickerStart = i * 250;
+            double fadeInTime = flickerStart + 50;
+            double fadeOutTime = flickerStart + 200;
+
+            KeyFrame fadeIn = new KeyFrame(
+                    Duration.millis(fadeInTime),
+                    new KeyValue(sectionfailImageView.opacityProperty(), 1.0));
+
+            KeyFrame fadeOut = new KeyFrame(
+                    Duration.millis(fadeOutTime),
+                    new KeyValue(sectionfailImageView.opacityProperty(), 0.0));
+
+            flickerTimeline.getKeyFrames().addAll(fadeIn, fadeOut);
+        }
+
+        KeyFrame stayVisible = new KeyFrame(
+                Duration.millis(500),
+                new KeyValue(sectionfailImageView.opacityProperty(), 1.0));
+
+        KeyFrame finalFadeOut = new KeyFrame(
+                Duration.millis(1000),
+                new KeyValue(sectionfailImageView.opacityProperty(), 0.0));
+
+        flickerTimeline.getKeyFrames().addAll(stayVisible, finalFadeOut);
+
+        flickerTimeline.setOnFinished(e -> {
+            sectionfailImageView.setVisible(false);
+            sectionfailImageView.setOpacity(0);
             animationList.remove(flickerTimeline);
         });
 
