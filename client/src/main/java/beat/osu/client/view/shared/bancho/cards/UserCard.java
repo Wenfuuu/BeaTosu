@@ -14,6 +14,7 @@ import javafx.animation.ParallelTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -36,6 +37,7 @@ public class UserCard extends HBox {
     private Double accuracy;
     private Integer playCount;
     private Integer level;
+    private Integer experience;
     private Integer rank;
     private Boolean isSupporter;
 
@@ -48,6 +50,7 @@ public class UserCard extends HBox {
     private Label performanceLabel;
     private Label accuracyLabel;
     private Label playCountLabel;
+    private ProgressBar experienceProgressBar;
     private Label backgroundRankLabel;
 
     @Getter
@@ -67,7 +70,8 @@ public class UserCard extends HBox {
     private UserController userController;
 
     public UserCard(Integer userId, String username, String countryCode, byte[] profilePicture,
-            Integer performance, Double accuracy, Integer playCount, Integer level, Integer rank, Boolean isSupporter,
+            Integer performance, Double accuracy, Integer playCount, Integer level, Integer experience, Integer rank,
+            Boolean isSupporter,
             UserCardBehavior behavior) {
         super(10);
         this.userId = userId;
@@ -78,6 +82,7 @@ public class UserCard extends HBox {
         this.accuracy = accuracy;
         this.playCount = playCount;
         this.level = level;
+        this.experience = experience;
         this.rank = rank;
         this.isSupporter = isSupporter;
         this.userController = new UserController();
@@ -87,7 +92,7 @@ public class UserCard extends HBox {
         setupStyling();
         updateUserInfo();
         setupUserCallbacks();
-        
+
         setBehavior(behavior);
     }
 
@@ -108,6 +113,7 @@ public class UserCard extends HBox {
         this.accuracy = userDto.getAccuracy();
         this.playCount = userDto.getPlayCount();
         this.level = userDto.getLevel();
+        this.experience = userDto.getExperience();
         this.rank = userDto.getRank();
         this.isSupporter = userDto.isSupporter();
         // call the update methods
@@ -144,6 +150,11 @@ public class UserCard extends HBox {
         playCountLabel = new Label("Play Count: 0 (Lv0)");
         playCountLabel.getStyleClass().add("stats-label");
 
+        experienceProgressBar = new ProgressBar(0.0);
+        experienceProgressBar.getStyleClass().add("experience-progress-bar");
+        experienceProgressBar.setPrefWidth(200);
+        experienceProgressBar.setMaxWidth(Double.MAX_VALUE);
+
         backgroundRankLabel = new Label("#" + rank);
         backgroundRankLabel.getStyleClass().add("background-rank-label");
 
@@ -155,7 +166,7 @@ public class UserCard extends HBox {
         userStats = new VBox(2);
         userStats.setAlignment(Pos.TOP_LEFT);
         userStats.getStyleClass().add("user-stats");
-        userStats.getChildren().addAll(performanceLabel, accuracyLabel, playCountLabel);
+        userStats.getChildren().addAll(performanceLabel, accuracyLabel, playCountLabel, experienceProgressBar);
 
         timeStats = new VBox(2);
         timeStats.setAlignment(Pos.TOP_LEFT);
@@ -271,7 +282,22 @@ public class UserCard extends HBox {
             playCountLabel.setText("Play Count: 0 (Lv0)");
         }
 
+        updateExperienceProgressBar();
         updateProfilePicture();
+    }
+
+    public void updateExperienceProgressBar() {
+        boolean isGuest = usernameLabel.getText().equals("Guest");
+        experienceProgressBar.setVisible(!isGuest);
+        experienceProgressBar.setManaged(!isGuest);
+
+        if (level != null && experience != null && !isGuest) {
+            int nextLevelExp = UserDto.getExpForLevel(level + 1);
+            double progress = (double) experience / nextLevelExp;
+            experienceProgressBar.setProgress(Math.max(0.0, Math.min(1.0, progress)));
+        } else {
+            experienceProgressBar.setProgress(0.0);
+        }
     }
 
     public void updateProfilePicture() {
@@ -293,6 +319,13 @@ public class UserCard extends HBox {
         this.username = username;
         if (usernameLabel != null) {
             usernameLabel.setText(username != null ? username : "Guest");
+        }
+
+        // Update progress bar visibility when username changes
+        if (experienceProgressBar != null) {
+            boolean isGuest = username == null || "Guest".equals(username);
+            experienceProgressBar.setVisible(!isGuest);
+            experienceProgressBar.setManaged(!isGuest);
         }
     }
 
@@ -338,6 +371,7 @@ public class UserCard extends HBox {
                 playCountLabel.setText("Play Count: 0 (Lv0)");
             }
         }
+        updateExperienceProgressBar();
     }
 
     public void setProfilePicture(byte[] profilePicture) {
@@ -395,5 +429,10 @@ public class UserCard extends HBox {
 
     public void setHovering(boolean hovering) {
         this.isHovering = hovering;
+    }
+
+    public void setExperience(Integer experience) {
+        this.experience = experience;
+        updateExperienceProgressBar();
     }
 }

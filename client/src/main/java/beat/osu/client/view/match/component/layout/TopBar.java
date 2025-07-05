@@ -44,6 +44,7 @@ public class TopBar extends StackPane {
                 user.getAccuracy(),
                 user.getPlayCount(),
                 user.getLevel(),
+                user.getExperience(),
                 user.getRank(),
                 user.isSupporter(),
                 UserCardBehavior.STATIC

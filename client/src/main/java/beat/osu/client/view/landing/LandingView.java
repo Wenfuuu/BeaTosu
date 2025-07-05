@@ -413,6 +413,7 @@ public class LandingView extends Page {
                     userCard.getAccuracy(),
                     userCard.getPlayCount(),
                     userCard.getLevel(),
+                    userCard.getExperience(),
                     userCard.getRank(),
                     userCard.getIsSupporter(),
                     UserCardBehavior.STATIC);

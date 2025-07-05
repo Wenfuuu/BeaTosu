@@ -80,6 +80,7 @@ public class TopBar extends HBox {
                     user.getAccuracy(),
                     user.getPlayCount(),
                     user.getLevel(),
+                    user.getExperience(),
                     user.getRank(),
                     user.isSupporter(),
                     UserCardBehavior.STATIC
@@ -87,6 +88,7 @@ public class TopBar extends HBox {
             userCard.updateUserInfo();
         } else {
             userCard = new UserCard(
+                    null,
                     null,
                     null,
                     null,
@@ -189,6 +191,7 @@ public class TopBar extends HBox {
                     user.getAccuracy(),
                     user.getPlayCount(),
                     user.getLevel(),
+                    user.getExperience(),
                     user.getRank(),
                     user.isSupporter(),
                     UserCardBehavior.STATIC
@@ -196,6 +199,7 @@ public class TopBar extends HBox {
             userCard.updateUserInfo();
         } else {
             userCard = new UserCard(
+                    null,
                     null,
                     null,
                     null,
@@ -244,6 +248,7 @@ public class TopBar extends HBox {
         }
 
         userCard = new UserCard(
+                null,
                 null,
                 null,
                 null,

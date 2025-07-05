@@ -228,6 +228,7 @@ public class MatchView extends Page {
                     userCard.getAccuracy(),
                     userCard.getPlayCount(),
                     userCard.getLevel(),
+                    userCard.getExperience(),
                     userCard.getRank(),
                     userCard.getIsSupporter(),
                     UserCardBehavior.STATIC
@@ -655,6 +656,7 @@ public class MatchView extends Page {
                         selectedPlayer.getUser().getAccuracy(),
                         selectedPlayer.getUser().getPlayCount(),
                         selectedPlayer.getUser().getLevel(),
+                        selectedPlayer.getUser().getExperience(),
                         selectedPlayer.getUser().getRank(),
                         selectedPlayer.getUser().isSupporter(),
                         UserCardBehavior.STATIC
@@ -965,6 +967,7 @@ public class MatchView extends Page {
                             card.getUser().getAccuracy(),
                             card.getUser().getPlayCount(),
                             card.getUser().getLevel(),
+                            card.getUser().getExperience(),
                             card.getUser().getRank(),
                             card.getUser().isSupporter(),
                             UserCardBehavior.STATIC

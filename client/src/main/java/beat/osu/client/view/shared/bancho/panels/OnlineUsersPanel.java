@@ -219,6 +219,7 @@ public class OnlineUsersPanel extends VBox {
             user.getAccuracy(),
             user.getPlayCount(),
             user.getLevel(),
+            user.getExperience(),
             user.getRank(),
             user.isSupporter(),
             UserCardBehavior.HOVER_TIME_COUNTRY

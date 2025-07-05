@@ -84,3 +84,22 @@
                 dropshadow(one-pass-box, black, 1, 0, 1, -1),
                 dropshadow(one-pass-box, black, 1, 0, -1, -1);
 }
+
+.experience-progress-bar {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-control-inner-background: transparent;
+    -fx-pref-height: 8;
+    -fx-max-height: 8;
+    -fx-min-height: 8;
+}
+
+.experience-progress-bar .bar {
+    -fx-background-color: white;
+    -fx-background-radius: 2;
+}
+
+.experience-progress-bar .track {
+    -fx-background-color: rgba(0, 0, 0, 0.4);
+    -fx-background-radius: 2;
+}

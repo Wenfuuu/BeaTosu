@@ -93,6 +93,7 @@ public class ProfileModal extends VBox {
                 user.getPlayCount(),
                 user.getRank(),
                 user.getLevel(),
+                user.getExperience(),
                 user.isSupporter(),
                 UserCardBehavior.STATIC
         );

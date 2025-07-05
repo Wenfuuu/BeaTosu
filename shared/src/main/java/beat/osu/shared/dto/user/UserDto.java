@@ -27,7 +27,7 @@ public class UserDto implements Serializable {
     private int rank;
     private boolean isSupporter;
 
-    private int getExpForLevel(int level) {
+    public static int getExpForLevel(int level) {
         return (int) Math.round(BASE_EXP * Math.pow(EXP_GROWTH_RATE, level - 1));
     }
 
