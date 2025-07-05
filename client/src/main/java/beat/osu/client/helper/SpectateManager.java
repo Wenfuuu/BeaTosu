@@ -61,6 +61,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     private double health = 100;
     private boolean perfectCombo = true;
     private boolean imperfectOrMissed = false;
+    private boolean isPreExit = false;
 
     private boolean firstSpectateEvent = true;
     private volatile boolean spectateStoppingFlag = false;
@@ -404,6 +405,14 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
                         System.out.println("Entering break period");
                         gameState = GameState.BREAK_PERIOD;
                         notifyListeners(new GameEvent(GameEventType.ENTER_BREAK_PERIOD, null));
+                    } else {
+                        if (event.getCurrentTime() + 1000 >= endTime) {
+                            System.out.println("Exiting break period soon, preparing to resume");
+                            if (!isPreExit) {
+                                notifyListeners(new GameEvent(GameEventType.PRE_EXIT_BREAK_PERIOD, null));
+                                isPreExit = true;
+                            }
+                        }
                     }
                     break;
                 }

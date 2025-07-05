@@ -9,7 +9,6 @@ import beat.osu.client.interfaces.game.GameEventPublisher;
 import beat.osu.client.interfaces.game.CoordinateConverter;
 import beat.osu.client.model.*;
 import beat.osu.client.utils.OsuParser;
-import beat.osu.client.events.game.ReplayEvent;
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
 import lombok.Getter;
@@ -68,6 +67,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     private int highestCombo = 0;
     private boolean perfectCombo = true;
     private boolean imperfectOrMissed = false;
+    private boolean isPreExit = false;
 
     private void updateMousePosition(double x, double y) {
         this.currentMouseX = coordinateConverter.convertReplayMouseX(x);
@@ -193,6 +193,14 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
                     System.out.println("Entering break period");
                     gameState = GameState.BREAK_PERIOD;
                     notifyListeners(new GameEvent(GameEventType.ENTER_BREAK_PERIOD, null));
+                } else {
+                    if (elapsedMillis + 1000 >= endTime) {
+                        System.out.println("Exiting break period soon, preparing to resume");
+                        if (!isPreExit) {
+                            notifyListeners(new GameEvent(GameEventType.PRE_EXIT_BREAK_PERIOD, null));
+                            isPreExit = true;
+                        }
+                    }
                 }
                 break;
             }

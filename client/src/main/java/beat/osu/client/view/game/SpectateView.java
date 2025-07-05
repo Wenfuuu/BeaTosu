@@ -64,6 +64,7 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
     private Image[] digitImages;
     private ArrayList<Animation> animationList;
     private ImageView cursorImage;
+    private ImageView[] arrowImageViews; // Arrow warning images (4 corners)
     private double currentMasterScaleFactor = 1.0;
     private double currentViewportTopLeftX = 0.0;
     private double currentViewportTopLeftY = 0.0;
@@ -228,6 +229,23 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
             // gamePane.getChildren().add(hitObject.getNode());
             spectatePane.getChildren().add(0, hitObject.getNode());
         }
+
+        // Create arrow warning images
+        String imagePath = "/assets/images/arrow-warning.png";
+        Image arrowImage = new Image(Objects.requireNonNull(Main.class
+                .getResource(imagePath)).toExternalForm());
+
+        arrowImageViews = new ImageView[4];
+        for (int i = 0; i < 4; i++) {
+            arrowImageViews[i] = new ImageView(arrowImage);
+            arrowImageViews[i].setFitWidth(200);
+            arrowImageViews[i].setFitHeight(200);
+            arrowImageViews[i].setVisible(false); // Initially invisible
+
+            // Add the image to the spectate pane
+            spectatePane.getChildren().add(0, arrowImageViews[i]);
+        }
+
         spectatePane.getChildren().add(cursorImage);
     }
 
@@ -579,6 +597,25 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
             inputOverlayPanel.setLayoutX(paneWidth - 100);
             inputOverlayPanel.setLayoutY(paneHeight * 0.5 - inputOverlayPanel.getHeight() / 2);
         }
+
+        // Update arrow warning positions (4 corners)
+        if (arrowImageViews != null) {
+            // Top left
+            arrowImageViews[0].setLayoutX(50);
+            arrowImageViews[0].setLayoutY(50);
+
+            // Top right
+            arrowImageViews[1].setLayoutX(paneWidth - arrowImageViews[1].getFitWidth() - 50);
+            arrowImageViews[1].setLayoutY(50);
+
+            // Bottom left
+            arrowImageViews[2].setLayoutX(50);
+            arrowImageViews[2].setLayoutY(paneHeight - arrowImageViews[2].getFitHeight() - 50);
+
+            // Bottom right
+            arrowImageViews[3].setLayoutX(paneWidth - arrowImageViews[3].getFitWidth() - 50);
+            arrowImageViews[3].setLayoutY(paneHeight - arrowImageViews[3].getFitHeight() - 50);
+        }
     }
 
     private void pauseAllAnimations() {
@@ -715,11 +752,64 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
                 System.out.println("exit break period");
                 exitBreakPeriod();
                 break;
+            case PRE_EXIT_BREAK_PERIOD:
+                System.out.println("pre exit break period - showing arrow warning");
+                showArrowWarning();
+                break;
             case GAME_OFFSET_COMPLETED:
                 System.out.println("game offset completed, decreasing background opacity");
                 exitBreakPeriod();
                 break;
         }
+    }
+
+    private void showArrowWarning() {
+        if (arrowImageViews == null)
+            return;
+
+        // Create flicker effect for all 4 arrow images
+        Timeline flickerTimeline = new Timeline();
+
+        // Make all arrows visible and set initial opacity
+        for (ImageView arrowImageView : arrowImageViews) {
+            arrowImageView.setVisible(true);
+            arrowImageView.setOpacity(0);
+        }
+
+        // Create keyframes for flicker effect (flicker 8 times over 1 second)
+        for (int i = 0; i < 8; i++) {
+            double startTime = i * 125; // Each flicker cycle is 125ms (1000ms / 8)
+            double fadeInTime = startTime + 40; // Fade in for 40ms
+            double fadeOutTime = startTime + 85; // Fade out for 85ms
+
+            // Create fade in and out keyframes for all 4 arrows
+            for (ImageView arrowImageView : arrowImageViews) {
+                // Fade in
+                KeyFrame fadeIn = new KeyFrame(
+                        Duration.millis(fadeInTime),
+                        new KeyValue(arrowImageView.opacityProperty(), 1.0));
+
+                // Fade out
+                KeyFrame fadeOut = new KeyFrame(
+                        Duration.millis(fadeOutTime),
+                        new KeyValue(arrowImageView.opacityProperty(), 0.0));
+
+                flickerTimeline.getKeyFrames().addAll(fadeIn, fadeOut);
+            }
+        }
+
+        // Hide all arrows after animation completes
+        flickerTimeline.setOnFinished(e -> {
+            for (ImageView arrowImageView : arrowImageViews) {
+                arrowImageView.setVisible(false);
+                arrowImageView.setOpacity(0);
+            }
+            animationList.remove(flickerTimeline);
+        });
+
+        // Add to animation list and play
+        animationList.add(flickerTimeline);
+        flickerTimeline.play();
     }
 
     @Override
