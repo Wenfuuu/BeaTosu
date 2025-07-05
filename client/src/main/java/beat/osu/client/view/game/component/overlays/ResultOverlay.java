@@ -6,6 +6,7 @@ import beat.osu.client.events.game.GameEndEvent;
 import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.model.Beatmap;
+import beat.osu.client.view.game.component.layout.ResultHeader;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -56,9 +57,9 @@ public class ResultOverlay extends BorderPane {
     private Image gradeImage;
     private final Image[] hitImages;
 
-    private Label songTitleLabel;
-    private Label mapperLabel;
-    private Label playedLabel;
+
+    private ResultHeader resultHeader;
+
     private VBox hitCountsBox;
     @Getter
     private Button retryButton;
@@ -192,7 +193,6 @@ public class ResultOverlay extends BorderPane {
 
         initializeComponents();
         setupLayout();
-        setupStyling();
 
         // show animation
         showTransition = new FadeTransition(Duration.millis(500), this);
@@ -201,16 +201,16 @@ public class ResultOverlay extends BorderPane {
     }
 
     public void updateResult(GameEndEvent gameEndEvent, Beatmap beatmap) {
-        String songTitle = String.format("%s - %s [%s]",
-                beatmap.getBeatmapSet().getArtist(), beatmap.getBeatmapSet().getTitle(), beatmap.getVersion());
-        songTitleLabel.setText(songTitle);
-        mapperLabel.setText("Beatmap by " + beatmap.getBeatmapSet().getCreator());
-
         LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a");
         String formatted = now.format(formatter);
         String userName = AuthManager.isAuthenticated() ? AuthManager.getUser().getUsername() : "Guest";
-        playedLabel.setText("Played by " + userName + " on " + formatted + ".");
+
+        String newSongTitle = String.format("%s - %s [%s]", beatmap.getBeatmapSet().getArtist(), beatmap.getBeatmapSet().getTitle(), beatmap.getVersion());
+        String newCreator = beatmap.getBeatmapSet().getCreator();
+        String newPlayedBy = String.format("Played by %s on %s.", userName, formatted);
+
+        resultHeader.updateLabels(newSongTitle, newCreator, newPlayedBy);
 
         updateScore(gameEndEvent.getScore());
         updateCombo(gameEndEvent.getHighestCombo());
@@ -357,10 +357,7 @@ public class ResultOverlay extends BorderPane {
     }
 
     private void initializeComponents() {
-        // Song info
-        songTitleLabel = new Label("Aoi Eir - Lament [pkhg's Hard]");
-        mapperLabel = new Label("Beatmap by bt24-2");
-        playedLabel = new Label("Played by bt24-2 on 10/10/2013 04:30:28.");
+        resultHeader = new ResultHeader();
 
         // Hit counts container
         hitCountsBox = new VBox(ScreenManager.SCREEN_HEIGHT * 0.06);
@@ -381,16 +378,10 @@ public class ResultOverlay extends BorderPane {
     }
 
     private void setupLayout() {
-        // Header section
-        VBox headerSection = new VBox(10);
-        headerSection.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
-        headerSection.getChildren().addAll(songTitleLabel, mapperLabel, playedLabel);
-
         // Hit counts panel
         StackPane hitCountsPanel = new StackPane();
         hitCountsPanel.getChildren().add(hitCountsBox);
 
-        // Combo and accuracy
         HBox comboAccuracyBox = new HBox(ScreenManager.SCREEN_WIDTH * 0.175);
         comboAccuracyBox.setAlignment(Pos.CENTER_LEFT);
 
@@ -409,47 +400,25 @@ public class ResultOverlay extends BorderPane {
         contentPane.getChildren().addAll(rankingView, scoreContainer,
                 hitCountsPanel, comboAccuracyBox, backButton, rightStats);
 
-        // Position ranking image as in original (towards the right)
-        double rankingImageX = 0; // Keep original positioning
+        double rankingImageX = 0;
         rankingView.setLayoutX(rankingImageX);
         rankingView.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.1);
 
-        // Position score container to align with the left edge of ranking image
         scoreContainer.setLayoutX(rankingImageX + 50);
         scoreContainer.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.1);
 
-        // Position hit counts panel to align with ranking image left edge
         hitCountsPanel.setLayoutX(rankingImageX + 50);
         hitCountsPanel.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.275);
 
-        // Position combo/accuracy box to align with ranking image left edge
         comboAccuracyBox.setLayoutX(rankingImageX + 50);
         comboAccuracyBox.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.6);
 
-        // Keep back button at bottom left
         backButton.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.85);
 
-        // Position right stats towards the right side as in original
         rightStats.setLayoutX(ScreenManager.SCREEN_WIDTH * 0.80);
         rightStats.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.2);
 
-        this.setTop(headerSection);
+        this.setTop(resultHeader);
         this.setCenter(contentPane);
-    }
-
-    private void setupStyling() {
-        // Background
-        this.setStyle("-fx-background-color: rgba(123, 123, 123, 0.8);");
-
-        // Song title
-        songTitleLabel.setTextFill(Color.WHITE);
-        songTitleLabel.setFont(Font.font("Aller", FontWeight.BOLD, 24));
-
-        mapperLabel.setTextFill(Color.WHITE);
-        mapperLabel.setFont(Font.font("Aller", FontWeight.BOLD, 24));
-
-        // Player name
-        playedLabel.setTextFill(Color.WHITE);
-        playedLabel.setFont(Font.font("Aller", 14));
     }
 }

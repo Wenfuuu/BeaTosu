@@ -1,0 +1,8 @@
+.result-top-bar {
+    -fx-background-color: rgba(0, 0, 0, 0.9);
+    -fx-spacing: 0;
+}
+
+.beatmap-title-label, .beatmap-creator-label, .played-by-label {
+    -fx-text-fill: white;
+}
