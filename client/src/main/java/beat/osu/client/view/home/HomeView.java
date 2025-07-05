@@ -43,6 +43,7 @@ import javafx.animation.Timeline;
 import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -428,7 +429,30 @@ public class HomeView extends Page {
     }
 
     private void handleEvent() {
+        scoreFilterComboBox.showingProperty().addListener((obs, wasShowing, isNowShowing) -> {
+            SfxManager.playSfx("select-expand.mp3");
+        });
+
+        scoreFilterComboBox.setCellFactory(listView -> {
+            ListCell<String> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty ? null : item);
+                }
+            };
+
+            cell.setOnMouseEntered(event -> {
+                if (!cell.isEmpty()) {
+                    SfxManager.playSfx("menuhover.wav");
+                }
+            });
+
+            return cell;
+        });
+
         scoreFilterComboBox.setOnAction(e -> {
+            SfxManager.playSfx("menuhit.wav");
             Beatmap selectedBeatmap = beatmapContent.getSelectedBeatmap();
             if (selectedBeatmap != null) {
                 scores = fetchScores(selectedBeatmap);

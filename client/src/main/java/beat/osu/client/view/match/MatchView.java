@@ -73,10 +73,7 @@ import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -490,6 +487,28 @@ public class MatchView extends Page {
     }
 
     public void handleEvent() {
+        winConditionComboBox.showingProperty().addListener((obs, wasShowing, isNowShowing) -> {
+            SfxManager.playSfx("select-expand.mp3");
+        });
+
+        winConditionComboBox.setCellFactory(listView -> {
+            ListCell<String> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty ? null : item);
+                }
+            };
+
+            cell.setOnMouseEntered(event -> {
+                if (!cell.isEmpty()) {
+                    SfxManager.playSfx("menuhover.wav");
+                }
+            });
+
+            return cell;
+        });
+
         banchoButtons.getOnlineUsersButton().setOnMouseClicked(e -> {
             SfxManager.playSfx("menuhit.wav");
             if (banchoButtons.getOnlineUsersButton().isOnlineUserShown()) {
@@ -1025,6 +1044,7 @@ public class MatchView extends Page {
             });
 
             winConditionComboBox.setOnAction(e -> {
+                SfxManager.playSfx("menuhit.wav");
                 System.out.println("Win condition changed to: " + winConditionComboBox.getValue());
                 try {
                     MatchWinCondition newWinCondition = MatchWinCondition.fromString(winConditionComboBox.getValue());

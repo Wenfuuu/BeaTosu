@@ -2,6 +2,7 @@ package beat.osu.client.view.lobby.component.modals;
 
 import beat.osu.client.controller.MatchController;
 import beat.osu.client.helper.*;
+import beat.osu.client.model.Beatmap;
 import beat.osu.client.view.shared.common.Toast;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.match.responses.CreateMatchResponse;
@@ -171,6 +172,32 @@ public class CreateMatchModal extends VBox {
     }
 
     private void setupEventHandlers() {
+        maxPlayersComboBox.showingProperty().addListener((obs, wasShowing, isNowShowing) -> {
+            SfxManager.playSfx("select-expand.mp3");
+        });
+
+        maxPlayersComboBox.setCellFactory(listView -> {
+            ListCell<String> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty ? null : item);
+                }
+            };
+
+            cell.setOnMouseEntered(event -> {
+                if (!cell.isEmpty()) {
+                    SfxManager.playSfx("menuhover.wav");
+                }
+            });
+
+            return cell;
+        });
+
+        maxPlayersComboBox.setOnAction(e -> {
+            SfxManager.playSfx("menuhit.wav");
+        });
+
         startGameButton.setOnAction(event -> {
             SfxManager.playSfx("menuhit.wav");
             String gameName = gameTextField.getText();
