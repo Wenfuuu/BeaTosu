@@ -1,7 +1,9 @@
 package beat.osu.client.view.shared.common;
 
 import java.net.URL;
+import java.util.Objects;
 
+import beat.osu.client.Main;
 import beat.osu.client.enums.ToastType;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.SceneManager;
@@ -12,7 +14,9 @@ import javafx.animation.SequentialTransition;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -70,15 +74,14 @@ public class Toast {
 
         box.setStyle(String.format(
                 "-fx-background-radius: 12px; " +
-                "-fx-background-color: rgba(0, 0, 0, 0.8); " +
-                "-fx-padding: 10px 6px; " +
-                "-fx-min-width: 250px; " +
-                "-fx-border-color: %s; " +
-                "-fx-border-radius: 8px; " +
-                "-fx-border-width: 2px; " +
-                "-fx-max-width: %spx; ",
-                borderColor, MAX_TOAST_WIDTH
-        ));
+                        "-fx-background-color: rgba(0, 0, 0, 0.8); " +
+                        "-fx-padding: 10px 6px; " +
+                        "-fx-min-width: 250px; " +
+                        "-fx-border-color: %s; " +
+                        "-fx-border-radius: 8px; " +
+                        "-fx-border-width: 2px; " +
+                        "-fx-max-width: %spx; ",
+                borderColor, MAX_TOAST_WIDTH));
 
         root.setPadding(new Insets(40));
         root.setStyle("-fx-background-color: transparent;");
@@ -111,27 +114,39 @@ public class Toast {
         toastStage.setScene(scene);
 
         toastStage.show();
+        applyCursor(scene);
         animateToast();
+    }
+
+    private void applyCursor(Scene scene) {
+        try {
+            Image cursorImage = new Image(Objects.requireNonNull(Main.class
+                    .getResource("/assets/images/cursor.png")).toExternalForm());
+            scene.setCursor(new ImageCursor(cursorImage,
+                    cursorImage.getWidth() / 2, cursorImage.getHeight() / 2));
+        } catch (Exception e) {
+            System.err.println("Failed to load cursor: " + e.getMessage());
+        }
     }
 
     private void animateToast() {
         double finalX = ScreenManager.SCREEN_WIDTH - MAX_TOAST_WIDTH - 20;
         toastStage.setX(finalX);
-        
+
         double slideDistance = MAX_TOAST_WIDTH + 50;
         root.setTranslateX(slideDistance);
-        
+
         TranslateTransition slideIn = new TranslateTransition(Duration.millis(slideInDelay), root);
         slideIn.setFromX(slideDistance);
         slideIn.setToX(0);
-        
+
         PauseTransition pause = new PauseTransition(Duration.millis(toastDelay));
-        
+
         TranslateTransition slideOut = new TranslateTransition(Duration.millis(slideOutDelay), root);
         slideOut.setFromX(0);
         slideOut.setToX(slideDistance);
         slideOut.setOnFinished(e -> toastStage.close());
-        
+
         SequentialTransition sequence = new SequentialTransition(slideIn, pause, slideOut);
         sequence.play();
     }
