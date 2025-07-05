@@ -151,6 +151,38 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         }
     }
 
+    private int calculatePerformance(String grade) {
+        int gradeValue;
+        switch (grade) {
+            case "SS":
+                gradeValue = 6;
+                break;
+            case "S":
+                gradeValue = 5;
+                break;
+            case "A":
+                gradeValue = 4;
+                break;
+            case "B":
+                gradeValue = 3;
+                break;
+            case "C":
+                gradeValue = 2;
+                break;
+            case "D":
+                gradeValue = 1;
+                break;
+            default:
+                gradeValue = 1;
+                break;
+        }
+
+        // ((AR * 10) * Accuracy) * (1/2) * 100 * Grade
+        double ar = beatmap.getApproachRate();
+        double performance = ((ar * 10) * accuracy) * (1.0 / 2.0) * 100 * gradeValue;
+        return (int) Math.round(performance);
+    }
+
     private void createGameSession() {
         System.out.println("Creating game session");
         UserDto user = AuthManager.getUser();
@@ -166,7 +198,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                     List<MatchPlayerDto> players = matchDto.getPlayers();
                     for (MatchPlayerDto player : players) {
                         System.out.println("Processing player status: " + player.getStatus());
-                        if (player.getStatus() != PlayerStatus.PLAYING) continue;
+                        if (player.getStatus() != PlayerStatus.PLAYING)
+                            continue;
                         MatchScoreEvent event = new MatchScoreEvent(matchDto.getId(), 0,
                                 0, 0, 0, player, player.getUser());
                         updateMatchScoreEvent(event);
@@ -200,7 +233,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     public void startGame() {
-        if (gameState == GameState.PLAYING) return;
+        if (gameState == GameState.PLAYING)
+            return;
 
         gameState = GameState.PLAYING;
         bgmStarted = false;
@@ -344,7 +378,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         if (!isFailed && !isCheatcodeActive) {
             UserDto user = AuthManager.getUser();
-            if (user == null) return;
+            if (user == null)
+                return;
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
             String formatted = now.format(formatter);
             String osrFileName = String.format("%s-%s-%s.osr",
@@ -364,7 +399,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void updateUserStats(UserDto user) {
-        if (user == null) return;
+        if (user == null)
+            return;
         user.addExperience(score);
         user.updateAccuracy(accuracy);
         // update pp
@@ -433,9 +469,11 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void failGame() {
-        if (isFailed) return;
+        if (isFailed)
+            return;
         isFailed = true;
-        if (isCheatcodeActive) return;
+        if (isCheatcodeActive)
+            return;
 
         if (!isMultiplayer) {
             SfxManager.playSfx("failsound.wav");
@@ -448,7 +486,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             notifyListeners(new GameEvent(GameEventType.GAME_FAILED, null));
         } else {
             MatchPlayerDto matchPlayer = getMatchPlayerByUserId(AuthManager.getUser().getId());
-            if (matchPlayer == null) return;
+            if (matchPlayer == null)
+                return;
             matchPlayer.setStatus(PlayerStatus.FAILED);
             sendPlayerFailedEvent();
         }
@@ -643,14 +682,15 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         // spectateEventInProgress = true;
         testCount++;
-//        System.out.println("Sending spectate event, count: " + testCount);
+        // System.out.println("Sending spectate event, count: " + testCount);
         try {
             SpectateEvent event = new SpectateEvent(elapsedMillis, replayEvent.getX(),
                     replayEvent.getY(), replayEvent.getKeyMask(), paneWidth, paneHeight,
                     masterComboNumber, score, accuracy, health);
             spectateController.sendSpectateEvent(event).thenApply(response -> {
                 if (response.isSuccess()) {
-//                    System.out.println("Spectate event sent successfully: " + response.getValue().getMessage());
+                    // System.out.println("Spectate event sent successfully: " +
+                    // response.getValue().getMessage());
                     // spectateEventInProgress = false;
                 } else {
                     System.err.println("Failed to send spectate event: " + response.getError().getMessage());
@@ -669,7 +709,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private MatchPlayerDto getMatchPlayerByUserId(int userId) {
-        if (matchDto == null || matchDto.getPlayers() == null) return null;
+        if (matchDto == null || matchDto.getPlayers() == null)
+            return null;
 
         for (MatchPlayerDto player : matchDto.getPlayers()) {
             if (player.getUser().getId() == userId) {
@@ -680,7 +721,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void sendMatchScoreEvent() {
-        if (!isMultiplayer || matchController == null) return;
+        if (!isMultiplayer || matchController == null)
+            return;
 
         try {
             MatchPlayerDto matchPlayer = getMatchPlayerByUserId(AuthManager.getUser().getId());
@@ -710,7 +752,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void sendPlayerFailedEvent() {
-        if (!isMultiplayer) return;
+        if (!isMultiplayer)
+            return;
 
         try {
             System.out.println("Sending player failed event");
@@ -733,7 +776,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void sendPlayerFinishedEvent() {
-        if (!isMultiplayer) return;
+        if (!isMultiplayer)
+            return;
 
         try {
             System.out.println("Sending player finished event");
@@ -933,7 +977,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void handleMiss(HitObject hitObject) {
-        if (hitObject instanceof HitSpinner) return;
+        if (hitObject instanceof HitSpinner)
+            return;
         notifyMiss(hitObject);
     }
 
@@ -944,7 +989,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         misses++;
         int oldCombo = masterComboNumber;
-        if (oldCombo >= 20) SfxManager.playSfx("combobreak.mp3");
+        if (oldCombo >= 20)
+            SfxManager.playSfx("combobreak.mp3");
         masterComboNumber = 0;
 
         // Update accuracy
@@ -1124,7 +1170,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                     break;
                 }
             }
-            if (!found) multiplayerScores.add(event);
+            if (!found)
+                multiplayerScores.add(event);
 
             if (matchDto.getWinCondition() == MatchWinCondition.SCORE) {
                 multiplayerScores.sort((a, b) -> Integer.compare(b.getScore(), a.getScore()));
