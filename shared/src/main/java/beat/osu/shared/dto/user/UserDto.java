@@ -32,14 +32,14 @@ public class UserDto implements Serializable {
     }
 
     private boolean canLevelUp() {
-        int requiredExp = getExpForLevel(level + 1);
+        int requiredExp = getExpForLevel(level);
         return experience >= requiredExp;
     }
 
     private void levelUp() {
         if (canLevelUp()) {
-            level++;
             experience -= getExpForLevel(level);
+            level++;
         }
     }
 

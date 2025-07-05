@@ -787,6 +787,12 @@ public class GameView extends Page implements GameEventListener {
                 System.out.println("pre exit break period - showing arrow warning");
                 showArrowWarning();
                 break;
+            case SECTION_PASS:
+
+                break;
+            case SECTION_FAIL:
+
+                break;
             case GAME_OFFSET_COMPLETED:
                 System.out.println("game offset completed, decreasing background opacity");
                 exitBreakPeriod();

@@ -94,6 +94,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private boolean imperfectOrMissed = false;
     private boolean isFailed = false;
     private boolean isPreExit = false;
+    private boolean isHalfBreakperiod = false;
     private boolean isCheatcodeActive = false;
 
     // Multiplayer score tracking
@@ -130,6 +131,26 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             if (hitObject.isVisible()) {
                 hitObject.resumeAnimations();
             }
+        }
+    }
+
+    private String calculateSectionGrade() {
+        int passedHitObjects = OsuParser.getHitObjects().size() - hitObjects.size();
+        boolean noMiss = (misses == 0);
+        double perfectPercentage = (double) (perfectHits + gekiHits) / passedHitObjects * 100;
+        double goodPercentage = (double) goodHits / passedHitObjects * 100;
+        if (accuracy == 100) {
+            return "SS";
+        } else if (noMiss && perfectPercentage > 90 && goodPercentage <= 1) {
+            return "S";
+        } else if ((noMiss && perfectPercentage > 80) || perfectPercentage > 90) {
+            return "A";
+        } else if ((noMiss && perfectPercentage > 70) || perfectPercentage > 80) {
+            return "B";
+        } else if (perfectPercentage > 60) {
+            return "C";
+        } else {
+            return "D";
         }
     }
 
@@ -566,6 +587,26 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                     gameState = GameState.BREAK_PERIOD;
                     notifyListeners(new GameEvent(GameEventType.ENTER_BREAK_PERIOD, null));
                 } else {
+                    int totalBreakTime = endTime - startTime;
+                    // check if elapsedMillis has passed half of the break period
+                    if (totalBreakTime >= 3000 && elapsedMillis >= startTime + totalBreakTime / 2) {
+                        if (!isHalfBreakperiod) {
+                            System.out.println("Half break period reached, notifying listeners");
+                            String grade = calculateSectionGrade();
+
+                            if (health < 50) {
+                                SfxManager.playSfx("sectionfail.wav");
+                                notifyListeners(new GameEvent(GameEventType.SECTION_FAIL, null));
+                            } else {
+                                SfxManager.playSfx("sectionpass.wav");
+                                notifyListeners(new GameEvent(GameEventType.SECTION_PASS, null));
+                            }
+                            isHalfBreakperiod = true;
+                        }
+                    } else {
+                        isHalfBreakperiod = false;
+                    }
+
                     if (elapsedMillis + 1000 >= endTime) {
                         System.out.println("Exiting break period soon, preparing to resume");
                         if (!isPreExit) {

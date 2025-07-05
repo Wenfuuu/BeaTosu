@@ -292,7 +292,7 @@ public class UserCard extends HBox {
         experienceProgressBar.setManaged(!isGuest);
 
         if (level != null && experience != null && !isGuest) {
-            int nextLevelExp = UserDto.getExpForLevel(level + 1);
+            int nextLevelExp = UserDto.getExpForLevel(level);
             double progress = (double) experience / nextLevelExp;
             experienceProgressBar.setProgress(Math.max(0.0, Math.min(1.0, progress)));
         } else {
