@@ -1,9 +1,6 @@
 package beat.osu.client.helper;
 
-import beat.osu.client.controller.MatchController;
-import beat.osu.client.controller.ScoreController;
-import beat.osu.client.controller.SessionController;
-import beat.osu.client.controller.SpectateController;
+import beat.osu.client.controller.*;
 import beat.osu.client.enums.GameEventType;
 import beat.osu.client.enums.GameState;
 import beat.osu.client.enums.HealthRecover;
@@ -24,8 +21,10 @@ import beat.osu.shared.dto.game.events.SpectateStatusEvent;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
 import beat.osu.shared.dto.match.events.*;
+import beat.osu.shared.dto.match.responses.CreateMatchResponse;
 import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
 import beat.osu.shared.dto.user.UserDto;
+import beat.osu.shared.dto.user.responses.UpdateUserResponse;
 import beat.osu.shared.enums.match.MatchWinCondition;
 import beat.osu.shared.enums.match.PlayerStatus;
 import javafx.animation.AnimationTimer;
@@ -61,6 +60,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private final SessionController sessionController;
     private final SpectateController spectateController;
     private final MatchController matchController;
+    private final UserController userController;
 
     private final Set<KeyCode> previousKeys = new HashSet<>();
     private double currentMouseX;
@@ -342,7 +342,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 score, highestCombo, accuracy, perfectHits, gekiHits, greatHits, greatKatuHits, goodHits,
                 misses, grade, now)));
 
-        if (isFailed || isCheatcodeActive) {
+        if (!isFailed && !isCheatcodeActive) {
             UserDto user = AuthManager.getUser();
             if (user == null) return;
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -356,8 +356,30 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             }
 
             insertScore(user.getId(), grade, now);
+
+            // update user stats
+            updateUserStats(user);
         }
         notifySpectatorsPlayerExited();
+    }
+
+    private void updateUserStats(UserDto user) {
+        if (user == null) return;
+        user.addExperience(score);
+        user.updateAccuracy(accuracy);
+        // update pp
+
+        try {
+            Result<UpdateUserResponse> response = userController.updateUser(user).get();
+            if (response.isSuccess()) {
+                UpdateUserResponse updateResponse = response.getValue();
+                System.out.println(updateResponse.getMessage());
+            } else {
+                Toast.error("Failed to update user: " + response.getError().getMessage()).show();
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void exitMatch() {
@@ -1027,6 +1049,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         this.sessionController = new SessionController();
         this.spectateController = new SpectateController();
         this.matchController = new MatchController();
+        this.userController = new UserController();
         this.matchDto = ViewManager.getInstance().getCurrentMatchDto();
 
         processBeatmap();

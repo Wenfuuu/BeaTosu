@@ -11,6 +11,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class UserDto implements Serializable {
     private static final long serialVersionUID = 1L;
+    private static final int BASE_EXP = 100000;
+    private static final double EXP_GROWTH_RATE = 1.1;
 
     private int id;
     private String username;
@@ -24,4 +26,36 @@ public class UserDto implements Serializable {
     private int experience;
     private int rank;
     private boolean isSupporter;
+
+    private int getExpForLevel(int level) {
+        return (int) Math.round(BASE_EXP * Math.pow(EXP_GROWTH_RATE, level - 1));
+    }
+
+    private boolean canLevelUp() {
+        int requiredExp = getExpForLevel(level + 1);
+        return experience >= requiredExp;
+    }
+
+    private void levelUp() {
+        if (canLevelUp()) {
+            level++;
+            experience -= getExpForLevel(level);
+        }
+    }
+
+    private void updateLevel() {
+        while (canLevelUp()) {
+            levelUp();
+        }
+    }
+
+    public void addExperience(int exp) {
+        experience += exp;
+        updateLevel();
+    }
+
+    public void updateAccuracy(double newAccuracy) {
+        accuracy = (accuracy * playCount + newAccuracy) / (playCount + 1);
+        playCount++;
+    }
 }
