@@ -229,7 +229,6 @@ public class ResultOverlay extends BorderPane {
                 new VBox(10, accuracyContainer)
         );
 
-        // Right side - Rank
         VBox rightStats = new VBox(20);
         rightStats.setAlignment(Pos.CENTER);
 
@@ -242,7 +241,7 @@ public class ResultOverlay extends BorderPane {
         scorePanel.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.04);
 
         hitCountsPanel.setLayoutX(ScreenManager.SCREEN_WIDTH * 0.01);
-        hitCountsPanel.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.12);
+        hitCountsPanel.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.15);
 
         comboAccuracyBox.setLayoutX(ScreenManager.SCREEN_WIDTH * 0.01);
         comboAccuracyBox.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.6);

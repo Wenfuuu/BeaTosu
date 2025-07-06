@@ -1,6 +1,6 @@
 .hit-counts-panel {
     -fx-background-color: rgba(0, 0, 0, 0.2);
-    -fx-alignment: center-left;
-    -fx-border-radius: 8px;
-    -fx-background-radius: 8px;
+    -fx-alignment: top-left;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
 }

@@ -41,7 +41,7 @@ public class ScorePanel extends HBox {
         digitContainer = new HBox(3);
         for (int i = 0; i < 8; i++) {
             scoreDigits[i] = new ImageView(digitImages[0]);
-            scoreDigits[i].setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.05);
+            scoreDigits[i].setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.06);
             scoreDigits[i].setPreserveRatio(true);
             digitContainer.setAlignment(Pos.CENTER);
             digitContainer.getChildren().add(scoreDigits[i]);

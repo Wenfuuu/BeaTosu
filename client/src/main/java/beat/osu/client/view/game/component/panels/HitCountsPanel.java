@@ -8,6 +8,7 @@ import java.util.Objects;
 import beat.osu.client.Main;
 import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -58,13 +59,11 @@ public class HitCountsPanel extends VBox {
     private void initializeComponents() {
         for (int i = 0; i < 6; i++) {
             hitCountLabels[i] = new ImageView(hitImages[i]);
-            hitCountLabels[i].setFitWidth(40);
-            hitCountLabels[i].setFitHeight(40);
-            hitCountLabels[i].setPreserveRatio(true);
+            hitCountLabels[i].setFitWidth(60);
+            hitCountLabels[i].setFitHeight(60);
 
             hitCountXSymbols[i] = new ImageView(xImage);
-            hitCountXSymbols[i].setFitWidth(20);
-            hitCountXSymbols[i].setFitHeight(28);
+            hitCountXSymbols[i].setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.06);
             hitCountXSymbols[i].setPreserveRatio(true);
 
             hitCountDigits.add(new ArrayList<>());
@@ -72,11 +71,22 @@ public class HitCountsPanel extends VBox {
 
         for (int i = 0; i < 3; i++) {
             hitCountRows[i] = new HBox(20);
+            hitCountRows[i].setPadding(new Insets(0, 0, 0, ScreenManager.SCREEN_WIDTH * 0.03));
             hitCountRows[i].setAlignment(Pos.CENTER_LEFT);
         }
     }
 
     private void setupLayout() {
+        this.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.45);
+        this.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.45);
+        this.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.45);
+
+        this.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.52);
+        this.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.52);
+        this.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.52);
+
+        this.setPadding(new Insets(ScreenManager.SCREEN_HEIGHT * 0.037, 0, 0, 0));
+
         this.setSpacing(ScreenManager.SCREEN_HEIGHT * 0.06);
         this.getStyleClass().add("hit-counts-panel");
         this.getChildren().addAll(hitCountRows);
@@ -127,8 +137,7 @@ public class HitCountsPanel extends VBox {
 
         while (digits.size() < requiredDigits) {
             ImageView newDigit = new ImageView(digitImages[0]);
-            newDigit.setFitWidth(20);
-            newDigit.setFitHeight(28);
+            newDigit.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.06);
             newDigit.setPreserveRatio(true);
             digits.add(0, newDigit);
         }
@@ -144,13 +153,22 @@ public class HitCountsPanel extends VBox {
     }
 
     private HBox createHitCountDisplay(int hitType) {
-        HBox display = new HBox(5);
+        HBox display = new HBox(0);
         display.setAlignment(Pos.CENTER_LEFT);
-        display.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.25);
+
+        HBox digitsContainer = new HBox(3);
+        digitsContainer.setAlignment(Pos.CENTER_LEFT);
+        digitsContainer.getChildren().addAll(hitCountDigits.get(hitType));
+
+        HBox.setMargin(digitsContainer, new Insets(0, ScreenManager.SCREEN_WIDTH * 0.001, 0, ScreenManager.SCREEN_WIDTH * 0.04));
 
         display.getChildren().add(hitCountLabels[hitType]);
-        display.getChildren().addAll(hitCountDigits.get(hitType));
+        display.getChildren().add(digitsContainer);
         display.getChildren().add(hitCountXSymbols[hitType]);
+
+        display.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.225);
+        display.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.225);
+        display.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.225);
 
         return display;
     }
