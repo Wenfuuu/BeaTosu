@@ -67,7 +67,6 @@ public class ResultOverlay extends BorderPane {
     private Button replayButton;
     @Getter
     private Button backButton;
-    private ImageView rankingView;
 
     @Getter
     private final FadeTransition showTransition;
@@ -75,7 +74,6 @@ public class ResultOverlay extends BorderPane {
     public ResultOverlay() {
         this.setVisible(false);
 
-        // Load digit images
         digitImages = new Image[10];
         for (int i = 0; i < 10; i++) {
             digitImages[i] = new Image(Objects.requireNonNull(Main.class
@@ -90,7 +88,6 @@ public class ResultOverlay extends BorderPane {
         gradeImage = new Image(Objects.requireNonNull(Main.class
                 .getResource("/assets/images/ranking-x.png")).toExternalForm());
 
-        // Load hit count images
         hitImages = new Image[6];
         hitImages[0] = new Image(Objects.requireNonNull(Main.class
                 .getResource("/assets/images/hit300.png")).toExternalForm());
@@ -367,17 +364,11 @@ public class ResultOverlay extends BorderPane {
         retryButton = ButtonFactory.createResultRetryButton();
         replayButton = ButtonFactory.createResultReplayButton();
         backButton = ButtonFactory.createBackButton();
-
-        // Ranking image
-        Image rankingPanel = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/ranking-panel.png")).toExternalForm());
-        rankingView = new ImageView(rankingPanel);
-        rankingView.setFitWidth(ScreenManager.SCREEN_WIDTH * 0.45);
-        rankingView.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.6);
-        rankingView.setMouseTransparent(true);
     }
 
     private void setupLayout() {
+        this.setBackground(new Background(new BackgroundFill(Color.color(0, 0, 0, 0.2), null, null)));
+
         // Hit counts panel
         StackPane hitCountsPanel = new StackPane();
         hitCountsPanel.getChildren().add(hitCountsBox);
@@ -397,13 +388,9 @@ public class ResultOverlay extends BorderPane {
         rightStats.getChildren().addAll(gradeSymbol, retryButton, replayButton);
 
         Pane contentPane = new Pane();
-        contentPane.getChildren().addAll(rankingView, scoreContainer,
-                hitCountsPanel, comboAccuracyBox, backButton, rightStats);
+        contentPane.getChildren().addAll(scoreContainer, hitCountsPanel, comboAccuracyBox, backButton, rightStats);
 
         double rankingImageX = 0;
-        rankingView.setLayoutX(rankingImageX);
-        rankingView.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.1);
-
         scoreContainer.setLayoutX(rankingImageX + 50);
         scoreContainer.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.1);
 
