@@ -36,6 +36,7 @@ public class ScorePanel extends HBox {
         scoreImageView = new ImageView(scoreImage);
         scoreImageView.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.046);
         scoreImageView.setPreserveRatio(true);
+        scoreImageView.setSmooth(true);
 
         scoreDigits = new ImageView[8];
         digitContainer = new HBox(3);

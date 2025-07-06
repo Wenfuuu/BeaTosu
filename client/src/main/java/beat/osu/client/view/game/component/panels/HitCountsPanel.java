@@ -12,8 +12,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 
 public class HitCountsPanel extends VBox {
 
@@ -22,16 +21,18 @@ public class HitCountsPanel extends VBox {
     private final List<List<ImageView>> hitCountDigits;
     private final ImageView[] hitCountXSymbols;
 
-    // Combo display with images
+    private final ImageView comboSymbol;
     private final List<ImageView> comboDigits;
     private final ImageView comboXSymbol;
-    private final HBox comboContainer;
+    private final HBox comboTextContainer;
+    private final VBox comboContainer;
 
-    // Accuracy display with images
+    private final ImageView accuracySymbol;
     private final ImageView[] accuracyDigits;
     private final ImageView percentSymbol;
-    private final HBox accuracyContainer;
     private final ImageView scoreComma;
+    private final HBox accuracyTextContainer;
+    private final VBox accuracyContainer;
 
     private final Image[] digitImages;
     private final Image xImage;
@@ -41,7 +42,7 @@ public class HitCountsPanel extends VBox {
 
     public HitCountsPanel(Image[] digitImages) {
         this.digitImages = digitImages;
-        
+
         xImage = new Image(Objects.requireNonNull(Main.class
                 .getResource("/assets/images/score-x.png")).toExternalForm());
 
@@ -69,16 +70,32 @@ public class HitCountsPanel extends VBox {
         hitCountDigits = new ArrayList<>();
         hitCountXSymbols = new ImageView[6];
 
-        // Initialize combo display
+        Image comboImage = new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/score/combo.png")).toExternalForm());
+        comboSymbol = new ImageView(comboImage);
+        comboSymbol.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.06);
+        comboSymbol.setPreserveRatio(true);
+        comboSymbol.setSmooth(true);
+
         comboDigits = new ArrayList<>();
         comboXSymbol = new ImageView(xImage);
-        comboContainer = new HBox(2);
+        comboTextContainer = new HBox();
+        comboContainer = new VBox();
+        comboContainer.setAlignment(Pos.CENTER);
 
-        // Initialize accuracy display (4 digits + percent)
+        Image accuracyImage = new Image(Objects.requireNonNull(Main.class
+                .getResource("/assets/score/accuracy.png")).toExternalForm());
+        accuracySymbol = new ImageView(accuracyImage);
+        accuracySymbol.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.06);
+        accuracySymbol.setPreserveRatio(true);
+        accuracySymbol.setSmooth(true);
+
         accuracyDigits = new ImageView[4];
         percentSymbol = new ImageView(percentImage);
-        accuracyContainer = new HBox(1);
         scoreComma = new ImageView(commaImage);
+        accuracyTextContainer = new HBox();
+        accuracyContainer = new VBox();
+        accuracyContainer.setAlignment(Pos.CENTER);
 
         initializeComponents();
         setupLayout();
@@ -106,42 +123,41 @@ public class HitCountsPanel extends VBox {
 
         for (int i = 0; i < 3; i++) {
             hitCountRows[i] = new HBox(20);
-            hitCountRows[i].setPadding(new Insets(0, 0, 0, ScreenManager.SCREEN_WIDTH * 0.03));
+            hitCountRows[i].setPadding(new Insets(0, 0, ScreenManager.SCREEN_WIDTH * 0.016, ScreenManager.SCREEN_WIDTH * 0.03));
             hitCountRows[i].setAlignment(Pos.CENTER_LEFT);
-        }
-
-        ImageView initialComboDigit = new ImageView(digitImages[0]);
-        initialComboDigit.setFitWidth(25);
-        initialComboDigit.setFitHeight(35);
-        initialComboDigit.setPreserveRatio(true);
-        comboDigits.add(initialComboDigit);
-
-        comboXSymbol.setFitWidth(25);
-        comboXSymbol.setFitHeight(35);
-        comboXSymbol.setPreserveRatio(true);
-
-        comboContainer.getChildren().addAll(initialComboDigit, comboXSymbol);
-
-        // Initialize accuracy display (4 digits + percent)
-        scoreComma.setFitWidth(10);
-        scoreComma.setFitHeight(30);
-
-        for (int i = 0; i < 4; i++) {
-            accuracyDigits[i] = new ImageView(digitImages[0]);
-            accuracyDigits[i].setFitWidth(20);
-            accuracyDigits[i].setFitHeight(28);
-            accuracyDigits[i].setPreserveRatio(true);
-            accuracyContainer.getChildren().add(accuracyDigits[i]);
-
-            if (i == 1) {
-                accuracyContainer.getChildren().add(scoreComma);
+            if (i == 2) {
+                hitCountRows[i].setPadding(new Insets(0, 0, 0, ScreenManager.SCREEN_WIDTH * 0.03));
             }
         }
 
-        percentSymbol.setFitWidth(20);
-        percentSymbol.setFitHeight(28);
+        ImageView initialComboDigit = new ImageView(digitImages[0]);
+        initialComboDigit.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.06);
+        initialComboDigit.setPreserveRatio(true);
+        comboDigits.add(initialComboDigit);
+
+        comboXSymbol.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.06);
+        comboXSymbol.setPreserveRatio(true);
+
+        comboTextContainer.getChildren().addAll(initialComboDigit, comboXSymbol);
+
+        scoreComma.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.05);
+        scoreComma.setTranslateY(ScreenManager.SCREEN_HEIGHT * 0.012);
+        scoreComma.setPreserveRatio(true);
+
+        for (int i = 0; i < 4; i++) {
+            accuracyDigits[i] = new ImageView(digitImages[0]);
+            accuracyDigits[i].setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.06);
+            accuracyDigits[i].setPreserveRatio(true);
+            accuracyTextContainer.getChildren().add(accuracyDigits[i]);
+
+            if (i == 1) {
+                accuracyTextContainer.getChildren().add(scoreComma);
+            }
+        }
+
+        percentSymbol.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.06);
         percentSymbol.setPreserveRatio(true);
-        accuracyContainer.getChildren().add(percentSymbol);
+        accuracyTextContainer.getChildren().add(percentSymbol);
     }
 
     private void setupLayout() {
@@ -155,18 +171,25 @@ public class HitCountsPanel extends VBox {
 
         this.setPadding(new Insets(ScreenManager.SCREEN_HEIGHT * 0.037, 0, 0, 0));
 
-        this.setSpacing(ScreenManager.SCREEN_HEIGHT * 0.06);
+        this.setSpacing(ScreenManager.SCREEN_HEIGHT * 0.037);
         this.getStyleClass().add("hit-counts-panel");
-        
-        // Create combo and accuracy container
-        HBox comboAccuracyBox = new HBox(ScreenManager.SCREEN_WIDTH * 0.175);
+
+        comboContainer.getChildren().addAll(comboSymbol, comboTextContainer);
+        comboContainer.setAlignment(Pos.CENTER);
+
+        accuracyTextContainer.setPadding(new Insets(0, 0, 0, 16));
+        accuracyContainer.getChildren().addAll(accuracySymbol, accuracyTextContainer);
+        accuracyContainer.setAlignment(Pos.CENTER);
+
+        HBox comboAccuracyBox = new HBox();
         comboAccuracyBox.setAlignment(Pos.CENTER_LEFT);
-        comboAccuracyBox.getChildren().addAll(
-                new VBox(10, comboContainer),
-                new VBox(10, accuracyContainer)
-        );
-        
-        // Add hit count rows and combo/accuracy display
+        comboAccuracyBox.getChildren().addAll(comboContainer, accuracyContainer);
+        comboAccuracyBox.setSpacing(ScreenManager.SCREEN_WIDTH * 0.15);
+        comboContainer.setPadding(new Insets(0, 0, 0, ScreenManager.SCREEN_WIDTH * 0.012));
+
+        comboTextContainer.setAlignment(Pos.CENTER);
+        accuracyTextContainer.setAlignment(Pos.CENTER);
+
         this.getChildren().addAll(hitCountRows);
         this.getChildren().add(comboAccuracyBox);
     }
@@ -184,14 +207,11 @@ public class HitCountsPanel extends VBox {
         String comboStr = String.valueOf(combo);
         int requiredDigits = comboStr.length();
 
-        // Clear the container
-        comboContainer.getChildren().clear();
+        comboTextContainer.getChildren().clear();
 
-        // Adjust the number of digit ImageViews
         while (comboDigits.size() < requiredDigits) {
             ImageView newDigit = new ImageView(digitImages[0]);
-            newDigit.setFitWidth(25);
-            newDigit.setFitHeight(35);
+            newDigit.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.06);
             newDigit.setPreserveRatio(true);
             comboDigits.add(0, newDigit);
         }
@@ -205,12 +225,11 @@ public class HitCountsPanel extends VBox {
             comboDigits.get(i).setImage(digitImages[digit]);
         }
 
-        comboContainer.getChildren().addAll(comboDigits);
-        comboContainer.getChildren().add(comboXSymbol);
+        comboTextContainer.getChildren().addAll(comboDigits);
+        comboTextContainer.getChildren().add(comboXSymbol);
     }
 
     public void updateAccuracy(double accuracy) {
-        // Format accuracy to 2 decimal places (e.g., 96.24% -> "9624")
         int accuracyInt = (int) Math.round(accuracy * 100);
         String accuracyStr = String.format("%04d", Math.min(accuracyInt, 10000));
 
@@ -275,7 +294,7 @@ public class HitCountsPanel extends VBox {
         HBox display = new HBox(0);
         display.setAlignment(Pos.CENTER_LEFT);
 
-        HBox digitsContainer = new HBox(3);
+        HBox digitsContainer = new HBox(0);
         digitsContainer.setAlignment(Pos.CENTER_LEFT);
         digitsContainer.getChildren().addAll(hitCountDigits.get(hitType));
 
