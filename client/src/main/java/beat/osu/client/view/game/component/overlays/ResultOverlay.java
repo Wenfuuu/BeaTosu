@@ -7,6 +7,7 @@ import beat.osu.client.helper.AuthManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.view.game.component.layout.ResultHeader;
+import beat.osu.client.view.game.component.panels.ScorePanel;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -27,10 +28,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class ResultOverlay extends BorderPane {
-    // Score display with images
-    private final ImageView[] scoreDigits;
-    private final HBox scoreContainer;
-
     // Combo display with images
     private final List<ImageView> comboDigits;
     private final ImageView comboXSymbol;
@@ -59,6 +56,8 @@ public class ResultOverlay extends BorderPane {
 
 
     private ResultHeader resultHeader;
+    private ScorePanel scorePanel;
+
 
     private VBox hitCountsBox;
     @Getter
@@ -101,17 +100,6 @@ public class ResultOverlay extends BorderPane {
                 .getResource("/assets/images/hit50.png")).toExternalForm());
         hitImages[5] = new Image(Objects.requireNonNull(Main.class
                 .getResource("/assets/images/hit0.png")).toExternalForm());
-
-        // Initialize score display (8 digits)
-        scoreDigits = new ImageView[8];
-        scoreContainer = new HBox(3);
-        for (int i = 0; i < 8; i++) {
-            scoreDigits[i] = new ImageView(digitImages[0]);
-            scoreDigits[i].setFitWidth(30);
-            scoreDigits[i].setFitHeight(42);
-            scoreDigits[i].setPreserveRatio(true);
-            scoreContainer.getChildren().add(scoreDigits[i]);
-        }
 
         // Initialize combo display
         comboDigits = new ArrayList<>();
@@ -209,7 +197,7 @@ public class ResultOverlay extends BorderPane {
 
         resultHeader.updateLabels(newSongTitle, newCreator, newPlayedBy);
 
-        updateScore(gameEndEvent.getScore());
+        scorePanel.updateScore(gameEndEvent.getScore());
         updateCombo(gameEndEvent.getHighestCombo());
         updateAccuracy(gameEndEvent.getAccuracy());
         updateGrade(gameEndEvent.getGrade());
@@ -219,13 +207,7 @@ public class ResultOverlay extends BorderPane {
                 gameEndEvent.getGoodHits(), gameEndEvent.getMisses());
     }
 
-    private void updateScore(long score) {
-        String scoreStr = String.format("%08d", Math.min(score, 99999999L));
-        for (int i = 0; i < 8; i++) {
-            int digit = Character.getNumericValue(scoreStr.charAt(i));
-            scoreDigits[i].setImage(digitImages[digit]);
-        }
-    }
+
 
     private void updateCombo(int combo) {
         String comboStr = String.valueOf(combo);
@@ -355,6 +337,7 @@ public class ResultOverlay extends BorderPane {
 
     private void initializeComponents() {
         resultHeader = new ResultHeader();
+        scorePanel = new ScorePanel(digitImages);
 
         // Hit counts container
         hitCountsBox = new VBox(ScreenManager.SCREEN_HEIGHT * 0.06);
@@ -367,8 +350,6 @@ public class ResultOverlay extends BorderPane {
     }
 
     private void setupLayout() {
-        this.setBackground(new Background(new BackgroundFill(Color.color(0, 0, 0, 0.2), null, null)));
-
         // Hit counts panel
         StackPane hitCountsPanel = new StackPane();
         hitCountsPanel.getChildren().add(hitCountsBox);
@@ -388,11 +369,11 @@ public class ResultOverlay extends BorderPane {
         rightStats.getChildren().addAll(gradeSymbol, retryButton, replayButton);
 
         Pane contentPane = new Pane();
-        contentPane.getChildren().addAll(scoreContainer, hitCountsPanel, comboAccuracyBox, backButton, rightStats);
+        contentPane.getChildren().addAll(scorePanel, hitCountsPanel, comboAccuracyBox, backButton, rightStats);
 
         double rankingImageX = 0;
-        scoreContainer.setLayoutX(rankingImageX + 50);
-        scoreContainer.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.1);
+        scorePanel.setLayoutX(rankingImageX + 50);
+        scorePanel.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.1);
 
         hitCountsPanel.setLayoutX(rankingImageX + 50);
         hitCountsPanel.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.275);
