@@ -1,31 +1,31 @@
 package beat.osu.client.view.game.component.overlays;
 
-import beat.osu.client.Main;
-import beat.osu.client.factory.ButtonFactory;
-import beat.osu.client.events.game.GameEndEvent;
-import beat.osu.client.helper.AuthManager;
-import beat.osu.client.helper.ScreenManager;
-import beat.osu.client.model.Beatmap;
-import beat.osu.client.view.game.component.layout.ResultHeader;
-import beat.osu.client.view.game.component.panels.ScorePanel;
-import javafx.animation.FadeTransition;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.util.Duration;
-import lombok.Getter;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import beat.osu.client.Main;
+import beat.osu.client.events.game.GameEndEvent;
+import beat.osu.client.factory.ButtonFactory;
+import beat.osu.client.helper.AuthManager;
+import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.model.Beatmap;
+import beat.osu.client.view.game.component.layout.ResultHeader;
+import beat.osu.client.view.game.component.panels.HitCountsPanel;
+import beat.osu.client.view.game.component.panels.ScorePanel;
+import javafx.animation.FadeTransition;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.util.Duration;
+import lombok.Getter;
 
 public class ResultOverlay extends BorderPane {
     // Combo display with images
@@ -40,26 +40,16 @@ public class ResultOverlay extends BorderPane {
     private final ImageView scoreComma;
     private final ImageView gradeSymbol;
 
-    // Hit count displays with images
-    private final HBox[] hitCountRows;
-    private final ImageView[] hitCountLabels;
-    private final List<List<ImageView>> hitCountDigits;
-    private final ImageView[] hitCountXSymbols;
-
     // Image resources
     private final Image[] digitImages;
     private final Image percentImage;
     private final Image xImage;
     private final Image commaImage;
     private Image gradeImage;
-    private final Image[] hitImages;
-
 
     private ResultHeader resultHeader;
     private ScorePanel scorePanel;
-
-
-    private VBox hitCountsBox;
+    private HitCountsPanel hitCountsPanel;
     @Getter
     private Button retryButton;
     @Getter
@@ -86,20 +76,6 @@ public class ResultOverlay extends BorderPane {
                 .getResource("/assets/images/score-comma.png")).toExternalForm());
         gradeImage = new Image(Objects.requireNonNull(Main.class
                 .getResource("/assets/images/ranking-x.png")).toExternalForm());
-
-        hitImages = new Image[6];
-        hitImages[0] = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/hit300.png")).toExternalForm());
-        hitImages[1] = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/hit300g.png")).toExternalForm());
-        hitImages[2] = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/hit100.png")).toExternalForm());
-        hitImages[3] = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/hit100k.png")).toExternalForm());
-        hitImages[4] = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/hit50.png")).toExternalForm());
-        hitImages[5] = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/hit0.png")).toExternalForm());
 
         // Initialize combo display
         comboDigits = new ArrayList<>();
@@ -145,32 +121,6 @@ public class ResultOverlay extends BorderPane {
         percentSymbol.setPreserveRatio(true);
         accuracyContainer.getChildren().add(percentSymbol);
 
-        // Initialize hit count displays (3 rows)
-        hitCountRows = new HBox[3];
-        hitCountLabels = new ImageView[6]; // 6 different hit types
-        hitCountDigits = new ArrayList<>();
-        hitCountXSymbols = new ImageView[6];
-
-        for (int i = 0; i < 6; i++) {
-            hitCountLabels[i] = new ImageView(hitImages[i]);
-            hitCountLabels[i].setFitWidth(40);
-            hitCountLabels[i].setFitHeight(40);
-            hitCountLabels[i].setPreserveRatio(true);
-
-            hitCountXSymbols[i] = new ImageView(xImage);
-            hitCountXSymbols[i].setFitWidth(20);
-            hitCountXSymbols[i].setFitHeight(28);
-            hitCountXSymbols[i].setPreserveRatio(true);
-
-            hitCountDigits.add(new ArrayList<>());
-        }
-
-        // Initialize 3 rows
-        for (int i = 0; i < 3; i++) {
-            hitCountRows[i] = new HBox(20);
-            hitCountRows[i].setAlignment(Pos.CENTER_LEFT);
-        }
-
         // grade
         gradeSymbol = new ImageView(gradeImage);
         gradeSymbol.setFitHeight(175);
@@ -202,7 +152,7 @@ public class ResultOverlay extends BorderPane {
         updateAccuracy(gameEndEvent.getAccuracy());
         updateGrade(gameEndEvent.getGrade());
 
-        updateHitCounts(gameEndEvent.getPerfectHits(), gameEndEvent.getGekiHits(),
+        hitCountsPanel.updateHitCounts(gameEndEvent.getPerfectHits(), gameEndEvent.getGekiHits(),
                 gameEndEvent.getGreatHits(), gameEndEvent.getKatuHits(),
                 gameEndEvent.getGoodHits(), gameEndEvent.getMisses());
     }
@@ -259,89 +209,10 @@ public class ResultOverlay extends BorderPane {
         gradeSymbol.setImage(gradeImage);
     }
 
-    private void updateHitCounts(int perfectHits, int gekiHits, int greatHits,
-                                 int katuHits, int goodHits, int misses) {
-        // Update hit counts: 300, 300g, 100, 100k, 50, miss
-        int[] hitCounts = {perfectHits, gekiHits, greatHits, katuHits, goodHits, misses};
-
-        for (int i = 0; i < 6; i++) {
-            updateHitCountDigits(i, hitCounts[i]);
-        }
-
-        // Clear and rebuild rows
-        for (int i = 0; i < 3; i++) {
-            hitCountRows[i].getChildren().clear();
-        }
-
-        // Row 1: 300 and 300g (激)
-        hitCountRows[0].getChildren().addAll(
-                createHitCountDisplay(0), // 300
-                createHitCountDisplay(1)  // 300g
-        );
-
-        // Row 2: 100 and 100k (喝)
-        hitCountRows[1].getChildren().addAll(
-                createHitCountDisplay(2), // 100
-                createHitCountDisplay(3)  // 100k
-        );
-
-        // Row 3: 50 and miss
-        hitCountRows[2].getChildren().addAll(
-                createHitCountDisplay(4), // 50
-                createHitCountDisplay(5)  // miss
-        );
-    }
-
-    private void updateHitCountDigits(int hitType, int count) {
-        String countStr = String.valueOf(count);
-        int requiredDigits = countStr.length();
-
-        List<ImageView> digits = hitCountDigits.get(hitType);
-
-        // Adjust the number of digit ImageViews
-        while (digits.size() < requiredDigits) {
-            ImageView newDigit = new ImageView(digitImages[0]);
-            newDigit.setFitWidth(20);
-            newDigit.setFitHeight(28);
-            newDigit.setPreserveRatio(true);
-            digits.add(0, newDigit);
-        }
-
-        while (digits.size() > requiredDigits) {
-            digits.remove(0);
-        }
-
-        // Update digit images
-        for (int i = 0; i < requiredDigits; i++) {
-            int digit = Character.getNumericValue(countStr.charAt(i));
-            digits.get(i).setImage(digitImages[digit]);
-        }
-    }
-
-    private HBox createHitCountDisplay(int hitType) {
-        HBox display = new HBox(5);
-        display.setAlignment(Pos.CENTER_LEFT);
-        display.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.25);
-
-        // Add hit type image
-        display.getChildren().add(hitCountLabels[hitType]);
-
-        // Add count digits
-        display.getChildren().addAll(hitCountDigits.get(hitType));
-
-        // Add x symbol
-        display.getChildren().add(hitCountXSymbols[hitType]);
-
-        return display;
-    }
-
     private void initializeComponents() {
         resultHeader = new ResultHeader();
         scorePanel = new ScorePanel(digitImages);
-
-        // Hit counts container
-        hitCountsBox = new VBox(ScreenManager.SCREEN_HEIGHT * 0.06);
-        hitCountsBox.getChildren().addAll(hitCountRows);
+        hitCountsPanel = new HitCountsPanel(digitImages);
 
         // Buttons
         retryButton = ButtonFactory.createResultRetryButton();
@@ -350,10 +221,6 @@ public class ResultOverlay extends BorderPane {
     }
 
     private void setupLayout() {
-        // Hit counts panel
-        StackPane hitCountsPanel = new StackPane();
-        hitCountsPanel.getChildren().add(hitCountsBox);
-
         HBox comboAccuracyBox = new HBox(ScreenManager.SCREEN_WIDTH * 0.175);
         comboAccuracyBox.setAlignment(Pos.CENTER_LEFT);
 
@@ -371,14 +238,13 @@ public class ResultOverlay extends BorderPane {
         Pane contentPane = new Pane();
         contentPane.getChildren().addAll(scorePanel, hitCountsPanel, comboAccuracyBox, backButton, rightStats);
 
-        double rankingImageX = 0;
-        scorePanel.setLayoutX(rankingImageX + 50);
-        scorePanel.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.1);
+        scorePanel.setLayoutX(ScreenManager.SCREEN_WIDTH * 0.01);
+        scorePanel.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.04);
 
-        hitCountsPanel.setLayoutX(rankingImageX + 50);
-        hitCountsPanel.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.275);
+        hitCountsPanel.setLayoutX(ScreenManager.SCREEN_WIDTH * 0.01);
+        hitCountsPanel.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.12);
 
-        comboAccuracyBox.setLayoutX(rankingImageX + 50);
+        comboAccuracyBox.setLayoutX(ScreenManager.SCREEN_WIDTH * 0.01);
         comboAccuracyBox.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.6);
 
         backButton.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.85);
