@@ -107,17 +107,6 @@ public class ResourceManager {
         return new File(applicationDirectory, relativePath);
     }
 
-    /**
-     * Extracts a resource from the JAR and returns the absolute path to the
-     * extracted file.
-     * This is needed when running from JAR since resources cannot be accessed as
-     * File objects directly.
-     * 
-     * @param resourcePath the path to the resource (e.g.,
-     *                     "assets/audio/nekodex-circles.mp3")
-     * @param fileName     the name to give the extracted file
-     * @return the absolute path to the extracted file, or null if extraction failed
-     */
     public static String extractResourceToTempAndGetPath(String resourcePath, String fileName) {
         try (InputStream inputStream = getResourceAsStream(resourcePath)) {
             if (inputStream == null) {
