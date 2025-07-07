@@ -28,7 +28,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 public class BackgroundManager {
-    private static final String BACKGROUNDS_DIR = "/assets/backgrounds/";
+    private static final String BACKGROUNDS_DIR = "/assets/images/background/";
     private static final Random random = new Random();
     private static List<String> backgroundFiles = null;
     private static boolean darkModeEnabled = false;
@@ -42,10 +42,6 @@ public class BackgroundManager {
     public static String getRandomBackgroundURL() {
         if (backgroundFiles == null) {
             loadBackgroundFiles();
-        }
-
-        if (backgroundFiles.isEmpty()) {
-            return "online_background_422fab3bf0c3af0234ee21be511bc3a9.jpg";
         }
 
         int randomIndex = random.nextInt(backgroundFiles.size());
