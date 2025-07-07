@@ -6,6 +6,7 @@ import javafx.scene.ImageCursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import lombok.Getter;
@@ -36,8 +37,8 @@ public class SceneManager {
     private void setupStage() {
         stage.setTitle("BeaTOsu!");
         stage.setFullScreenExitHint("");
-//        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
-//        stage.setResizable(false);
+        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+        stage.setResizable(false);
         stage.setFullScreen(true);
 
         stage.getIcons().add(new Image(Objects.requireNonNull(Main.class
