@@ -1,5 +1,6 @@
 package beat.osu.client.view.game.component.overlays;
 
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -14,13 +15,13 @@ import beat.osu.client.view.game.component.layout.ResultHeader;
 import beat.osu.client.view.game.component.panels.HitCountsPanel;
 import beat.osu.client.view.game.component.panels.ScorePanel;
 import javafx.animation.FadeTransition;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import lombok.Getter;
 
@@ -34,6 +35,10 @@ public class ResultOverlay extends BorderPane {
     private ResultHeader resultHeader;
     private ScorePanel scorePanel;
     private HitCountsPanel hitCountsPanel;
+
+    private ImageView retryImageView;
+    private ImageView replayImageView;
+
     @Getter
     private Button retryButton;
     @Getter
@@ -55,15 +60,14 @@ public class ResultOverlay extends BorderPane {
         gradeImage = new Image(Objects.requireNonNull(Main.class
                 .getResource("/assets/images/ranking-x.png")).toExternalForm());
 
-        // grade
         gradeSymbol = new ImageView(gradeImage);
-        gradeSymbol.setFitHeight(175);
+        gradeSymbol.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.33);
         gradeSymbol.setPreserveRatio(true);
 
         initializeComponents();
         setupLayout();
+        loadStyles();
 
-        // show animation
         showTransition = new FadeTransition(Duration.millis(500), this);
         showTransition.setFromValue(0);
         showTransition.setToValue(1);
@@ -104,7 +108,12 @@ public class ResultOverlay extends BorderPane {
         scorePanel = new ScorePanel(digitImages);
         hitCountsPanel = new HitCountsPanel(digitImages);
 
-        // Buttons
+        Image retryImage = new Image(Objects.requireNonNull(Main.class.getResource("/assets/buttons/pause-menu/pause-retry.png")).toExternalForm());
+        Image replayImage = new Image(Objects.requireNonNull(Main.class.getResource("/assets/buttons/pause-menu/pause-replay.png")).toExternalForm());
+
+        retryImageView = new ImageView(retryImage);
+        replayImageView = new ImageView(replayImage);
+
         retryButton = ButtonFactory.createResultRetryButton();
         replayButton = ButtonFactory.createResultReplayButton();
         backButton = ButtonFactory.createBackButton();
@@ -112,9 +121,35 @@ public class ResultOverlay extends BorderPane {
 
     private void setupLayout() {
         VBox rightStats = new VBox(20);
-        rightStats.setAlignment(Pos.CENTER);
+        rightStats.getStyleClass().add("right-stats");
+        rightStats.setPadding(new Insets(ScreenManager.SCREEN_HEIGHT * 0.044, 0, ScreenManager.SCREEN_HEIGHT * 0.044, 0));
 
-        rightStats.getChildren().addAll(gradeSymbol, retryButton, replayButton);
+        rightStats.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.275);
+        rightStats.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.275);
+        rightStats.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.275);
+
+        rightStats.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.80);
+        rightStats.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.80);
+        rightStats.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.80);
+
+        gradeSymbol.setSmooth(true);
+
+        VBox spacer = new VBox();
+
+        retryImageView.setFitWidth(ScreenManager.SCREEN_WIDTH * 0.23);
+        retryImageView.setPreserveRatio(true);
+        retryImageView.setSmooth(true);
+        retryButton.setPadding(Insets.EMPTY);
+        retryButton.setGraphic(retryImageView);
+
+        replayImageView.setFitWidth(ScreenManager.SCREEN_WIDTH * 0.23);
+        replayImageView.setPreserveRatio(true);
+        replayImageView.setSmooth(true);
+        replayButton.setPadding(Insets.EMPTY);
+        replayButton.setGraphic(replayImageView);
+
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+        rightStats.getChildren().addAll(gradeSymbol, spacer, retryButton, replayButton);
 
         Pane contentPane = new Pane();
         contentPane.getChildren().addAll(scorePanel, hitCountsPanel, backButton, rightStats);
@@ -127,10 +162,19 @@ public class ResultOverlay extends BorderPane {
 
         backButton.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.85);
 
-        rightStats.setLayoutX(ScreenManager.SCREEN_WIDTH * 0.80);
-        rightStats.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.2);
+        rightStats.setLayoutX(ScreenManager.SCREEN_WIDTH * 0.64);
+        rightStats.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.03);
 
         this.setTop(resultHeader);
         this.setCenter(contentPane);
+    }
+
+    private void loadStyles() {
+        URL cssUrl = Main.class.getResource("/assets/css/game/ResultOverlay.css");
+        if (cssUrl != null) {
+            this.getStylesheets().add(cssUrl.toExternalForm());
+        } else {
+            System.err.println("CSS file not found!");
+        }
     }
 }

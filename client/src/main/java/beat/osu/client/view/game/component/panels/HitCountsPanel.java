@@ -165,10 +165,6 @@ public class HitCountsPanel extends VBox {
         this.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.45);
         this.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.45);
 
-//        this.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.52);
-//        this.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.52);
-//        this.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.52);
-
         this.setPadding(new Insets(ScreenManager.SCREEN_HEIGHT * 0.037, 0, 16, 0));
 
         this.setSpacing(ScreenManager.SCREEN_HEIGHT * 0.037);
