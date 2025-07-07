@@ -143,7 +143,7 @@ public class PlaylistModal extends StackPane implements SongEventListener {
         searchLabel.getStyleClass().add("search-label");
         
         ImageView searchIcon = null;
-        String searchIconPath = "/assets/images/search-icon.png";
+        String searchIconPath = "/assets/images/misc/search-icon.png";
         URL searchIconUrl = Main.class.getResource(searchIconPath);
         
         if (searchIconUrl != null) {

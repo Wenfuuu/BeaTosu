@@ -32,7 +32,7 @@ public class ScoreContent extends ScrollPane {
         this.contentContainer = new StackPane();
         
         Image noRecordsImage = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/no-records-img.png")).toExternalForm());
+                .getResource("/assets/images/misc/no-records-img.png")).toExternalForm());
         this.noRecordsImageView = new ImageView(noRecordsImage);
         this.noRecordsImageView.setPreserveRatio(true);
         this.noRecordsImageView.setSmooth(true);

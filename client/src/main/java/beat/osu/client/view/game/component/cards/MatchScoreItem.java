@@ -24,7 +24,7 @@ public class MatchScoreItem extends HBox {
     private final ImageView profileImageView;
 
     public MatchScoreItem(MatchScoreEvent event) {
-        String profileImagePath = "/assets/images/avatar-guest.png";
+        String profileImagePath = "/assets/images/misc/avatar-guest.png";
         profileImageView = new ImageView(
                 new Image(Objects.requireNonNull(Main.class.getResource(profileImagePath)).toExternalForm()));
         profileImageView.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.058);
@@ -112,7 +112,7 @@ public class MatchScoreItem extends HBox {
     private void setDefaultProfilePicture() {
         try {
             Image defaultImage = new Image(Objects.requireNonNull(
-                    Main.class.getResource("/assets/images/avatar-guest.png")).toExternalForm());
+                    Main.class.getResource("/assets/images/misc/avatar-guest.png")).toExternalForm());
             profileImageView.setImage(defaultImage);
         } catch (Exception e) {
             System.err.println("Could not load default avatar: " + e.getMessage());

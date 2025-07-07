@@ -42,7 +42,7 @@ public class SceneManager {
         stage.setFullScreen(true);
 
         stage.getIcons().add(new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/logo/osu_logo.png")).toExternalForm()));
+                .getResource("/assets/images/misc/osu_logo.png")).toExternalForm()));
     }
 
     public void transitionToPage(Page newPage) {
@@ -69,7 +69,7 @@ public class SceneManager {
     private void applyCursor(Scene scene) {
         try {
             Image cursorImage = new Image(Objects.requireNonNull(Main.class
-                    .getResource("/assets/images/cursor.png")).toExternalForm());
+                    .getResource("/assets/images/misc/cursor.png")).toExternalForm());
             scene.setCursor(new ImageCursor(cursorImage,
                     cursorImage.getWidth() / 2, cursorImage.getHeight() / 2));
         } catch (Exception e) {

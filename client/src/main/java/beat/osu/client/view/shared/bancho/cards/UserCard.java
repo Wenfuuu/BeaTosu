@@ -238,7 +238,7 @@ public class UserCard extends HBox {
     private void setDefaultProfilePicture() {
         try {
             Image defaultImage = new Image(Objects.requireNonNull(
-                    Main.class.getResource("/assets/images/avatar-guest.png")).toExternalForm());
+                    Main.class.getResource("/assets/images/misc/avatar-guest.png")).toExternalForm());
             profileImageView.setImage(defaultImage);
         } catch (Exception e) {
             System.err.println("Could not load default avatar: " + e.getMessage());

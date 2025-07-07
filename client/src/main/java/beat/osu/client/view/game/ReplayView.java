@@ -154,7 +154,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
         uiPane = new GameUI();
         pauseOverlay = new PauseOverlay();
         cursorImage = new ImageView(new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/cursor.png")).toExternalForm(),
+                .getResource("/assets/images/misc/cursor.png")).toExternalForm(),
                 32, 32, true, true));
 
         createReplayPane();

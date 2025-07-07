@@ -121,7 +121,7 @@ public class Toast {
     private void applyCursor(Scene scene) {
         try {
             Image cursorImage = new Image(Objects.requireNonNull(Main.class
-                    .getResource("/assets/images/cursor.png")).toExternalForm());
+                    .getResource("/assets/images/misc/cursor.png")).toExternalForm());
             scene.setCursor(new ImageCursor(cursorImage,
                     cursorImage.getWidth() / 2, cursorImage.getHeight() / 2));
         } catch (Exception e) {

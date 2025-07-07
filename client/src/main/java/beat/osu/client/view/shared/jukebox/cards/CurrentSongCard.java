@@ -57,7 +57,7 @@ public class CurrentSongCard extends StackPane {
         contentBox.setAlignment(Pos.CENTER_RIGHT);
 
         try {
-            String imagePath = "/assets/images/song-background.png";
+            String imagePath = "/assets/images/misc/song-background.png";
             URL imageUrl = getClass().getResource(imagePath);
             if (imageUrl != null) {
                 Image backgroundImage = new Image(imageUrl.toExternalForm());
