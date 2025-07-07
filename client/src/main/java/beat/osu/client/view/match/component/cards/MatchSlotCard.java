@@ -148,9 +148,9 @@ public class MatchSlotCard extends HBox {
     }
 
     private void loadIcons() {
-        lockedIcon = new Image(Objects.requireNonNull(Main.class.getResource("/assets/match/locked.png")).toExternalForm());
-        unlockedIcon = new Image(Objects.requireNonNull(Main.class.getResource("/assets/match/unlocked.png")).toExternalForm());
-        hostIcon = new Image(Objects.requireNonNull(Main.class.getResource("/assets/match/host.png")).toExternalForm());
+        lockedIcon = new Image(Objects.requireNonNull(Main.class.getResource("/assets/images/match/locked.png")).toExternalForm());
+        unlockedIcon = new Image(Objects.requireNonNull(Main.class.getResource("/assets/images/match/unlocked.png")).toExternalForm());
+        hostIcon = new Image(Objects.requireNonNull(Main.class.getResource("/assets/images/match/host.png")).toExternalForm());
     }
 
     private void setupHoverPopup() {

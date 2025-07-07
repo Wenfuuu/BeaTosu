@@ -226,7 +226,7 @@ public class BeatmapCard extends StackPane {
         ImageView gamemodeImageView = new ImageView();
         try {
             Image gamemodeImage = new Image(Objects.requireNonNull(
-                    Main.class.getResource("/assets/gamemode/osu-gamemode.png")).toExternalForm());
+                    Main.class.getResource("/assets/images/misc/osu-gamemode.png")).toExternalForm());
             gamemodeImageView.setImage(gamemodeImage);
             gamemodeImageView.setFitHeight(32);
             gamemodeImageView.setFitWidth(32);

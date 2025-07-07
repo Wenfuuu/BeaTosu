@@ -210,7 +210,7 @@ public class MatchCard extends HBox {
     private void setGamemodeIcon() {
         try {
             Image gamemodeImage = new Image(Objects.requireNonNull(
-                    Main.class.getResource("/assets/gamemode/osu-gamemode.png")).toExternalForm());
+                    Main.class.getResource("/assets/images/misc/osu-gamemode.png")).toExternalForm());
             gamemodeImageView.setImage(gamemodeImage);
             gamemodeImageView.setFitHeight(45);
             gamemodeImageView.setFitWidth(45);

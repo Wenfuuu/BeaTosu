@@ -42,7 +42,7 @@ public class SceneManager {
         stage.setFullScreen(true);
 
         stage.getIcons().add(new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/logo/osu_logo.png")).toExternalForm()));
+                .getResource("/assets/images/logo/osu_logo.png")).toExternalForm()));
     }
 
     public void transitionToPage(Page newPage) {

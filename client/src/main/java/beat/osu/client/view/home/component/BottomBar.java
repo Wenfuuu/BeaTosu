@@ -45,7 +45,7 @@ public class BottomBar extends HBox {
 
         logoView = new ImageView();
         logoView.setImage(new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/logo/osu_logo.png")).toExternalForm()));
+                .getResource("/assets/images/logo/osu_logo.png")).toExternalForm()));
         logoView.setFitWidth(80);
         logoView.setFitHeight(80);
         logoView.setTranslateX(-20);

@@ -65,7 +65,7 @@ public class Visualizer extends StackPane implements SongEventListener {
         logoView = new ImageView();
         try {
             logoView.setImage(new Image(Objects.requireNonNull(Main.class
-                    .getResource("/assets/logo/osu_logo.png")).toExternalForm()));
+                    .getResource("/assets/images/logo/osu_logo.png")).toExternalForm()));
         } catch (Exception e) {
             System.err.println("Error loading logo image: " + e.getMessage());
         }
