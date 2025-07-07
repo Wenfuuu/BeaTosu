@@ -51,7 +51,7 @@ public class MediaControls extends HBox {
         button.getStyleClass().add("media-button");
         
         try {
-            String imagePath = "/assets/buttons/jukebox/" + imageName;
+            String imagePath = "/assets/images/button/jukebox/" + imageName;
             URL imageUrl = getClass().getResource(imagePath);
             if (imageUrl != null) {
                 Image image = new Image(imageUrl.toExternalForm());

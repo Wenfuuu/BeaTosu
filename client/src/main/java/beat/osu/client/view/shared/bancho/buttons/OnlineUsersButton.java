@@ -36,11 +36,11 @@ public class OnlineUsersButton extends Button {
 
         try {
             onlineUsersOnIcon = new ImageView(new Image(Objects.requireNonNull(
-                    Main.class.getResource("/assets/buttons/bancho/online_users_on.png")).toExternalForm()));
+                    Main.class.getResource("/assets/images/button/bancho/online_users_on.png")).toExternalForm()));
             setupImageView(onlineUsersOnIcon);
 
             onlineUsersOffIcon = new ImageView(new Image(Objects.requireNonNull(
-                    Main.class.getResource("/assets/buttons/bancho/online_users_off.png")).toExternalForm()));
+                    Main.class.getResource("/assets/images/button/bancho/online_users_off.png")).toExternalForm()));
             setupImageView(onlineUsersOffIcon);
 
             this.setGraphic(onlineUsersOffIcon);

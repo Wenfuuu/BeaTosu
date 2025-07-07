@@ -30,7 +30,7 @@ public class EndReplayButton extends Button {
 
         try {
             currentIcon = new ImageView(new Image(Objects.requireNonNull(
-                    Main.class.getResource("/assets/buttons/replay/end_replay.png")).toExternalForm()));
+                    Main.class.getResource("/assets/images/button/replay/end_replay.png")).toExternalForm()));
             setupImageView(currentIcon);
 
             this.setGraphic(currentIcon);

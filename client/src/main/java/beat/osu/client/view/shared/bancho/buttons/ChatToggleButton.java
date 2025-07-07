@@ -34,11 +34,11 @@ public class ChatToggleButton extends Button {
 
         try {
             showChatIcon = new ImageView(new Image(Objects.requireNonNull(
-                    Main.class.getResource("/assets/buttons/bancho/show_chat.png")).toExternalForm()));
+                    Main.class.getResource("/assets/images/button/bancho/show_chat.png")).toExternalForm()));
             setupImageView(showChatIcon);
 
             hideChatIcon = new ImageView(new Image(Objects.requireNonNull(
-                    Main.class.getResource("/assets/buttons/bancho/hide_chat.png")).toExternalForm()));
+                    Main.class.getResource("/assets/images/button/bancho/hide_chat.png")).toExternalForm()));
             setupImageView(hideChatIcon);
 
             this.setGraphic(showChatIcon);

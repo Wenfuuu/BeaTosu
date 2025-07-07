@@ -50,9 +50,9 @@ public class SubMenuButtons extends VBox {
     private Button createMenuButton(String imageName) {
         Button button = new Button();
         try {
-            String imagePath = "/assets/buttons/play-menu/" + imageName;
+            String imagePath = "/assets/images/button/play-menu/" + imageName;
             String hoveredImageName = imageName.substring(0, imageName.lastIndexOf('.')) + "_hovered.png";
-            String hoveredImagePath = "/assets/buttons/play-menu/" + hoveredImageName;
+            String hoveredImagePath = "/assets/images/button/play-menu/" + hoveredImageName;
             
             URL imageUrl = getClass().getResource(imagePath);
             URL hoveredImageUrl = getClass().getResource(hoveredImagePath);

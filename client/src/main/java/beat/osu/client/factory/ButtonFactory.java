@@ -64,8 +64,8 @@ public class ButtonFactory {
     public static Button createBackButton() {
         Button button = new Button();
         try {
-            String normalImagePath = "/assets/buttons/shared/global_back.png";
-            String hoveredImagePath = "/assets/buttons/shared/global_back_hovered.png";
+            String normalImagePath = "/assets/images/button/shared/global_back.png";
+            String hoveredImagePath = "/assets/images/button/shared/global_back_hovered.png";
 
             URL normalImageUrl = Main.class.getResource(normalImagePath);
             URL hoveredImageUrl = Main.class.getResource(hoveredImagePath);

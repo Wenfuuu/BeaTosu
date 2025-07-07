@@ -113,7 +113,7 @@ public class ScoreOverlay extends BorderPane {
         scorePanel = new ScorePanel(digitImages);
         hitCountsPanel = new HitCountsPanel(digitImages);
 
-        Image replayImage = new Image(Objects.requireNonNull(Main.class.getResource("/assets/buttons/pause-menu/pause-replay.png")).toExternalForm());
+        Image replayImage = new Image(Objects.requireNonNull(Main.class.getResource("/assets/images/button/pause-menu/pause-replay.png")).toExternalForm());
 
         replayImageView = new ImageView(replayImage);
 
