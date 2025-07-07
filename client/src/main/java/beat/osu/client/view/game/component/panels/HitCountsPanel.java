@@ -44,12 +44,12 @@ public class HitCountsPanel extends VBox {
         this.digitImages = digitImages;
 
         xImage = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/score-x.png")).toExternalForm());
+                .getResource("/assets/images/score/symbols/score-x.png")).toExternalForm());
 
         percentImage = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/score-percent.png")).toExternalForm());
+                .getResource("/assets/images/score/symbols/score-percent.png")).toExternalForm());
         commaImage = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/score-comma.png")).toExternalForm());
+                .getResource("/assets/images/score/symbols/score-comma.png")).toExternalForm());
 
         hitImages = new Image[6];
         hitImages[0] = new Image(Objects.requireNonNull(Main.class

@@ -67,11 +67,11 @@ public class GameUI extends Pane {
                     .getResource("/assets/images/score/digits/score-" + i + ".png")).toExternalForm());
         }
         percentImage = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/score-percent.png")).toExternalForm());
+                .getResource("/assets/images/score/symbols/score-percent.png")).toExternalForm());
         xImage = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/score-x.png")).toExternalForm());
+                .getResource("/assets/images/score/symbols/score-x.png")).toExternalForm());
         commaImage = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/score-comma.png")).toExternalForm());
+                .getResource("/assets/images/score/symbols/score-comma.png")).toExternalForm());
         inputOverlayImage = new Image(Objects.requireNonNull(Main.class
                 .getResource("/assets/images/inputoverlay-key.png")).toExternalForm());
         inputOverlayBackgroundImage = new Image(Objects.requireNonNull(Main.class

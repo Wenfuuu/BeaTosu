@@ -30,7 +30,7 @@ public class ScoreItem extends HBox {
     private void updateGrade(String grade) {
         String gradeImagePath;
         if (grade.equals("SS"))
-            gradeImagePath = "/assets/images/ranking-x.png";
+            gradeImagePath = "/assets/images/score/ranking/ranking-x.png";
         else
             gradeImagePath = "/assets/images/ranking-" + grade.toLowerCase() + ".png";
         Image gradeImage = new Image(Objects.requireNonNull(Main.class.getResource(gradeImagePath)).toExternalForm());

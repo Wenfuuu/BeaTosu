@@ -59,7 +59,7 @@ public class ScoreOverlay extends BorderPane {
                     .getResource("/assets/images/score/digits/score-" + i + ".png")).toExternalForm());
         }
         gradeImage = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/ranking-x.png")).toExternalForm());
+                .getResource("/assets/images/score/ranking/ranking-x.png")).toExternalForm());
 
         gradeSymbol = new ImageView(gradeImage);
         gradeSymbol.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.33);
@@ -102,7 +102,7 @@ public class ScoreOverlay extends BorderPane {
 
     private void updateGrade(String grade) {
         String gradeImagePath;
-        if(grade.equals("SS")) gradeImagePath = "/assets/images/ranking-x.png";
+        if(grade.equals("SS")) gradeImagePath = "/assets/images/score/ranking/ranking-x.png";
         else gradeImagePath = "/assets/images/ranking-" + grade.toLowerCase() + ".png";
         gradeImage = new Image(Objects.requireNonNull(Main.class.getResource(gradeImagePath)).toExternalForm());
         gradeSymbol.setImage(gradeImage);
