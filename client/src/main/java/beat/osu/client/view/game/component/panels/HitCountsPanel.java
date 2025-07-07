@@ -53,17 +53,17 @@ public class HitCountsPanel extends VBox {
 
         hitImages = new Image[6];
         hitImages[0] = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/hit300.png")).toExternalForm());
+                .getResource("/assets/images/score/hits/hit300.png")).toExternalForm());
         hitImages[1] = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/hit300g.png")).toExternalForm());
+                .getResource("/assets/images/score/hits/hit300g.png")).toExternalForm());
         hitImages[2] = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/hit100.png")).toExternalForm());
+                .getResource("/assets/images/score/hits/hit100.png")).toExternalForm());
         hitImages[3] = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/hit100k.png")).toExternalForm());
+                .getResource("/assets/images/score/hits/hit100k.png")).toExternalForm());
         hitImages[4] = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/hit50.png")).toExternalForm());
+                .getResource("/assets/images/score/hits/hit50.png")).toExternalForm());
         hitImages[5] = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/hit0.png")).toExternalForm());
+                .getResource("/assets/images/score/hits/hit0.png")).toExternalForm());
 
         hitCountRows = new HBox[3];
         hitCountLabels = new ImageView[6];

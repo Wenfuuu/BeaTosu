@@ -229,27 +229,27 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
             case PERFECT:
                 if (hitObject.isComboEnd()) {
                     if (perfectCombo) {
-                        imagePath = "/assets/images/hit300g.png";
+                        imagePath = "/assets/images/score/hits/hit300g.png";
                     } else if (imperfectOrMissed) {
-                        imagePath = "/assets/images/hit300.png";
+                        imagePath = "/assets/images/score/hits/hit300.png";
                     } else {
-                        imagePath = "/assets/images/hit300k.png";
+                        imagePath = "/assets/images/score/hits/hit300k.png";
                     }
                 } else
-                    imagePath = "/assets/images/hit300.png";
+                    imagePath = "/assets/images/score/hits/hit300.png";
                 break;
             case GREAT:
                 if (hitObject.isComboEnd()) {
                     if (imperfectOrMissed) {
-                        imagePath = "/assets/images/hit100.png";
+                        imagePath = "/assets/images/score/hits/hit100.png";
                     } else {
-                        imagePath = "/assets/images/hit100k.png";
+                        imagePath = "/assets/images/score/hits/hit100k.png";
                     }
                 } else
-                    imagePath = "/assets/images/hit100.png";
+                    imagePath = "/assets/images/score/hits/hit100.png";
                 break;
             case GOOD:
-                imagePath = "/assets/images/hit50.png";
+                imagePath = "/assets/images/score/hits/hit50.png";
                 break;
         }
 
@@ -415,7 +415,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
 
     private void showMissImage(HitObject hitObject) {
         Image hitImage = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/hit0.png")).toExternalForm());
+                .getResource("/assets/images/score/hits/hit0.png")).toExternalForm());
         ImageView hitImageView = new ImageView(hitImage);
         hitImageView.setFitWidth(50);
         hitImageView.setFitHeight(50);
