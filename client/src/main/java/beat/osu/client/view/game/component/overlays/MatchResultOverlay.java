@@ -51,7 +51,7 @@ public class MatchResultOverlay extends BorderPane {
         digitImages = new Image[10];
         for (int i = 0; i < 10; i++) {
             digitImages[i] = new Image(Objects.requireNonNull(Main.class
-                    .getResource("/assets/images/score-" + i + ".png")).toExternalForm());
+                    .getResource("/assets/images/score/digits/score-" + i + ".png")).toExternalForm());
         }
         gradeImage = new Image(Objects.requireNonNull(Main.class
                 .getResource("/assets/images/ranking-x.png")).toExternalForm());
