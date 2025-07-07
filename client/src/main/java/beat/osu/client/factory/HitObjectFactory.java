@@ -34,7 +34,7 @@ public class HitObjectFactory {
         return "spinner";
     }
 
-    private static ArrayList<String> generateCircleSfxFilenames(int hitSound, String hitSample) {
+    private static ArrayList<String> generateCircleSfxFilenames(int hitSound, String hitSample, int hitTime) {
         String[] parts = hitSample.split(":");
         int normalSetId = parts.length > 0 && !parts[0].isEmpty() ? Integer.parseInt(parts[0]) : 0;
         int additionSetId = parts.length > 1 && !parts[1].isEmpty() ? Integer.parseInt(parts[1]) : 0;
@@ -47,8 +47,8 @@ public class HitObjectFactory {
             return sounds;
         }
 
-        String normalSet = getSampleSetName(normalSetId);
-        String additionSet = getSampleSetName(additionSetId);
+        String normalSet = getSampleSetNameForNormal(normalSetId, hitTime);
+        String additionSet = getSampleSetNameForAddition(additionSetId, normalSet);
 
 //        System.out.println(normalSet);
         if(normalSet.equals("normal")) {
@@ -78,7 +78,7 @@ public class HitObjectFactory {
     }
 
     public static ArrayList<ArrayList<String>> generateSliderEdgeSfxFilenames(
-            String edgeSounds, String edgeSets) {
+            String edgeSounds, String edgeSets, int hitTime) {
         String[] soundsArray = edgeSounds.isEmpty() ? new String[0] : edgeSounds.split("\\|");
         String[] setsArray = edgeSets.isEmpty() ? new String[0] : edgeSets.split("\\|");
 
@@ -100,7 +100,7 @@ public class HitObjectFactory {
             }
 
             // Generate sounds for this edge using similar logic to circle hitsounds
-            ArrayList<String> edgeSfx = generateEdgeSfxForSingleEdge(hitSound, sampleSet);
+            ArrayList<String> edgeSfx = generateEdgeSfxForSingleEdge(hitSound, sampleSet, hitTime);
             allEdgeSounds.add(edgeSfx);
         }
 
@@ -108,15 +108,15 @@ public class HitObjectFactory {
     }
 
     private static ArrayList<String> generateEdgeSfxForSingleEdge(
-            int hitSound, String sampleSet) {
+            int hitSound, String sampleSet, int hitTime) {
         String[] parts = sampleSet.split(":");
         int normalSetId = parts.length > 0 && !parts[0].isEmpty() ? Integer.parseInt(parts[0]) : 0;
         int additionSetId = parts.length > 1 && !parts[1].isEmpty() ? Integer.parseInt(parts[1]) : 0;
         int index = 0;
 
         ArrayList<String> sounds = new ArrayList<>();
-        String normalSet = getSampleSetName(normalSetId);
-        String additionSet = getSampleSetName(additionSetId);
+        String normalSet = getSampleSetNameForNormal(normalSetId, hitTime);
+        String additionSet = getSampleSetNameForAddition(additionSetId, normalSet);
 
         if(normalSet.equals("normal")) {
             if (hitSound == 0 || (hitSound & 1) != 0) {
@@ -148,8 +148,49 @@ public class HitObjectFactory {
             case 1: return "normal";
             case 2: return "soft";
             case 3: return "drum";
-            default: return OsuParser.getSampleSet();
+            default: return OsuParser.getGeneralSampleSet();
         }
+    }
+
+    private static String getSampleSetNameForNormal(int id, int hitTime) {
+        switch (id) {
+            case 1: return "normal";
+            case 2: return "soft";
+            case 3: return "drum";
+            case 0:
+                // For normal sounds, use the timing point's sample set
+                TimingPoint activeTP = getActiveTimingPointAt(hitTime);
+                if (activeTP != null) {
+                    System.out.println("using active timing point sample set: " + activeTP.getSampleSet());
+                    return getSampleSetName(activeTP.getSampleSet());
+                }
+                return OsuParser.getGeneralSampleSet();
+            default: return OsuParser.getGeneralSampleSet();
+        }
+    }
+
+    private static String getSampleSetNameForAddition(int id, String normalSet) {
+        switch (id) {
+            case 1: return "normal";
+            case 2: return "soft";
+            case 3: return "drum";
+            case 0:
+                // For additions, use the normal sound's sample set
+                return normalSet;
+            default: return OsuParser.getGeneralSampleSet();
+        }
+    }
+
+    private static TimingPoint getActiveTimingPointAt(int time) {
+        TimingPoint activeTP = null;
+        for (TimingPoint tp : OsuParser.getTimingPointsList()) {
+            if (tp.getTime() <= time) {
+                activeTP = tp;
+            } else {
+                break;
+            }
+        }
+        return activeTP;
     }
 
     private static String buildCircleFilename(String setName, String type, int index) {
@@ -212,17 +253,17 @@ public class HitObjectFactory {
         if(hitType.equals("circle")){
             return new HitCircle(x, y, time, type, hitSound, hitSample, approachRate, circleSize,
                     comboNumber, comboSetIndex, colorString, comboEnd,
-                    generateCircleSfxFilenames(hitSound, hitSample));
+                    generateCircleSfxFilenames(hitSound, hitSample, time));
         }else if(hitType.equals("slider")){
             return new HitSlider(x, y, time, type, hitSound, objectParams, hitSample,
                     approachRate, circleSize, sliderMultiplier, sliderTickRate,
                     comboNumber, comboSetIndex, colorString, comboEnd,
-                    generateCircleSfxFilenames(hitSound, hitSample), listener);
+                    generateCircleSfxFilenames(hitSound, hitSample, time), listener);
         }else{
             return new HitSpinner(x, y, time, type, hitSound, hitSample,
                     spinnerEndTime, approachRate, circleSize, overallDifficulty,
                     comboNumber, comboSetIndex, colorString, comboEnd,
-                    generateCircleSfxFilenames(hitSound, hitSample), listener);
+                    generateCircleSfxFilenames(hitSound, hitSample, time), listener);
         }
     }
 

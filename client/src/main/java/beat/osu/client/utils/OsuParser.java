@@ -42,7 +42,7 @@ public class OsuParser {
     private static ArrayList<String> events = new ArrayList<>();
 
     private static String bgFileName = "";
-    private static double bgm = 0;
+    private static double bpm = 0;
     @Getter
     private static ArrayList<TimingPoint> timingPointsList = new ArrayList<>();
     @Getter
@@ -57,7 +57,7 @@ public class OsuParser {
         timingPoints.clear();
         events.clear();
         bgFileName = "";
-        bgm = 0;
+        bpm = 0;
         timingPointsList.clear();
         breakPeriodsList.clear();
     }
@@ -112,7 +112,7 @@ public class OsuParser {
         String creator = metadata.get("Creator");
 
         beatmapController.insertBeatmapSet(beatmapSetId, title, artist,
-                creator, timeString, getBGM()).thenApply(
+                creator, timeString, getBPM()).thenApply(
                         response -> {
                             if (response.isSuccess()) {
                                 System.out.println(
@@ -306,14 +306,14 @@ public class OsuParser {
         return bgFileName;
     }
 
-    public static int getBGM() {
-        if (bgm == 0) {
+    public static int getBPM() {
+        if (bpm == 0) {
             String temp = timingPoints.get(0);
             String[] arr = temp.split(",");
             double beatLength = Double.parseDouble(arr[1]);
-            bgm = 60000 / beatLength;
+            bpm = 60000 / beatLength;
         }
-        return (int) bgm;
+        return (int) bpm;
     }
 
     public static double getPreviewTime() {
@@ -324,9 +324,9 @@ public class OsuParser {
         return 0;
     }
 
-    public static String getSampleSet() {
+    public static String getGeneralSampleSet() {
         String sampleSet = general.get("SampleSet");
-        if (sampleSet != null && !sampleSet.isEmpty()) {
+        if (sampleSet != null && !sampleSet.isEmpty() && !sampleSet.equals("None")) {
             return sampleSet.toLowerCase();
         }
         return "normal";

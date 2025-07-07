@@ -124,8 +124,8 @@ public class HitSlider extends HitObject {
             // Fallback: No uninherited timing point found before the slider.
             // This is unusual for a slider not at the very beginning of the map.
             // Use a default beat duration (e.g., 120 BPM = 500ms/beat).
-            int bgm = OsuParser.getBGM();
-            msBeat = 60000.0 / bgm;
+            int bpm = OsuParser.getBPM();
+            msBeat = 60000.0 / bpm;
             System.out.println("falling back to default beat length of " + msBeat
                     + "ms for slider at " + getHitTime() + ". No uninherited timing point found.");
         }
@@ -257,7 +257,8 @@ public class HitSlider extends HitObject {
         TICK_RADIUS = getCircleRadius() * 0.15;
 
         parseSliderParams(objectParams, getOsuX(), getOsuY());
-        this.edfeSfxFilenames = HitObjectFactory.generateSliderEdgeSfxFilenames(edgeSoundsStr, edgeSetsStr);
+        this.edfeSfxFilenames = HitObjectFactory.generateSliderEdgeSfxFilenames(edgeSoundsStr, edgeSetsStr,
+                (int) getHitTime());
         this.listener = listener;
         this.sliderTickRate = sliderTickRate; // Store tick rate for later use
 
@@ -285,7 +286,7 @@ public class HitSlider extends HitObject {
         borderPath = createSliderPath();
         if (sliderPath != null && borderPath != null) {
             borderPath.setStroke(Color.rgb(168, 107, 121, 0.8));
-//            sliderPath.setStroke(circleColor.deriveColor(1, 1, 1, 0.8));
+            // sliderPath.setStroke(circleColor.deriveColor(1, 1, 1, 0.8));
             sliderPath.setStroke(Color.rgb(0, 0, 0, 0.5));
 
             group.getChildren().addAll(borderPath, sliderPath);
@@ -391,9 +392,11 @@ public class HitSlider extends HitObject {
     }
 
     private void updateTickVisuals(double timeSinceHitStart) {
-        if (!headHit || sliderTicks.isEmpty()) return;
+        if (!headHit || sliderTicks.isEmpty())
+            return;
 
-        if (!mouseInBallRadius || !keyHolded) return;
+        if (!mouseInBallRadius || !keyHolded)
+            return;
 
         double tickSpacing = msPerBeat / calculateTickRate();
         int newTickIndex = (int) Math.floor(timeSinceHitStart / tickSpacing);
@@ -556,7 +559,7 @@ public class HitSlider extends HitObject {
                 Point2D p = controlPoints.get(i);
                 path.getElements().add(new LineTo(p.getX() - start.getX(), p.getY() - start.getY()));
             }
-        }else if (sliderType == 'P') { // Perfect Circle
+        } else if (sliderType == 'P') { // Perfect Circle
             // 'P' must have exactly 3 control points: start, middle point on arc, and end
             if (controlPoints.size() == 3) {
                 Point2D middle = controlPoints.get(1);
@@ -695,7 +698,8 @@ public class HitSlider extends HitObject {
                     relCtrl2.getX(), relCtrl2.getY(),
                     relEnd.getX(), relEnd.getY()));
         } else {
-            // Higher order Bezier curve - use De Casteljau's algorithm to approximate with path segments
+            // Higher order Bezier curve - use De Casteljau's algorithm to approximate with
+            // path segments
             int samples = Math.max(20, segmentPoints.size() * 4); // More samples for smoother curves
 
             for (int i = 1; i <= samples; i++) {
@@ -935,11 +939,11 @@ public class HitSlider extends HitObject {
                 mouseInBallRadius = isMouseInBallRadius(mouseX, mouseY);
                 boolean previousKeyHolded = this.keyHolded;
                 this.keyHolded = keyHolded;
-//                System.out.println("Key holded: " + keyHolded);
+                // System.out.println("Key holded: " + keyHolded);
 
                 // Update colors if the mouse state changed
                 if (previousMouseInBallRadius != mouseInBallRadius ||
-                previousKeyHolded != this.keyHolded) {
+                        previousKeyHolded != this.keyHolded) {
                     updateSliderBallColors();
                 }
             } else if (getCurrTime() > endTime) {
@@ -957,7 +961,8 @@ public class HitSlider extends HitObject {
     }
 
     private void trackRepeatHit(int repeatIndex) {
-        if (!mouseInBallRadius || !keyHolded) return;
+        if (!mouseInBallRadius || !keyHolded)
+            return;
 
         if (repeatIndex >= 0 && repeatIndex < repeatHitStatus.size() && !repeatHitStatus.get(repeatIndex)) {
             repeatHitStatus.set(repeatIndex, true);
