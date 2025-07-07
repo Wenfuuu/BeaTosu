@@ -34,7 +34,7 @@ public class SfxManager {
     }
 
     private static URL getSfxResource(String sfxName) {
-        return Main.class.getResource("/assets/sfx/" + sfxName);
+        return Main.class.getResource("/assets/audio/sfx/" + sfxName);
     }
 
     public static MediaPlayer createSfxPlayer(String sfxName) {
@@ -71,7 +71,7 @@ public class SfxManager {
     }
 
     public static void playBeatmapSfx(String sfxName) {
-        URL sfxUrl = getSfxResource(sfxName);
+        URL sfxUrl = getSfxResource("gameplay/"+ sfxName);
         Media media = null;
 
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
@@ -93,32 +93,32 @@ public class SfxManager {
 
         switch (sfxType) {
             case MENU_HIT:
-                sfxUrl = getSfxResource("menu-hit.wav");
+                sfxUrl = getSfxResource("menu/menu-hit.wav");
                 break;
             case MENU_HOVER:
-                sfxUrl = getSfxResource("menu-hover.wav");
+                sfxUrl = getSfxResource("menu/menu-hover.wav");
                 break;
             case MENU_BACK:
-                sfxUrl = getSfxResource("menu-back.wav");
+                sfxUrl = getSfxResource("menu/menu-back.wav");
                 break;
             case SELECT_BEATMAP:
-                sfxUrl = getSfxResource("select-beatmap.mp3");
+                sfxUrl = getSfxResource("menu/select-beatmap.mp3");
                 break;
             case PAUSE_HOVER:
-                sfxUrl = getSfxResource("pause-hover.wav");
+                sfxUrl = getSfxResource("menu/pause-hover.wav");
                 break;
             case PAUSE_CLICK:
-                sfxUrl = getSfxResource("pause-click.wav");
+                sfxUrl = getSfxResource("menu/pause-click.wav");
                 break;
             case KEY_DELETE:
-                sfxUrl = getSfxResource("key-delete.mp3");
+                sfxUrl = getSfxResource("keys/key-delete.mp3");
                 break;
             case KEY_PRESS:
                 int randomKeyPress = (int) (Math.random() * 4) + 1;
-                sfxUrl = getSfxResource("key-press-" + randomKeyPress + ".mp3");
+                sfxUrl = getSfxResource("keys/key-press-" + randomKeyPress + ".mp3");
                 break;
             case SELECT_EXPAND:
-                sfxUrl = getSfxResource("select-expand.mp3");
+                sfxUrl = getSfxResource("menu/select-expand.mp3");
                 break;
             default:
                 System.err.println("Unknown SFX type: " + sfxType);
