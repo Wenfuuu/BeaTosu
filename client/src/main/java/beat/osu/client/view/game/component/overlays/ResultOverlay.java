@@ -128,9 +128,9 @@ public class ResultOverlay extends BorderPane {
         rightStats.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.275);
         rightStats.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.275);
 
-        rightStats.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.80);
-        rightStats.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.80);
-        rightStats.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.80);
+        rightStats.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.82);
+        rightStats.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.82);
+        rightStats.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.82);
 
         gradeSymbol.setSmooth(true);
 
@@ -154,13 +154,13 @@ public class ResultOverlay extends BorderPane {
         Pane contentPane = new Pane();
         contentPane.getChildren().addAll(scorePanel, hitCountsPanel, backButton, rightStats);
 
-        scorePanel.setLayoutX(ScreenManager.SCREEN_WIDTH * 0.01);
+        scorePanel.setLayoutX(ScreenManager.SCREEN_WIDTH * 0.02);
         scorePanel.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.04);
 
-        hitCountsPanel.setLayoutX(ScreenManager.SCREEN_WIDTH * 0.01);
+        hitCountsPanel.setLayoutX(ScreenManager.SCREEN_WIDTH * 0.02);
         hitCountsPanel.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.15);
 
-        backButton.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.85);
+        backButton.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.83);
 
         rightStats.setLayoutX(ScreenManager.SCREEN_WIDTH * 0.64);
         rightStats.setLayoutY(ScreenManager.SCREEN_HEIGHT * 0.03);
