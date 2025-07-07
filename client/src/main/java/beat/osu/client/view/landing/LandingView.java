@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-import beat.osu.client.Main;
 import beat.osu.client.controller.*;
 import beat.osu.client.enums.PlaybackMode;
 import beat.osu.client.enums.SfxType;
@@ -37,7 +36,6 @@ import beat.osu.client.view.shared.jukebox.modals.PlaylistModal;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.auth.responses.LogoutResponse;
 import beat.osu.shared.dto.beatmap.BeatmapDto;
-import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
 import beat.osu.shared.dto.beatmap.responses.GetBeatmapByIdResponse;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
@@ -438,7 +436,7 @@ public class LandingView extends Page {
 
         playlistModal.setVisible(false);
 
-        String bgmPath = "assets/audio/nekodex-circles.mp3";
+        String bgmPath = "assets/audio/music/nekodex-circles.mp3";
         if (BgmManager.getInstance().getCurrentPlayer() == null) {
             String extractedBgmPath = ResourceManager.extractResourceToTempAndGetPath(bgmPath, "default-bgm.mp3");
             if (extractedBgmPath != null) {
