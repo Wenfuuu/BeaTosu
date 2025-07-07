@@ -15,6 +15,7 @@ import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BreakPeriod;
 import beat.osu.client.model.TimingPoint;
 import lombok.Getter;
+import lombok.Setter;
 
 public class OsuParser {
     private static BeatmapController beatmapController = new BeatmapController();
@@ -22,11 +23,8 @@ public class OsuParser {
     private static Beatmap currentBeatmap;
 
     // Callback for error messages
+    @Setter
     private static Consumer<String> errorCallback;
-
-    public static void setErrorCallback(Consumer<String> callback) {
-        errorCallback = callback;
-    }
 
     @Getter
     private static Map<String, String> general = new HashMap<>();
@@ -324,5 +322,13 @@ public class OsuParser {
             return Double.parseDouble(previewTimeStr);
         }
         return 0;
+    }
+
+    public static String getSampleSet() {
+        String sampleSet = general.get("SampleSet");
+        if (sampleSet != null && !sampleSet.isEmpty()) {
+            return sampleSet.toLowerCase();
+        }
+        return "normal";
     }
 }

@@ -145,9 +145,10 @@ public class HitObjectFactory {
 
     private static String getSampleSetName(int id) {
         switch (id) {
+            case 1: return "normal";
             case 2: return "soft";
             case 3: return "drum";
-            default: return "normal";
+            default: return OsuParser.getSampleSet();
         }
     }
 
