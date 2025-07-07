@@ -73,9 +73,9 @@ public class GameUI extends Pane {
         commaImage = new Image(Objects.requireNonNull(Main.class
                 .getResource("/assets/images/score/symbols/score-comma.png")).toExternalForm());
         inputOverlayImage = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/inputoverlay-key.png")).toExternalForm());
+                .getResource("/assets/images/gameplay/inputoverlay-key.png")).toExternalForm());
         inputOverlayBackgroundImage = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/inputoverlay-background.png")).toExternalForm());
+                .getResource("/assets/images/gameplay/inputoverlay-background.png")).toExternalForm());
 
         // Score display
         scoreDigits = new ImageView[8];

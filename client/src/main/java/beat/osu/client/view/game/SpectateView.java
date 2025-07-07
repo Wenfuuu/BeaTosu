@@ -233,7 +233,7 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
         }
 
         // Create arrow warning images
-        String imagePath = "/assets/images/arrow-warning.png";
+        String imagePath = "/assets/images/gameplay/arrow-warning.png";
         Image arrowImage = new Image(Objects.requireNonNull(Main.class
                 .getResource(imagePath)).toExternalForm());
 
@@ -247,7 +247,7 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
             spectatePane.getChildren().add(0, arrowImageViews[i]);
         }
 
-        String sectionPassImagePath = "/assets/images/section-pass.png";
+        String sectionPassImagePath = "/assets/images/gameplay/section-pass.png";
         sectionpassImageView = new ImageView(new Image(Objects.requireNonNull(Main.class
                 .getResource(sectionPassImagePath)).toExternalForm()));
         sectionpassImageView.setFitWidth(ScreenManager.SCREEN_HEIGHT / 4);
@@ -255,7 +255,7 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
         sectionpassImageView.setVisible(false);
         spectatePane.getChildren().add(0, sectionpassImageView);
 
-        String sectionFailImagePath = "/assets/images/section-fail.png";
+        String sectionFailImagePath = "/assets/images/gameplay/section-fail.png";
         sectionfailImageView = new ImageView(new Image(Objects.requireNonNull(Main.class
                 .getResource(sectionFailImagePath)).toExternalForm()));
         sectionfailImageView.setFitWidth(ScreenManager.SCREEN_HEIGHT / 4);

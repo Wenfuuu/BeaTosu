@@ -9,7 +9,6 @@ import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
@@ -51,7 +50,7 @@ public class HitSpinner extends HitObject {
         double baseRadius = getCircleRadius() * 2.5; // Spinners are larger than hit circles
 
         spinnerApproachImage = new ImageView(new Image(
-                Objects.requireNonNull(Main.class.getResourceAsStream("/assets/images/spinner-approachcircle.png"))));
+                Objects.requireNonNull(Main.class.getResourceAsStream("/assets/images/gameplay/spinner-approachcircle.png"))));
         spinnerApproachImage.setFitWidth(baseRadius * 8.0);
         spinnerApproachImage.setFitHeight(baseRadius * 8.0);
         spinnerApproachImage.setPreserveRatio(true);
@@ -59,7 +58,7 @@ public class HitSpinner extends HitObject {
         spinnerApproachImage.setLayoutY(-baseRadius * 4.0);
 
         spinnerImage = new ImageView(
-                new Image(Objects.requireNonNull(Main.class.getResourceAsStream("/assets/images/spinner-circle.png"))));
+                new Image(Objects.requireNonNull(Main.class.getResourceAsStream("/assets/images/gameplay/spinner-circle.png"))));
         spinnerImage.setFitWidth(baseRadius * 2);
         spinnerImage.setFitHeight(baseRadius * 2);
         spinnerImage.setPreserveRatio(true);

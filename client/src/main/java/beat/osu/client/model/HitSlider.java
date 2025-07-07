@@ -469,7 +469,7 @@ public class HitSlider extends HitObject {
         reverseArrows.clear();
 
         Image arrowImage = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/reversearrow.png")).toExternalForm());
+                .getResource("/assets/images/gameplay/reversearrow.png")).toExternalForm());
 
         Point2D startPoint = controlPoints.get(0);
         Point2D endPoint = controlPoints.get(controlPoints.size() - 1);
