@@ -32,7 +32,7 @@ public class ScorePanel extends HBox {
     }
 
     private void initializeComponents() {
-        Image scoreImage = new Image(Objects.requireNonNull(Main.class.getResource("/assets/score/score_and_hits.png")).toExternalForm());
+        Image scoreImage = new Image(Objects.requireNonNull(Main.class.getResource("/assets/score/badges/score_and_hits.png")).toExternalForm());
         scoreImageView = new ImageView(scoreImage);
         scoreImageView.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.046);
         scoreImageView.setPreserveRatio(true);

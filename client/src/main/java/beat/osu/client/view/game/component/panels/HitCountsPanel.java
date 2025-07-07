@@ -71,7 +71,7 @@ public class HitCountsPanel extends VBox {
         hitCountXSymbols = new ImageView[6];
 
         Image comboImage = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/score/combo.png")).toExternalForm());
+                .getResource("/assets/score/badges/combo.png")).toExternalForm());
         comboSymbol = new ImageView(comboImage);
         comboSymbol.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.06);
         comboSymbol.setPreserveRatio(true);
@@ -84,7 +84,7 @@ public class HitCountsPanel extends VBox {
         comboContainer.setAlignment(Pos.CENTER);
 
         Image accuracyImage = new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/score/accuracy.png")).toExternalForm());
+                .getResource("/assets/score/badges/accuracy.png")).toExternalForm());
         accuracySymbol = new ImageView(accuracyImage);
         accuracySymbol.setFitHeight(ScreenManager.SCREEN_HEIGHT * 0.06);
         accuracySymbol.setPreserveRatio(true);
