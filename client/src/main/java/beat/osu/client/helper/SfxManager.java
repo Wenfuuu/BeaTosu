@@ -72,6 +72,10 @@ public class SfxManager {
 
     public static void playBeatmapSfx(String sfxName) {
         URL sfxUrl = getSfxResource("gameplay/"+ sfxName);
+        if (sfxUrl == null) {
+            System.err.println("SFX resource not found: " + sfxName);
+            return;
+        }
         Media media = null;
 
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
