@@ -41,6 +41,13 @@ public class HitObjectFactory {
         int index = parts.length > 2 && !parts[2].isEmpty() ? Integer.parseInt(parts[2]) : 0;
         String filename = parts.length > 4 ? parts[4] : "";
 
+        if (index == 0) {
+            TimingPoint activeTP = getActiveTimingPointAt(hitTime);
+            if (activeTP != null) {
+                index = activeTP.getSampleIndex();
+            }
+        }
+
         ArrayList<String> sounds = new ArrayList<>();
         if (!filename.isEmpty()) {
             sounds.add(filename);
@@ -113,6 +120,13 @@ public class HitObjectFactory {
         int normalSetId = parts.length > 0 && !parts[0].isEmpty() ? Integer.parseInt(parts[0]) : 0;
         int additionSetId = parts.length > 1 && !parts[1].isEmpty() ? Integer.parseInt(parts[1]) : 0;
         int index = 0;
+
+        if (index == 0) {
+            TimingPoint activeTP = getActiveTimingPointAt(hitTime);
+            if (activeTP != null) {
+                index = activeTP.getSampleIndex();
+            }
+        }
 
         ArrayList<String> sounds = new ArrayList<>();
         String normalSet = getSampleSetNameForNormal(normalSetId, hitTime);

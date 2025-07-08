@@ -71,21 +71,31 @@ public class SfxManager {
     }
 
     public static void playBeatmapSfx(String sfxName) {
-        URL sfxUrl = getSfxResource("gameplay/"+ sfxName);
-        if (sfxUrl == null) {
-            System.err.println("SFX resource not found: " + sfxName);
-            return;
-        }
         Media media = null;
 
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
         File beatmapDir = new File(ResourceManager.getTempDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
         File sfxFile = new File(beatmapDir, sfxName);
         if (sfxFile.exists() && !ignoreBeatmapSFX) {
-            System.out.println("Beatmap SFX found!");
+            System.out.println("Beatmap SFX found: " + sfxName);
             media = new Media(sfxFile.toURI().toString());
         } else {
-            System.out.println("Playing default SFX");
+            // remove the index from the sfxName, e.g. "soft-hitnormal1.wav" to "soft-hitnormal.wav"
+            String baseName = sfxName;
+            int dotIndex = sfxName.lastIndexOf('.');
+            if (dotIndex > 0) {
+                String nameWithoutExtension = sfxName.substring(0, dotIndex);
+                String extension = sfxName.substring(dotIndex);
+                String nameStripped = nameWithoutExtension.replaceAll("\\d+$", "");
+                baseName = nameStripped + extension;
+            }
+
+            URL sfxUrl = getSfxResource("gameplay/"+ baseName);
+            if (sfxUrl == null) {
+                System.err.println("SFX resource not found: " + baseName);
+                return;
+            }
+            System.out.println("Playing default SFX: " + baseName);
             media = new Media(sfxUrl.toString());
         }
 
