@@ -205,7 +205,7 @@ public class BeatmapCard extends StackPane {
     private HBox createStarsBox() {
         HBox starsBox = new HBox(8);
         double starFontSize = getInfoFontSize() * 0.9;
-        for (int i = 0; i < beatmap.getStarRating(); i++) {
+        for (int i = 0; i < Math.round(beatmap.getStarRating()); i++) {
             Label star = new Label("★");
             star.setStyle("-fx-font-size: " + starFontSize + "px;");
             starsBox.getChildren().add(star);
