@@ -80,9 +80,8 @@ public class ScoreOverlay extends BorderPane {
 
     public void updateResult(ScoreDto score, Beatmap beatmap) {
         this.score = score;
-        LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a");
-        String formatted = now.format(formatter);
+        String formatted = score.getDate().format(formatter);
 
         String newSongTitle = String.format("%s - %s [%s]", beatmap.getBeatmapSet().getArtist(), beatmap.getBeatmapSet().getTitle(), beatmap.getVersion());
         String newCreator = beatmap.getBeatmapSet().getCreator();
@@ -103,7 +102,7 @@ public class ScoreOverlay extends BorderPane {
     private void updateGrade(String grade) {
         String gradeImagePath;
         if(grade.equals("SS")) gradeImagePath = "/assets/images/score/ranking/ranking-x.png";
-        else gradeImagePath = "/assets/images/ranking-" + grade.toLowerCase() + ".png";
+        else gradeImagePath = "/assets/images/score/ranking/ranking-" + grade.toLowerCase() + ".png";
         gradeImage = new Image(Objects.requireNonNull(Main.class.getResource(gradeImagePath)).toExternalForm());
         gradeSymbol.setImage(gradeImage);
     }
