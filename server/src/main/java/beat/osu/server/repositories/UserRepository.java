@@ -34,6 +34,35 @@ public class UserRepository {
         }
     }
 
+    public User findUserByEmail(String email) {
+        String query = "SELECT * FROM users WHERE email = ?;";
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, email);
+            var rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return new User(
+                        rs.getInt("id"),
+                        rs.getString("username"),
+                        rs.getString("email"),
+                        rs.getString("password_hash"),
+                        rs.getString("country_code"),
+                        rs.getBytes("profile_picture"),
+                        rs.getInt("performance"),
+                        rs.getDouble("accuracy"),
+                        rs.getInt("play_count"),
+                        rs.getInt("level"),
+                        rs.getInt("experience"),
+                        rs.getBoolean("is_supporter"));
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public User findUserByUsername(String username) {
         String query = "SELECT * FROM users WHERE username = ?;";
         try {

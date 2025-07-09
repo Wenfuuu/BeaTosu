@@ -42,6 +42,14 @@ public class AuthService {
                 return Result.failure(Error.validation("Password must be at least 8 characters!"));
             }
 
+            if (userRepository.findUserByEmail(request.getEmail()) != null) {
+                return Result.failure(Error.validation("Email already registered!"));
+            }
+
+            if (userRepository.findUserByUsername(request.getUsername()) != null) {
+                return Result.failure(Error.validation("Username already taken!"));
+            }
+
             String hashedPassword = hashPassword(request.getPassword());
             userRepository.insertUser(request.getUsername(), request.getEmail(), hashedPassword, request.getCountryCode(), request.getProfilePicture(), request.isSupporter());
 
