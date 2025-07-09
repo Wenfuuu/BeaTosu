@@ -264,7 +264,7 @@ public class LandingView extends Page {
     }
 
     private Beatmap fetchBeatmapById(int id) {
-        File tempDir = ResourceManager.getTempDirectory();
+        File tempDir = ResourceManager.getBeatmapDirectory();
         Set<String> validBeatmapDirs = new HashSet<>();
 
         if (tempDir.exists() && tempDir.isDirectory()) {

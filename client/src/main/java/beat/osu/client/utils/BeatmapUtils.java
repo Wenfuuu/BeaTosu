@@ -11,13 +11,13 @@ import java.util.Set;
 public class BeatmapUtils {
 
     public static int getBeatmapCount() {
-        File beatmapsDirectory = ResourceManager.getTempDirectory();
+        File beatmapsDirectory = ResourceManager.getBeatmapDirectory();
         return Objects.requireNonNull(beatmapsDirectory.listFiles()).length - 1;
     }
 
     public static Set<Song> getBeatmapSongs() {
         Set<Song> songs = new HashSet<>();
-        File tempDirectory = ResourceManager.getTempDirectory();
+        File tempDirectory = ResourceManager.getBeatmapDirectory();
         File[] beatmapSetDirectories = Objects.requireNonNull(tempDirectory.listFiles());
 
         for (File beatmapSetDirectory : beatmapSetDirectories) {

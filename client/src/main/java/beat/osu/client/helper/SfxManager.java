@@ -45,7 +45,7 @@ public class SfxManager {
         if (sfxUrl != null) {
             media = new Media(sfxUrl.toString());
         } else {
-            File beatmapDir = new File(ResourceManager.getTempDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
+            File beatmapDir = new File(ResourceManager.getBeatmapDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
             File sfxFile = new File(beatmapDir, sfxName);
             if (!sfxFile.exists()) {
                 System.err.println("SFX file not found: " + sfxName);
@@ -74,7 +74,7 @@ public class SfxManager {
         Media media = null;
 
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
-        File beatmapDir = new File(ResourceManager.getTempDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
+        File beatmapDir = new File(ResourceManager.getBeatmapDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
         File sfxFile = new File(beatmapDir, sfxName);
         if (sfxFile.exists() && !ignoreBeatmapSFX) {
             System.out.println("Beatmap SFX found: " + sfxName);

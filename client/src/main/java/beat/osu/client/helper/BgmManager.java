@@ -103,7 +103,7 @@ public class BgmManager {
 
 
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
-        File tempDir = ResourceManager.getTempDirectory();
+        File tempDir = ResourceManager.getBeatmapDirectory();
         File beatmapDir = new File(tempDir, String.valueOf(beatmap.getBeatmapSetId()));
         File audioFile = new File(beatmapDir, "audio.mp3");
 
@@ -167,7 +167,7 @@ public class BgmManager {
 
     public void prepareGameBgm() {
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
-        File tempDir = ResourceManager.getTempDirectory();
+        File tempDir = ResourceManager.getBeatmapDirectory();
         File beatmapDir = new File(tempDir, String.valueOf(beatmap.getBeatmapSetId()));
         File audioFile = new File(beatmapDir, "audio.mp3");
 

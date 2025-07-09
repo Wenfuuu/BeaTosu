@@ -138,7 +138,7 @@ public class BackgroundManager {
         }
 
         try {
-            File tempDir = ResourceManager.getTempDirectory();
+            File tempDir = ResourceManager.getBeatmapDirectory();
             File beatmapDir = new File(tempDir, String.valueOf(beatmap.getBeatmapSetId()));
             File imageFile = new File(beatmapDir, beatmapBg);
             System.out.println(imageFile.getAbsolutePath());
@@ -177,7 +177,7 @@ public class BackgroundManager {
         String gameBg = OsuParser.getBgFile();
 
         try {
-            File tempDir = ResourceManager.getTempDirectory();
+            File tempDir = ResourceManager.getBeatmapDirectory();
             File beatmapDir = new File(tempDir, String.valueOf(beatmap.getBeatmapSetId()));
             File imageFile = new File(beatmapDir, gameBg);
             String imageUrl = imageFile.toURI().toURL().toString();
@@ -208,7 +208,7 @@ public class BackgroundManager {
         }
 
         try {
-            File tempDir = ResourceManager.getTempDirectory();
+            File tempDir = ResourceManager.getBeatmapDirectory();
             File beatmapDir = new File(tempDir, String.valueOf(beatmap.getBeatmapSetId()));
             File imageFile = new File(beatmapDir, beatmapBg);
             

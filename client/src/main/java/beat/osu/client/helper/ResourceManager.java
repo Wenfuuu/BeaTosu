@@ -33,14 +33,6 @@ public class ResourceManager {
         return dir;
     }
 
-    public static File getTempDirectory() {
-        File dir = new File(applicationDirectory, "temp");
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-        return dir;
-    }
-
     public static File getReplayDirectory() {
         File dir = new File(applicationDirectory, "replays");
         if (!dir.exists()) {
@@ -50,7 +42,7 @@ public class ResourceManager {
     }
 
     public static String getBeatmapSetAudioPath(int beatmapSetId) {
-        File dir = new File(getTempDirectory(), String.valueOf(beatmapSetId));
+        File dir = new File(getBeatmapDirectory(), String.valueOf(beatmapSetId));
         if (!dir.exists()) {
             dir.mkdirs();
         }
@@ -58,14 +50,14 @@ public class ResourceManager {
     }
 
     public static boolean beatmapSetDirectoryExists(int beatmapSetId) {
-        File dir = new File(getTempDirectory(), String.valueOf(beatmapSetId));
+        File dir = new File(getBeatmapDirectory(), String.valueOf(beatmapSetId));
         return dir.exists() && dir.isDirectory();
     }
 
     public static int getRandomBeatmapFromCurrentlyPlayingSong() {
         Song currentSong = PlaylistManager.getInstance().getCurrentSong();
 
-        File tempDirectory = ResourceManager.getTempDirectory();
+        File tempDirectory = ResourceManager.getBeatmapDirectory();
         File[] beatmapSetDirectories = Objects.requireNonNull(tempDirectory.listFiles());
 
         ArrayList<File> beatmapFiles = new ArrayList<>();
@@ -114,7 +106,7 @@ public class ResourceManager {
                 return null;
             }
 
-            File tempDir = getTempDirectory();
+            File tempDir = getBeatmapDirectory();
             File extractedFile = new File(tempDir, fileName);
 
             // Copy the resource to the temp directory

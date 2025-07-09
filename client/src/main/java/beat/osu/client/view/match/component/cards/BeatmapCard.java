@@ -295,7 +295,7 @@ public class BeatmapCard extends StackPane {
     }
 
     private String getBgImagePath(int beatmapSetId, String gameBg) {
-        File tempDir = ResourceManager.getTempDirectory();
+        File tempDir = ResourceManager.getBeatmapDirectory();
         File beatmapDir = new File(tempDir, String.valueOf(beatmapSetId));
         File imageFile = new File(beatmapDir, gameBg);
         return imageFile.getAbsolutePath();

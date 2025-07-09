@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -104,8 +103,6 @@ public class UploadBox extends VBox {
     }
 
     private void handleFileUpload(List<File> files) {
-        File beatmapDir = ResourceManager.getBeatmapDirectory();
-
         // Track if there are any duplicate errors
         final boolean[] hasDuplicateError = { false };
 
@@ -128,7 +125,6 @@ public class UploadBox extends VBox {
                     File file = files.get(i);
                     // Use replaceAll with regular expression to remove "[no video]"
                     String filename = file.getName().replaceAll("\\s*\\[no video\\]", "");
-                    Path destPath = new File(beatmapDir, filename).toPath();
 
                     if (!filename.endsWith(".osz"))
                         continue;
@@ -139,18 +135,15 @@ public class UploadBox extends VBox {
                     }
 
                     try {
-                        Files.copy(file.toPath(), destPath, StandardCopyOption.REPLACE_EXISTING);
-                        System.out.println("Copied: " + filename);
-
                         String[] tempStr = filename.split(" ");
                         String beatmapSetId = tempStr[0];
 
-                        // extract .osz and store in temp folder
-                        File tempDir = ResourceManager.getTempDirectory();
+                        // extract .osz directly to temp folder without copying to beatmap directory
+                        File tempDir = ResourceManager.getBeatmapDirectory();
                         File outputDir = new File(tempDir, beatmapSetId);
 
                         System.out.println("extracting beatmap set id: " + beatmapSetId);
-                        OszExtractor.extractOsz(new File(beatmapDir, filename), outputDir);
+                        OszExtractor.extractOsz(file, outputDir);
                         // parse all .osu file in temp folder & insert db
                         File[] files = outputDir.listFiles();
                         File detectedAudioFile = null;

@@ -179,17 +179,14 @@ public class OsuParser {
     }
 
     public static void extractAndParse(Beatmap beatmap) {
-        // String oszPath = String.format("./src/main/resources/beatmaps/%s",
-        // getOszPath(beatmap));
-        File oszFile = new File(ResourceManager.getBeatmapDirectory(), getOszPath(beatmap));
-        // String outputPath = String.format("./src/main/resources/temp/%s",
-        // beatmap.getBeatmapSetId());
-        File outputDir = new File(ResourceManager.getTempDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
+        // Since .osz files are no longer stored in beatmap directory,
+        // we assume the beatmap has already been extracted to temp directory
+        File outputDir = new File(ResourceManager.getBeatmapDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
 
-        try {
-            OszExtractor.extractOsz(oszFile, outputDir);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        // If the extracted directory doesn't exist, we cannot proceed
+        if (!outputDir.exists()) {
+            throw new RuntimeException("Beatmap set " + beatmap.getBeatmapSetId()
+                    + " not found in temp directory. Please re-upload the beatmap.");
         }
 
         try {
@@ -205,14 +202,15 @@ public class OsuParser {
         String fixedTitle = title.replace(">", "");
         String removeDoubleQuotes = fixedTitle.replace("\"", "");
         String removeBackslash = removeDoubleQuotes.replace("\\", "");
-        String removeSlash = removeBackslash.replace("/", "");
+        String removeColon = removeBackslash.replace(":", "");
+        String removeSlash = removeColon.replace("/", "");
         String version = beatmap.getVersion().replace("?", "");
         String osuPath = String.format("%s - %s (%s) [%s].osu",
                 beatmap.getBeatmapSet().getArtist().replace(":", ""),
                 removeSlash,
                 beatmap.getBeatmapSet().getCreator(),
                 version);
-        File beatmapDir = new File(ResourceManager.getTempDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
+        File beatmapDir = new File(ResourceManager.getBeatmapDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
         File osuFile = new File(beatmapDir, osuPath);
 
         parseOsuFile(osuFile);
