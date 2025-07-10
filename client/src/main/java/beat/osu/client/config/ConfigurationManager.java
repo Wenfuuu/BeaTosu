@@ -1,24 +1,47 @@
 package beat.osu.client.config;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Properties;
 
 public class ConfigurationManager {
     private static volatile ConfigurationManager instance;
     private Properties properties;
+    private LinkedHashMap<String, String> orderedProperties;
     private String settingsFilePath;
 
     private void loadProperties() {
         properties = new Properties();
+        orderedProperties = new LinkedHashMap<>();
 
         try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {
             if (input == null) {
                 throw new RuntimeException("Unable to find config.properties");
             }
             properties.load(input);
+            
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    getClass().getClassLoader().getResourceAsStream("config.properties")))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    line = line.trim();
+                    if (!line.isEmpty() && !line.startsWith("#")) {
+                        int equalIndex = line.indexOf('=');
+                        if (equalIndex > 0) {
+                            String key = line.substring(0, equalIndex).trim();
+                            String value = line.substring(equalIndex + 1).trim();
+                            orderedProperties.put(key, value);
+                        }
+                    }
+                }
+            }
 
             settingsFilePath = findSourceSettingsFile();
             System.out.println("Settings file path: " + settingsFilePath);
@@ -100,6 +123,7 @@ public class ConfigurationManager {
     public synchronized void updateSetting(String key, String value) {
         try {
             properties.setProperty(key, value);
+            orderedProperties.put(key, value);
 
             writeSettingsToFile();
 
@@ -117,8 +141,23 @@ public class ConfigurationManager {
         }
 
         File settingsFile = new File(settingsFilePath);
-        try (FileOutputStream output = new FileOutputStream(settingsFile)) {
-            properties.store(output, null);
+        try (PrintWriter writer = new PrintWriter(new FileWriter(settingsFile))) {
+            writer.println("# Application Settings");
+            
+            for (Map.Entry<String, String> entry : orderedProperties.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                
+                if (key.equals("server.host")) {
+                    writer.println();
+                    writer.println("# Server Configuration");
+                } else if (key.equals("connection.timeout")) {
+                    writer.println();
+                    writer.println("# Connection Configuration");
+                }
+                
+                writer.println(key + "=" + value);
+            }
         } catch (IOException e) {
             throw e;
         }
