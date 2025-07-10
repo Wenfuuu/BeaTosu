@@ -1,33 +1,25 @@
 package beat.osu.client.config;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class ConfigurationManager {
     private static volatile ConfigurationManager instance;
     private Properties properties;
-    private Properties settingsProperties;
     private String settingsFilePath;
 
     private void loadProperties() {
         properties = new Properties();
-        settingsProperties = new Properties();
 
-        try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties");
-                InputStream settingsInput = getClass().getClassLoader().getResourceAsStream("settings.properties")) {
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {
             if (input == null) {
                 throw new RuntimeException("Unable to find config.properties");
             }
             properties.load(input);
 
-            if (settingsInput == null) {
-                throw new RuntimeException("Unable to find settings.properties");
-            }
-            settingsProperties.load(settingsInput);
-
-            // Get the path to settings.properties in src/main/resources for writing
             settingsFilePath = findSourceSettingsFile();
             System.out.println("Settings file path: " + settingsFilePath);
         } catch (IOException e) {
@@ -51,12 +43,7 @@ public class ConfigurationManager {
     }
 
     private String getStringProperty(String key) {
-        // Check settings.properties first, then config.properties
-        String value = settingsProperties.getProperty(key);
-        if (value == null) {
-            value = properties.getProperty(key);
-        }
-        return value;
+        return properties.getProperty(key);
     }
 
     private Integer getIntegerProperty(String key) {
@@ -112,7 +99,6 @@ public class ConfigurationManager {
 
     public synchronized void updateSetting(String key, String value) {
         try {
-            settingsProperties.setProperty(key, value);
             properties.setProperty(key, value);
 
             writeSettingsToFile();
@@ -132,7 +118,7 @@ public class ConfigurationManager {
 
         File settingsFile = new File(settingsFilePath);
         try (FileOutputStream output = new FileOutputStream(settingsFile)) {
-            settingsProperties.store(output, null);
+            properties.store(output, null);
         } catch (IOException e) {
             throw e;
         }
@@ -168,8 +154,8 @@ public class ConfigurationManager {
             System.out.println("Current working directory: " + currentDir);
 
             String[] possiblePaths = {
-                    currentDir + "/src/main/resources/settings.properties",
-                    currentDir + "/client/src/main/resources/settings.properties"
+                    currentDir + "/src/main/resources/config.properties",
+                    currentDir + "/client/src/main/resources/config.properties"
             };
 
             for (String path : possiblePaths) {
@@ -180,15 +166,14 @@ public class ConfigurationManager {
                 }
             }
 
-            // If not found, create the path to the expected location
-            String defaultPath = currentDir + "/client/src/main/resources/settings.properties";
+            String defaultPath = currentDir + "/client/src/main/resources/config.properties";
             File defaultFile = new File(defaultPath);
             if (defaultFile.getParentFile().exists()) {
                 System.out.println("Using default settings file path: " + defaultPath);
                 return defaultFile.getAbsolutePath();
             }
 
-            System.err.println("Could not find source settings.properties file, using fallback");
+            System.err.println("Could not find source config.properties file, using fallback");
             return null;
 
         } catch (Exception e) {
