@@ -37,32 +37,6 @@ public class SfxManager {
         return Main.class.getResource("/assets/audio/sfx/" + sfxName);
     }
 
-    public static MediaPlayer createSfxPlayer(String sfxName) {
-        Beatmap beatmap = OsuParser.getCurrentBeatmap();
-        URL sfxUrl = getSfxResource(sfxName);
-        Media media = null;
-
-        if (sfxUrl != null) {
-            media = new Media(sfxUrl.toString());
-        } else {
-            File beatmapDir = new File(ResourceManager.getBeatmapDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
-            File sfxFile = new File(beatmapDir, sfxName);
-            if (!sfxFile.exists()) {
-                System.err.println("SFX file not found: " + sfxName);
-                return null;
-            }
-            media = new Media(sfxFile.toURI().toString());
-        }
-
-        MediaPlayer player = new MediaPlayer(media);
-        player.setOnReady(() -> {
-            player.setOnEndOfMedia(player::play);
-        });
-
-        player.setVolume(SFX_VOLUME);
-        return player;
-    }
-
     private static void playSfx(Media media) {
         MediaPlayer player = new MediaPlayer(media);
         player.setVolume(SFX_VOLUME);

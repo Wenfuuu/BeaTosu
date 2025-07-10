@@ -52,10 +52,8 @@ public class BackgroundManager {
         backgroundFiles = new ArrayList<>();
 
         try {
-            // Try to load as resources (works in IDE with file:/, NOT in JAR)
             URL url = Main.class.getResource(BACKGROUNDS_DIR);
             if (url != null && url.getProtocol().equals("file")) {
-                // Development mode: load files directly from filesystem
                 File dir = new File(url.toURI());
                 File[] files = dir.listFiles((d, name) ->
                         name.toLowerCase().endsWith(".jpg") ||
@@ -68,7 +66,6 @@ public class BackgroundManager {
                     }
                 }
             } else {
-                // JAR mode: resources are packed, can't list — fallback to hardcoded
                 for (int i = 1; i <= 10; i++) {
                     String name = "bg-" + i + ".png";
                     if (Main.class.getResource(BACKGROUNDS_DIR + name) != null) {
@@ -128,49 +125,6 @@ public class BackgroundManager {
         updateOverlaySmooth(scene);
     }
 
-    // get the beatmap set background
-    public static void setBeatmapBackground(Region region) {
-        Beatmap beatmap = OsuParser.getCurrentBeatmap();
-        String beatmapBg = OsuParser.getBgFile();
-        if (beatmapBg == null || beatmapBg.isEmpty()) {
-            System.err.println("No background file found for the beatmap.");
-            return;
-        }
-
-        try {
-            File tempDir = ResourceManager.getBeatmapDirectory();
-            File beatmapDir = new File(tempDir, String.valueOf(beatmap.getBeatmapSetId()));
-            File imageFile = new File(beatmapDir, beatmapBg);
-            System.out.println(imageFile.getAbsolutePath());
-            if (!imageFile.exists()) {
-                System.err.println("Background image not found: " + imageFile.getAbsolutePath());
-                return;
-            }
-
-            Image image = new Image(new FileInputStream(imageFile));
-            region.setBackground(new Background(
-                    new BackgroundImage(
-                            image,
-                            BackgroundRepeat.NO_REPEAT,
-                            BackgroundRepeat.NO_REPEAT,
-                            BackgroundPosition.CENTER,
-                            new BackgroundSize(
-                                    BackgroundSize.AUTO,
-                                    BackgroundSize.AUTO,
-                                    false,
-                                    false,
-                                    true,
-                                    true
-                            )
-                    )
-            ));
-        } catch (Exception e) {
-            System.err.println("Error setting beatmap background: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    // get the beatmap background, not beatmap set
     public static void setGameBackground(Scene scene) {
         System.out.println("setting game background");
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
