@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 public class ConfigurationManager {
@@ -28,7 +29,7 @@ public class ConfigurationManager {
             properties.load(input);
             
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                    getClass().getClassLoader().getResourceAsStream("config.properties")))) {
+                    Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("config.properties"))))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     line = line.trim();
@@ -43,8 +44,6 @@ public class ConfigurationManager {
                 }
             }
 
-            settingsFilePath = findSourceSettingsFile();
-            System.out.println("Settings file path: " + settingsFilePath);
         } catch (IOException e) {
             throw new RuntimeException("Error loading configuration", e);
         }
@@ -101,7 +100,7 @@ public class ConfigurationManager {
 
     public boolean getIgnoreBeatmapHitsounds() {
         String value = getStringProperty("ignore.beatmap.hitsounds");
-        return value != null ? Boolean.parseBoolean(value) : true; // Default to true
+        return value != null ? Boolean.parseBoolean(value) : true;
     }
 
     public String getServerHost() {
@@ -110,14 +109,6 @@ public class ConfigurationManager {
 
     public int getServerPort() {
         return getIntegerProperty("server.port");
-    }
-
-    public int getConnectionTimeout() {
-        return getIntegerProperty("connection.timeout");
-    }
-
-    public int getRetryAttempts() {
-        return getIntegerProperty("connection.retry.attempts");
     }
 
     public synchronized void updateSetting(String key, String value) {
@@ -185,39 +176,5 @@ public class ConfigurationManager {
 
     public void setIgnoreBeatmapHitsounds(boolean ignore) {
         updateSetting("ignore.beatmap.hitsounds", String.valueOf(ignore));
-    }
-
-    private String findSourceSettingsFile() {
-        try {
-            String currentDir = System.getProperty("user.dir");
-            System.out.println("Current working directory: " + currentDir);
-
-            String[] possiblePaths = {
-                    currentDir + "/src/main/resources/config.properties",
-                    currentDir + "/client/src/main/resources/config.properties"
-            };
-
-            for (String path : possiblePaths) {
-                File file = new File(path);
-                if (file.exists() && file.canWrite()) {
-                    System.out.println("Found writable settings file at: " + path);
-                    return file.getAbsolutePath();
-                }
-            }
-
-            String defaultPath = currentDir + "/client/src/main/resources/config.properties";
-            File defaultFile = new File(defaultPath);
-            if (defaultFile.getParentFile().exists()) {
-                System.out.println("Using default settings file path: " + defaultPath);
-                return defaultFile.getAbsolutePath();
-            }
-
-            System.err.println("Could not find source config.properties file, using fallback");
-            return null;
-
-        } catch (Exception e) {
-            System.err.println("Error finding source settings file: " + e.getMessage());
-            return null;
-        }
     }
 }
