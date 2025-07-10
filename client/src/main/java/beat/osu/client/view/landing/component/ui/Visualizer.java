@@ -145,18 +145,18 @@ public class Visualizer extends StackPane implements SongEventListener {
             double targetGlowRadius = 20 + bassAvg * 30;
 
             currentScaleFactor += (targetScaleFactor - currentScaleFactor) * smoothingFactor;
-                currentGlowRadius += (targetGlowRadius - currentGlowRadius) * smoothingFactor;
+            currentGlowRadius += (targetGlowRadius - currentGlowRadius) * smoothingFactor;
 
-                logoView.setScaleX(currentScaleFactor);
-                logoView.setScaleY(currentScaleFactor);
+            logoView.setScaleX(currentScaleFactor);
+            logoView.setScaleY(currentScaleFactor);
 
-                if (logoView.getEffect() instanceof DropShadow) {
-                    DropShadow glow = (DropShadow) logoView.getEffect();
-                    glow.setRadius(currentGlowRadius);
-                }
+            if (logoView.getEffect() instanceof DropShadow) {
+                DropShadow glow = (DropShadow) logoView.getEffect();
+                glow.setRadius(currentGlowRadius);
+            }
 
-                if (lightRays != null) {
-                    lightRays.pulseWithAudio(currentScaleFactor - 1.0);
+            if (lightRays != null) {
+                lightRays.pulseWithAudio(currentScaleFactor - 1.0);
             }
         });
     }

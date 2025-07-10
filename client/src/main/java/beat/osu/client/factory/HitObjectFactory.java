@@ -60,26 +60,19 @@ public class HitObjectFactory {
         String additionSet = getSampleSetNameForAddition(additionSetId, normalSet);
 
         // System.out.println(normalSet);
-        if (normalSet.equals("normal")) {
-            if (hitSound == 0 || (hitSound & 1) != 0) {
-                sounds.add(buildCircleFilename(normalSet, "hitnormal", index));
-            }
-            if ((hitSound & 2) != 0 || (hitSound & 4) != 0 || (hitSound & 8) != 0) {
-                sounds.add(buildCircleFilename(additionSet, "hitnormal", index));
-            }
-        } else {
-            if (hitSound == 0 || (hitSound & 1) != 0) {
-                sounds.add(buildCircleFilename(normalSet, "hitnormal", index));
-            }
-            if ((hitSound & 2) != 0) {
-                sounds.add(buildCircleFilename(additionSet, "hitwhistle", index));
-            }
-            if ((hitSound & 4) != 0) {
-                sounds.add(buildCircleFilename(additionSet, "hitfinish", index));
-            }
-            if ((hitSound & 8) != 0) {
-                sounds.add(buildCircleFilename(additionSet, "hitclap", index));
-            }
+        // Normal sound (bit 1 or hitSound 0)
+        if (hitSound == 0 || (hitSound & 1) != 0) {
+            sounds.add(buildCircleFilename(normalSet, "hitnormal", index));
+        }
+        // Addition sounds use additionSet regardless of normalSet
+        if ((hitSound & 2) != 0) {
+            sounds.add(buildCircleFilename(additionSet, "hitwhistle", index));
+        }
+        if ((hitSound & 4) != 0) {
+            sounds.add(buildCircleFilename(additionSet, "hitfinish", index));
+        }
+        if ((hitSound & 8) != 0) {
+            sounds.add(buildCircleFilename(additionSet, "hitclap", index));
         }
 
         // System.out.println("total sounds: " + sounds.size());
@@ -134,26 +127,19 @@ public class HitObjectFactory {
         String normalSet = getSampleSetNameForNormal(normalSetId, hitTime);
         String additionSet = getSampleSetNameForAddition(additionSetId, normalSet);
 
-        if (normalSet.equals("normal")) {
-            if (hitSound == 0 || (hitSound & 1) != 0) {
-                sounds.add(buildCircleFilename(normalSet, "hitnormal", index));
-            }
-            if ((hitSound & 2) != 0 || (hitSound & 4) != 0 || (hitSound & 8) != 0) {
-                sounds.add(buildCircleFilename(additionSet, "hitnormal", index));
-            }
-        } else {
-            if (hitSound == 0 || (hitSound & 1) != 0) {
-                sounds.add(buildCircleFilename(normalSet, "hitnormal", index));
-            }
-            if ((hitSound & 2) != 0) {
-                sounds.add(buildCircleFilename(additionSet, "hitwhistle", index));
-            }
-            if ((hitSound & 4) != 0) {
-                sounds.add(buildCircleFilename(additionSet, "hitfinish", index));
-            }
-            if ((hitSound & 8) != 0) {
-                sounds.add(buildCircleFilename(additionSet, "hitclap", index));
-            }
+        // Normal sound (bit 1 or hitSound 0)
+        if (hitSound == 0 || (hitSound & 1) != 0) {
+            sounds.add(buildCircleFilename(normalSet, "hitnormal", index));
+        }
+        // Addition sounds use additionSet regardless of normalSet
+        if ((hitSound & 2) != 0) {
+            sounds.add(buildCircleFilename(additionSet, "hitwhistle", index));
+        }
+        if ((hitSound & 4) != 0) {
+            sounds.add(buildCircleFilename(additionSet, "hitfinish", index));
+        }
+        if ((hitSound & 8) != 0) {
+            sounds.add(buildCircleFilename(additionSet, "hitclap", index));
         }
 
         return sounds;
