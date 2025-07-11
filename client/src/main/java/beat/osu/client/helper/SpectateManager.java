@@ -312,7 +312,7 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
                 Platform.runLater(() -> {
                     try {
                         cleanupSpectateResources();
-                        ViewManager.getInstance().showLandingView();
+                        ViewManager.getInstance().goToPreviousPage();
                     } catch (Exception e) {
                         System.err.println("Error during spectate cleanup: " + e.getMessage());
                         e.printStackTrace();

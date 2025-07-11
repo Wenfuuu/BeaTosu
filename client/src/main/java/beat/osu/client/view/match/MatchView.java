@@ -1,9 +1,9 @@
 package beat.osu.client.view.match;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import beat.osu.client.controller.BeatmapController;
@@ -42,6 +42,7 @@ import beat.osu.client.view.shared.common.Page;
 import beat.osu.client.view.shared.common.Toast;
 import beat.osu.shared.common.Result;
 import beat.osu.shared.dto.beatmap.BeatmapDto;
+import beat.osu.shared.dto.beatmap.responses.GetBeatmapByIdResponse;
 import beat.osu.shared.dto.chat.ChannelDto;
 import beat.osu.shared.dto.chat.responses.JoinChannelResponse;
 import beat.osu.shared.dto.match.MatchDto;
@@ -216,6 +217,32 @@ public class MatchView extends Page {
             }
 
             chatPanel.startPrivateChat(privateChat);
+        });
+
+        viewUserModal.setOnStartSpectateCallback(spectateDto -> {
+            if (AuthManager.getUser().getId() == spectateDto.getPlayingUserId()) {
+                Toast.error("You cannot spectate yourself!").show();
+                return;
+            }
+
+            System.out.println("Player with id " + spectateDto.getPlayingUserId()
+                    + " is playing beatmap with id " + spectateDto.getBeatmapId());
+            Beatmap beatmap = fetchBeatmapById(spectateDto.getBeatmapId());
+            if (beatmap == null) {
+                Toast.error("You don't have this beatmap").show();
+                return;
+            }
+
+            matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
+                if (result.isSuccess()) {
+                    System.out.println("Successfully updated status to: NOT_READY");
+                } else {
+                    Toast.error("Failed to update status: " + result.getError().getMessage()).show();
+                }
+            });
+
+            Toast.information("Starting spectate " + spectateDto.getPlayingUsername()).show();
+            ViewManager.getInstance().showSpectateView(beatmap, spectateDto);
         });
 
         onlineUsersPanel.setUserCardClickCallback(userCard -> {
@@ -1214,6 +1241,67 @@ public class MatchView extends Page {
         if (newState != currentBlueButtonState) {
             currentBlueButtonState = newState;
             applyBlueButtonState(newState);
+        }
+    }
+
+    private Beatmap fetchBeatmapById(int id) {
+        File tempDir = ResourceManager.getBeatmapDirectory();
+        Set<String> validBeatmapDirs = new HashSet<>();
+
+        if (tempDir.exists() && tempDir.isDirectory()) {
+            for (File file : Objects.requireNonNull(tempDir.listFiles())) {
+                if (file.isDirectory()) {
+                    validBeatmapDirs.add(file.getName());
+                }
+            }
+        }
+
+        try {
+            Result<GetBeatmapByIdResponse> result = beatmapController.getBeatmapById(id).get();
+
+            if (result.isSuccess()) {
+                BeatmapDto beatmapDto = result.getValue().getBeatmap();
+
+                String expectedDirName = String.format("%d", beatmapDto.getBeatmapSetId());
+
+                for (String dir : validBeatmapDirs) {
+                    System.out.println("Found directory: " + dir);
+                }
+
+                if (!validBeatmapDirs.contains(expectedDirName)) {
+                    System.out.println("Beatmap directory not found in temp directory: " + expectedDirName);
+                    return null;
+                }
+
+                BeatmapSet beatmapSet = new BeatmapSet(
+                        beatmapDto.getBeatmapSetDto().getId(),
+                        beatmapDto.getBeatmapSetDto().getTitle(),
+                        beatmapDto.getBeatmapSetDto().getArtist(),
+                        beatmapDto.getBeatmapSetDto().getCreator(),
+                        beatmapDto.getBeatmapSetDto().getLength(),
+                        beatmapDto.getBeatmapSetDto().getBpm());
+
+                return new Beatmap(
+                        beatmapDto.getId(),
+                        beatmapDto.getBeatmapSetDto().getId(),
+                        beatmapDto.getVersion(),
+                        beatmapDto.getHpDrainRate(),
+                        beatmapDto.getCircleSize(),
+                        beatmapDto.getOverallDifficulty(),
+                        beatmapDto.getApproachRate(),
+                        beatmapDto.getSliderMultiplier(),
+                        beatmapDto.getSliderTickRate(),
+                        beatmapDto.getStarRating(),
+                        beatmapSet);
+
+            } else {
+                System.err.println("Failed to fetch beatmaps: " + result.getError().getMessage());
+            }
+
+            return null;
+        } catch (Exception e) {
+            System.err.println("Error fetching beatmap: " + e.getMessage());
+            return null;
         }
     }
 }

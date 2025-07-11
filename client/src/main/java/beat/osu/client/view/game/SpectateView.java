@@ -191,7 +191,6 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
         endReplayButton.setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.PAUSE_CLICK);
             sm.stopSpectate();
-            ViewManager.getInstance().showLandingView();
         });
 
         Region spacer = new Region();

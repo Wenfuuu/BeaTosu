@@ -12,6 +12,7 @@ import beat.osu.client.view.landing.LandingView;
 import beat.osu.client.view.lobby.LobbyView;
 import beat.osu.client.view.game.ReplayView;
 import beat.osu.client.view.match.MatchView;
+import beat.osu.client.view.shared.common.Page;
 import beat.osu.client.view.shared.common.Toast;
 import beat.osu.client.events.game.ReplayEvent;
 import beat.osu.shared.common.Result;
@@ -46,6 +47,8 @@ public class ViewManager {
 
     @Getter
     private MatchDto currentMatchDto;
+    private Page currentPage;
+    private Page previousPage;
 
     public static ViewManager getInstance() {
         if (instance == null) {
@@ -67,24 +70,30 @@ public class ViewManager {
     }
 
     public void initializeViews() {
-        landingView = new LandingView(primaryStage, authController, connectedUsersController, chatController, sessionController, spectateController);
+        landingView = new LandingView(primaryStage, authController, connectedUsersController, chatController, sessionController);
         homeView = new HomeView(primaryStage);
-        lobbyView = new LobbyView(primaryStage, connectedUsersController, chatController, sessionController, spectateController, matchController);
+        lobbyView = new LobbyView(primaryStage, connectedUsersController, chatController, sessionController, beatmapController, matchController);
+    }
+
+    private void transitionToPage(Page newPage) {
+        previousPage = currentPage;
+        currentPage = newPage;
+        sceneManager.transitionToPage(newPage);
     }
 
     public void showLandingView() {
         landingView.onShow();
-        sceneManager.transitionToPage(landingView);
+        transitionToPage(landingView);
     }
 
     public void showHomeView() {
         homeView.onShow();
-        sceneManager.transitionToPage(homeView);
+        transitionToPage(homeView);
     }
 
     public void showLobbyView() {
         lobbyView.onShow();
-        sceneManager.transitionToPage(lobbyView);
+        transitionToPage(lobbyView);
     }
 
     private void getMatchById(int matchId) {
@@ -107,7 +116,7 @@ public class ViewManager {
             MatchView matchView = new MatchView(primaryStage, currentMatchDto, connectedUsersController, chatController,
                     matchController, sessionController, beatmapController);
             matchView.onShow();
-            sceneManager.transitionToPage(matchView);
+            transitionToPage(matchView);
         } else {
             showLobbyView();
         }
@@ -118,22 +127,22 @@ public class ViewManager {
         MatchView matchView = new MatchView(primaryStage, matchDto, connectedUsersController, chatController,
                 matchController, sessionController, beatmapController);
         matchView.onShow();
-        sceneManager.transitionToPage(matchView);
+        transitionToPage(matchView);
     }
 
     public void showGameView(Beatmap beatmap, boolean isMultiplayer) {
         GameView gameView = new GameView(primaryStage, beatmap, isMultiplayer);
-        sceneManager.transitionToPage(gameView);
+        transitionToPage(gameView);
     }
 
     public void showReplayView(Beatmap beatmap, int playingUserId, ArrayList<ReplayEvent> replayEvents) {
         ReplayView replayView = new ReplayView(primaryStage, userController, beatmap, playingUserId, replayEvents);
-        sceneManager.transitionToPage(replayView);
+        transitionToPage(replayView);
     }
 
     public void showSpectateView(Beatmap beatmap, SpectateDto spectateDto) {
         SpectateView spectateView = new SpectateView(primaryStage, beatmap, spectateDto, spectateController);
-        sceneManager.transitionToPage(spectateView);
+        transitionToPage(spectateView);
     }
 
     public void leaveCurrentMatch() {
@@ -151,6 +160,24 @@ public class ViewManager {
             }
         } else {
             showLobbyView();
+        }
+    }
+
+    public void goToPreviousPage() {
+        if (previousPage != null) {
+            Page tempCurrent = currentPage;
+            currentPage = previousPage;
+            previousPage = tempCurrent;
+            
+            // Handle onShow for cached views
+            if (currentPage instanceof MatchView) {
+                backToMatchView();
+                return;
+            } else {
+                currentPage.onShow();
+            }
+            
+            sceneManager.transitionToPage(currentPage);
         }
     }
 

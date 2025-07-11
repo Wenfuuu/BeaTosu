@@ -102,8 +102,7 @@ public class LandingView extends Page {
     private FadeTransition subMenuFadeOut;
 
     public LandingView(Stage stage, AuthController authController, ConnectedUsersController connectedUsersController,
-            ChatController chatController, SessionController sessionController,
-            SpectateController spectateController) {
+            ChatController chatController, SessionController sessionController) {
         super(stage);
 
         this.authController = authController;
