@@ -1127,39 +1127,6 @@ public class HitSlider extends HitObject {
         return new Point2D(ux, uy);
     }
 
-    private boolean isMiddlePointOnArc(Point2D start, Point2D center, Point2D middle, Point2D end, boolean clockwise) {
-        // Calculate angles for all three points
-        Point2D vStart = start.subtract(center);
-        Point2D vMiddle = middle.subtract(center);
-        Point2D vEnd = end.subtract(center);
-
-        double angleStart = Math.atan2(vStart.getY(), vStart.getX());
-        double angleMiddle = Math.atan2(vMiddle.getY(), vMiddle.getX());
-        double angleEnd = Math.atan2(vEnd.getY(), vEnd.getX());
-
-        // Normalize angles to [0, 2π)
-        angleStart = (angleStart + 2 * Math.PI) % (2 * Math.PI);
-        angleMiddle = (angleMiddle + 2 * Math.PI) % (2 * Math.PI);
-        angleEnd = (angleEnd + 2 * Math.PI) % (2 * Math.PI);
-
-        if (clockwise) {
-            // For clockwise, middle should be between start and end in clockwise direction
-            if (angleStart > angleEnd) {
-                return angleMiddle <= angleStart && angleMiddle >= angleEnd;
-            } else {
-                return angleMiddle <= angleStart || angleMiddle >= angleEnd;
-            }
-        } else {
-            // For counter-clockwise, middle should be between start and end in
-            // counter-clockwise direction
-            if (angleStart < angleEnd) {
-                return angleMiddle >= angleStart && angleMiddle <= angleEnd;
-            } else {
-                return angleMiddle >= angleStart || angleMiddle <= angleEnd;
-            }
-        }
-    }
-
     private Point2D getBezierPointAtFraction(double fraction) {
         if (controlPoints.size() < 2) {
             return controlPoints.isEmpty() ? new Point2D(0, 0) : controlPoints.get(0);

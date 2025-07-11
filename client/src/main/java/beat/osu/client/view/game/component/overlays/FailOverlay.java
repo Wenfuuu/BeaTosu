@@ -33,7 +33,7 @@ public class FailOverlay extends StackPane {
         this.setVisible(false);
 
         pauseLabel = new Label("FAILED");
-        pauseLabel.setFont(new Font("Aller Light", ScreenManager.SCREEN_HEIGHT / 22.5));
+        pauseLabel.setFont(new Font("Aller Light", ScreenManager.SCREEN_HEIGHT / 15));
         pauseLabel.setTextFill(Color.WHITE);
         pauseLabel.setEffect(new DropShadow(10, Color.BLACK));
 
