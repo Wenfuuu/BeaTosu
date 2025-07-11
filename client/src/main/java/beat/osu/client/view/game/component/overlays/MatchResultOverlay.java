@@ -101,7 +101,7 @@ public class MatchResultOverlay extends BorderPane {
     private void updateGrade(String grade) {
         String gradeImagePath;
         if(grade.equals("SS")) gradeImagePath = "/assets/images/score/ranking/ranking-x.png";
-        else gradeImagePath = "/assets/images/ranking-" + grade.toLowerCase() + ".png";
+        else gradeImagePath = "/assets/images/score/ranking/ranking-" + grade.toLowerCase() + ".png";
         gradeImage = new Image(Objects.requireNonNull(Main.class.getResource(gradeImagePath)).toExternalForm());
         gradeSymbol.setImage(gradeImage);
     }
