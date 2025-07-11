@@ -1,6 +1,6 @@
 .online-users-panel {
     -fx-background-color: rgba(0, 0, 0, 0.7);
-    -fx-padding: 0 8px 0 8px;
+    -fx-padding: 0 0 0 8px;
 }
 
 .online-users-title, .online-users-label {
@@ -56,9 +56,11 @@
 .user-cards-scroll-pane .scroll-bar:vertical {
     -fx-background-color: rgba(0, 0, 0, 0.5);
     -fx-background-radius: 0;
-    -fx-pref-width: 10;
     -fx-unit-increment: 50;
     -fx-block-increment: 250;
+    -fx-pref-width: 20;
+    -fx-min-width: 20;
+    -fx-max-width: 20;
 }
 
 .user-cards-scroll-pane .scroll-bar:vertical .track {

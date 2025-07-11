@@ -1,41 +1,37 @@
 .chat-panel {
     -fx-background-color: rgba(0, 0, 0, 0.8);
     -fx-spacing: 0;
+    -fx-padding: 0 0 0 8px;
 }
 
 .chat-tabs {
-    -fx-padding: 0 0 0 8px;
+    -fx-padding: 0;
 }
 
 .messages-container {
     -fx-background-color: transparent;
-    -fx-padding: 0 0 0 8px;
+    -fx-padding: 0;
 }
 
 .messages-scroll-pane {
     -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-hbar-policy: never;
-    -fx-vbar-policy: as-needed;
-    -fx-fit-to-width: true;
+    -fx-background: transparent;
+    -fx-padding: 0;
+    -fx-smooth: true;
 }
 
-.messages-scroll-pane .viewport {
+.messages-scroll-pane > .viewport {
     -fx-background-color: transparent;
 }
 
 .messages-scroll-pane .scroll-bar:vertical {
-    -fx-background-color: transparent;
+    -fx-background-color: rgba(0, 0, 0, 0.5);
     -fx-background-radius: 0;
+    -fx-unit-increment: 50;
+    -fx-block-increment: 250;
     -fx-pref-width: 20;
     -fx-min-width: 20;
     -fx-max-width: 20;
-}
-
-.messages-scroll-pane .scroll-bar:vertical .increment-button,
-.messages-scroll-pane .scroll-bar:vertical .decrement-button {
-    -fx-pref-height: 0;
-    -fx-opacity: 0;
 }
 
 .messages-scroll-pane .scroll-bar:vertical .track {
@@ -45,6 +41,25 @@
 .messages-scroll-pane .scroll-bar:vertical .thumb {
     -fx-background-color: #ffffff;
     -fx-background-radius: 0;
+}
+
+.messages-scroll-pane .scroll-bar:vertical .increment-button,
+.messages-scroll-pane .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 10 0 0;
+}
+
+.messages-scroll-pane .scroll-bar:vertical .increment-arrow,
+.messages-scroll-pane .scroll-bar:vertical .decrement-arrow {
+    -fx-background-color: #ffffff;
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+
+.messages-scroll-pane .scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
 }
 
 .message-item {
@@ -83,7 +98,7 @@
 .chat-input-container {
     -fx-alignment: center-left;
     -fx-spacing: 5;
-    -fx-padding: 0 0 0 8px;
+    -fx-padding: 0;
 }
 
 .chat-prompt {
