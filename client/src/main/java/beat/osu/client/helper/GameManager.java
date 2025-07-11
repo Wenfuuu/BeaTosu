@@ -292,7 +292,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 if (inputManager.checkCheat() && !inputManager.isSfxDisabled()) {
                     isCheatcodeActive = true;
                     SfxManager.playMenuSfx(SfxType.MENU_HIT);
-                    Toast.success("Cheatcode betty activated, now you can't die!").show();
+                    Toast.success("Cheatcode activated, now you can't die but score and replay " +
+                            "won't be saved!").show();
                 }
 
                 if (gameState == GameState.PAUSED) {
@@ -539,11 +540,9 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void failGame() {
-        if (isFailed)
-            return;
+        if (isFailed) return;
         isFailed = true;
-        if (isCheatcodeActive)
-            return;
+        if (isCheatcodeActive) return;
 
         if (!isMultiplayer) {
             SfxManager.playBeatmapSfx("failsound.wav");
@@ -559,6 +558,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             if (matchPlayer == null)
                 return;
             matchPlayer.setStatus(PlayerStatus.FAILED);
+            Toast.error("You have failed, but you can keep playing").show();
             sendPlayerFailedEvent();
         }
     }
