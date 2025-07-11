@@ -19,8 +19,6 @@
 }
 
 .profile-picture {
-    -fx-fit-height: 80;
-    -fx-fit-width: 80;
     -fx-preserve-ratio: true;
     -fx-smooth: true;
 }

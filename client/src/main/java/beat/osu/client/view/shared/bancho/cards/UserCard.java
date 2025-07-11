@@ -126,12 +126,13 @@ public class UserCard extends HBox {
 
     private void initializeComponents() {
         this.setMaxWidth(475);
+        this.setPadding(new Insets(0, 0, 0, 1));
 
         profileImageView = new ImageView();
         profileImageView.getStyleClass().add("profile-picture");
 
-        profileImageView.setFitWidth(100);
-        profileImageView.setFitHeight(100);
+        profileImageView.setFitWidth(106);
+        profileImageView.setFitHeight(106);
         setDefaultProfilePicture();
 
         gamemodeImageView = new ImageView();
@@ -179,7 +180,7 @@ public class UserCard extends HBox {
         contentContainer.setAlignment(Pos.TOP_LEFT);
         contentContainer.getChildren().addAll(userStats, timeStats);
 
-        VBox mainStats = new VBox(2);
+        VBox mainStats = new VBox(0);
         mainStats.setAlignment(Pos.TOP_LEFT);
         mainStats.getChildren().addAll(usernameLabel, contentContainer);
 
