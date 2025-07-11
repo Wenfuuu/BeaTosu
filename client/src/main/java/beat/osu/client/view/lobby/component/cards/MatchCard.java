@@ -263,6 +263,35 @@ public class MatchCard extends HBox {
         }
     }
 
+    public void updateRankRange() {
+        if (rankRangeLabel == null || players == null || players.isEmpty()) {
+            return;
+        }
+        
+        int minRank = Integer.MAX_VALUE;
+        int maxRank = Integer.MIN_VALUE;
+        
+        for (MatchPlayerDto player : players) {
+            if (player != null && player.getUser() != null) {
+                int playerRank = player.getUser().getRank();
+                if (playerRank > 0) {
+                    minRank = Math.min(minRank, playerRank);
+                    maxRank = Math.max(maxRank, playerRank);
+                }
+            }
+        }
+        
+        if (minRank == Integer.MAX_VALUE) {
+            minRank = lowestRank;
+            maxRank = highestRank;
+        }
+        
+        this.lowestRank = minRank;
+        this.highestRank = maxRank;
+        
+        rankRangeLabel.setText("rank: " + formatRank(lowestRank) + " - " + formatRank(highestRank));
+    }
+
     public void addPlayer(MatchPlayerDto player) {
         if (players == null) {
             return;
@@ -284,6 +313,7 @@ public class MatchCard extends HBox {
         
         refreshPlayerCardsDisplay();
         updatePlayerCount(players.size());
+        updateRankRange();
     }
 
     public void removePlayer(int userId) {
@@ -313,6 +343,7 @@ public class MatchCard extends HBox {
             
             refreshPlayerCardsDisplay();
             updatePlayerCount(players.size());
+            updateRankRange();
         }
     }
 
@@ -440,6 +471,7 @@ public class MatchCard extends HBox {
         updateHostCard();
         refreshPlayerCardsDisplay();
         updatePlayerCount(players.size());
+        updateRankRange();
     }
 
     public void movePlayerToSlot(int userId, int oldSlotIndex, int newSlotIndex) {
