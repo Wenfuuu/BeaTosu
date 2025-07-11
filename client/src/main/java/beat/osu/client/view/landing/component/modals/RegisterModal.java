@@ -296,6 +296,8 @@ public class RegisterModal extends StackPane {
         passwordField.clear();
         profileImageView.setImage(null);
         placeholderLabel.setText("Click here to upload image");
+        placeholderLabel.setVisible(true);
+        selectedImageFile = null;
         supporterCheckBox.setSelected(false);
     }
 }
