@@ -353,7 +353,7 @@ public class MatchesPanel extends VBox {
     }
 
     private boolean shouldShowMatch(MatchCard matchCard) {
-        if (!matchFilters.getOwnedBeatmapsCheckBox().isSelected() && !matchCard.userHasBeatmap()) {
+        if (matchFilters.getOwnedBeatmapsCheckBox().isSelected() && !matchCard.userHasBeatmap()) {
             return false;
         }
         
