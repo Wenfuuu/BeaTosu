@@ -62,7 +62,7 @@ public class TopBar extends HBox {
 
         songObjectLbl.setText(OsuParser.getHitObjectCount());
 
-        String diff = String.format("CS:%.2f AR:%.2f OD:%.2f HP:%.2f Stars:%.2f",
+        String diff = String.format("CS:%f AR:%f OD:%f HP:%f Stars:%.2f",
                 beatmap.getCircleSize(),
                 beatmap.getApproachRate(),
                 beatmap.getOverallDifficulty(),

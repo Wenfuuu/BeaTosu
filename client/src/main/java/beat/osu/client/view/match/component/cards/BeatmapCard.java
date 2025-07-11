@@ -308,7 +308,7 @@ public class BeatmapCard extends StackPane {
 
         String tooltipText = "BPM: " + bpm + "  Length: " + length + "\n"
                 + "CS: " + circleSize + "  AR: " + approachRate + "  OD: " + overallDifficulty
-                + "  HP: " + hpDrainRate + "\nStar Rating: " + stars + " ★";
+                + "  HP: " + hpDrainRate + "\nStar Rating: " + String.format("%.2f", stars) + " ★";
 
         Tooltip playerTooltip = new Tooltip(tooltipText);
         playerTooltip.getStyleClass().add("beatmap-tooltip");
