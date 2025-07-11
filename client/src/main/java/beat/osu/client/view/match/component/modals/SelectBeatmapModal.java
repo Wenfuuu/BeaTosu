@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 
 import beat.osu.client.controller.BeatmapController;
 import beat.osu.client.controller.MatchController;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.helper.*;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.BeatmapSet;
@@ -212,6 +213,15 @@ public class SelectBeatmapModal extends StackPane {
     }
 
     private void handleEvent() {
+        bottomBar.getLogoView().setOnMouseEntered(e -> {
+            SfxManager.playMenuSfx(SfxType.MENU_HOVER);
+            bottomBar.getOnHoverTransition().play();
+        });
+
+        bottomBar.getLogoView().setOnMouseExited(e -> {
+            bottomBar.getOnExitTransition().play();
+        });
+
         bottomBar.getLogoView().setOnMouseClicked(e -> {
             System.out.println("Select button clicked");
             if (selectedBeatmap != null && onBeatmapSelectedCallback != null) {
