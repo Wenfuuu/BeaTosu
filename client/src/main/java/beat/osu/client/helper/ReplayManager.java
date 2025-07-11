@@ -26,13 +26,14 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     private final Beatmap beatmap;
     @Getter
     private final ArrayList<HitObject> hitObjects;
+    private HitObject firstHitObject;
     private AnimationTimer replayLoop;
     private long startTimeNanos = -1;
     private long pauseStartNanos = -1;
     private long totalPausedNanos = 0;
     private final long replayStartOffset = 2000;
     private boolean replayOffsetCompleted = false;
-    private long lastHpDrainMillis = 0;
+    private long lastHpDrainMillis;
     private GameState gameState = GameState.PLAYING;
     private ReplayState replayState = ReplayState.NOT_STARTED;
     private boolean bgmStarted = false;
@@ -125,7 +126,8 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
                 long elapsedNanos = now - startTimeNanos - totalPausedNanos;
                 long elapsedMillis = elapsedNanos / 1_000_000;
 
-                if (elapsedMillis > lastHpDrainMillis + 1000 && replayState == ReplayState.PLAYING) {
+                if (elapsedMillis > lastHpDrainMillis + 1000 && replayState == ReplayState.PLAYING
+                && elapsedMillis - replayStartOffset > firstHitObject.getHitTime()) {
                     lastHpDrainMillis = elapsedMillis;
                     health = Math.max(0, health - beatmap.getHpDrainRate());
                     System.out.println("draining health, health: " + health);
@@ -584,6 +586,8 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
 
             createHitObject(data, comboEnd);
         }
+        firstHitObject = hitObjects.get(0);
+        lastHpDrainMillis = firstHitObject.getHitTime();
     }
 
     private void createHitObject(String data, boolean comboEnd) {

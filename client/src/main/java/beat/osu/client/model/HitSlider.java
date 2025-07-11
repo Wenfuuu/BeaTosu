@@ -922,6 +922,10 @@ public class HitSlider extends HitObject {
                 if (repeats > 0 && repeatsHit < repeats) {
                     trackRepeatHit(repeats - 1); // Track the final tail
                     if (repeatHitStatus.get(repeats - 1)) {// if last is hit
+                        ArrayList<String> sfxFilenames = edfeSfxFilenames.get(edfeSfxFilenames.size() - 1);
+                        for (String sfx : sfxFilenames) {
+                            SfxManager.playBeatmapSfx(sfx);
+                        }
                         listener.onSliderEnd(this);
                     }
                 }

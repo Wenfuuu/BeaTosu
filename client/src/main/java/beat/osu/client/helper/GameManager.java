@@ -44,13 +44,14 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private final MatchDto matchDto;
     @Getter
     private final ArrayList<HitObject> hitObjects;
+    private HitObject firstHitObject;
     private boolean isMultiplayer;
     private AnimationTimer gameLoop;
     private long startTimeNanos = -1;
     private long pauseStartNanos = -1;
     private long totalPausedNanos = 0;
     private final long gameStartOffset = 2000;
-    private long lastHpDrainMillis = 0;
+    private long lastHpDrainMillis;
     private GameState gameState = GameState.NOT_STARTED;
     private boolean bgmStarted = false;
     private boolean gameOffsetCompleted = false;
@@ -304,7 +305,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 long elapsedNanos = now - startTimeNanos - totalPausedNanos;
                 long elapsedMillis = elapsedNanos / 1_000_000;
 
-                if (elapsedMillis > lastHpDrainMillis + 1000 && gameState == GameState.PLAYING) {
+                if (elapsedMillis > lastHpDrainMillis + 1000 && gameState == GameState.PLAYING
+                && elapsedMillis - gameStartOffset > firstHitObject.getHitTime()) {
                     lastHpDrainMillis = elapsedMillis;
                     health = Math.max(0, health - beatmap.getHpDrainRate());
                     System.out.println("draining health, health: " + health);
@@ -1146,6 +1148,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             System.out.println("index data " + i);
             createHitObject(data, comboEnd);
         }
+        firstHitObject = hitObjects.get(0);
+        lastHpDrainMillis = firstHitObject.getHitTime();
     }
 
     private void createHitObject(String data, boolean comboEnd) {
