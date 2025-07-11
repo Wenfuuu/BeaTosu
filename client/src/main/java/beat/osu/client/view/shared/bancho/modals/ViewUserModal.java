@@ -112,7 +112,7 @@ public class ViewUserModal extends VBox {
                 UserDto user = AuthManager.getUser();
                 Integer beatmapId = fetchPlayingBeatmapId(userCard.getUserId());
 
-                if (beatmapId != null) {
+                if (beatmapId != null && user.getId() != userCard.getUserId()) {
                     SpectateDto spectateDto = new SpectateDto(
                             user.getId(),
                             userCard.getUserId(),
@@ -121,8 +121,9 @@ public class ViewUserModal extends VBox {
                     );
                     onStartSpectateCallback.accept(spectateDto);
                     hide();
+                } else if (user.getId() == userCard.getUserId()) {
+                    Toast.error("Cannot start spectating: You cannot spectate yourself").show();
                 } else {
-                    System.err.println("Cannot start spectating: No beatmap is currently being played");
                     Toast.error("Cannot start spectating: No beatmap is currently being played").show();
                 }
             }
