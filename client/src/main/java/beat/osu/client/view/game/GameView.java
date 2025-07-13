@@ -1,11 +1,28 @@
 package beat.osu.client.view.game;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Objects;
+
 import beat.osu.client.Main;
 import beat.osu.client.config.ConfigurationManager;
 import beat.osu.client.enums.HitResult;
 import beat.osu.client.enums.SfxType;
-import beat.osu.client.events.game.*;
-import beat.osu.client.helper.*;
+import beat.osu.client.events.game.AdditionalSpinEvent;
+import beat.osu.client.events.game.ComboChangeEvent;
+import beat.osu.client.events.game.GameEndEvent;
+import beat.osu.client.events.game.GameEvent;
+import beat.osu.client.events.game.HitObjectEvent;
+import beat.osu.client.events.game.InputOverlayEvent;
+import beat.osu.client.events.game.ScoreChangeEvent;
+import beat.osu.client.helper.AuthManager;
+import beat.osu.client.helper.BackgroundManager;
+import beat.osu.client.helper.BgmManager;
+import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.GameManager;
+import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.SfxManager;
+import beat.osu.client.helper.ViewManager;
 import beat.osu.client.interfaces.game.GameEventListener;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.model.HitObject;
@@ -17,19 +34,27 @@ import beat.osu.client.view.game.component.ui.GameUI;
 import beat.osu.client.view.game.component.ui.MatchScoreContent;
 import beat.osu.client.view.shared.common.Page;
 import beat.osu.shared.dto.match.events.MatchScoreEvent;
-import javafx.animation.*;
+import javafx.animation.Animation;
+import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.ParallelTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.ScaleTransition;
+import javafx.animation.SequentialTransition;
+import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Objects;
 
 public class GameView extends Page implements GameEventListener {
     // Osu! playfield resolution (4:3)

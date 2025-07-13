@@ -14,6 +14,7 @@ import beat.osu.client.model.Beatmap;
 import beat.osu.client.view.game.component.layout.ResultHeader;
 import beat.osu.client.view.game.component.panels.HitCountsPanel;
 import beat.osu.client.view.game.component.panels.ScorePanel;
+import beat.osu.shared.dto.score.ScoreDto;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -46,6 +47,12 @@ public class ResultOverlay extends BorderPane {
 
     @Getter
     private final FadeTransition showTransition;
+    @Getter
+    private final FadeTransition hideTransition;
+    @Getter
+    private ScoreDto score;
+    
+    private boolean isScoreView = false;
 
     public ResultOverlay() {
         this.setVisible(false);
@@ -69,9 +76,16 @@ public class ResultOverlay extends BorderPane {
         showTransition = new FadeTransition(Duration.millis(500), this);
         showTransition.setFromValue(0);
         showTransition.setToValue(1);
+
+        hideTransition = new FadeTransition(Duration.millis(500), this);
+        hideTransition.setFromValue(1);
+        hideTransition.setToValue(0);
     }
 
     public void updateResult(GameEndEvent gameEndEvent, Beatmap beatmap) {
+        this.isScoreView = false;
+        this.score = null;
+        
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a");
         String formatted = now.format(formatter);
@@ -91,6 +105,35 @@ public class ResultOverlay extends BorderPane {
                 gameEndEvent.getGoodHits(), gameEndEvent.getMisses());
         hitCountsPanel.updateCombo(gameEndEvent.getHighestCombo());
         hitCountsPanel.updateAccuracy(gameEndEvent.getAccuracy());
+        
+        // Refresh layout to show/hide retry button
+        refreshLayout();
+    }
+
+    public void updateResult(ScoreDto score, Beatmap beatmap) {
+        this.isScoreView = true;
+        this.score = score;
+        
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss a");
+        String formatted = score.getDate().format(formatter);
+
+        String newSongTitle = String.format("%s - %s [%s]", beatmap.getBeatmapSet().getArtist(), beatmap.getBeatmapSet().getTitle(), beatmap.getVersion());
+        String newCreator = beatmap.getBeatmapSet().getCreator();
+        String newPlayedBy = String.format("Played by %s on %s.", score.getUsername(), formatted);
+
+        resultHeader.updateLabels(newSongTitle, newCreator, newPlayedBy);
+
+        scorePanel.updateScore(score.getScore());
+        updateGrade(score.getGrade());
+
+        hitCountsPanel.updateHitCounts(score.getPerfectHit(), score.getGekiHit(),
+                score.getGreatHit(), score.getKatuHit(),
+                score.getGoodHit(), score.getMiss());
+        hitCountsPanel.updateCombo(score.getHighestCombo());
+        hitCountsPanel.updateAccuracy(score.getAccuracy());
+        
+        // Refresh layout to show/hide retry button
+        refreshLayout();
     }
 
     private void updateGrade(String grade) {
@@ -118,6 +161,19 @@ public class ResultOverlay extends BorderPane {
     }
 
     private void setupLayout() {
+        refreshLayout();
+    }
+
+    private void refreshLayout() {
+        // Clear existing children
+        this.getChildren().clear();
+        
+        // Add score-overlay style class if this is a score view
+        if (isScoreView) {
+            this.getStyleClass().clear();
+            this.getStyleClass().add("score-overlay");
+        }
+        
         VBox rightStats = new VBox(20);
         rightStats.getStyleClass().add("right-stats");
         rightStats.setPadding(new Insets(ScreenManager.SCREEN_HEIGHT * 0.044, 0, ScreenManager.SCREEN_HEIGHT * 0.044, 0));
@@ -134,11 +190,14 @@ public class ResultOverlay extends BorderPane {
 
         VBox spacer = new VBox();
 
-        retryImageView.setFitWidth(ScreenManager.SCREEN_WIDTH * 0.23);
-        retryImageView.setPreserveRatio(true);
-        retryImageView.setSmooth(true);
-        retryButton.setPadding(Insets.EMPTY);
-        retryButton.setGraphic(retryImageView);
+        // Only configure retry button if not in score view mode
+        if (!isScoreView) {
+            retryImageView.setFitWidth(ScreenManager.SCREEN_WIDTH * 0.23);
+            retryImageView.setPreserveRatio(true);
+            retryImageView.setSmooth(true);
+            retryButton.setPadding(Insets.EMPTY);
+            retryButton.setGraphic(retryImageView);
+        }
 
         replayImageView.setFitWidth(ScreenManager.SCREEN_WIDTH * 0.23);
         replayImageView.setPreserveRatio(true);
@@ -147,7 +206,13 @@ public class ResultOverlay extends BorderPane {
         replayButton.setGraphic(replayImageView);
 
         VBox.setVgrow(spacer, Priority.ALWAYS);
-        rightStats.getChildren().addAll(gradeSymbol, spacer, retryButton, replayButton);
+        
+        // Add buttons conditionally
+        if (isScoreView) {
+            rightStats.getChildren().addAll(gradeSymbol, spacer, replayButton);
+        } else {
+            rightStats.getChildren().addAll(gradeSymbol, spacer, retryButton, replayButton);
+        }
 
         Pane contentPane = new Pane();
         contentPane.getChildren().addAll(scorePanel, hitCountsPanel, backButton, rightStats);
@@ -165,10 +230,22 @@ public class ResultOverlay extends BorderPane {
 
         this.setTop(resultHeader);
         this.setCenter(contentPane);
+        
+        // Reload styles based on current mode
+        loadStyles();
     }
 
     private void loadStyles() {
-        URL cssUrl = Main.class.getResource("/assets/css/game/ResultOverlay.css");
+        // Clear existing stylesheets
+        this.getStylesheets().clear();
+        
+        URL cssUrl;
+        if (isScoreView) {
+            cssUrl = Main.class.getResource("/assets/css/home/ScoreOverlay.css");
+        } else {
+            cssUrl = Main.class.getResource("/assets/css/game/ResultOverlay.css");
+        }
+        
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {

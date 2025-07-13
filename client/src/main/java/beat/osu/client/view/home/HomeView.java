@@ -29,7 +29,7 @@ import beat.osu.client.utils.ReplayUtils;
 import beat.osu.client.view.home.component.BeatmapContent;
 import beat.osu.client.view.home.component.BottomBar;
 import beat.osu.client.view.home.component.ScoreContent;
-import beat.osu.client.view.home.component.ScoreOverlay;
+import beat.osu.client.view.game.component.overlays.ResultOverlay;
 import beat.osu.client.view.home.component.TopBar;
 import beat.osu.client.view.home.component.UploadBox;
 import beat.osu.client.view.shared.common.Page;
@@ -69,7 +69,7 @@ public class HomeView extends Page {
     private BeatmapContent beatmapContent;
     private UploadBox uploadBox;
     private ScoreContent scoreContent;
-    private ScoreOverlay scoreOverlay;
+    private ResultOverlay scoreOverlay;
     private ArrayList<Beatmap> beatmaps;
     private ArrayList<ScoreDto> scores;
 
@@ -145,7 +145,7 @@ public class HomeView extends Page {
 
         scores = new ArrayList<>();
 
-        scoreOverlay = new ScoreOverlay();
+        scoreOverlay = new ResultOverlay();
 
         scene.setRoot(root);
         URL globalCssUrl = CssManager.getGlobalCssURL();
