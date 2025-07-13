@@ -1,11 +1,13 @@
 package beat.osu.client.view.game.component.overlays;
 
+import java.awt.*;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 import beat.osu.client.Main;
+import beat.osu.client.config.ConfigurationManager;
 import beat.osu.client.events.game.GameEndEvent;
 import beat.osu.client.factory.ButtonFactory;
 import beat.osu.client.helper.AuthManager;
@@ -21,6 +23,7 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import lombok.Getter;
 
@@ -163,7 +166,11 @@ public class ResultOverlay extends BorderPane {
 
     private void refreshLayout() {
         this.getChildren().clear();
-        this.getStyleClass().add("result-overlay");
+
+        if (this.isScoreView) {
+            double opacity = ConfigurationManager.getInstance().getBackgroundDim() - 0.25;
+            this.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, opacity), CornerRadii.EMPTY, Insets.EMPTY)));
+        }
 
         VBox rightStats = new VBox(20);
         rightStats.getStyleClass().add("right-stats");
