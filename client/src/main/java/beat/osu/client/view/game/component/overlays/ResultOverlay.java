@@ -27,7 +27,6 @@ import lombok.Getter;
 public class ResultOverlay extends BorderPane {
     private final ImageView gradeSymbol;
 
-    // Image resources
     private final Image[] digitImages;
     private Image gradeImage;
 
@@ -106,7 +105,6 @@ public class ResultOverlay extends BorderPane {
         hitCountsPanel.updateCombo(gameEndEvent.getHighestCombo());
         hitCountsPanel.updateAccuracy(gameEndEvent.getAccuracy());
         
-        // Refresh layout to show/hide retry button
         refreshLayout();
     }
 
@@ -132,7 +130,6 @@ public class ResultOverlay extends BorderPane {
         hitCountsPanel.updateCombo(score.getHighestCombo());
         hitCountsPanel.updateAccuracy(score.getAccuracy());
         
-        // Refresh layout to show/hide retry button
         refreshLayout();
     }
 
@@ -165,15 +162,9 @@ public class ResultOverlay extends BorderPane {
     }
 
     private void refreshLayout() {
-        // Clear existing children
         this.getChildren().clear();
-        
-        // Add score-overlay style class if this is a score view
-        if (isScoreView) {
-            this.getStyleClass().clear();
-            this.getStyleClass().add("score-overlay");
-        }
-        
+        this.getStyleClass().add("result-overlay");
+
         VBox rightStats = new VBox(20);
         rightStats.getStyleClass().add("right-stats");
         rightStats.setPadding(new Insets(ScreenManager.SCREEN_HEIGHT * 0.044, 0, ScreenManager.SCREEN_HEIGHT * 0.044, 0));
@@ -190,7 +181,6 @@ public class ResultOverlay extends BorderPane {
 
         VBox spacer = new VBox();
 
-        // Only configure retry button if not in score view mode
         if (!isScoreView) {
             retryImageView.setFitWidth(ScreenManager.SCREEN_WIDTH * 0.23);
             retryImageView.setPreserveRatio(true);
@@ -207,7 +197,6 @@ public class ResultOverlay extends BorderPane {
 
         VBox.setVgrow(spacer, Priority.ALWAYS);
         
-        // Add buttons conditionally
         if (isScoreView) {
             rightStats.getChildren().addAll(gradeSymbol, spacer, replayButton);
         } else {
@@ -231,21 +220,15 @@ public class ResultOverlay extends BorderPane {
         this.setTop(resultHeader);
         this.setCenter(contentPane);
         
-        // Reload styles based on current mode
         loadStyles();
     }
 
     private void loadStyles() {
-        // Clear existing stylesheets
         this.getStylesheets().clear();
         
         URL cssUrl;
-        if (isScoreView) {
-            cssUrl = Main.class.getResource("/assets/css/home/ScoreOverlay.css");
-        } else {
-            cssUrl = Main.class.getResource("/assets/css/game/ResultOverlay.css");
-        }
-        
+        cssUrl = Main.class.getResource("/assets/css/game/ResultOverlay.css");
+
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
         } else {
