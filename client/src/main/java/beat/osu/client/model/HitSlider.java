@@ -974,8 +974,10 @@ public class HitSlider extends HitObject {
     }
 
     private void trackRepeatHit(int repeatIndex) {
-        if (!mouseInBallRadius || !keyHolded)
+        if (!mouseInBallRadius || !keyHolded) {
+            if (repeatIndex != repeatHitStatus.size() - 1) listener.onComboBreak();
             return;
+        }
 
         if (repeatIndex >= 0 && repeatIndex < repeatHitStatus.size() && !repeatHitStatus.get(repeatIndex)) {
             repeatHitStatus.set(repeatIndex, true);

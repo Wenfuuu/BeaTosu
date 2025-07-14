@@ -584,6 +584,15 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     }
 
     @Override
+    public void onComboBreak() {
+        int oldCombo = masterComboNumber;
+        masterComboNumber = 0;
+
+        notifyListeners(new GameEvent(GameEventType.COMBO_CHANGED,
+                new ComboChangeEvent(masterComboNumber, oldCombo >= 20)));
+    }
+
+    @Override
     public void onAdditionalSpin(HitObject hitObject, int additionalSpin) {
         notifyListeners(new GameEvent(GameEventType.ADDITIONAL_SPIN,
                 new AdditionalSpinEvent(hitObject, additionalSpin)));

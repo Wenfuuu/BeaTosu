@@ -976,10 +976,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         if (hitObject instanceof HitSlider && hitResult == HitResult.MISS) {
             ((HitSlider) hitObject).setEarlyHit(true);
-            int oldCombo = masterComboNumber;
-            masterComboNumber = 0;
-            notifyListeners(new GameEvent(GameEventType.COMBO_CHANGED,
-                    new ComboChangeEvent(masterComboNumber, oldCombo >= 20)));
+            onComboBreak();
             return;
         }
 
@@ -1351,6 +1348,14 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     @Override
     public void onMiss(HitObject hitObject) {
         notifyMiss(hitObject);
+    }
+
+    @Override
+    public void onComboBreak() {
+        int oldCombo = masterComboNumber;
+        masterComboNumber = 0;
+        notifyListeners(new GameEvent(GameEventType.COMBO_CHANGED,
+                new ComboChangeEvent(masterComboNumber, oldCombo >= 20)));
     }
 
     @Override
