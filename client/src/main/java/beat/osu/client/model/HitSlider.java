@@ -65,6 +65,7 @@ public class HitSlider extends HitObject {
     private boolean earlyHit = false;
     @Getter
     private boolean tailMissed = false;
+    private boolean repeatMissed = false;
     private int ticksHit = 0;
     private int repeatsHit = 0;
     private final List<Boolean> tickHitStatus = new ArrayList<>();
@@ -914,8 +915,11 @@ public class HitSlider extends HitObject {
 
                         currentTraversalIndex = traversalIndex;
                         updateArrowVisibility(currentTraversalIndex);
-                        // add 30 score
-                        listener.onSliderRepeat(this);
+                        if (!repeatMissed) {
+                            // add 30 score
+                            listener.onSliderRepeat(this);
+                        }
+                        repeatMissed = false;
                     }
 
                     updateTickVisuals(timeSinceHitStart);
@@ -971,6 +975,7 @@ public class HitSlider extends HitObject {
     private void trackRepeatHit(int repeatIndex) {
         if (!mouseInBallRadius || !keyHolded) {
             if (repeatIndex != repeatHitStatus.size() - 1) listener.onComboBreak();
+            repeatMissed = true;
             return;
         }
 
