@@ -375,6 +375,9 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     private void updateHitCount(HitObject hitObject, HitResult hitResult) {
         if (hitResult != HitResult.SPIN && hitResult != HitResult.COMPLETE_SPIN && hitResult != HitResult.SLIDER_END) {
             // System.out.println("combo naik");
+            if (hitObject instanceof HitSlider) {
+                if (((HitSlider) hitObject).isTailMissed()) return;
+            }
             masterComboNumber++;
             updateHighestCombo(masterComboNumber);
         }
@@ -542,17 +545,6 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
         // if (health <= 0) {
         // System.out.println("hp reached 0, stopping game");
         // }
-    }
-
-    private void notifySliderTailMiss(HitObject hitObject) {
-        perfectCombo = false;
-        imperfectOrMissed = true;
-        hitObject.playMissEffect();
-
-        double hpLoss = (0.12 + 0.04 * beatmap.getHpDrainRate()) * 100;
-        health = Math.max(0, health - hpLoss);
-
-        notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
     }
 
     private void updateAccuracy() {
