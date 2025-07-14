@@ -399,33 +399,28 @@ public class HitSlider extends HitObject {
         if (!headHit || sliderTicks.isEmpty())
             return;
 
-        if (!mouseInBallRadius || !keyHolded)
-            return;
-
         double tickSpacing = msPerBeat / calculateTickRate();
-//        int newTickIndex = (int) Math.floor(timeSinceHitStart / tickSpacing);
-
-        // Check if we've passed new ticks and count them as hit
-//        for (int i = currentTickIndex + 1; i <= newTickIndex && i < sliderTicks.size(); i++) {
-//            if (i >= 0 && i < tickHitStatus.size() && !tickHitStatus.get(i)) {
-//                tickHitStatus.set(i, true);
-//                ticksHit++;
-//                // add 10 score
-//                listener.onSliderTick(this);
-//                System.out.println("Tick " + i + " hit! Total ticks hit: " + ticksHit);
-//            }
-//        }
 
         currentTickIndex = (int) Math.floor(timeSinceHitStart / tickSpacing);;
         System.out.println("Current tick index: " + currentTickIndex + ", total ticks: " + sliderTicks.size());
         for (int i = 0; i < sliderTicks.size() && i < currentTickIndex; i++) {
-            if (sliderTicks.get(i).isVisible()) {
-                tickHitStatus.set(i, true);
-                ticksHit++;
-                // add 10 score
-                listener.onSliderTick(this);
-                SfxManager.playBeatmapSfx("soft-slidertick.wav");
-                sliderTicks.get(i).setVisible(false);
+            if (i >= 0 && i < tickHitStatus.size() && !tickHitStatus.get(i)) {
+                // Check if player is correctly following the slider
+                if (mouseInBallRadius && keyHolded) {
+                    // Tick hit successfully
+                    tickHitStatus.set(i, true);
+                    ticksHit++;
+                    listener.onSliderTick(this);
+                    SfxManager.playBeatmapSfx("soft-slidertick.wav");
+                    sliderTicks.get(i).setVisible(false);
+                    System.out.println("Tick " + i + " hit! Total ticks hit: " + ticksHit);
+                } else {
+                    // Tick missed - player not following slider correctly
+                    tickHitStatus.set(i, true); // Mark as processed to avoid re-checking
+                    sliderTicks.get(i).setVisible(false);
+                    listener.onComboBreak(); // Break combo for missed tick
+                    System.out.println("Tick " + i + " missed! Combo broken.");
+                }
             }
         }
     }
