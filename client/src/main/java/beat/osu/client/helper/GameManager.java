@@ -976,6 +976,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         if (hitObject instanceof HitSlider && hitResult == HitResult.MISS) {
             ((HitSlider) hitObject).setEarlyHit(true);
+            hitObject.setHit(true);
+            hitObject.playHitEffect();
             onComboBreak();
             return;
         }
