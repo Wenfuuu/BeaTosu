@@ -544,6 +544,17 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
         // }
     }
 
+    private void notifySliderTailMiss(HitObject hitObject) {
+        perfectCombo = false;
+        imperfectOrMissed = true;
+        hitObject.playMissEffect();
+
+        double hpLoss = (0.12 + 0.04 * beatmap.getHpDrainRate()) * 100;
+        health = Math.max(0, health - hpLoss);
+
+        notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
+    }
+
     private void updateAccuracy() {
         double hitValues = (perfectHits * HitResult.PERFECT.getScore()) +
                 (gekiHits * HitResult.PERFECT.getScore()) +

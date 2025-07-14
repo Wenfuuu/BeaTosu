@@ -20,12 +20,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Getter
 public class HitSlider extends HitObject {
     private final HitObjectListener listener;
 
@@ -61,6 +63,8 @@ public class HitSlider extends HitObject {
     // Slider scoring tracking
     @Setter
     private boolean earlyHit = false;
+    @Getter
+    private boolean tailMissed = false;
     private int ticksHit = 0;
     private int repeatsHit = 0;
     private final List<Boolean> tickHitStatus = new ArrayList<>();
@@ -399,26 +403,29 @@ public class HitSlider extends HitObject {
             return;
 
         double tickSpacing = msPerBeat / calculateTickRate();
-        int newTickIndex = (int) Math.floor(timeSinceHitStart / tickSpacing);
+//        int newTickIndex = (int) Math.floor(timeSinceHitStart / tickSpacing);
 
         // Check if we've passed new ticks and count them as hit
-        for (int i = currentTickIndex + 1; i <= newTickIndex && i < sliderTicks.size(); i++) {
-            if (i >= 0 && i < tickHitStatus.size() && !tickHitStatus.get(i)) {
+//        for (int i = currentTickIndex + 1; i <= newTickIndex && i < sliderTicks.size(); i++) {
+//            if (i >= 0 && i < tickHitStatus.size() && !tickHitStatus.get(i)) {
+//                tickHitStatus.set(i, true);
+//                ticksHit++;
+//                // add 10 score
+//                listener.onSliderTick(this);
+//                System.out.println("Tick " + i + " hit! Total ticks hit: " + ticksHit);
+//            }
+//        }
+
+        currentTickIndex = (int) Math.floor(timeSinceHitStart / tickSpacing);;
+        System.out.println("Current tick index: " + currentTickIndex + ", total ticks: " + sliderTicks.size());
+        for (int i = 0; i < sliderTicks.size() && i < currentTickIndex; i++) {
+            if (sliderTicks.get(i).isVisible()) {
                 tickHitStatus.set(i, true);
                 ticksHit++;
                 // add 10 score
                 listener.onSliderTick(this);
-                System.out.println("Tick " + i + " hit! Total ticks hit: " + ticksHit);
-            }
-        }
-
-        currentTickIndex = newTickIndex;
-        System.out.println("Current tick index: " + currentTickIndex + ", total ticks: " + sliderTicks.size());
-        for (int i = 0; i < sliderTicks.size() && i < currentTickIndex; i++) {
-            if (sliderTicks.get(i).isVisible()) {
                 SfxManager.playBeatmapSfx("soft-slidertick.wav");
                 sliderTicks.get(i).setVisible(false);
-                // Optional: Add a small scale/fade animation here for visual feedback
             }
         }
     }
@@ -927,6 +934,8 @@ public class HitSlider extends HitObject {
                             SfxManager.playBeatmapSfx(sfx);
                         }
                         listener.onSliderEnd(this);
+                    } else {
+                        tailMissed = true;
                     }
                 }
 

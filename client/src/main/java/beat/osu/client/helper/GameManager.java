@@ -932,7 +932,9 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
     private void updateHitCount(HitObject hitObject, HitResult hitResult) {
         if (hitResult != HitResult.SPIN && hitResult != HitResult.COMPLETE_SPIN && hitResult != HitResult.SLIDER_END) {
-            // System.out.println("combo naik");
+            if (hitObject instanceof HitSlider) {
+                if (((HitSlider) hitObject).isTailMissed()) return;
+            }
             masterComboNumber++;
             updateHighestCombo(masterComboNumber);
         }
@@ -1037,8 +1039,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void notifyHit(HitObject hitObject, HitResult hitResult) {
-        // masterComboNumber++;
-        // updateHighestCombo(masterComboNumber);
         updateHitCount(hitObject, hitResult);
 
         int hitValue = hitResult.getScore();
