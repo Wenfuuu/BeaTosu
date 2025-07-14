@@ -706,6 +706,9 @@ public class GameView extends Page implements GameEventListener {
                 ComboChangeEvent comboChangeEvent = event.getData(ComboChangeEvent.class);
                 if (comboChangeEvent != null) {
                     uiPane.updateCombo(comboChangeEvent.getCombo());
+                    if (comboChangeEvent.isComboBreak()) {
+                        SfxManager.playBeatmapSfx("combobreak.mp3");
+                    }
                 }
                 break;
             case SCORE_CHANGED:

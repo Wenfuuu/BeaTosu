@@ -18,7 +18,6 @@ import beat.osu.shared.dto.game.events.SpectateStatusEvent;
 import beat.osu.shared.dto.match.MatchDto;
 import beat.osu.shared.dto.match.MatchPlayerDto;
 import beat.osu.shared.dto.match.events.*;
-import beat.osu.shared.dto.match.responses.CreateMatchResponse;
 import beat.osu.shared.dto.match.responses.LeaveMatchResponse;
 import beat.osu.shared.dto.score.ScoreDto;
 import beat.osu.shared.dto.score.responses.GetAllScoresResponse;
@@ -102,7 +101,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     // Throttling for network events
     private long lastSpectateEventSent = 0;
     private long lastMatchScoreEventSent = 0;
-    private static final long SPECTATE_EVENT_INTERVAL = 11; // Send every 17ms (~ 60 FPS)
+    private static final long SPECTATE_EVENT_INTERVAL = 11; // Send every 11ms (~ 90 FPS)
     private static final long MATCH_SCORE_EVENT_INTERVAL = 1000; // Send every 1 second
 
     // Prevent thread pool exhaustion by implementing thread pool protection flags
@@ -975,6 +974,10 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         if (hitObject instanceof HitSlider && hitResult == HitResult.MISS) {
             ((HitSlider) hitObject).setEarlyHit(true);
+            int oldCombo = masterComboNumber;
+            masterComboNumber = 0;
+            notifyListeners(new GameEvent(GameEventType.COMBO_CHANGED,
+                    new ComboChangeEvent(masterComboNumber, oldCombo >= 20)));
             return;
         }
 
@@ -1078,8 +1081,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         misses++;
         int oldCombo = masterComboNumber;
-        if (oldCombo >= 20)
-            SfxManager.playBeatmapSfx("combobreak.mp3");
         masterComboNumber = 0;
 
         // Update accuracy
@@ -1092,7 +1093,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         // Notify observers
         notifyListeners(new GameEvent(GameEventType.COMBO_CHANGED,
-                new ComboChangeEvent(masterComboNumber, oldCombo > 0)));
+                new ComboChangeEvent(masterComboNumber, oldCombo >= 20)));
         notifyListeners(new GameEvent(GameEventType.HIT_OBJECT_MISSED,
                 new HitObjectEvent(hitObject, HitResult.MISS,
                         false, true)));

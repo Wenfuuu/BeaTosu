@@ -464,16 +464,13 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
             boolean keyPressed = processSpectateEvents(event);
             int oldCombo = masterComboNumber;
             masterComboNumber = event.getCombo();
-            if (oldCombo >= 20 && masterComboNumber < oldCombo) {
-                SfxManager.playBeatmapSfx("combobreak.mp3");
-            }
             score = event.getScore();
             accuracy = event.getAccuracy();
             health = event.getHealth();
 
             notifyListeners(new GameEvent(GameEventType.SCORE_CHANGED, score));
             notifyListeners(new GameEvent(GameEventType.COMBO_CHANGED,
-                    new ComboChangeEvent(masterComboNumber, false)));
+                    new ComboChangeEvent(masterComboNumber, (oldCombo >= 20 && masterComboNumber < oldCombo))));
             notifyListeners(new GameEvent(GameEventType.ACCURACY_CHANGED, accuracy));
             notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
 

@@ -41,7 +41,7 @@ public class HitSlider extends HitObject {
     // Parsed Slider Data
     private char sliderType = '?';
     private final List<Point2D> controlPoints = new ArrayList<>();
-    private int repeats = 1;
+    private int slides = 1;
     private double pixelLength = 0.0;
     private String edgeSoundsStr = "";
     private String edgeSetsStr = "";
@@ -89,7 +89,7 @@ public class HitSlider extends HitObject {
         int ticksPerTraversal = (int) Math.floor(this.duration / tickInterval);
 
         // Total ticks = ticks per traversal * total number of traversals
-        int totalTraversals = this.repeats + 1;
+        int totalTraversals = this.slides + 1;
         return ticksPerTraversal * totalTraversals;
     }
 
@@ -206,13 +206,13 @@ public class HitSlider extends HitObject {
 
         if (!mainParts[1].isEmpty()) {
             try {
-                this.repeats = Integer.parseInt(mainParts[1]);
+                this.slides = Integer.parseInt(mainParts[1]);
             } catch (NumberFormatException e) {
                 System.err.println("Error parsing slider repeats: " + mainParts[1] + ". Defaulting to 1.");
-                this.repeats = 1;
+                this.slides = 1;
             }
         } else {
-            this.repeats = 1; // Default if empty
+            this.slides = 1; // Default if empty
         }
 
         if (mainParts.length > 2 && !mainParts[2].isEmpty()) {
@@ -234,11 +234,11 @@ public class HitSlider extends HitObject {
         }
 
         if (this.edgeSoundsStr.isEmpty()) {
-            this.edgeSoundsStr = "0|".repeat(this.repeats);
+            this.edgeSoundsStr = "0|".repeat(this.slides);
             this.edgeSoundsStr = this.edgeSoundsStr.substring(0, this.edgeSoundsStr.length() - 1);
         }
         if (this.edgeSetsStr.isEmpty()) {
-            this.edgeSetsStr = "0:0|".repeat(this.repeats);
+            this.edgeSetsStr = "0:0|".repeat(this.slides);
             this.edgeSetsStr = this.edgeSetsStr.substring(0, this.edgeSetsStr.length() - 1);
         }
     }
@@ -270,13 +270,13 @@ public class HitSlider extends HitObject {
         }
 
         this.tickCount = calculateTickCount(sliderTickRate);
-        this.endTime = getHitTime() + (long) (this.duration * this.repeats);
+        this.endTime = getHitTime() + (long) (this.duration * this.slides);
 
         // Initialize slider scoring tracking
         for (int i = 0; i < this.tickCount; i++) {
             tickHitStatus.add(false);
         }
-        for (int i = 0; i < this.repeats; i++) {
+        for (int i = 0; i < this.slides; i++) {
             repeatHitStatus.add(false);
         }
 
@@ -345,7 +345,7 @@ public class HitSlider extends HitObject {
         double minPixelDistanceFromEnds = getCircleRadius();
 
         double tickSpacing = msPerBeat / tickRate;
-        for (int repeat = 0; repeat < this.repeats; repeat++) {
+        for (int repeat = 0; repeat < this.slides; repeat++) {
             // Calculate how many ticks in this span
             int ticksInSpan = (int) Math.floor((this.duration - 1e-3) / tickSpacing);
 
@@ -436,7 +436,7 @@ public class HitSlider extends HitObject {
         // Traversal 1: going to start (show start arrow if it exists)
         // Traversal 2: going to end again (show end arrow)
         // etc.
-        int totalTraversals = repeats;
+        int totalTraversals = slides;
         if (currentTraversalIndex < totalTraversals - 1) { // Not the final traversal
             if (currentTraversalIndex % 2 == 0) {
                 // Even traversal index: going towards end, show end arrow
@@ -459,7 +459,7 @@ public class HitSlider extends HitObject {
     }
 
     private void createReverseArrows() {
-        if (repeats < 2 || controlPoints.size() < 2)
+        if (slides < 2 || controlPoints.size() < 2)
             return;
 
         // Clear any existing arrows
@@ -502,7 +502,7 @@ public class HitSlider extends HitObject {
         // If there are multiple repeats (odd number means it ends at start, even at
         // end)
         // Add arrow at start point for even number of total traversals
-        if (repeats > 2) {
+        if (slides > 2) {
             ImageView startArrow = new ImageView(arrowImage);
             startArrow.setFitWidth(getCircleRadius() * 2.5);
             startArrow.setFitHeight(getCircleRadius() * 2.5);
@@ -643,7 +643,7 @@ public class HitSlider extends HitObject {
     }
 
     private double getBallFraction(double timeSinceHitStart) {
-        int totalTraversals = this.repeats + 1;
+        int totalTraversals = this.slides + 1;
         if (totalTraversals <= 0)
             totalTraversals = 1; // Should not happen with repeats >= 0
 
@@ -906,7 +906,7 @@ public class HitSlider extends HitObject {
                         }
 
                         // Track repeat/tail hits when traversal changes
-                        if (currentTraversalIndex >= 0 && currentTraversalIndex < repeats) {
+                        if (currentTraversalIndex >= 0 && currentTraversalIndex < slides) {
                             trackRepeatHit(currentTraversalIndex);
                         }
 
@@ -919,9 +919,9 @@ public class HitSlider extends HitObject {
                     updateTickVisuals(timeSinceHitStart);
                 }
             } else { // Slider finished
-                if (repeats > 0 && repeatsHit < repeats) {
-                    trackRepeatHit(repeats - 1); // Track the final tail
-                    if (repeatHitStatus.get(repeats - 1)) {// if last is hit
+                if (slides > 0 && repeatsHit < slides) {
+                    trackRepeatHit(slides - 1); // Track the final tail
+                    if (repeatHitStatus.get(slides - 1)) {// if last is hit
                         ArrayList<String> sfxFilenames = edfeSfxFilenames.get(edfeSfxFilenames.size() - 1);
                         for (String sfx : sfxFilenames) {
                             SfxManager.playBeatmapSfx(sfx);
@@ -953,7 +953,7 @@ public class HitSlider extends HitObject {
             } else if (getCurrTime() > endTime) {
                 HitResult judgement = getSliderJudgement();
                 System.out.println("Head early hit: " + earlyHit + ", Ticks hit: " + ticksHit + "/"
-                        + sliderTicks.size() + ", Repeats hit: " + repeatsHit + "/" + repeats);
+                        + sliderTicks.size() + ", Repeats hit: " + repeatsHit + "/" + slides);
 
                 if (judgement != HitResult.MISS) {
                     listener.onHit(this, judgement);
@@ -979,7 +979,7 @@ public class HitSlider extends HitObject {
         // Calculate total slider parts
         int totalParts = 1; // Slider head early hit
         totalParts += sliderTicks.size();
-        totalParts += repeats;
+        totalParts += slides;
 
         if (totalParts == 0)
             return 0.0;

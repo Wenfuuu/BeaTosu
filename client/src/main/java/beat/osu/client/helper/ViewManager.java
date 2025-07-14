@@ -70,9 +70,11 @@ public class ViewManager {
     }
 
     public void initializeViews() {
-        landingView = new LandingView(primaryStage, authController, connectedUsersController, chatController, sessionController);
+        landingView = new LandingView(primaryStage, authController, connectedUsersController, chatController,
+                sessionController);
         homeView = new HomeView(primaryStage);
-        lobbyView = new LobbyView(primaryStage, connectedUsersController, chatController, sessionController, beatmapController, matchController);
+        lobbyView = new LobbyView(primaryStage, connectedUsersController, chatController, sessionController,
+                beatmapController, matchController);
     }
 
     private void transitionToPage(Page newPage) {
@@ -103,7 +105,8 @@ public class ViewManager {
                 currentMatchDto = response.getValue().getMatch();
             } else {
                 System.out.println("Failed to fetch match: " + response.getError().getMessage());
-//                Toast.error("Failed to fetch match: " + response.getError().getMessage()).show();
+                // Toast.error("Failed to fetch match: " +
+                // response.getError().getMessage()).show();
             }
         } catch (InterruptedException | ExecutionException ex) {
             throw new RuntimeException(ex);
@@ -168,7 +171,7 @@ public class ViewManager {
             Page tempCurrent = currentPage;
             currentPage = previousPage;
             previousPage = tempCurrent;
-            
+
             // Handle onShow for cached views
             if (currentPage instanceof MatchView) {
                 backToMatchView();
@@ -176,7 +179,7 @@ public class ViewManager {
             } else {
                 currentPage.onShow();
             }
-            
+
             sceneManager.transitionToPage(currentPage);
         }
     }
