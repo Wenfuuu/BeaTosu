@@ -16,7 +16,6 @@ public class ConfigurationManager {
     private static volatile ConfigurationManager instance;
     private Properties properties;
     private LinkedHashMap<String, String> orderedProperties;
-    private String settingsFilePath;
 
     private void loadProperties() {
         properties = new Properties();
@@ -126,12 +125,7 @@ public class ConfigurationManager {
     }
 
     private void writeSettingsToFile() throws IOException {
-        if (settingsFilePath == null) {
-            System.err.println("Settings file path not found, cannot write settings");
-            return;
-        }
-
-        File settingsFile = new File(settingsFilePath);
+        File settingsFile = new File("config.properties");
         try (PrintWriter writer = new PrintWriter(new FileWriter(settingsFile))) {
             writer.println("# Application Settings");
             
