@@ -664,8 +664,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             HitObject hitObject = iterator.next();
             hitObject.update(elapsedMillis);
             if (hitObject instanceof HitSpinner) {
-                if (keyHolded)
-                    ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY);
+                if (elapsedMillis >= hitObject.getHitTime())
+                    ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY, keyHolded);
             } else if (hitObject instanceof HitSlider) {
                 ((HitSlider) hitObject).updateSlider(currentMouseX, currentMouseY, keyHolded);
             }

@@ -124,8 +124,8 @@ public class HitSpinner extends HitObject {
         }
     }
 
-    public void updateSpinner(double mouseX, double mouseY) {
-        if (isHit() && isActive) {
+    public void updateSpinner(double mouseX, double mouseY, boolean keyHolded) {
+        if (isHit() && isActive && keyHolded) {
             double relativeX = mouseX - group.getLayoutX();
             double relativeY = mouseY - group.getLayoutY();
 
@@ -164,7 +164,7 @@ public class HitSpinner extends HitObject {
                     SfxManager.playBeatmapSfx("spinnerbonus.wav");
                 }
             }
-        } else if (isHit() && !isActive && !isVisible()) {
+        } else if (!isActive && !isVisible()) {
             // check & notify judgement score
             if (completedSpins >= TARGET_SPINS) {
                 listener.onHit(this, HitResult.PERFECT);

@@ -38,7 +38,7 @@ public class OsuParser {
     private static ArrayList<String> hitObjects = new ArrayList<>();
     @Getter
     private static ArrayList<String> timingPoints = new ArrayList<>();
-    @Getter
+//    @Getter
     private static ArrayList<String> events = new ArrayList<>();
 
     private static String bgFileName = "";
