@@ -26,6 +26,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.util.Duration;
 import lombok.Getter;
@@ -85,6 +86,7 @@ public class SelectBeatmapModal extends StackPane {
         loadStyles();
         setupAnimations();
         setupSearchUpdater();
+        setupKeyHandlers();
         handleEvent();
         
         this.setVisible(false);
@@ -187,6 +189,33 @@ public class SelectBeatmapModal extends StackPane {
     private void setupSearchUpdater() {
         searchUpdateTimeline = new Timeline(new KeyFrame(Duration.millis(100), e -> updateSearch()));
         searchUpdateTimeline.setCycleCount(Timeline.INDEFINITE);
+    }
+    
+    private void setupKeyHandlers() {
+        this.setOnKeyTyped(e -> {
+            if (inputManager == null) return;
+            String ch = e.getCharacter();
+            if (!ch.isEmpty() && ch.charAt(0) >= 0x20) {
+                inputManager.setTypedChars(ch);
+            }
+            e.consume();
+        });
+
+        this.setOnKeyPressed(e -> {
+            if (inputManager != null) {
+                if (e.getCode() == KeyCode.BACK_SPACE) {
+                    String current = inputManager.getTypedChars();
+                    if (!current.isEmpty()) {
+                        inputManager.clearTypedChars();
+                        inputManager.setTypedChars(current.substring(0, current.length() - 1));
+                    }
+                }
+                e.consume();
+            }
+        });
+        
+        // Make sure this modal can receive key events
+        this.setFocusTraversable(true);
     }
 
     private void updateSearch() {
@@ -365,6 +394,9 @@ public class SelectBeatmapModal extends StackPane {
         }
         
         this.setVisible(true);
+        
+        // Request focus so this modal can receive key events
+        this.requestFocus();
         
         if (searchUpdateTimeline != null) {
             searchUpdateTimeline.play();

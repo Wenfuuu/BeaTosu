@@ -53,11 +53,39 @@ public class PlaylistModal extends StackPane implements SongEventListener {
         populatePlaylist();
         loadStyles();
         setupSearchUpdater();
+        setupKeyHandlers();
     }
     
     private void setupSearchUpdater() {
         searchUpdateTimeline = new Timeline(new KeyFrame(Duration.millis(100), e -> updateSearch()));
         searchUpdateTimeline.setCycleCount(Timeline.INDEFINITE);
+    }
+    
+    private void setupKeyHandlers() {
+        this.setOnKeyTyped(e -> {
+            if (inputManager == null) return;
+            String ch = e.getCharacter();
+            if (!ch.isEmpty() && ch.charAt(0) >= 0x20) {
+                inputManager.setTypedChars(ch);
+            }
+            e.consume();
+        });
+
+        this.setOnKeyPressed(e -> {
+            if (inputManager != null) {
+                if (e.getCode() == KeyCode.BACK_SPACE) {
+                    String current = inputManager.getTypedChars();
+                    if (!current.isEmpty()) {
+                        inputManager.clearTypedChars();
+                        inputManager.setTypedChars(current.substring(0, current.length() - 1));
+                    }
+                }
+                e.consume();
+            }
+        });
+        
+        // Make sure this modal can receive key events
+        this.setFocusTraversable(true);
     }
     
     private void updateSearch() {
@@ -218,6 +246,9 @@ public class PlaylistModal extends StackPane implements SongEventListener {
         if (searchUpdateTimeline != null) {
             searchUpdateTimeline.play();
         }
+
+        // Request focus to ensure this modal receives key events
+        this.requestFocus();
 
         FadeTransition fadeIn = new FadeTransition(Duration.millis(300), this);
         fadeIn.setFromValue(0.0);

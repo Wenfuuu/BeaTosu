@@ -45,6 +45,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -93,6 +94,7 @@ public class HomeView extends Page {
         setupCallbacks();
         setupAnimations();
         setupSearchUpdater();
+        setupKeyHandlers();
     }
 
     @Override
@@ -216,6 +218,10 @@ public class HomeView extends Page {
         beatmapContent.resetSelectionState();
         beatmapContent.triggerInitialSelection();
         scene.setRoot(root);
+        
+        // Request focus to ensure key events are received
+        root.requestFocus();
+        
         BgmManager.getInstance().playPreviewBgm(true);
         BackgroundManager.setGameBackground(scene);
     }
@@ -267,6 +273,32 @@ public class HomeView extends Page {
     private void setupSearchUpdater() {
         searchUpdateTimeline = new Timeline(new KeyFrame(Duration.millis(100), e -> updateSearch()));
         searchUpdateTimeline.setCycleCount(Timeline.INDEFINITE);
+    }
+    
+    private void setupKeyHandlers() {
+        root.setOnKeyTyped(e -> {
+            if (inputManager == null) return;
+            String ch = e.getCharacter();
+            if (!ch.isEmpty() && ch.charAt(0) >= 0x20) {
+                inputManager.setTypedChars(ch);
+            }
+            e.consume();
+        });
+
+        root.setOnKeyPressed(e -> {
+            if (inputManager == null) return;
+            if (e.getCode() == KeyCode.BACK_SPACE) {
+                String current = inputManager.getTypedChars();
+                if (!current.isEmpty()) {
+                    inputManager.clearTypedChars();
+                    inputManager.setTypedChars(current.substring(0, current.length() - 1));
+                }
+            }
+            e.consume();
+        });
+        
+        // Make sure the root can receive key events
+        root.setFocusTraversable(true);
     }
 
     private void updateSearch() {
