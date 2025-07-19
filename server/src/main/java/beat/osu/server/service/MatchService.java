@@ -406,11 +406,11 @@ public class MatchService {
 
         match.setInProgress(true);
 
-//         for (MatchPlayer matchPlayer : players) {
-//            if(matchPlayer.getStatus() == PlayerStatus.READY) {
-//                matchPlayer.setStatus(PlayerStatus.PLAYING);
-//            }
-//         }
+         for (MatchPlayer matchPlayer : players) {
+            if(matchPlayer.getStatus() == PlayerStatus.READY) {
+                matchPlayer.setStatus(PlayerStatus.PLAYING);
+            }
+         }
 
         MatchDto matchDto = convertToMatchDto(match);
         String message = "Match started: " + match.getName();
