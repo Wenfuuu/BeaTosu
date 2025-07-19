@@ -578,7 +578,7 @@ public class MatchService {
                 .success(new UpdateMatchPasswordResponse("Successfully updated match password!"));
 
         if (response.isSuccess()) {
-            MatchPasswordUpdatedEvent event = new MatchPasswordUpdatedEvent(matchId);
+            MatchPasswordUpdatedEvent event = new MatchPasswordUpdatedEvent(matchId, newPassword);
             RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.MATCH_PASSWORD_UPDATED, clientId,
                     event);
             RealtimeMessageHandler.broadcastToAll(realtimeMessage);
@@ -1010,3 +1010,4 @@ public class MatchService {
         return Result.success(new GetMatchByIdResponse(matchDto));
     }
 }
+

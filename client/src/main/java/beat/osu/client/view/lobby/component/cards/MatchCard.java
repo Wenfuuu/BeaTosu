@@ -20,6 +20,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
+import lombok.Setter;
 
 public class MatchCard extends HBox {
 
@@ -27,6 +28,7 @@ public class MatchCard extends HBox {
     private Integer matchId;
     @Getter
     private String matchName;
+    @Setter
     private String matchPassword;
     @Getter
     private boolean inProgress;

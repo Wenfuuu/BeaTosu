@@ -34,6 +34,7 @@ import beat.osu.shared.dto.beatmap.responses.GetBeatmapByIdResponse;
 import beat.osu.shared.dto.chat.ChannelDto;
 import beat.osu.shared.dto.chat.responses.JoinChannelResponse;
 import beat.osu.shared.dto.match.responses.JoinMatchResponse;
+import beat.osu.shared.dto.match.events.MatchPasswordUpdatedEvent;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -84,6 +85,17 @@ public class LobbyView extends Page {
 
         setupView();
         handleEvent();
+        setupMatchEventHandlers();
+    }
+
+    private void setupMatchEventHandlers() {
+        matchController.addMatchPasswordUpdatedCallback(this::onMatchPasswordUpdated);
+    }
+
+    private void onMatchPasswordUpdated(MatchPasswordUpdatedEvent event) {
+        javafx.application.Platform.runLater(() -> {
+            matchesPanel.updateMatchPassword(event.getMatchId(), event.getNewPassword());
+        });
     }
 
     @Override
@@ -499,3 +511,4 @@ public class LobbyView extends Page {
         }
     }
 }
+

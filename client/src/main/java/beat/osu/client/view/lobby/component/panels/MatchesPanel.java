@@ -284,6 +284,24 @@ public class MatchesPanel extends VBox {
         });
     }
     
+    public void updateMatchPassword(int matchId, String newPassword) {
+        MatchCard matchCard = matchCardMap.get(matchId);
+        if (matchCard != null) {
+            matchCard.setMatchPassword(newPassword);
+
+            if (shouldShowMatch(matchCard)) {
+                if (!matchesContainer.getChildren().contains(matchCard)) {
+                    matchesContainer.getChildren().add(matchCard);
+                }
+            } else {
+                matchesContainer.getChildren().remove(matchCard);
+            }
+
+            updateNoMatchesMessageVisibility();
+            notifyMatchCountUpdate();
+        }
+    }
+
     private void removeMatch(int matchId) {
         MatchCard matchCard = matchCardMap.get(matchId);
         if (matchCard == null) {
