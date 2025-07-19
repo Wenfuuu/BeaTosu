@@ -2,7 +2,6 @@ package beat.osu.client.helper;
 
 import beat.osu.client.Main;
 import beat.osu.client.view.shared.common.Page;
-import javafx.scene.ImageCursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -63,17 +62,10 @@ public class SceneManager {
 
             scene.setRoot(newRoot);
         }
-        applyCursor(scene);
+        CursorManager.applyCursor(scene);
     }
 
     private void applyCursor(Scene scene) {
-        try {
-            Image cursorImage = new Image(Objects.requireNonNull(Main.class
-                    .getResource("/assets/images/misc/cursor.png")).toExternalForm());
-            scene.setCursor(new ImageCursor(cursorImage,
-                    cursorImage.getWidth() / 2, cursorImage.getHeight() / 2));
-        } catch (Exception e) {
-            System.err.println("Failed to load cursor: " + e.getMessage());
-        }
+        CursorManager.applyCursor(scene);
     }
 }

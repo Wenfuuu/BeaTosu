@@ -6,6 +6,7 @@ import java.util.Objects;
 import beat.osu.client.Main;
 import beat.osu.client.enums.ToastType;
 import beat.osu.client.helper.CssManager;
+import beat.osu.client.helper.CursorManager;
 import beat.osu.client.helper.SceneManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.StageManager;
@@ -14,7 +15,6 @@ import javafx.animation.SequentialTransition;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
@@ -114,19 +114,8 @@ public class Toast {
         toastStage.setScene(scene);
 
         toastStage.show();
-        applyCursor(scene);
+        CursorManager.applyCursor(scene);
         animateToast();
-    }
-
-    private void applyCursor(Scene scene) {
-        try {
-            Image cursorImage = new Image(Objects.requireNonNull(Main.class
-                    .getResource("/assets/images/misc/cursor.png")).toExternalForm());
-            scene.setCursor(new ImageCursor(cursorImage,
-                    cursorImage.getWidth() / 2, cursorImage.getHeight() / 2));
-        } catch (Exception e) {
-            System.err.println("Failed to load cursor: " + e.getMessage());
-        }
     }
 
     private void animateToast() {

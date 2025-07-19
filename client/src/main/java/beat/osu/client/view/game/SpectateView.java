@@ -158,9 +158,7 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
 
         uiPane = new GameUI();
         spectatePauseOverlay = new SpectatePauseOverlay();
-        cursorImage = new ImageView(new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/misc/cursor.png")).toExternalForm(),
-                32, 32, true, true));
+        cursorImage = CursorManager.createCursorImageView(32, 32);
 
         createSpectatePane();
         createMarqueeText();

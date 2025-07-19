@@ -17,13 +17,7 @@ import beat.osu.client.events.game.HitObjectEvent;
 import beat.osu.client.events.game.InputOverlayEvent;
 import beat.osu.client.events.game.ReplayEvent;
 import beat.osu.client.events.game.ScoreChangeEvent;
-import beat.osu.client.helper.BackgroundManager;
-import beat.osu.client.helper.BgmManager;
-import beat.osu.client.helper.CssManager;
-import beat.osu.client.helper.ReplayManager;
-import beat.osu.client.helper.ScreenManager;
-import beat.osu.client.helper.SfxManager;
-import beat.osu.client.helper.ViewManager;
+import beat.osu.client.helper.*;
 import beat.osu.client.interfaces.game.CoordinateConverter;
 import beat.osu.client.interfaces.game.GameEventListener;
 import beat.osu.client.model.Beatmap;
@@ -153,9 +147,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
 
         uiPane = new GameUI();
         pauseOverlay = new PauseOverlay();
-        cursorImage = new ImageView(new Image(Objects.requireNonNull(Main.class
-                .getResource("/assets/images/misc/cursor.png")).toExternalForm(),
-                32, 32, true, true));
+        cursorImage = CursorManager.createCursorImageView(32, 32);
 
         createReplayPane();
         createMarqueeText();
