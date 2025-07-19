@@ -469,8 +469,12 @@ public class MatchService {
 
         player.setHasFinished(true);
         Set<MatchPlayer> players = matchPlayers.get(matchId);
-        boolean allFinished = players.stream().allMatch(MatchPlayer::isHasFinished);
-        if (allFinished) {
+
+        boolean allActivePlayersFinished = players.stream()
+                .filter(p -> !p.isHasFailed() && !p.isHasExited())
+                .allMatch(MatchPlayer::isHasFinished);
+
+        if (allActivePlayersFinished) {
             sendMatchCompletedEvent(matchId, clientId);
             match.setInProgress(false);
         }
