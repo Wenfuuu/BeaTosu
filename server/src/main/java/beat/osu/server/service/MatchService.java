@@ -270,11 +270,12 @@ public class MatchService {
         }
         if (remainingPlayers.isEmpty()) {
             removeMatch(matchId);
-        }
-        boolean playerExists = remainingPlayers.stream()
-                .allMatch(p -> p.getStatus() != PlayerStatus.PLAYING);
-        if (playerExists) {
-            match.setInProgress(false);
+        } else {
+            boolean allPlayersIdle = remainingPlayers.stream()
+                    .allMatch(p -> p.getStatus() != PlayerStatus.PLAYING);
+            if (allPlayersIdle) {
+                match.setInProgress(false);
+            }
         }
 
         return Result.success(new LeaveMatchResponse(message));
