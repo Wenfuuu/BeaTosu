@@ -72,6 +72,10 @@ public class MatchSlotPanel extends VBox {
         }
 
         for (MatchPlayerDto player : players) {
+            System.out.println("===============================");
+            System.out.println("Player Name: " + player.getUser().getUsername() + " | Status: " + player.getStatus());
+            System.out.println("===============================");
+
             MatchSlotCard card = new MatchSlotCard(
                     player.getId(),
                     player.getMatchId(),

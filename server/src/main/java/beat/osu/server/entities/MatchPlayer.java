@@ -19,6 +19,9 @@ public class MatchPlayer {
     private int userId;
     private PlayerRole role;          // "host", "player"
     private PlayerStatus status;      // "no_map", "ready", "not_ready", "playing", "finished"
+    private boolean hasFinished;
+    private boolean hasFailed;
+    private boolean hasExited;
     private int slotIndex;            // 0-15
 
     @Override

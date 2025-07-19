@@ -33,9 +33,8 @@ import beat.osu.shared.models.RealtimeMessage;
 public class MatchService {
 
     private final Map<Integer, Match> matches = new ConcurrentHashMap<>();
-    private final Map<Integer, Set<MatchPlayer>> matchPlayers = new ConcurrentHashMap<>(); // matchId -> players
-    private final Map<Integer, Integer> userToMatch = new ConcurrentHashMap<>(); // userId -> matchId (since user can
-                                                                                 // only be in one match)
+    private final Map<Integer, Set<MatchPlayer>> matchPlayers = new ConcurrentHashMap<>();
+    private final Map<Integer, Integer> userToMatch = new ConcurrentHashMap<>();
 
     private final SessionService sessionService;
     private final UserService userService;
@@ -125,7 +124,7 @@ public class MatchService {
 
         int hostPlayerId = matchPlayerIdGenerator.getAndIncrement();
         MatchPlayer hostPlayer = new MatchPlayer(hostPlayerId, matchId, userId, PlayerRole.HOST, PlayerStatus.NOT_READY,
-                0);
+                false, false, false, 0);
         matchPlayers.get(matchId).add(hostPlayer);
         userToMatch.put(userId, matchId);
 
@@ -184,7 +183,7 @@ public class MatchService {
 
         int newPlayerId = matchPlayerIdGenerator.getAndIncrement();
         MatchPlayer newPlayer = new MatchPlayer(newPlayerId, matchId, userId, PlayerRole.PLAYER, PlayerStatus.NOT_READY,
-                availableSlot);
+                false, false, false, availableSlot);
         matchPlayers.get(matchId).add(newPlayer);
         userToMatch.put(userId, matchId);
 
@@ -222,7 +221,7 @@ public class MatchService {
         if (player == null) {
             return Result.failure(Error.validation("Player not found in match"));
         }
-        player.setStatus(PlayerStatus.FAILED);
+        player.setHasFailed(true);
 
         RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.PLAYER_FAILED_EVENT, clientId, event);
         broadcastMessageToMatchPlayers(clientId, matchId, realtimeMessage);
@@ -407,10 +406,11 @@ public class MatchService {
 
         match.setInProgress(true);
 
-        // for (MatchPlayer matchPlayer : players) {
-        // if(matchPlayer.getStatus() == PlayerStatus.READY)
-        // matchPlayer.setStatus(PlayerStatus.PLAYING);
-        // }
+//         for (MatchPlayer matchPlayer : players) {
+//            if(matchPlayer.getStatus() == PlayerStatus.READY) {
+//                matchPlayer.setStatus(PlayerStatus.PLAYING);
+//            }
+//         }
 
         MatchDto matchDto = convertToMatchDto(match);
         String message = "Match started: " + match.getName();
@@ -467,11 +467,9 @@ public class MatchService {
             return Result.failure(Error.validation("Player not found in match"));
         }
 
-        player.setStatus(PlayerStatus.FINISHED);
-        // check if all players have finished
+        player.setHasFinished(true);
         Set<MatchPlayer> players = matchPlayers.get(matchId);
-        boolean allFinished = players.stream()
-                .allMatch(p -> p.getStatus() == PlayerStatus.FINISHED);
+        boolean allFinished = players.stream().allMatch(MatchPlayer::isHasFinished);
         if (allFinished) {
             sendMatchCompletedEvent(matchId, clientId);
             match.setInProgress(false);
@@ -827,6 +825,9 @@ public class MatchService {
                         userDto,
                         player.getRole(),
                         player.getStatus(),
+                        player.isHasFinished(),
+                        player.isHasFailed(),
+                        player.isHasExited(),
                         player.getSlotIndex());
                 playerDtos.add(playerDto);
             }
@@ -894,6 +895,9 @@ public class MatchService {
                 userDto,
                 player.getRole(),
                 player.getStatus(),
+                player.isHasFinished(),
+                player.isHasFailed(),
+                player.isHasExited(),
                 player.getSlotIndex());
     }
 

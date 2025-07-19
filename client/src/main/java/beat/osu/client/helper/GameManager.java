@@ -556,7 +556,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             MatchPlayerDto matchPlayer = getMatchPlayerByUserId(AuthManager.getUser().getId());
             if (matchPlayer == null)
                 return;
-            matchPlayer.setStatus(PlayerStatus.FAILED);
+            matchPlayer.setHasFailed(true);
             Toast.error("You have failed, but you can keep playing").show();
             sendPlayerFailedEvent();
         }
@@ -1204,7 +1204,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         for (MatchScoreEvent existingEvent : multiplayerScores) {
             if (existingEvent != null && existingEvent.getUser() != null &&
                     existingEvent.getUser().getId() == event.getUser().getId()) {
-                existingEvent.getMatchPlayer().setStatus(PlayerStatus.FAILED);
+                existingEvent.getMatchPlayer().setHasFailed(true);
                 break;
             }
         }
@@ -1216,7 +1216,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         for (MatchScoreEvent existingEvent : multiplayerScores) {
             if (existingEvent != null && existingEvent.getUser() != null &&
                     existingEvent.getUser().getId() == event.getUserId()) {
-                existingEvent.getMatchPlayer().setStatus(PlayerStatus.EXITED);
+                existingEvent.getMatchPlayer().setHasExited(true);
                 break;
             }
         }
@@ -1268,10 +1268,10 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             // bottom)
             if (matchDto.getWinCondition() == MatchWinCondition.SCORE) {
                 multiplayerScores.sort((a, b) -> {
-                    boolean aIsInactive = a.getMatchPlayer().getStatus() == PlayerStatus.EXITED ||
-                            a.getMatchPlayer().getStatus() == PlayerStatus.FAILED;
-                    boolean bIsInactive = b.getMatchPlayer().getStatus() == PlayerStatus.EXITED ||
-                            b.getMatchPlayer().getStatus() == PlayerStatus.FAILED;
+                    boolean aIsInactive = a.getMatchPlayer().isHasExited() ||
+                            a.getMatchPlayer().isHasFailed();
+                    boolean bIsInactive = b.getMatchPlayer().isHasExited() ||
+                            b.getMatchPlayer().isHasFailed();
 
                     if (aIsInactive && !bIsInactive)
                         return 1;
@@ -1282,10 +1282,10 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 });
             } else if (matchDto.getWinCondition() == MatchWinCondition.COMBO) {
                 multiplayerScores.sort((a, b) -> {
-                    boolean aIsInactive = a.getMatchPlayer().getStatus() == PlayerStatus.EXITED ||
-                            a.getMatchPlayer().getStatus() == PlayerStatus.FAILED;
-                    boolean bIsInactive = b.getMatchPlayer().getStatus() == PlayerStatus.EXITED ||
-                            b.getMatchPlayer().getStatus() == PlayerStatus.FAILED;
+                    boolean aIsInactive = a.getMatchPlayer().isHasExited() ||
+                            a.getMatchPlayer().isHasFailed();
+                    boolean bIsInactive = b.getMatchPlayer().isHasExited() ||
+                            b.getMatchPlayer().isHasFailed();
 
                     if (aIsInactive && !bIsInactive)
                         return 1;
@@ -1296,10 +1296,10 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 });
             } else if (matchDto.getWinCondition() == MatchWinCondition.ACCURACY) {
                 multiplayerScores.sort((a, b) -> {
-                    boolean aIsInactive = a.getMatchPlayer().getStatus() == PlayerStatus.EXITED ||
-                            a.getMatchPlayer().getStatus() == PlayerStatus.FAILED;
-                    boolean bIsInactive = b.getMatchPlayer().getStatus() == PlayerStatus.EXITED ||
-                            b.getMatchPlayer().getStatus() == PlayerStatus.FAILED;
+                    boolean aIsInactive = a.getMatchPlayer().isHasExited() ||
+                            a.getMatchPlayer().isHasFailed();
+                    boolean bIsInactive = b.getMatchPlayer().isHasExited() ||
+                            b.getMatchPlayer().isHasFailed();
 
                     if (aIsInactive && !bIsInactive)
                         return 1;

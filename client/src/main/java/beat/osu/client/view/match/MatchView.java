@@ -1133,9 +1133,6 @@ public class MatchView extends Page {
         switch (currentStatus) {
             case NO_MAP:
             case PLAYING:
-            case FINISHED:
-                return BlueButtonState.HIDDEN;
-                
             case NOT_READY:
                 return BlueButtonState.READY;
                 

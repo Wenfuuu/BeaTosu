@@ -24,5 +24,9 @@ public class MatchPlayerDto implements Serializable {
     private PlayerRole role;
     private PlayerStatus status;
 
+    private boolean hasFinished;
+    private boolean hasFailed;
+    private boolean hasExited;
+
     private int matchSlotIndex;
 }

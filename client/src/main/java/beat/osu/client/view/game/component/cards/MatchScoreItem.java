@@ -32,15 +32,15 @@ public class MatchScoreItem extends HBox {
         HBox.setMargin(profileImageView, new Insets(0, 8, 0, 0));
 
         String username = event.getUser().getUsername();
-        System.out.println("Match player status " + event.getMatchPlayer().getStatus() + " for user " + username);
-        if (event.getMatchPlayer().getStatus() == PlayerStatus.EXITED) {
+//        System.out.println("Match player status " + event.getMatchPlayer().getStatus() + " for user " + username);
+        if (event.getMatchPlayer().isHasExited()) {
             username = username + " [Quit]";
         }
 
         Label usernameLabel = new Label(username);
         usernameLabel.setFont(new Font("Aller Light", ScreenManager.SCREEN_HEIGHT * 0.023));
 
-        if (event.getMatchPlayer().getStatus() == PlayerStatus.EXITED || event.getMatchPlayer().getStatus() == PlayerStatus.FAILED) {
+        if (event.getMatchPlayer().isHasExited() || event.getMatchPlayer().isHasFailed()) {
             usernameLabel.getStyleClass().add("score-username-exited");
         } else {
             usernameLabel.getStyleClass().add("score-username");
