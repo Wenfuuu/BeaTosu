@@ -281,6 +281,9 @@ public class HomeView extends Page {
             String ch = e.getCharacter();
             if (!ch.isEmpty() && ch.charAt(0) >= 0x20) {
                 inputManager.setTypedChars(ch);
+                if (!inputManager.isSfxDisabled()) {
+                    SfxManager.playMenuSfx(SfxType.KEY_PRESS);
+                }
             }
             e.consume();
         });
@@ -292,6 +295,9 @@ public class HomeView extends Page {
                 if (!current.isEmpty()) {
                     inputManager.clearTypedChars();
                     inputManager.setTypedChars(current.substring(0, current.length() - 1));
+                }
+                if (!inputManager.isSfxDisabled()) {
+                    SfxManager.playMenuSfx(SfxType.KEY_DELETE);
                 }
             }
             e.consume();

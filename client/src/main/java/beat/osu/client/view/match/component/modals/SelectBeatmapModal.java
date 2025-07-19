@@ -197,21 +197,26 @@ public class SelectBeatmapModal extends StackPane {
             String ch = e.getCharacter();
             if (!ch.isEmpty() && ch.charAt(0) >= 0x20) {
                 inputManager.setTypedChars(ch);
+                if (!inputManager.isSfxDisabled()) {
+                    SfxManager.playMenuSfx(SfxType.KEY_PRESS);
+                }
             }
             e.consume();
         });
 
         this.setOnKeyPressed(e -> {
-            if (inputManager != null) {
-                if (e.getCode() == KeyCode.BACK_SPACE) {
-                    String current = inputManager.getTypedChars();
-                    if (!current.isEmpty()) {
-                        inputManager.clearTypedChars();
-                        inputManager.setTypedChars(current.substring(0, current.length() - 1));
+            if (inputManager == null) return;
+            if (e.getCode() == KeyCode.BACK_SPACE) {
+                String current = inputManager.getTypedChars();
+                if (!current.isEmpty()) {
+                    inputManager.clearTypedChars();
+                    inputManager.setTypedChars(current.substring(0, current.length() - 1));
+                    if (!inputManager.isSfxDisabled()) {
+                        SfxManager.playMenuSfx(SfxType.KEY_DELETE);
                     }
                 }
-                e.consume();
             }
+            e.consume();
         });
         
         // Make sure this modal can receive key events

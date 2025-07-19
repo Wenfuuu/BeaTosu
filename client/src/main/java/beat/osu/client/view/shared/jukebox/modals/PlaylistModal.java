@@ -4,11 +4,9 @@ import java.net.URL;
 import java.util.List;
 
 import beat.osu.client.Main;
+import beat.osu.client.enums.SfxType;
 import beat.osu.client.events.song.SongChangeEvent;
-import beat.osu.client.helper.CssManager;
-import beat.osu.client.helper.InputManager;
-import beat.osu.client.helper.PlaylistManager;
-import beat.osu.client.helper.ScreenManager;
+import beat.osu.client.helper.*;
 import beat.osu.client.interfaces.song.SongEventListener;
 import beat.osu.client.model.Song;
 import beat.osu.client.view.shared.jukebox.components.PlaylistContent;
@@ -67,6 +65,9 @@ public class PlaylistModal extends StackPane implements SongEventListener {
             String ch = e.getCharacter();
             if (!ch.isEmpty() && ch.charAt(0) >= 0x20) {
                 inputManager.setTypedChars(ch);
+                if (!inputManager.isSfxDisabled()) {
+                    SfxManager.playMenuSfx(SfxType.KEY_PRESS);
+                }
             }
             e.consume();
         });
@@ -78,6 +79,9 @@ public class PlaylistModal extends StackPane implements SongEventListener {
                     if (!current.isEmpty()) {
                         inputManager.clearTypedChars();
                         inputManager.setTypedChars(current.substring(0, current.length() - 1));
+                        if (!inputManager.isSfxDisabled()) {
+                            SfxManager.playMenuSfx(SfxType.KEY_DELETE);
+                        }
                     }
                 }
                 e.consume();
