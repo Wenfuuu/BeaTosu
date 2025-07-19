@@ -46,7 +46,7 @@ public class ProfileModal extends VBox {
         signOutButton.getStyleClass().addAll("modal-button", "sign-out-button");
         closeButton.getStyleClass().addAll("modal-button", "close-button");
 
-        closeButton.setOnAction(event -> {
+        closeButton.setOnMouseClicked(event -> {
             SfxManager.playMenuSfx(SfxType.MENU_BACK);
             hide();
         });

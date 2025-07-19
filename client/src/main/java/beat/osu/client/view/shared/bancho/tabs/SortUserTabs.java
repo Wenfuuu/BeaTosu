@@ -40,7 +40,7 @@ public class SortUserTabs extends HBox {
         buttons.add(timeZoneButton);
 
         for (SortUsersButton button : buttons) {
-            button.setOnAction(event -> {
+            button.setOnMouseClicked(event -> {
                 SfxManager.playMenuSfx(SfxType.MENU_HIT);
                 selectButton(button);
             });

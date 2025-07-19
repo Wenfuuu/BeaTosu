@@ -229,7 +229,7 @@ public class SettingsModal extends StackPane {
 
     private void handleComponentEvents() {
         // Keybind configuration handlers
-        leftClickKeybind.setOnAction(e -> {
+        leftClickKeybind.setOnMouseClicked(e -> {
             // Reset other keybind button if it was focused
             resetKeybindButton(rightClickKeybind);
 
@@ -239,7 +239,7 @@ public class SettingsModal extends StackPane {
             this.requestFocus();
         });
 
-        rightClickKeybind.setOnAction(e -> {
+        rightClickKeybind.setOnMouseClicked(e -> {
             // Reset other keybind button if it was focused
             resetKeybindButton(leftClickKeybind);
 
@@ -300,14 +300,14 @@ public class SettingsModal extends StackPane {
             ConfigurationManager.getInstance().setBackgroundDim((Double) newValue);
         });
 
-        ignoreBeatmapHitsoundsCheckBox.setOnAction(e -> {
+        ignoreBeatmapHitsoundsCheckBox.setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             boolean ignoreHitsounds = ignoreBeatmapHitsoundsCheckBox.isSelected();
             SfxManager.setIgnoreBeatmapSFX(ignoreHitsounds);
             System.out.println("Ignore beatmap hitsounds: " + ignoreHitsounds);
         });
 
-        backButton.setOnAction(e -> hide());
+        backButton.setOnMouseClicked(e -> hide());
     }
 
     public void show() {

@@ -84,31 +84,31 @@ public class Jukebox extends StackPane implements SongEventListener {
 
     private void setupEventHandlers() {
         mediaControls.getPlayButton().setOnMouseEntered(e -> SfxManager.playMenuSfx(SfxType.MENU_HOVER));
-        mediaControls.getPlayButton().setOnAction(e -> {
+        mediaControls.getPlayButton().setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             BgmManager.getInstance().resumeBgm();
         });
 
         mediaControls.getPauseButton().setOnMouseEntered(e -> SfxManager.playMenuSfx(SfxType.MENU_HOVER));
-        mediaControls.getPauseButton().setOnAction(e -> {
+        mediaControls.getPauseButton().setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             BgmManager.getInstance().pauseBgm();
         });
 
         mediaControls.getStopButton().setOnMouseEntered(e -> SfxManager.playMenuSfx(SfxType.MENU_HOVER));
-        mediaControls.getStopButton().setOnAction(e -> {
+        mediaControls.getStopButton().setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             BgmManager.getInstance().stopBgm();
         });
 
         mediaControls.getNextButton().setOnMouseEntered(e -> SfxManager.playMenuSfx(SfxType.MENU_HOVER));
-        mediaControls.getNextButton().setOnAction(e -> {
+        mediaControls.getNextButton().setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             playlistModal.playNextSong();
         });
 
         mediaControls.getPrevButton().setOnMouseEntered(e -> SfxManager.playMenuSfx(SfxType.MENU_HOVER));
-        mediaControls.getPrevButton().setOnAction(e -> {
+        mediaControls.getPrevButton().setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             playlistModal.playPreviousSong();
         });

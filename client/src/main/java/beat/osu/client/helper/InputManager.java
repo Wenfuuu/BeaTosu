@@ -76,6 +76,8 @@ public class InputManager {
     private void handlePlayerInput(Scene scene) {
         scene.setOnKeyPressed(e -> {
             KeyCode keyCode = e.getCode();
+            System.out.println("InputManager - Key pressed: " + keyCode);
+
             if (Objects.requireNonNull(keyCode) == KeyCode.BACK_SPACE) {
                 if (typedChars.length() > 0) {
                     typedChars.deleteCharAt(typedChars.length() - 1);
@@ -83,17 +85,23 @@ public class InputManager {
                 if (!sfxDisabled) {
                     SfxManager.playMenuSfx(SfxType.KEY_DELETE);
                 }
+            } else if (keyCode == KeyCode.SPACE) {
+                typedChars.append(" ");
+                System.out.println("InputManager - SPACE key added to typedChars: '" + typedChars.toString() + "'");
+                if (!sfxDisabled) {
+                    SfxManager.playMenuSfx(SfxType.KEY_PRESS);
+                }
+            } else if (keyCode.isLetterKey() || keyCode.isDigitKey()) {
+                typedChars.append(keyCode.getChar().toLowerCase().charAt(0));
+                pressedKeys.add(keyCode);
+                if (!sfxDisabled) {
+                    SfxManager.playMenuSfx(SfxType.KEY_PRESS);
+                }
             } else {
                 pressedKeys.add(keyCode);
                 if (!sfxDisabled) {
                     SfxManager.playMenuSfx(SfxType.KEY_PRESS);
                 }
-            }
-
-            if (keyCode.isLetterKey() || keyCode.isDigitKey()) {
-                typedChars.append(keyCode.getChar().toLowerCase().charAt(0));
-            } else if (keyCode == KeyCode.SPACE) {
-                typedChars.append(' ');
             }
         });
 

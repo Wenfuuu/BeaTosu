@@ -328,19 +328,19 @@ public class MatchesPanel extends VBox {
     }
     
     private void setupFilterCallbacks() {
-        matchFilters.getOwnedBeatmapsCheckBox().setOnAction(e -> {
+        matchFilters.getOwnedBeatmapsCheckBox().setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             applyFilters();
         });
-        matchFilters.getShowFullCheckBox().setOnAction(e -> {
+        matchFilters.getShowFullCheckBox().setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             applyFilters();
         });
-        matchFilters.getShowLockedCheckBox().setOnAction(e -> {
+        matchFilters.getShowLockedCheckBox().setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             applyFilters();
         });
-        matchFilters.getShowInProgressCheckBox().setOnAction(e -> {
+        matchFilters.getShowInProgressCheckBox().setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             applyFilters();
         });

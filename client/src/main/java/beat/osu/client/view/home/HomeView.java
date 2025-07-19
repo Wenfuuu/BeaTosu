@@ -453,7 +453,7 @@ public class HomeView extends Page {
             return cell;
         });
 
-        scoreFilterComboBox.setOnAction(e -> {
+        scoreFilterComboBox.setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             Beatmap selectedBeatmap = beatmapContent.getSelectedBeatmap();
             if (selectedBeatmap != null) {

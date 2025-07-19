@@ -135,7 +135,7 @@ public class ChangePasswordModal extends VBox {
     }
 
     private void handleEvent() {
-        cancelButton.setOnAction(e -> {
+        cancelButton.setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_BACK);
             hide();
         });

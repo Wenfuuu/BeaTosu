@@ -717,7 +717,7 @@ public class LandingView extends Page {
             updateBanchoPanelsMouseTransparency();
         });
 
-        jukebox.getMediaControls().getPlaylistButton().setOnAction(event -> {
+        jukebox.getMediaControls().getPlaylistButton().setOnMouseClicked(event -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             if (playlistModal.isVisible()) {
                 playlistModal.hide();

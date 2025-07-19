@@ -88,7 +88,7 @@ public class HostActionsModal extends VBox {
     }
 
     private void handleEvent() {
-        cancelButton.setOnAction(e -> {
+        cancelButton.setOnMouseClicked(e -> {
             hide();
         });
     }

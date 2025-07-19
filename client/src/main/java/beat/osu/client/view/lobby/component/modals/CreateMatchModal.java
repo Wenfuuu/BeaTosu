@@ -193,11 +193,11 @@ public class CreateMatchModal extends VBox {
             return cell;
         });
 
-        maxPlayersComboBox.setOnAction(e -> {
+        maxPlayersComboBox.setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
         });
 
-        startGameButton.setOnAction(event -> {
+        startGameButton.setOnMouseClicked(event -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             String gameName = gameTextField.getText();
             String password = passwordField.getText();

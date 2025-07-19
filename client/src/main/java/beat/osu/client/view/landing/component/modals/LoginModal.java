@@ -214,7 +214,7 @@ public class LoginModal extends StackPane {
             SfxManager.playMenuSfx(SfxType.MENU_HOVER);
         });
 
-        signInButton.setOnAction(e -> {
+        signInButton.setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             String username = userInput.getText();
             String password = passInput.getText();
@@ -246,7 +246,7 @@ public class LoginModal extends StackPane {
             SfxManager.playMenuSfx(SfxType.MENU_HOVER);
         });
 
-        createAccountButton.setOnAction(e -> {
+        createAccountButton.setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             if (onCreateAccountListener != null) {
                 onCreateAccountListener.run();
@@ -254,7 +254,7 @@ public class LoginModal extends StackPane {
             hide();
         });
 
-        backButton.setOnAction(e -> hide());
+        backButton.setOnMouseClicked(e -> hide());
     }
 
     public void show() {

@@ -348,7 +348,7 @@ public class LobbyView extends Page {
             quickJoinMatch();
         });
 
-        jukebox.getMediaControls().getPlaylistButton().setOnAction(event -> {
+        jukebox.getMediaControls().getPlaylistButton().setOnMouseClicked(event -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             if (playlistModal.isVisible()) {
                 playlistModal.hide();
@@ -374,17 +374,17 @@ public class LobbyView extends Page {
             }
         });
 
-        createMatchModal.getCancelButton().setOnAction(e -> {
+        createMatchModal.getCancelButton().setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_BACK);
             createMatchModal.hide();
         });
 
-        joinMatchModal.getCancelButton().setOnAction(e -> {
+        joinMatchModal.getCancelButton().setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_BACK);
             joinMatchModal.hide();
         });
 
-        joinMatchModal.getJoinGameButton().setOnAction(e -> {
+        joinMatchModal.getJoinGameButton().setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             Integer matchId = joinMatchModal.getSelectedMatchId();
             String password = joinMatchModal.getPassword();

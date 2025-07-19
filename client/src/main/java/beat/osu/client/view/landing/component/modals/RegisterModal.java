@@ -227,7 +227,7 @@ public class RegisterModal extends StackPane {
             SfxManager.playMenuSfx(SfxType.MENU_HOVER);
         });
 
-        supporterCheckBox.setOnAction(e -> {
+        supporterCheckBox.setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
         });
 

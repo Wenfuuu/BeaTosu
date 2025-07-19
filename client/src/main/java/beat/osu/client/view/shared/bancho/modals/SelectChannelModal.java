@@ -126,7 +126,7 @@ public class SelectChannelModal extends VBox {
         closeButton = new Button("Close");
         closeButton.getStyleClass().add("close-button");
         closeButton.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.56 + 30);
-        closeButton.setOnAction(e -> {
+        closeButton.setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_BACK);
             this.hide();
             banchoButtons.show();

@@ -54,7 +54,7 @@ public class ChatTabs extends HBox {
         this.setBackground(new Background(backgroundFill));
 
         addChatButton = new AddChatButton();
-        addChatButton.setOnAction(e -> {
+        addChatButton.setOnMouseClicked(e -> {
             if (onAddChannelRequested != null) {
                 onAddChannelRequested.run();
             }
@@ -169,7 +169,7 @@ public class ChatTabs extends HBox {
         this.getChildren().add(addChatButton);
         for (ChannelDto channel : joinedChannels) {
             ChatTabButton tabButton = new ChatTabButton(channel.getName());
-            tabButton.setOnAction(e -> {
+            tabButton.setOnMouseClicked(e -> {
                 SfxManager.playMenuSfx(SfxType.MENU_HIT);
                 selectTab(channel);
             });
@@ -182,7 +182,7 @@ public class ChatTabs extends HBox {
         for (PrivateChatDto privateChat : privateChats) {
             String tabName = privateChat.getOtherUserName();
             ChatTabButton tabButton = new ChatTabButton(tabName);
-            tabButton.setOnAction(e -> {
+            tabButton.setOnMouseClicked(e -> {
                 SfxManager.playMenuSfx(SfxType.MENU_HIT);
                 selectTab(privateChat);
             });

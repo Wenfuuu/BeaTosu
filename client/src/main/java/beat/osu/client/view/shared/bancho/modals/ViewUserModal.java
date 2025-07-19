@@ -96,7 +96,7 @@ public class ViewUserModal extends VBox {
         startChatButton.getStyleClass().addAll("modal-button", "chat-button");
         closeButton.getStyleClass().addAll("modal-button", "close-button");
 
-        closeButton.setOnAction(event -> {
+        closeButton.setOnMouseClicked(event -> {
             SfxManager.playMenuSfx(SfxType.MENU_BACK);
             hide();
         });
@@ -106,7 +106,7 @@ public class ViewUserModal extends VBox {
         buttonsContainer.getStyleClass().add("buttons-container");
         buttonsContainer.getChildren().addAll(startSpectateButton, startChatButton, closeButton);
 
-        startSpectateButton.setOnAction(event -> {
+        startSpectateButton.setOnMouseClicked(event -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             if (onStartSpectateCallback != null && userCard != null) {
                 UserDto user = AuthManager.getUser();
@@ -129,7 +129,7 @@ public class ViewUserModal extends VBox {
             }
         });
 
-        startChatButton.setOnAction(event -> {
+        startChatButton.setOnMouseClicked(event -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             if (onStartChatCallback != null && userCard != null) {
                 PrivateChatDto privateChat = new PrivateChatDto(
