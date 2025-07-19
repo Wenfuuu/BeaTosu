@@ -256,7 +256,8 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
             HitObject hitObject = iterator.next();
             hitObject.update(elapsedMillis);
             if (hitObject instanceof HitSpinner) {
-                ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY, keyHolded);
+                if (elapsedMillis >= hitObject.getHitTime())
+                    ((HitSpinner) hitObject).updateSpinner(currentMouseX, currentMouseY, keyHolded);
             } else if (hitObject instanceof HitSlider) {
                 ((HitSlider) hitObject).updateSlider(currentMouseX, currentMouseY, keyHolded);
             }
