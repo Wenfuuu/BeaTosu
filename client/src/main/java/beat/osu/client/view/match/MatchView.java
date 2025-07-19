@@ -1073,7 +1073,7 @@ public class MatchView extends Page {
                 changeGameNameTransition.play();
             });
 
-            winConditionComboBox.setOnMouseClicked(e -> {
+            winConditionComboBox.setOnAction(e -> {
                 SfxManager.playMenuSfx(SfxType.MENU_HIT);
                 System.out.println("Win condition changed to: " + winConditionComboBox.getValue());
                 try {
@@ -1097,7 +1097,7 @@ public class MatchView extends Page {
                 changeGameNameTransition.play();
             });
 
-            winConditionComboBox.setOnMouseClicked(null);
+            winConditionComboBox.setOnAction(null);
         }
     }
 
