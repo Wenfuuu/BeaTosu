@@ -170,7 +170,7 @@ public class HitObjectFactory {
                 // For normal sounds, use the timing point's sample set
                 TimingPoint activeTP = getActiveTimingPointAt(hitTime);
                 if (activeTP != null) {
-                    System.out.println("using active timing point sample set: " + activeTP.getSampleSet());
+//                    System.out.println("using active timing point sample set: " + activeTP.getSampleSet());
                     return getSampleSetName(activeTP.getSampleSet());
                 }
                 return OsuParser.getGeneralSampleSet();
