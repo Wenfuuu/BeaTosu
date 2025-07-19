@@ -1145,7 +1145,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 comboEnd = HitObjectFactory.checkNewCombo(nextData);
             }
 
-            System.out.println("index data " + i);
+//            System.out.println("index data " + i);
             createHitObject(data, comboEnd);
         }
         firstHitObject = hitObjects.get(0);
