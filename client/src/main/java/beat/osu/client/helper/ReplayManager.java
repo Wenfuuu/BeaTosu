@@ -300,17 +300,23 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
             System.out.println("accumulated replay time: " + accumulatedReplayTime);
             ReplayEvent event = replayEvents.get(currentReplayEventIndex);
 
-            if (accumulatedReplayTime > elapsedMillis) {
+            // Calculate the time for this event FIRST
+            long eventTime;
+            if (currentReplayEventIndex == 0) {
+                // First event uses absolute time
+                eventTime = event.getTimeDelta();
+            } else {
+                // Subsequent events use accumulated time
+                eventTime = accumulatedReplayTime + event.getTimeDelta();
+            }
+
+            // Check if this event should have occurred yet
+            if (eventTime > elapsedMillis) {
                 break;
             }
 
-            if (currentReplayEventIndex == 0) {
-                // First event uses absolute time
-                accumulatedReplayTime = event.getTimeDelta();
-            } else {
-                // Subsequent events use accumulated time
-                accumulatedReplayTime += event.getTimeDelta();
-            }
+            // Update accumulated time after we know we're processing this event
+            accumulatedReplayTime = eventTime;
 
             // Update mouse position from replay data
             updateMousePosition(event.getX(), event.getY());

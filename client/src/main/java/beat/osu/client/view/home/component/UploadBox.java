@@ -151,7 +151,7 @@ public class UploadBox extends VBox {
                         if (files != null) {
                             for (File f : files) {
                                 String name = f.getName().toLowerCase();
-                                if (name.endsWith(".mp3")) {
+                                if (name.endsWith(".mp3") || name.endsWith(".ogg")) {
                                     detectedAudioFile = f;
                                     break;
                                 }
