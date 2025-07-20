@@ -41,6 +41,7 @@ import beat.osu.shared.dto.score.responses.GetAllScoresResponse;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -124,8 +125,8 @@ public class HomeView extends Page {
         leftBar.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.3);
         rightBar = new VBox();
         rightBar.setAlignment(Pos.TOP_RIGHT);
-        rightBar.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.50);
-        rightBar.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.50);
+        rightBar.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.60);
+        rightBar.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.60);
 
         createSearchArea();
         scoreFilterComboBox = new ComboBox<>();

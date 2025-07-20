@@ -14,8 +14,9 @@ import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.helper.SfxManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.utils.OsuParser;
-import javafx.animation.FadeTransition;
-import javafx.animation.ParallelTransition;
+import javafx.animation.*;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -34,6 +35,7 @@ public class BeatmapCard extends StackPane {
 
     private final double DEFAULT_OPACITY = 1.0;
     private final double SELECTED_OPACITY = 0.75;
+    private final double HOVER_TRANSLATION_X = -54.0;
 
     @Getter
     private final Beatmap beatmap;
@@ -42,7 +44,9 @@ public class BeatmapCard extends StackPane {
     @Getter
     private boolean isSelected = false;
 
-    // UI Components
+    private double curveTranslationX = 0.0;
+    private double hoverTranslationX = 0.0;
+
     private ImageView beatmapImageView;
     private Label beatmapNameLabel;
     private Label beatmapInfoLabel;
@@ -62,9 +66,9 @@ public class BeatmapCard extends StackPane {
     }
 
     private void setupUI() {
-        this.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.40);
-        this.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.40);
-        this.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.40);
+        this.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.60);
+        this.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.60);
+        this.setMaxWidth(ScreenManager.SCREEN_WIDTH * 0.60);
         this.setPrefHeight(ScreenManager.SCREEN_HEIGHT * 0.11);
         this.setMinHeight(ScreenManager.SCREEN_HEIGHT * 0.11);
         this.setMaxHeight(ScreenManager.SCREEN_HEIGHT * 0.11);
@@ -79,7 +83,6 @@ public class BeatmapCard extends StackPane {
             setupAvailableMapUI();
         } catch (IOException e) {
             System.err.println("Error parsing beatmap: " + e.getMessage());
-            // Fallback to simple layout if background fails
             setupFallbackUI();
         }
     }
@@ -89,7 +92,7 @@ public class BeatmapCard extends StackPane {
         Image image = new Image(imageFile.toURI().toString());
         beatmapImageView = new ImageView(image);
 
-        double fixedImageWidth = this.getPrefWidth() * 0.25;
+        double fixedImageWidth = this.getPrefWidth() * 0.1667;
         double fitHeight = this.getPrefHeight() - 2;
 
         beatmapImageView.setFitWidth(fixedImageWidth);
@@ -158,8 +161,12 @@ public class BeatmapCard extends StackPane {
         this.setOnMouseEntered(e -> {
             SfxManager.playMenuSfx(SfxType.SELECT_BEATMAP);
             transitionToOrange();
+            animateHoverTranslation(true);
         });
-        this.setOnMouseExited(e -> transitionToPink());
+        this.setOnMouseExited(e -> {
+            transitionToPink();
+            animateHoverTranslation(false);
+        });
 
         this.getChildren().addAll(beatmapImageView, pinkOverlay, orangeOverlay, contentContainer);
     }
@@ -292,5 +299,39 @@ public class BeatmapCard extends StackPane {
 
     public void parseBeatmapIfNeeded() throws IOException {
         OsuParser.parseBeatmap(beatmap);
+    }
+
+    public void setCurveTranslation(double translationX) {
+        this.curveTranslationX = translationX;
+        updateTotalTranslation();
+    }
+
+    private void animateHoverTranslation(boolean isHovering) {
+        Timeline hoverAnimation = new Timeline(
+            new KeyFrame(Duration.millis(150),
+                new KeyValue(hoverTranslationXProperty(), isHovering ? HOVER_TRANSLATION_X : 0.0, Interpolator.EASE_OUT)
+            )
+        );
+        hoverAnimation.play();
+    }
+
+    private DoubleProperty hoverTranslationXProperty() {
+        return new SimpleDoubleProperty() {
+            @Override
+            public void set(double value) {
+                hoverTranslationX = value;
+                updateTotalTranslation();
+            }
+
+            @Override
+            public double get() {
+                return hoverTranslationX;
+            }
+        };
+    }
+
+    private void updateTotalTranslation() {
+        double totalTranslationX = curveTranslationX + hoverTranslationX;
+        this.setTranslateX(totalTranslationX);
     }
 }
