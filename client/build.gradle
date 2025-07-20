@@ -3,6 +3,7 @@ plugins {
   id 'org.javamodularity.moduleplugin' version '1.8.12'
   id 'org.openjfx.javafxplugin' version '0.0.13'
   id 'org.beryx.jlink' version '2.25.0'
+  id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group 'beat.osu'
@@ -61,4 +62,14 @@ jlink {
 
 jlinkZip {
   group = 'distribution'
+}
+
+shadowJar {
+  archiveBaseName = 'beatosu-client'
+  archiveClassifier = ''
+  manifest {
+    attributes 'Main-Class': 'beat.osu.client.Main'
+  }
+  mergeServiceFiles()
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
