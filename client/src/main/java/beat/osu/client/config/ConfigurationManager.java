@@ -1,12 +1,6 @@
 package beat.osu.client.config;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -21,14 +15,39 @@ public class ConfigurationManager {
         properties = new Properties();
         orderedProperties = new LinkedHashMap<>();
 
-        try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {
-            if (input == null) {
-                throw new RuntimeException("Unable to find config.properties");
+        File configFile = new File("config.properties");
+
+        if (!configFile.exists()) {
+            if (!configFile.exists()) {
+                orderedProperties.put("keybind.1", "Z");
+                orderedProperties.put("keybind.2", "X");
+                orderedProperties.put("sfx.volume", "0.5");
+                orderedProperties.put("background.dim", "0.8");
+                orderedProperties.put("ignore.beatmap.hitsounds", "true");
+                orderedProperties.put("bgm.volume", "0.15");
+
+                orderedProperties.put("server.host", "localhost");
+                orderedProperties.put("server.port", "8081");
+
+                orderedProperties.put("connection.timeout", "5000");
+                orderedProperties.put("connection.retry.attempts", "3");
+
+                properties.putAll(orderedProperties);
+
+                try {
+                    writeSettingsToFile();
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to write default configuration", e);
+                }
+
+                return;
             }
+        }
+
+        try (FileInputStream input = new FileInputStream(configFile)) {
             properties.load(input);
-            
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                    Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("config.properties"))))) {
+
+            try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     line = line.trim();
@@ -42,7 +61,6 @@ public class ConfigurationManager {
                     }
                 }
             }
-
         } catch (IOException e) {
             throw new RuntimeException("Error loading configuration", e);
         }
