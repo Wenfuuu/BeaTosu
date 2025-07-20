@@ -53,12 +53,12 @@ public class CursorManager {
         }
     }
 
-    public static ImageView createCursorImageView(double width, double height) {
+    public static ImageView createCursorImageView() {
         try {
             Image cursor = getCursorImage();
             if (cursor != null) {
                 return new ImageView(new Image(Objects.requireNonNull(Main.class
-                        .getResource(CURSOR_IMAGE_PATH)).toExternalForm(), width, height, true, true));
+                        .getResource(CURSOR_IMAGE_PATH)).toExternalForm(), 32, 32, true, true));
             }
         } catch (Exception e) {
             System.err.println("Failed to create cursor ImageView: " + e.getMessage());

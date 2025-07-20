@@ -147,7 +147,7 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
 
         uiPane = new GameUI();
         pauseOverlay = new PauseOverlay();
-        cursorImage = CursorManager.createCursorImageView(32, 32);
+        cursorImage = CursorManager.createCursorImageView();
 
         createReplayPane();
         createMarqueeText();
