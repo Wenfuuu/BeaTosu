@@ -35,7 +35,9 @@ import lombok.Setter;
 public class SelectBeatmapModal extends StackPane {
 
     private BeatmapController beatmapController;
+    @Setter
     private MatchController matchController;
+    @Setter
     private int matchId;
     
     private Pane backgroundLayer;
@@ -67,14 +69,6 @@ public class SelectBeatmapModal extends StackPane {
     
     @Setter
     private Consumer<Beatmap> onBeatmapSelectedCallback;
-
-    public void setMatchController(MatchController matchController) {
-        this.matchController = matchController;
-    }
-
-    public void setMatchId(int matchId) {
-        this.matchId = matchId;
-    }
 
     public SelectBeatmapModal(BeatmapController beatmapController) {
         this.beatmapController = beatmapController;
@@ -117,8 +111,8 @@ public class SelectBeatmapModal extends StackPane {
         
         rightBar = new VBox();
         rightBar.setAlignment(Pos.TOP_RIGHT);
-        rightBar.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.40);
-        rightBar.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.40);
+        rightBar.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.60);
+        rightBar.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.60);
 
         createSearchArea();
 
@@ -219,7 +213,6 @@ public class SelectBeatmapModal extends StackPane {
             e.consume();
         });
         
-        // Make sure this modal can receive key events
         this.setFocusTraversable(true);
     }
 
@@ -400,7 +393,6 @@ public class SelectBeatmapModal extends StackPane {
         
         this.setVisible(true);
         
-        // Request focus so this modal can receive key events
         this.requestFocus();
         
         if (searchUpdateTimeline != null) {
