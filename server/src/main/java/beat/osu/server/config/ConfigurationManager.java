@@ -1,23 +1,69 @@
 package beat.osu.server.config;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Properties;
 
 public class ConfigurationManager {
     private static volatile ConfigurationManager instance;
     private Properties properties;
+    private LinkedHashMap<String, String> orderedProperties;
 
     private void loadProperties() {
         properties = new Properties();
-        try (InputStream input = getClass().getClassLoader()
-                .getResourceAsStream("config.properties")) {
-            if (input == null) {
-                throw new RuntimeException("Unable to find config.properties");
+        orderedProperties = new LinkedHashMap<>();
+
+        File configFile = new File("config.properties");
+
+        if (!configFile.exists()) {
+            orderedProperties.put("server.host", "localhost");
+            orderedProperties.put("server.port", "8081");
+            orderedProperties.put("connection.timeout", "5000");
+            orderedProperties.put("connection.retry.attempts", "3");
+
+            properties.putAll(orderedProperties);
+
+            try {
+                writeDefaultsToFile(configFile);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to write default server config", e);
             }
+
+            return;
+        }
+
+        try (FileInputStream input = new FileInputStream(configFile)) {
             properties.load(input);
+
+            try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    line = line.trim();
+                    if (!line.isEmpty() && !line.startsWith("#")) {
+                        int equalIndex = line.indexOf('=');
+                        if (equalIndex > 0) {
+                            String key = line.substring(0, equalIndex).trim();
+                            String value = line.substring(equalIndex + 1).trim();
+                            orderedProperties.put(key, value);
+                        }
+                    }
+                }
+            }
         } catch (IOException e) {
             throw new RuntimeException("Error loading configuration", e);
+        }
+    }
+
+    private void writeDefaultsToFile(File configFile) throws IOException {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(configFile))) {
+            writer.println("# Server Configuration");
+            writer.println("server.host=localhost");
+            writer.println("server.port=8081");
+            writer.println();
+            writer.println("# Connection Configuration");
+            writer.println("connection.timeout=5000");
+            writer.println("connection.retry.attempts=3");
         }
     }
 
