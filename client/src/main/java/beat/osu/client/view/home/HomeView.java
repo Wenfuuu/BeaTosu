@@ -124,8 +124,8 @@ public class HomeView extends Page {
         leftBar.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.3);
         rightBar = new VBox();
         rightBar.setAlignment(Pos.TOP_RIGHT);
-        rightBar.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.40);
-        rightBar.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.40);
+        rightBar.setMinWidth(ScreenManager.SCREEN_WIDTH * 0.50);
+        rightBar.setPrefWidth(ScreenManager.SCREEN_WIDTH * 0.50);
 
         createSearchArea();
         scoreFilterComboBox = new ComboBox<>();

@@ -14,14 +14,18 @@ import beat.osu.client.helper.CssManager;
 import beat.osu.client.helper.ScreenManager;
 import beat.osu.client.model.Beatmap;
 import beat.osu.client.utils.OsuParser;
+import javafx.application.Platform;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Pane;
 import lombok.Getter;
 import lombok.Setter;
 
 public class BeatmapContent extends ScrollPane {
-    
-    private static final double BEATMAP_CARD_HEIGHT = ScreenManager.SCREEN_HEIGHT * 0.11;
+
+    private static final double BEATMAP_CARD_HEIGHT = ScreenManager.SCREEN_HEIGHT * 0.115;
+    private static final double BASE_CARD_WIDTH = ScreenManager.SCREEN_WIDTH * 0.40;
+    private static final double MAX_WIDTH_INCREASE = 72.0;
+    private static final double WIDTH_CURVE_STRENGTH = 1.0;
 
     private final Pane virtualContainer;
     private ArrayList<Beatmap> allBeatmaps;
@@ -64,6 +68,12 @@ public class BeatmapContent extends ScrollPane {
     }
 
     private void setupLayout() {
+        this.setVbarPolicy(ScrollBarPolicy.NEVER);
+        this.setHbarPolicy(ScrollBarPolicy.NEVER);
+
+        virtualContainer.prefWidthProperty().bind(this.widthProperty());
+        virtualContainer.maxWidthProperty().bind(this.widthProperty());
+
         this.setContent(virtualContainer);
     }
 
@@ -85,6 +95,12 @@ public class BeatmapContent extends ScrollPane {
         });
         
         updateVisibleItems();
+
+        this.layoutBoundsProperty().addListener((obs, oldBounds, newBounds) -> {
+            if (newBounds.getHeight() > 0) {
+                applyCentermostScrollEffect();
+            }
+        });
     }
 
     private void updateVirtualContainerHeight() {
@@ -104,7 +120,7 @@ public class BeatmapContent extends ScrollPane {
         double totalHeight = filteredBeatmaps.size() * BEATMAP_CARD_HEIGHT;
         double viewportHeight = getViewportHeight();
         double scrollTop = scrollValue * Math.max(0, totalHeight - viewportHeight);
-        
+
         int firstVisibleItem = (int) (scrollTop / BEATMAP_CARD_HEIGHT);
         int newFirstIndex = Math.max(0, firstVisibleItem);
         int newLastIndex = Math.min(filteredBeatmaps.size() - 1, firstVisibleItem + visibleItemCount);
@@ -123,6 +139,8 @@ public class BeatmapContent extends ScrollPane {
                 createAndPositionCard(i);
             }
         }
+
+        applyCentermostScrollEffect();
     }
 
     private void createAndPositionCard(int index) {
@@ -135,6 +153,9 @@ public class BeatmapContent extends ScrollPane {
         }
 
         BeatmapCard card = new BeatmapCard(beatmap);
+        double cardX = Math.max(0, this.getViewportBounds().getWidth() - BASE_CARD_WIDTH);
+        card.setLayoutX(cardX);
+
         card.setOnClickCallback(this::onBeatmapCardClicked);
 
         if (selectedBeatmap != null && selectedBeatmap.equals(beatmap)) {
@@ -143,6 +164,7 @@ public class BeatmapContent extends ScrollPane {
         
         card.setLayoutY(index * BEATMAP_CARD_HEIGHT);
         renderedCards.put(index, card);
+
         virtualContainer.getChildren().add(card);
     }
 
@@ -240,6 +262,8 @@ public class BeatmapContent extends ScrollPane {
                     break;
                 }
             }
+
+            Platform.runLater(() -> applyCentermostScrollEffect());
         } else {
             System.out.println("Skipping initial selection - isEmpty: " + filteredBeatmaps.isEmpty() + 
                              ", selectedBeatmap null: " + (selectedBeatmap == null) + 
@@ -262,11 +286,11 @@ public class BeatmapContent extends ScrollPane {
                     this.setVvalue(0.0);
                     return;
                 }
-                
+
                 double totalHeight = filteredBeatmaps.size() * BEATMAP_CARD_HEIGHT;
                 double viewportHeight = getViewportHeight();
                 double targetY = selectedIndex * BEATMAP_CARD_HEIGHT + 60;
-                
+
                 targetY = Math.max(0, targetY - viewportHeight / 2);
                 
                 double maxScrollY = Math.max(0, totalHeight - viewportHeight);
@@ -285,6 +309,38 @@ public class BeatmapContent extends ScrollPane {
     public void setSelectedBeatmap(Beatmap beatmap) {
         if (beatmap != null && allBeatmaps.contains(beatmap)) {
             this.selectedBeatmap = beatmap;
+        }
+    }
+
+    private void applyCentermostScrollEffect() {
+        double viewportHeight = getViewportHeight();
+        double viewportCenter = viewportHeight / 2.0;
+
+        double scrollValue = this.getVvalue();
+        double totalHeight = filteredBeatmaps.size() * BEATMAP_CARD_HEIGHT;
+        double scrollTop = scrollValue * Math.max(0, totalHeight - viewportHeight);
+
+        for (Map.Entry<Integer, BeatmapCard> entry : renderedCards.entrySet()) {
+            int index = entry.getKey();
+            BeatmapCard card = entry.getValue();
+
+            double cardY = index * BEATMAP_CARD_HEIGHT - scrollTop;
+            double cardCenter = cardY + BEATMAP_CARD_HEIGHT / 2.0;
+
+            double distanceFromCenter = Math.abs(cardCenter - viewportCenter);
+
+            double normalizedDistance = Math.min(1.0, distanceFromCenter / (viewportHeight / 2.0));
+
+            double easingFactor = Math.pow(1.0 - normalizedDistance, WIDTH_CURVE_STRENGTH);
+            double additionalWidth = MAX_WIDTH_INCREASE * easingFactor;
+            double totalWidth = BASE_CARD_WIDTH + additionalWidth;
+
+            card.setPrefWidth(totalWidth);
+            card.setMinWidth(totalWidth);
+            card.setMaxWidth(totalWidth);
+
+            double cardX = Math.max(0, this.getViewportBounds().getWidth() - totalWidth);
+            card.setLayoutX(cardX);
         }
     }
 }

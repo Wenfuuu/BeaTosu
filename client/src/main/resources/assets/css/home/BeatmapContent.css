@@ -9,44 +9,7 @@
     -fx-background-color: transparent;
 }
 
-.scroll-pane .scroll-bar:vertical {
-    -fx-background-color: rgba(0, 0, 0, 0.5);
-    -fx-background-radius: 0;
-    -fx-pref-width: 10;
-    -fx-unit-increment: 50;
-    -fx-block-increment: 250;
-}
-
-.scroll-pane .scroll-bar:vertical .track {
-    -fx-background-color: transparent;
-}
-
-.scroll-pane .scroll-bar:vertical .thumb {
-    -fx-background-color: #ffffff;
-    -fx-background-radius: 0;
-}
-
-.scroll-pane .scroll-bar:vertical .increment-button,
-.scroll-pane .scroll-bar:vertical .decrement-button {
-    -fx-background-color: transparent;
-    -fx-padding: 0 10 0 0;
-}
-
-.scroll-pane .scroll-bar:vertical .increment-arrow,
-.scroll-pane .scroll-bar:vertical .decrement-arrow {
-    -fx-background-color: #ffffff;
-    -fx-shape: " ";
-    -fx-padding: 0;
-}
-
-.scroll-pane .scroll-bar:horizontal {
-    -fx-opacity: 0;
-    -fx-pref-height: 0;
-    -fx-max-height: 0;
-}
-
 .beatmap-list {
     -fx-background-color: transparent;
-    -fx-spacing: 2;
     -fx-padding: 2;
 }
