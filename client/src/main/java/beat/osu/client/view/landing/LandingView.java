@@ -90,6 +90,7 @@ public class LandingView extends Page {
 
     private boolean isMenuPanelOpen = false;
     private boolean isSubMenuOpen = false;
+    private boolean isAnimating = false;
 
     private TranslateTransition logoSlideOut;
     private TranslateTransition menuSlideIn;
@@ -134,6 +135,7 @@ public class LandingView extends Page {
         logoSlideOut.setInterpolator(Interpolator.EASE_OUT);
         logoSlideOut.setOnFinished(e -> {
             visualizer.getLogoRayGroup().setCacheHint(CacheHint.DEFAULT);
+            isAnimating = false;
         });
 
         menuSlideIn = new TranslateTransition(Duration.millis(300), menuButtons);
@@ -142,6 +144,7 @@ public class LandingView extends Page {
         menuSlideIn.setInterpolator(Interpolator.EASE_OUT);
         menuSlideIn.setOnFinished(e -> {
             menuButtons.setCacheHint(CacheHint.DEFAULT);
+            isAnimating = false;
         });
 
         logoSlideIn = new TranslateTransition(Duration.millis(300),
@@ -151,6 +154,7 @@ public class LandingView extends Page {
         logoSlideIn.setInterpolator(Interpolator.EASE_OUT);
         logoSlideIn.setOnFinished(e -> {
             visualizer.getLogoRayGroup().setCacheHint(CacheHint.DEFAULT);
+            isAnimating = false;
         });
 
         menuSlideOut = new TranslateTransition(Duration.millis(300), menuButtons);
@@ -159,6 +163,7 @@ public class LandingView extends Page {
         menuSlideOut.setInterpolator(Interpolator.EASE_OUT);
         menuSlideOut.setOnFinished(e -> {
             menuButtons.setCacheHint(CacheHint.DEFAULT);
+            isAnimating = false;
         });
 
         subMenuButtons.setTranslateX(menuTranslateX);
@@ -181,29 +186,37 @@ public class LandingView extends Page {
     }
 
     private void toggleMenuPanel() {
+        if (isAnimating) return;
+
         if (isSubMenuOpen) {
             hideSubMenu();
-        } else if (isMenuPanelOpen) {
-            BackgroundManager.setDarkBackground(scene, false);
-
-            logoSlideIn.play();
-            menuSlideOut.play();
-            isMenuPanelOpen = false;
-
-            updateBanchoButtonsVisibility();
         } else {
-            BackgroundManager.setDarkBackground(scene, true);
+            isAnimating = true;
 
-            logoSlideOut.play();
-            menuSlideIn.play();
-            isMenuPanelOpen = true;
+            if (isMenuPanelOpen) {
+                BackgroundManager.setDarkBackground(scene, false);
 
-            updateBanchoButtonsVisibility();
+                logoSlideIn.play();
+                menuSlideOut.play();
+                isMenuPanelOpen = false;
+
+                updateBanchoButtonsVisibility();
+            } else {
+                BackgroundManager.setDarkBackground(scene, true);
+
+                logoSlideOut.play();
+                menuSlideIn.play();
+                isMenuPanelOpen = true;
+
+                updateBanchoButtonsVisibility();
+            }
         }
     }
 
     private void showSubMenu() {
-        if (isMenuPanelOpen) {
+        if (isMenuPanelOpen && !isAnimating) {
+            isAnimating = true;
+
             subMenuButtons.setVisible(true);
             subMenuButtons.setManaged(true);
             menuButtons.setOpacity(1.0);
@@ -214,6 +227,9 @@ public class LandingView extends Page {
             menuTranslateOut.setToX(0);
 
             ParallelTransition switchMenu = new ParallelTransition(menuFadeOut, subMenuFadeIn, menuTranslateOut);
+            switchMenu.setOnFinished(e -> {
+                isAnimating = false;
+            });
             switchMenu.play();
 
             isMenuPanelOpen = false;
@@ -224,7 +240,9 @@ public class LandingView extends Page {
     }
 
     private void hideSubMenu() {
-        if (isSubMenuOpen) {
+        if (isSubMenuOpen && !isAnimating) {
+            isAnimating = true;
+
             subMenuButtons.setVisible(false);
             subMenuButtons.setManaged(false);
             menuButtons.setOpacity(0.0);
@@ -232,6 +250,9 @@ public class LandingView extends Page {
 
             menuButtons.setTranslateX(this.visualizerSize / 1.4);
             ParallelTransition switchMenu = new ParallelTransition(menuFadeIn, subMenuFadeOut);
+            switchMenu.setOnFinished(e -> {
+                isAnimating = false;
+            });
             switchMenu.play();
 
             isSubMenuOpen = false;
@@ -631,8 +652,10 @@ public class LandingView extends Page {
         });
 
         menuButtons.getPlayButton().setOnMouseClicked(e -> {
-            SfxManager.playMenuSfx(SfxType.MENU_HIT);
-            showSubMenu();
+            if (!isAnimating) {
+                SfxManager.playMenuSfx(SfxType.MENU_HIT);
+                showSubMenu();
+            }
         });
         menuButtons.getOptionButton().setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
@@ -653,22 +676,26 @@ public class LandingView extends Page {
         });
 
         subMenuButtons.getSoloButton().setOnMouseClicked(e -> {
+            if (isAnimating) return;
+
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
-            hideSubMenu();
-            toggleMenuPanel();
+
+            resetMenuState();
             hideAllModals();
+
             ViewManager.getInstance().showHomeView();
         });
 
         subMenuButtons.getMultiButton().setOnMouseClicked(e -> {
+            if (isAnimating) return;
+
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             if (!AuthManager.isAuthenticated()) {
                 Toast.error("You must be logged in to play online!").show();
                 return;
             }
 
-            hideSubMenu();
-            toggleMenuPanel();
+            resetMenuState();
             ViewManager.getInstance().showLobbyView();
         });
 
@@ -738,8 +765,29 @@ public class LandingView extends Page {
         });
     }
 
+    private void resetMenuState() {
+        isSubMenuOpen = false;
+        isMenuPanelOpen = false;
+        isAnimating = false;
+
+        subMenuButtons.setVisible(false);
+        subMenuButtons.setManaged(false);
+        BackgroundManager.setDarkBackground(scene, false);
+
+        if (visualizer.getLogoRayGroup() != null) {
+            visualizer.getLogoRayGroup().setTranslateX(0);
+        }
+        menuButtons.setTranslateX(0);
+        menuButtons.setOpacity(1.0);
+        subMenuButtons.setTranslateX(this.visualizerSize / 1.4);
+        subMenuButtons.setOpacity(0.0);
+
+        updateBanchoButtonsVisibility();
+    }
+
     private void updateBanchoPanelsMouseTransparency() {
         boolean shouldBeTransparent = !chatPanel.isShowing() && !onlineUsersPanel.isShowing();
         banchoPanelsContainer.setMouseTransparent(shouldBeTransparent);
     }
 }
+
