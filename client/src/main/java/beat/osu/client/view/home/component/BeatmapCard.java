@@ -27,6 +27,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import lombok.Getter;
 import lombok.Setter;
@@ -48,6 +49,7 @@ public class BeatmapCard extends StackPane {
     private double hoverTranslationX = 0.0;
 
     private ImageView beatmapImageView;
+    private StackPane imageContainer;
     private Label beatmapNameLabel;
     private Label beatmapInfoLabel;
     private Label beatmapVersionLabel;
@@ -95,11 +97,30 @@ public class BeatmapCard extends StackPane {
         double fixedImageWidth = this.getPrefWidth() * 0.1667;
         double fitHeight = this.getPrefHeight() - 2;
 
-        beatmapImageView.setFitWidth(fixedImageWidth);
-        beatmapImageView.setFitHeight(fitHeight);
-        beatmapImageView.setPreserveRatio(false);
+        imageContainer = new StackPane();
+        imageContainer.setPrefSize(fixedImageWidth, fitHeight);
+        imageContainer.setMaxSize(fixedImageWidth, fitHeight);
+        imageContainer.setMinSize(fixedImageWidth, fitHeight);
 
-        StackPane.setAlignment(beatmapImageView, Pos.CENTER_LEFT);
+        Rectangle clip = new Rectangle(fixedImageWidth, fitHeight);
+        imageContainer.setClip(clip);
+
+        double imageWidth = image.getWidth();
+        double imageHeight = image.getHeight();
+
+        double scaleX = fixedImageWidth / imageWidth;
+        double scaleY = fitHeight / imageHeight;
+        double scale = Math.max(scaleX, scaleY);
+
+        beatmapImageView.setFitWidth(imageWidth * scale);
+        beatmapImageView.setFitHeight(imageHeight * scale);
+        beatmapImageView.setPreserveRatio(true);
+
+        StackPane.setAlignment(beatmapImageView, Pos.CENTER);
+
+        imageContainer.getChildren().add(beatmapImageView);
+
+        StackPane.setAlignment(imageContainer, Pos.CENTER_LEFT);
 
         pinkOverlay = new Region();
         pinkOverlay.getStyleClass().add("pink-overlay");
@@ -168,11 +189,10 @@ public class BeatmapCard extends StackPane {
             animateHoverTranslation(false);
         });
 
-        this.getChildren().addAll(beatmapImageView, pinkOverlay, orangeOverlay, contentContainer);
+        this.getChildren().addAll(imageContainer, pinkOverlay, orangeOverlay, contentContainer);
     }
 
     private void setupFallbackUI() {
-        // Fallback to original simple layout if background loading fails
         VBox textInfo = createTextInfo();
         this.getChildren().add(textInfo);
     }
@@ -289,10 +309,10 @@ public class BeatmapCard extends StackPane {
         }
 
         if (selected && pinkOverlay != null && beatmapImageView != null) {
-            beatmapImageView.toFront();
+            imageContainer.toFront();
             pinkOverlay.setOpacity(SELECTED_OPACITY);
         } else if (pinkOverlay != null && beatmapImageView != null) {
-            beatmapImageView.toBack();
+            imageContainer.toBack();
             pinkOverlay.setOpacity(DEFAULT_OPACITY);
         }
     }
@@ -308,9 +328,9 @@ public class BeatmapCard extends StackPane {
 
     private void animateHoverTranslation(boolean isHovering) {
         Timeline hoverAnimation = new Timeline(
-            new KeyFrame(Duration.millis(150),
-                new KeyValue(hoverTranslationXProperty(), isHovering ? HOVER_TRANSLATION_X : 0.0, Interpolator.EASE_OUT)
-            )
+                new KeyFrame(Duration.millis(150),
+                        new KeyValue(hoverTranslationXProperty(), isHovering ? HOVER_TRANSLATION_X : 0.0, Interpolator.EASE_OUT)
+                )
         );
         hoverAnimation.play();
     }
