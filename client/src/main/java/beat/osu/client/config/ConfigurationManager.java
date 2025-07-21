@@ -22,7 +22,7 @@ public class ConfigurationManager {
                 orderedProperties.put("keybind.1", "Z");
                 orderedProperties.put("keybind.2", "X");
                 orderedProperties.put("sfx.volume", "0.5");
-                orderedProperties.put("background.dim", "0.8");
+                orderedProperties.put("background.dim", "0.9");
                 orderedProperties.put("ignore.beatmap.hitsounds", "true");
                 orderedProperties.put("bgm.volume", "0.15");
 
