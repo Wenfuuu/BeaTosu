@@ -780,11 +780,11 @@ public class MatchService {
             return Result.failure(Error.validation("Player status cannot be null"));
         }
 
-        PlayerStatus oldStatus = player.getStatus();
-
-        if (oldStatus == newStatus) {
-            return Result.failure(Error.validation("Player status is already " + newStatus.name()));
-        }
+//        PlayerStatus oldStatus = player.getStatus();
+//
+//        if (oldStatus == newStatus) {
+//            return Result.failure(Error.validation("Player status is already " + newStatus.name()));
+//        }
 
         player.setStatus(newStatus);
 

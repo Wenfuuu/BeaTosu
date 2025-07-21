@@ -369,19 +369,14 @@ public class MatchesPanel extends VBox {
             notifyMatchCountUpdate();
         });
     }
-    
-    /**
-     * Apply filters to a specific match card to update its visibility
-     */
+
     private void applyFiltersToMatchCard(MatchCard matchCard) {
         boolean shouldShow = shouldShowMatch(matchCard);
         boolean isCurrentlyVisible = matchesContainer.getChildren().contains(matchCard);
         
         if (shouldShow && !isCurrentlyVisible) {
-            // Card should be visible but isn't - add it
             matchesContainer.getChildren().add(matchCard);
         } else if (!shouldShow && isCurrentlyVisible) {
-            // Card shouldn't be visible but is - remove it
             matchesContainer.getChildren().remove(matchCard);
         }
         

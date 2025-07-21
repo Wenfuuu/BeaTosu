@@ -922,6 +922,7 @@ public class MatchView extends Page {
 
     private void onMatchBeatmapUpdated(MatchBeatmapUpdatedEvent event) {
         if (event.getMatchId() == this.matchId) {
+            System.out.println("beatmap updated for this match");
             Platform.runLater(() -> {
                 beatmap = convertBeatmapDtoToBeatmap(event.getNewBeatmapDto());
                 this.isChangingBeatmap = false;
@@ -944,6 +945,8 @@ public class MatchView extends Page {
                             matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
                                 if (!result.isSuccess()) {
                                     System.err.println("Failed to update player status to NOT_READY: " + result.getError().getMessage());
+                                } else {
+                                    System.out.println("Successfully updated player status to NOT_READY");
                                 }
                             });
                         }
