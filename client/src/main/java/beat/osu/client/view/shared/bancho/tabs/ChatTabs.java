@@ -54,7 +54,7 @@ public class ChatTabs extends HBox {
         this.setBackground(new Background(backgroundFill));
 
         addChatButton = new AddChatButton();
-        addChatButton.setOnMouseClicked(e -> {
+        addChatButton.setOnAction(e -> {
             if (onAddChannelRequested != null) {
                 onAddChannelRequested.run();
             }
