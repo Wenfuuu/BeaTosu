@@ -173,6 +173,7 @@ public class MatchView extends Page {
         this.winCondition = matchDto.getWinCondition();
 
         setupView();
+        checkBeatmapOwnership();
         inputManager.setSfxDisabled(false);
 
         handleEvent();
@@ -879,13 +880,53 @@ public class MatchView extends Page {
         }
     }
 
+    private void checkBeatmapOwnership() {
+        Platform.runLater(() -> {
+            beatmap = convertBeatmapDtoToBeatmap(matchDto.getBeatmap());
+            this.isChangingBeatmap = false;
+            updateBeatmapCard();
+
+            boolean beatmapExists = ResourceManager.beatmapSetDirectoryExists(beatmap.getBeatmapSetId());
+            if (!beatmapExists) {
+                PlayerStatus currentStatus = getCurrentUserStatus();
+                if (currentStatus != PlayerStatus.NO_MAP) {
+                    matchController.updatePlayerStatus(matchId, PlayerStatus.NO_MAP).thenAccept(result -> {
+                        if (!result.isSuccess()) {
+                            System.err.println("Failed to update player status to NO_MAP: " + result.getError().getMessage());
+                        }
+                    });
+                }
+            } else {
+                if (PlaylistManager.getInstance().getCurrentSong().getId() != beatmap.getBeatmapSetId()) {
+                    PlayerStatus currentStatus = getCurrentUserStatus();
+                    if (currentStatus != PlayerStatus.NOT_READY) {
+                        matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
+                            if (!result.isSuccess()) {
+                                System.err.println("Failed to update player status to NOT_READY: " + result.getError().getMessage());
+                            }
+                        });
+                    }
+
+                    try {
+                        OsuParser.parseBeatmap(beatmap);
+                        BgmManager.getInstance().playPreviewBgm(true);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            updateBlueButtonState();
+        });
+    }
+
     private void onMatchBeatmapUpdated(MatchBeatmapUpdatedEvent event) {
         if (event.getMatchId() == this.matchId) {
             Platform.runLater(() -> {
                 beatmap = convertBeatmapDtoToBeatmap(event.getNewBeatmapDto());
                 this.isChangingBeatmap = false;
                 updateBeatmapCard();
-                
+
                 boolean beatmapExists = ResourceManager.beatmapSetDirectoryExists(beatmap.getBeatmapSetId());
                 if (!beatmapExists) {
                     PlayerStatus currentStatus = getCurrentUserStatus();
@@ -898,6 +939,15 @@ public class MatchView extends Page {
                     }
                 } else {
                     if (PlaylistManager.getInstance().getCurrentSong().getId() != beatmap.getBeatmapSetId()) {
+                        PlayerStatus currentStatus = getCurrentUserStatus();
+                        if (currentStatus != PlayerStatus.NOT_READY) {
+                            matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
+                                if (!result.isSuccess()) {
+                                    System.err.println("Failed to update player status to NOT_READY: " + result.getError().getMessage());
+                                }
+                            });
+                        }
+
                         try {
                             OsuParser.parseBeatmap(beatmap);
                             BgmManager.getInstance().playPreviewBgm(true);
@@ -906,7 +956,7 @@ public class MatchView extends Page {
                         }
                     }
                 }
-                
+
                 updateBlueButtonState();
             });
         }
