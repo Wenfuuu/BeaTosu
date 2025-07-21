@@ -205,11 +205,13 @@ public class OsuParser {
         String removeColon = removeBackslash.replace(":", "");
         String removeSlash = removeColon.replace("/", "");
         String version = beatmap.getVersion().replace("?", "");
+        String fixedVersion = version.replace(">", "");
+        String fixedVersions = fixedVersion.replace("<", "");
         String osuPath = String.format("%s - %s (%s) [%s].osu",
                 beatmap.getBeatmapSet().getArtist().replace(":", ""),
                 removeSlash,
                 beatmap.getBeatmapSet().getCreator(),
-                version);
+                fixedVersions);
         File beatmapDir = new File(ResourceManager.getBeatmapDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
         File osuFile = new File(beatmapDir, osuPath);
 
