@@ -24,6 +24,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 public class BeatmapCard extends StackPane {
@@ -53,6 +54,7 @@ public class BeatmapCard extends StackPane {
 
     // Components for available variant
     private ImageView beatmapImageView;
+    private StackPane imageContainer; // Add reference to the image container
     private Label beatmapNameLabel;
     private Label beatmapInfoLabel;
     private Label beatmapVersionLabel;
@@ -203,11 +205,30 @@ public class BeatmapCard extends StackPane {
         double fixedImageWidth = this.getPrefWidth() * 0.25;
         double fitHeight = this.getPrefHeight() - 1;
 
-        beatmapImageView.setFitWidth(fixedImageWidth);
-        beatmapImageView.setFitHeight(fitHeight);
-        beatmapImageView.setPreserveRatio(false);
+        imageContainer = new StackPane();
+        imageContainer.setPrefSize(fixedImageWidth, fitHeight);
+        imageContainer.setMaxSize(fixedImageWidth, fitHeight);
+        imageContainer.setMinSize(fixedImageWidth, fitHeight);
 
-        StackPane.setAlignment(beatmapImageView, Pos.CENTER_LEFT);
+        Rectangle clip = new Rectangle(fixedImageWidth, fitHeight);
+        imageContainer.setClip(clip);
+
+        double imageWidth = image.getWidth();
+        double imageHeight = image.getHeight();
+
+        double scaleX = fixedImageWidth / imageWidth;
+        double scaleY = fitHeight / imageHeight;
+        double scale = Math.max(scaleX, scaleY);
+
+        beatmapImageView.setFitWidth(imageWidth * scale);
+        beatmapImageView.setFitHeight(imageHeight * scale);
+        beatmapImageView.setPreserveRatio(true);
+
+        StackPane.setAlignment(beatmapImageView, Pos.CENTER);
+
+        imageContainer.getChildren().add(beatmapImageView);
+
+        StackPane.setAlignment(imageContainer, Pos.CENTER_LEFT);
 
         pinkOverlay = new Region();
         pinkOverlay.getStyleClass().add("pink-overlay");
@@ -271,7 +292,7 @@ public class BeatmapCard extends StackPane {
         });
         this.setOnMouseExited(e -> transitionToPink());
 
-        this.getChildren().addAll(beatmapImageView, pinkOverlay, orangeOverlay, contentContainer);
+        this.getChildren().addAll(imageContainer, pinkOverlay, orangeOverlay, contentContainer);
     }
 
     private void loadStyles() {
