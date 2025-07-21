@@ -211,6 +211,7 @@ public class MatchesPanel extends VBox {
         Platform.runLater(() -> {
             MatchCard matchCard = matchCardMap.get(event.getMatchId());
             matchCard.addPlayer(event.getMatchPlayer());
+            applyFiltersToMatchCard(matchCard);
         });
     }
     
@@ -219,6 +220,7 @@ public class MatchesPanel extends VBox {
             MatchCard matchCard = matchCardMap.get(event.getMatchId());
             if (matchCard != null) {
                 matchCard.removePlayer(event.getUserId());
+                applyFiltersToMatchCard(matchCard);
             }
         });
     }
@@ -228,6 +230,7 @@ public class MatchesPanel extends VBox {
             MatchCard matchCard = matchCardMap.get(event.getMatchId());
             if (matchCard != null) {
                 matchCard.removePlayer(event.getKickedUserId());
+                applyFiltersToMatchCard(matchCard);
             }
         });
     }
@@ -252,6 +255,7 @@ public class MatchesPanel extends VBox {
             MatchCard matchCard = matchCardMap.get(event.getMatchId());
             if (matchCard != null) {
                 matchCard.hostLeft(event.getPreviousHostUserId(), event.getNewHostUserId());
+                applyFiltersToMatchCard(matchCard);
             }
         });
     }
@@ -279,7 +283,9 @@ public class MatchesPanel extends VBox {
             MatchCard matchCard = matchCardMap.get(event.getMatchId());
             if (matchCard != null) {
                 String beatmapName = event.getNewBeatmapDto().getBeatmapSetDto().getTitle();
-                matchCard.updateBeatmap(event.getNewBeatmapDto().getId(), beatmapName);
+                int beatmapSetId = event.getNewBeatmapDto().getBeatmapSetId();
+                matchCard.updateBeatmap(event.getNewBeatmapDto().getId(), beatmapName, beatmapSetId);
+                applyFiltersToMatchCard(matchCard);
             }
         });
     }
@@ -362,6 +368,25 @@ public class MatchesPanel extends VBox {
             updateNoMatchesMessageVisibility();
             notifyMatchCountUpdate();
         });
+    }
+    
+    /**
+     * Apply filters to a specific match card to update its visibility
+     */
+    private void applyFiltersToMatchCard(MatchCard matchCard) {
+        boolean shouldShow = shouldShowMatch(matchCard);
+        boolean isCurrentlyVisible = matchesContainer.getChildren().contains(matchCard);
+        
+        if (shouldShow && !isCurrentlyVisible) {
+            // Card should be visible but isn't - add it
+            matchesContainer.getChildren().add(matchCard);
+        } else if (!shouldShow && isCurrentlyVisible) {
+            // Card shouldn't be visible but is - remove it
+            matchesContainer.getChildren().remove(matchCard);
+        }
+        
+        updateNoMatchesMessageVisibility();
+        notifyMatchCountUpdate();
     }
     
     private void updateNoMatchesMessageVisibility() {

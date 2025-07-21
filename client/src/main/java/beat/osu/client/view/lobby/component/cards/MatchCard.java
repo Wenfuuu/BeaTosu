@@ -526,10 +526,11 @@ public class MatchCard extends HBox {
         }
     }
 
-    public void updateBeatmap(int newBeatmapId, String newBeatmapName) {
+    public void updateBeatmap(int newBeatmapId, String newBeatmapName, int newBeatmapSetId) {
         if (newBeatmapName != null && !newBeatmapName.trim().isEmpty()) {
             this.beatmapId = newBeatmapId;
             this.beatmapName = newBeatmapName;
+            this.beatmapSetId = newBeatmapSetId;
             if (beatmapNameLabel != null) {
                 beatmapNameLabel.setText(newBeatmapName);
             }
