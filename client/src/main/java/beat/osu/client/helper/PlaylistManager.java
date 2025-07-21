@@ -2,16 +2,21 @@ package beat.osu.client.helper;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import beat.osu.client.enums.PlaybackMode;
+import beat.osu.client.controller.BeatmapController;
 import beat.osu.client.events.song.SongChangeEvent;
 import beat.osu.client.interfaces.song.SongEventListener;
 import beat.osu.client.interfaces.song.SongEventPublisher;
 import beat.osu.client.model.Song;
 import beat.osu.client.utils.BeatmapUtils;
+import beat.osu.shared.common.Result;
+import beat.osu.shared.dto.beatmap.responses.GetAllBeatmapsResponse;
 import lombok.Getter;
 
 public class PlaylistManager implements SongEventPublisher {
@@ -27,11 +32,13 @@ public class PlaylistManager implements SongEventPublisher {
     private Song currentSong;
     
     private final ArrayList<SongEventListener> listeners;
+    private final BeatmapController beatmapController;
 
     private PlaylistManager() {
         fullPlaylist = new ArrayList<>();
         filteredPlaylist = new ArrayList<>();
         listeners = new ArrayList<>();
+        beatmapController = new BeatmapController();
         initializePlaylist();
     }
 
@@ -49,9 +56,50 @@ public class PlaylistManager implements SongEventPublisher {
     private void initializePlaylist() {
         try {
             fullPlaylist.clear();
-            fullPlaylist.addAll(BeatmapUtils.getBeatmapSongs());
+
+            File tempDir = ResourceManager.getBeatmapDirectory();
+            Set<String> validBeatmapDirs = new HashSet<>();
+
+            if (tempDir.exists() && tempDir.isDirectory()) {
+                for (File file : Objects.requireNonNull(tempDir.listFiles())) {
+                    if (file.isDirectory()) {
+                        validBeatmapDirs.add(file.getName());
+                    }
+                }
+            }
+
+            try {
+                Result<GetAllBeatmapsResponse> result = beatmapController.getAllBeatmaps().get();
+                if (result.isSuccess()) {
+                    Set<Song> databaseFilteredSongs = new HashSet<>();
+                    
+                    result.getValue().getBeatmaps().forEach(beatmapDto -> {
+                        String expectedDirName = String.format("%d", beatmapDto.getBeatmapSetId());
+
+                        if (validBeatmapDirs.contains(expectedDirName)) {
+                            String audioPath = ResourceManager.getBeatmapSetAudioPath(beatmapDto.getBeatmapSetId());
+                            
+                            Song song = new Song(
+                                beatmapDto.getBeatmapSetId(),
+                                beatmapDto.getBeatmapSetDto().getTitle(),
+                                beatmapDto.getBeatmapSetDto().getArtist(),
+                                audioPath
+                            );
+                            
+                            databaseFilteredSongs.add(song);
+                        }
+                    });
+
+                    fullPlaylist.addAll(databaseFilteredSongs);
+                } else {
+                    fullPlaylist.addAll(BeatmapUtils.getBeatmapSongs());
+                }
+            } catch (Exception dbException) {
+                fullPlaylist.addAll(BeatmapUtils.getBeatmapSongs());
+            }
+            
         } catch (Exception e) {
-            // System.err.println("Failed to initialize playlist: " + e.getMessage());
+            fullPlaylist.addAll(BeatmapUtils.getBeatmapSongs());
         }
     }
 
