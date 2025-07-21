@@ -155,8 +155,6 @@ public class SelectChannelModal extends VBox {
                     GetAllChannelsResponse response = result.getValue();
                     this.allChannels = response.getChannels();
                     displayChannels(this.allChannels);
-                } else {
-                    System.out.println(result.getError().getMessage());
                 }
             });
         } catch (ExecutionException | InterruptedException e) {
@@ -195,7 +193,7 @@ public class SelectChannelModal extends VBox {
             channelController.joinChannel(channel.getId()).thenAccept(result -> {
                 Platform.runLater(() -> {
                     if (result.isSuccess()) {
-                        System.out.println("Joined channel: " + channel.getName());
+                        // System.out.println("Joined channel: " + channel.getName());
                     }
                 });
             });

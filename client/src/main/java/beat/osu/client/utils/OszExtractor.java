@@ -26,7 +26,6 @@ public class OszExtractor {
     public static void extractOsz(File oszFile, File outputDir) throws IOException {
         clearDirectory(outputDir);
 
-        System.out.println("extracting osz file: " + oszFile.getAbsolutePath());
         byte[] buffer = new byte[1024];
         ZipInputStream zis = new ZipInputStream(new FileInputStream(oszFile));
         ZipEntry zipEntry;

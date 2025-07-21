@@ -35,7 +35,6 @@ public class RealtimeMessageHandler {
     public void start() {
         if (isRunning.compareAndSet(false, true)) {
             senderThread.start();
-            System.out.println("RealtimeMessageHandler started for client: " + clientId);
         }
     }
 
@@ -46,7 +45,6 @@ public class RealtimeMessageHandler {
         if (isRunning.compareAndSet(true, false)) {
             senderThread.interrupt();
             messageQueue.clear();
-            System.out.println("RealtimeMessageHandler stopped for client: " + clientId);
         }
     }
 
@@ -129,7 +127,6 @@ public class RealtimeMessageHandler {
                     broadcastToAll(message);
                     break;
                 default:
-                    System.out.println("RealtimeMessageHandler: Unknown message type: " + message.getType());
             }
 
         } catch (Exception e) {
@@ -142,7 +139,7 @@ public class RealtimeMessageHandler {
         if (targetHandler != null) {
             targetHandler.queueMessage(message);
         } else {
-            System.out.println("RealtimeMessageHandler: Target client " + targetClientId + " not found");
+            // System.out.println("RealtimeMessageHandler: Target client " + targetClientId + " not found");
         }
     }
 

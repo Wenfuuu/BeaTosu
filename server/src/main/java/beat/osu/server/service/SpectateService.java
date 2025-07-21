@@ -61,7 +61,6 @@ public class SpectateService {
         spectatorToPlayer.put(spectatorUserId, playingUserId);
         playerToSpectators.computeIfAbsent(playingUserId, k -> ConcurrentHashMap.newKeySet()).add(spectatorUserId);
 
-        System.out.println("Started spectating: " + player.getUsername() + " by spectator: " + spectator.getUsername());
         return Result.success(new StartSpectateResponse("Started spectating " + player.getUsername()));
     }
 
@@ -89,7 +88,6 @@ public class SpectateService {
 
                 if (spectatorClientId != null && sessionService.isClientConnected(spectatorClientId)) {
                     try {
-                        System.out.println("Sending spectate event to spectator: " + spectatorUserId);
                         RealtimeMessageHandler.sendToClient(realtimeMessage, spectatorClientId);
                         sentCount++;
                     } catch (Exception e) {
@@ -131,8 +129,6 @@ public class SpectateService {
 
                 if (spectatorClientId != null && sessionService.isClientConnected(spectatorClientId)) {
                     try {
-                        System.out.println("Sending pause notification to spectator: " + spectatorUserId +
-                                " (isPaused: " + statusEvent.isPaused() + ")");
                         RealtimeMessageHandler.sendToClient(realtimeMessage, spectatorClientId);
                         sentCount++;
                     } catch (Exception e) {
@@ -148,7 +144,6 @@ public class SpectateService {
 
         String action = statusEvent.isPaused() ? "paused" : "resumed";
         String message = "Game " + action + " notification sent to " + sentCount + " spectators";
-        System.out.println(message);
         return Result.success(new NotifySpectateStatusResponse(message));
     }
 
@@ -175,7 +170,6 @@ public class SpectateService {
 
                 if (spectatorClientId != null && sessionService.isClientConnected(spectatorClientId)) {
                     try {
-                        System.out.println("Sending game exit notification to spectator: " + spectatorUserId);
                         RealtimeMessageHandler.sendToClient(realtimeMessage, spectatorClientId);
                         sentCount++;
                     } catch (Exception e) {
@@ -192,7 +186,6 @@ public class SpectateService {
         removeUserFromAllSpectating(playingUserId);
 
         String message = "Player exit notification sent to " + sentCount + " spectators";
-        System.out.println(message);
         return Result.success(new NotifyExitResponse(message));
     }
 
@@ -214,7 +207,6 @@ public class SpectateService {
             stopSpectate(spectatorUserId);
         }
 
-        System.out.println("Stopped spectating for user: " + spectatorUserId);
         return Result.success(new StopSpectateResponse("Stopped spectating for user: " + spectatorUserId));
     }
 

@@ -152,9 +152,7 @@ public class HitSpinner extends HitObject {
             }
 
             if (prevSpin < completedSpins - 1) {
-                System.out.println("current completed rotations: " + completedSpins);
                 prevSpin = Math.round(completedSpins);
-                System.out.println("previous completed rotations: " + prevSpin);
                 listener.onHit(this, HitResult.SPIN);
                 SfxManager.playBeatmapSfx("spinnerspin.wav");
                 if (prevSpin > TARGET_SPINS) {

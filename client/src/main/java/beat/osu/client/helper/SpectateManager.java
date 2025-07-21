@@ -265,17 +265,14 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     }
 
     public void startSpectate(SpectateDto spectateDto) {
-        System.out.println("Starting spectate session - clearing input state");
-
         resetSpectateState();
         inputManager.getPressedKeys().clear();
-        System.out.println("Cleared input manager key states");
 
         spectateController.startSpectate(spectateDto).thenApply(response -> {
             if (response.isSuccess()) {
-                System.out.println("Successfully start spectating: " + response.getValue().getMessage());
+                // System.out.println("Successfully start spectating: " + response.getValue().getMessage());
             } else {
-                System.err.println("Failed to start spectating: " + response.getError().getMessage());
+                // System.err.println("Failed to start spectating: " + response.getError().getMessage());
             }
             return null;
         });
@@ -288,7 +285,6 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
             @Override
             public void handle(long now) {
                 if (spectateStoppingFlag) {
-                    System.out.println("Spectate loop stopped due to stopping flag");
                     stop();
                     return;
                 }
@@ -308,10 +304,6 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
 
         spectateController.stopSpectate().thenApply(response -> {
             if (response.isSuccess()) {
-                System.out.println("Successfully stopped spectating: " + response.getValue().getMessage());
-
-                // Use Platform.runLater to ensure UI cleanup happens on JavaFX Application
-                // Thread
                 Platform.runLater(() -> {
                     try {
                         cleanupSpectateResources();
@@ -351,8 +343,6 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
 
             // Clear input manager state
             inputManager.getPressedKeys().clear();
-
-            System.out.println("Spectate resources cleaned up successfully");
         } catch (Exception e) {
             System.err.println("Error during spectate resource cleanup: " + e.getMessage());
             e.printStackTrace();
@@ -362,19 +352,15 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     private void updateSpectate(SpectateEvent event) {
         // Early exit if spectate is stopping
         if (spectateStoppingFlag) {
-            System.out.println("Ignoring spectate event - spectate session is stopping");
             return;
         }
 
-        System.out.println("Received spectate event: " + event);
         Platform.runLater(() -> {
             if (spectateStoppingFlag) {
-                System.out.println("Ignoring spectate event in Platform.runLater - spectate session is stopping");
                 return;
             }
 
             if (hitObjects == null || (hitObjects.isEmpty() && !firstSpectateEvent)) {
-                System.out.println("Ignoring spectate event - session appears to be stopped");
                 return;
             }
 
@@ -387,16 +373,10 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
                 BgmManager.getInstance().getCurrentPlayer().seek(Duration.millis(event.getCurrentTime()));
                 BgmManager.getInstance().playGameBgm();
             } else {
-                if (event.getCurrentTime() <= 0)
-                    return;
-                System.out.println("Current time: " + event.getCurrentTime());
-                System.out.println("Current BGM time: " + BgmManager.getInstance().getCurrentPlayer().getCurrentTime());
-                // seek bgm duration to the current time of the event if has difference more
-                // than 50ms
+                if (event.getCurrentTime() <= 0) return;
                 Duration currentBgmTime = BgmManager.getInstance().getCurrentPlayer().getCurrentTime();
                 if (Math.abs(currentBgmTime.toMillis() - event.getCurrentTime()) > 50) {
                     BgmManager.getInstance().getCurrentPlayer().seek(Duration.millis(event.getCurrentTime()));
-                    System.out.println("Seeking BGM to: " + event.getCurrentTime());
                 }
             }
 
@@ -410,7 +390,6 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
                 if (event.getCurrentTime() >= startTime && event.getCurrentTime() <= endTime) {
                     inBreakPeriod = true;
                     if (gameState != GameState.BREAK_PERIOD) {
-                        System.out.println("Entering break period");
                         gameState = GameState.BREAK_PERIOD;
                         notifyListeners(new GameEvent(GameEventType.ENTER_BREAK_PERIOD, null));
                     } else {
@@ -418,8 +397,6 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
                         // check if elapsedMillis has passed half of the break period
                         if (totalBreakTime >= 3000 && event.getCurrentTime() >= startTime + totalBreakTime / 2) {
                             if (!isHalfBreakperiod) {
-                                System.out.println("Half break period reached, notifying listeners");
-
                                 if (health < 50) {
                                     SfxManager.playBeatmapSfx("sectionfail.wav");
                                     notifyListeners(new GameEvent(GameEventType.SECTION_FAIL, null));
@@ -432,7 +409,6 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
                         }
 
                         if (event.getCurrentTime() + 1000 >= endTime) {
-                            System.out.println("Exiting break period soon, preparing to resume");
                             if (!isPreExit) {
                                 notifyListeners(new GameEvent(GameEventType.PRE_EXIT_BREAK_PERIOD, null));
                                 isPreExit = true;
@@ -444,13 +420,11 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
             }
 
             if (!spectateOffsetCompleted && event.getCurrentTime() >= gameStartOffset) {
-                System.out.println("Game offset completed, notifying listeners");
                 notifyListeners(new GameEvent(GameEventType.GAME_OFFSET_COMPLETED, null));
                 spectateOffsetCompleted = true;
             }
 
             if (!inBreakPeriod && gameState == GameState.BREAK_PERIOD) {
-                System.out.println("Exiting break period, returning to playing state");
                 isHalfBreakperiod = false;
                 isPreExit = false;
                 gameState = GameState.PLAYING;
@@ -458,7 +432,6 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
             }
 
             if (pressedEsc) {
-                System.out.println("Escape key pressed, stopping spectate session");
                 stopSpectate();
                 return;
             }
@@ -513,7 +486,6 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
             }
 
             if (hitObjects.isEmpty() && !firstSpectateEvent) {
-                System.out.println("All hit objects processed, spectate session ending naturally");
                 stopSpectate();
             }
         });
@@ -531,11 +503,9 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
 
         if (key1Pressed && !wasKey1Pressed) {
             keyPressed = true;
-            System.out.println("Key 1 pressed at time: " + event.getCurrentTime());
         }
         if (key2Pressed && !wasKey2Pressed) {
             keyPressed = true;
-            System.out.println("Key 2 pressed at time: " + event.getCurrentTime());
         }
 
         // Update previous key states
@@ -546,7 +516,6 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void updateSpectateStatus(SpectateStatusEvent event) {
-        System.out.println("Received spectate status event, spectate pause status: " + event.isPaused());
         if (event.isPaused())
             pauseAllAnimations();
         else
@@ -577,7 +546,6 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
 
     @Override
     public void onHit(HitObject hitObject, HitResult result) {
-        System.out.println("on hit");
         notifyHit(hitObject, result);
     }
 
@@ -603,19 +571,16 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
 
     @Override
     public void onSliderTick(HitObject hitObject) {
-        System.out.println("on slider tick");
         notifyHit(hitObject, HitResult.SLIDER_TICK);
     }
 
     @Override
     public void onSliderRepeat(HitObject hitObject) {
-        System.out.println("on slider repeat");
         notifyHit(hitObject, HitResult.SLIDER_REPEAT);
     }
 
     @Override
     public void onSliderEnd(HitObject hitObject) {
-        System.out.println("on slider end");
         notifyHit(hitObject, HitResult.SLIDER_END);
     }
 }

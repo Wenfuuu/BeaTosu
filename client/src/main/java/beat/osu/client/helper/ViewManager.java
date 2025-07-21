@@ -104,9 +104,7 @@ public class ViewManager {
             if (response.isSuccess()) {
                 currentMatchDto = response.getValue().getMatch();
             } else {
-                System.out.println("Failed to fetch match: " + response.getError().getMessage());
-                // Toast.error("Failed to fetch match: " +
-                // response.getError().getMessage()).show();
+                // System.out.println("Failed to fetch match: " + response.getError().getMessage());
             }
         } catch (InterruptedException | ExecutionException ex) {
             throw new RuntimeException(ex);

@@ -263,10 +263,6 @@ public class MatchService {
         RealtimeMessage realtimeMessage = new RealtimeMessage(RealtimeMessageType.USER_LEFT_MATCH, clientId, event);
         RealtimeMessageHandler.broadcastToAll(realtimeMessage);
 
-        for (MatchPlayer remainingPlayer : remainingPlayers) {
-            System.out.println("Remaining player id " + remainingPlayer.getUserId()
-                    + ", status: " + remainingPlayer.getStatus());
-        }
         if (remainingPlayers.isEmpty()) {
             removeMatch(matchId);
         } else {

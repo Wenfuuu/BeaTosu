@@ -131,8 +131,6 @@ public class HitSlider extends HitObject {
             // Use a default beat duration (e.g., 120 BPM = 500ms/beat).
             int bpm = OsuParser.getBPM();
             msBeat = 60000.0 / bpm;
-            System.out.println("falling back to default beat length of " + msBeat
-                    + "ms for slider at " + getHitTime() + ". No uninherited timing point found.");
         }
 
         this.msPerBeat = msBeat;
@@ -403,7 +401,6 @@ public class HitSlider extends HitObject {
         double tickSpacing = msPerBeat / calculateTickRate();
 
         currentTickIndex = (int) Math.floor(timeSinceHitStart / tickSpacing);;
-        System.out.println("Current tick index: " + currentTickIndex + ", total ticks: " + sliderTicks.size());
         for (int i = 0; i < sliderTicks.size() && i < currentTickIndex; i++) {
             if (i >= 0 && i < tickHitStatus.size() && !tickHitStatus.get(i)) {
                 // Check if player is correctly following the slider
@@ -414,13 +411,11 @@ public class HitSlider extends HitObject {
                     listener.onSliderTick(this);
                     SfxManager.playBeatmapSfx("soft-slidertick.wav");
                     sliderTicks.get(i).setVisible(false);
-                    System.out.println("Tick " + i + " hit! Total ticks hit: " + ticksHit);
                 } else {
                     // Tick missed - player not following slider correctly
                     tickHitStatus.set(i, true); // Mark as processed to avoid re-checking
                     sliderTicks.get(i).setVisible(false);
                     listener.onComboBreak(); // Break combo for missed tick
-                    System.out.println("Tick " + i + " missed! Combo broken.");
                 }
             }
         }
@@ -960,8 +955,6 @@ public class HitSlider extends HitObject {
                 }
             } else if (getCurrTime() > endTime) {
                 HitResult judgement = getSliderJudgement();
-                System.out.println("Head early hit: " + earlyHit + ", Ticks hit: " + ticksHit + "/"
-                        + sliderTicks.size() + ", Repeats hit: " + repeatsHit + "/" + slides);
 
                 if (judgement != HitResult.MISS) {
                     listener.onHit(this, judgement);
@@ -982,7 +975,6 @@ public class HitSlider extends HitObject {
         if (repeatIndex >= 0 && repeatIndex < repeatHitStatus.size() && !repeatHitStatus.get(repeatIndex)) {
             repeatHitStatus.set(repeatIndex, true);
             repeatsHit++;
-            System.out.println("Repeat " + repeatIndex + " hit! Total repeats hit: " + repeatsHit);
         }
     }
 
@@ -1072,8 +1064,6 @@ public class HitSlider extends HitObject {
         FadeTransition fade = new FadeTransition(Duration.millis(150), headGroup);
         fade.setToValue(0);
         fade.play();
-
-        System.out.println("Slider head hit successfully!");
     }
 
     @Override

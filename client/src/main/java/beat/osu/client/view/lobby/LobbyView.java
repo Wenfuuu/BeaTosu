@@ -144,9 +144,6 @@ public class LobbyView extends Page {
                 Toast.error("You cannot spectate yourself!").show();
                 return;
             }
-
-            System.out.println("Player with id " + spectateDto.getPlayingUserId()
-                    + " is playing beatmap with id " + spectateDto.getBeatmapId());
             Beatmap beatmap = fetchBeatmapById(spectateDto.getBeatmapId());
             if (beatmap == null) {
                 Toast.error("You don't have this beatmap").show();
@@ -470,12 +467,7 @@ public class LobbyView extends Page {
 
                 String expectedDirName = String.format("%d", beatmapDto.getBeatmapSetId());
 
-                for (String dir : validBeatmapDirs) {
-                    System.out.println("Found directory: " + dir);
-                }
-
                 if (!validBeatmapDirs.contains(expectedDirName)) {
-                    System.out.println("Beatmap directory not found in temp directory: " + expectedDirName);
                     return null;
                 }
 

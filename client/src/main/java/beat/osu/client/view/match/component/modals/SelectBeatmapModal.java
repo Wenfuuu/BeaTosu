@@ -250,7 +250,6 @@ public class SelectBeatmapModal extends StackPane {
         });
 
         bottomBar.getLogoView().setOnMouseClicked(e -> {
-            System.out.println("Select button clicked");
             if (selectedBeatmap != null && onBeatmapSelectedCallback != null) {
                 onBeatmapSelectedCallback.accept(selectedBeatmap);
                 hide();
@@ -258,7 +257,6 @@ public class SelectBeatmapModal extends StackPane {
         });
 
         bottomBar.getBackButton().setOnMouseClicked(e -> {
-            System.out.println("Cancel button clicked");
             hide();
         });
     }

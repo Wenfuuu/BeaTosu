@@ -51,7 +51,6 @@ public class SfxManager {
         File beatmapDir = new File(ResourceManager.getBeatmapDirectory(), String.valueOf(beatmap.getBeatmapSetId()));
         File sfxFile = new File(beatmapDir, sfxName);
         if (sfxFile.exists() && !ignoreBeatmapSFX) {
-            System.out.println("Beatmap SFX found: " + sfxName);
             media = new Media(sfxFile.toURI().toString());
         } else {
             // remove the index from the sfxName, e.g. "soft-hitnormal1.wav" to "soft-hitnormal.wav"
@@ -69,7 +68,6 @@ public class SfxManager {
                 System.err.println("SFX resource not found: " + baseName);
                 return;
             }
-            System.out.println("Playing default SFX: " + baseName);
             media = new Media(sfxUrl.toString());
         }
 

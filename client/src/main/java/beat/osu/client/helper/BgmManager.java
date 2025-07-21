@@ -99,9 +99,6 @@ public class BgmManager {
     }
 
     public void playPreviewBgm(boolean fromAnotherPage) {
-        System.out.println("calling playPreviewBgm, fromAnotherPage: " + fromAnotherPage);
-
-
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
         File tempDir = ResourceManager.getBeatmapDirectory();
         File beatmapDir = new File(tempDir, String.valueOf(beatmap.getBeatmapSetId()));
@@ -115,19 +112,14 @@ public class BgmManager {
         String newHash = computeFileHash(audioFile);
         if (!fromAnotherPage) {
             if (isSameBgm(newHash)) {
-                System.out.println("Same BGM content. Skipping playback.");
                 return;
             }
-            System.out.println("stopping current BGM and playing new one.");
             stopBgm();
         } else {
             if (newHash != null && currentBgmHash.equals(defaultBgmHash)) {
-                System.out.println("From another page, Default BGM content. Stopping BGM.");
                 stopBgm();
             }
             if (isSameBgm(newHash) && currentPlayer != null) {
-                System.out.println("From another page, Same BGM content. Resuming BGM.");
-                System.out.println("Current Player Status: " + currentPlayer.getStatus());
                 // currentPlayer.play();
                 if (currentPlayer.getCurrentTime().lessThan(currentPlayer.getTotalDuration()))
                     currentPlayer.play();
@@ -141,7 +133,6 @@ public class BgmManager {
                 return;
             }
         }
-        System.out.println("From another page, Different BGM content. Playing new BGM.");
         stopBgm();
         currentBgmHash = newHash;
         currentPlaybackMode = PlaybackMode.PREVIEW;
@@ -191,13 +182,11 @@ public class BgmManager {
         });
 
         currentPlayer.setOnReady(() -> {
-            System.out.println("BGM ready for playback");
         });
     }
 
     public void playGameBgm() {
         if (currentPlayer != null) {
-            System.out.println("Playing game BGM");
             currentPlayer.play();
         }
     }

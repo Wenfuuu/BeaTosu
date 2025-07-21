@@ -61,14 +61,12 @@ public class ViewUserModal extends VBox {
                 Object sessionValue = result.getValue().getValue();
                 if (sessionValue != null) {
                     if (sessionValue instanceof Integer) {
-                        System.out.println("Fetched playing beatmap ID: " + sessionValue);
                         return (Integer) sessionValue;
                     } else {
                         System.err.println("Playing beatmap session value is not a number: " + sessionValue.getClass().getSimpleName());
                         return null;
                     }
                 } else {
-                    System.out.println("User is not currently playing a beatmap");
                     return null;
                 }
             } else {

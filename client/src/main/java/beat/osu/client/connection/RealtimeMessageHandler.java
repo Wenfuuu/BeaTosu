@@ -33,7 +33,6 @@ public class RealtimeMessageHandler {
     public void start() {
         if (isRunning.compareAndSet(false, true)) {
             senderThread.start();
-            System.out.println("RealtimeMessageHandler started");
         }
     }
 
@@ -44,7 +43,6 @@ public class RealtimeMessageHandler {
         if (isRunning.compareAndSet(true, false)) {
             senderThread.interrupt();
             messageQueue.clear();
-            System.out.println("RealtimeMessageHandler stopped");
         }
     }
 

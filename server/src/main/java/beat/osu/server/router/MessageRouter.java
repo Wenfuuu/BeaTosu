@@ -52,13 +52,9 @@ public class MessageRouter {
 
     public void cleanupDisconnectedUser(int userId) {
         try {
-            System.out.println("Cleaning up disconnected user: " + userId);
-
             matchService.removeUserFromAllMatches(userId);
             channelService.removeUserFromAllChannels(userId);
             spectateService.removeUserFromAllSpectating(userId);
-
-            System.out.println("Successfully cleaned up disconnected user: " + userId);
         } catch (Exception e) {
             System.err.println("Error cleaning up disconnected user " + userId + ": " + e.getMessage());
             e.printStackTrace();

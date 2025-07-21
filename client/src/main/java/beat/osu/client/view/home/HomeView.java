@@ -352,14 +352,9 @@ public class HomeView extends Page {
                             }
                         }
                         scores = filteredScores;
-                        System.out.println(
-                                "Filtered to " + scores.size() + " local scores for user ID: " + currentUserId);
                     } else {
-                        System.out.println("Fetched " + scores.size() + " global scores for beatmap ID: "
-                                + beatmap.getBeatmapId());
                     }
                 } else {
-                    System.out.println("No scores found for beatmap ID: " + beatmap.getBeatmapId());
                 }
             } else {
                 System.err.println("Failed to fetch scores: " + result.getError().getMessage());
@@ -453,7 +448,6 @@ public class HomeView extends Page {
     }
 
     private void onScoreSelected(ScoreDto score) {
-        System.out.println("Score clicked: " + score.getId());
         scoreOverlay.updateResult(score, beatmapContent.getSelectedBeatmap());
         hideTransition.play();
         hideTransition.setOnFinished(e -> {
@@ -512,7 +506,6 @@ public class HomeView extends Page {
 
         bottomBar.getLogoView().setOnMouseClicked(e -> {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
-            System.out.println("clicking play button");
             Beatmap selectedBeatmap = beatmapContent.getSelectedBeatmap();
             if (selectedBeatmap != null) {
                 BgmManager.getInstance().stopBgm();
@@ -524,7 +517,6 @@ public class HomeView extends Page {
         });
 
         bottomBar.getBackButton().setOnMouseClicked(e -> {
-            System.out.println("Back button clicked");
             if (searchUpdateTimeline != null) {
                 searchUpdateTimeline.stop();
             }
@@ -598,7 +590,6 @@ public class HomeView extends Page {
     private void startGame(Beatmap beatmap) {
         if (beatmap != null) {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
-            System.out.println("Starting game for beatmap: " + beatmap.getBeatmapSet().getTitle());
             BgmManager.getInstance().stopBgm();
             if (searchUpdateTimeline != null) {
                 searchUpdateTimeline.stop();

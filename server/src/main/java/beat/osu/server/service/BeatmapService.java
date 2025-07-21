@@ -92,9 +92,7 @@ public class BeatmapService {
                     request.getLength(),
                     request.getBpm());
 
-            System.out.println("Beatmap Set inserted successfully: " + request.getId());
             String message = "Beatmap set inserted successfully with ID: " + request.getId();
-
             return Result.success(new InsertBeatmapSetResponse(message));
         } catch (SQLException e) {
             if (e.getMessage().startsWith("DUPLICATE_BEATMAP_SET:")) {
@@ -131,9 +129,7 @@ public class BeatmapService {
                     request.getSliderTickRate(),
                     request.getStarRating());
 
-            System.out.println("Beatmap inserted successfully: " + request.getId());
             String message = "Beatmap inserted successfully with ID: " + request.getId();
-
             return Result.success(new InsertBeatmapResponse(message));
         } catch (SQLException e) {
             if (e.getMessage().startsWith("DUPLICATE_BEATMAP:")) {

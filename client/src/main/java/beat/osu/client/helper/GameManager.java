@@ -204,7 +204,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void createGameSession() {
-        System.out.println("Creating game session");
         UserDto user = AuthManager.getUser();
         if (user == null) {
             return;
@@ -212,12 +211,9 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         sessionController.createPlayingBeatmapSession(user.getId(), beatmap.getBeatmapId()).thenApply(response -> {
             if (response.isSuccess()) {
-                System.out.println("Session created successfully: " + response.getValue().getMessage());
                 if (isMultiplayer) {
-                    System.out.println("sending initial match score event");
                     List<MatchPlayerDto> players = matchDto.getPlayers();
                     for (MatchPlayerDto player : players) {
-                        System.out.println("Processing player status: " + player.getStatus());
                         if (player.getStatus() != PlayerStatus.PLAYING)
                             continue;
                         MatchScoreEvent event = new MatchScoreEvent(matchDto.getId(), 0,
@@ -233,7 +229,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void removeGameSession() {
-        System.out.println("Removing game session");
         UserDto user = AuthManager.getUser();
         if (user == null) {
             return;
@@ -241,9 +236,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         sessionController.removePlayingBeatmapSession(user.getId()).thenApply(response -> {
             if (response.isSuccess()) {
-                System.out.println("Session removed successfully: " + response.getValue().getMessage());
-                // notify server that player exit/completed game, that will also send final
-                // match score
                 sendMatchScoreEvent();
             } else {
                 System.err.println("Failed to remove session: " + response.getError().getMessage());
@@ -309,18 +301,15 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 && elapsedMillis - gameStartOffset > firstHitObject.getHitTime()) {
                     lastHpDrainMillis = elapsedMillis;
                     health = Math.max(0, health - beatmap.getHpDrainRate());
-                    System.out.println("draining health, health: " + health);
                     notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
                 }
 
                 if (!bgmStarted && elapsedMillis >= gameStartOffset) {
-                    System.out.println("Starting BGM playback");
                     BgmManager.getInstance().playGameBgm();
                     bgmStarted = true;
                 }
 
                 if (!gameOffsetCompleted && elapsedMillis >= gameStartOffset) {
-                    System.out.println("Game offset completed, notifying listeners");
                     notifyListeners(new GameEvent(GameEventType.GAME_OFFSET_COMPLETED, null));
                     gameOffsetCompleted = true;
                 }
@@ -334,8 +323,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void pauseGame() {
-        System.out.println("pausing game");
-
         pauseStartNanos = System.nanoTime();
         gameState = GameState.PAUSED;
         BgmManager.getInstance().pauseBgm();
@@ -348,9 +335,9 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         SpectateStatusEvent event = new SpectateStatusEvent(true);
         spectateController.notifySpectatorsStatusChange(event).thenApply(response -> {
             if (response.isSuccess()) {
-                System.out.println("Spectate status event sent successfully: " + response.getValue().getMessage());
+                // System.out.println("Spectate status event sent successfully: " + response.getValue().getMessage());
             } else {
-                System.err.println("Failed to send spectate status event: " + response.getError().getMessage());
+                // System.err.println("Failed to send spectate status event: " + response.getError().getMessage());
             }
             return null;
         });
@@ -377,22 +364,20 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         SpectateStatusEvent event = new SpectateStatusEvent(false);
         spectateController.notifySpectatorsStatusChange(event).thenApply(response -> {
             if (response.isSuccess()) {
-                System.out.println("Spectate status event sent successfully: " + response.getValue().getMessage());
+                // System.out.println("Spectate status event sent successfully: " + response.getValue().getMessage());
             } else {
-                System.err.println("Failed to send spectate status event: " + response.getError().getMessage());
+                // System.err.println("Failed to send spectate status event: " + response.getError().getMessage());
             }
             return null;
         });
     }
 
     public void stopGame() {
-        System.out.println("all hit objects processed, stopping game");
         gameState = GameState.COMPLETED;
         gameLoop.stop();
 
         String grade = calculateGrade();
         int performance = calculatePerformance(grade);
-        System.out.println("Game ended with grade: " + grade);
         LocalDateTime now = LocalDateTime.now();
 
         notifyListeners(new GameEvent(GameEventType.GAME_ENDED, new GameEndEvent(
@@ -453,15 +438,13 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
                 if (!userHasPreviousScore) {
                     user.setPerformance(user.getPerformance() + newPerformance);
-                    System.out.println("Added " + newPerformance + " PP (first score on this beatmap)");
                 } else if (newPerformance > previousBestPP) {
                     int ppDifference = newPerformance - previousBestPP;
                     user.setPerformance(user.getPerformance() + ppDifference);
-                    System.out.println("Updated PP by " + ppDifference + " (new best: " + newPerformance
-                            + ", previous best: " + previousBestPP + ")");
-                } else {
-                    System.out.println("No PP change (new: " + newPerformance + ", current best: " + previousBestPP + ")");
-                }
+                } 
+                // else {
+                //     System.out.println("No PP change (new: " + newPerformance + ", current best: " + previousBestPP + ")");
+                // }
 
                 updateUserInDatabase(user);
             } else {
@@ -479,7 +462,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             Result<UpdateUserResponse> response = userController.updateUser(user).get();
             if (response.isSuccess()) {
                 UpdateUserResponse updateResponse = response.getValue();
-                System.out.println(updateResponse.getMessage());
             } else {
                 Toast.error("Failed to update user: " + response.getError().getMessage()).show();
             }
@@ -508,14 +490,10 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void insertScore(int id, String grade, LocalDateTime now) {
-        System.out.println("Inserting score for user: " + id);
         scoreController.insertScore(beatmap.getBeatmapId(), id, score,
                 highestCombo, accuracy, perfectHits, gekiHits, greatHits, greatKatuHits,
                 goodHits, misses, grade, now).thenApply(response -> {
                     if (response.isSuccess()) {
-                        System.out.println("Score inserted successfully: " + response.getValue().getMessage());
-                        // Notify spectators (this will also remove session after notification
-                        // completes)
                         notifySpectatorsPlayerExited();
                     } else {
                         System.err.println("Failed to insert score: " + response.getError().getMessage());
@@ -525,11 +503,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     public void notifySpectatorsPlayerExited() {
-        System.out.println("Notifying spectators that player exited game");
         spectateController.notifySpectatorsPlayerExited().thenApply(response -> {
             if (response.isSuccess()) {
-                System.out.println("Player exit event sent successfully: " + response.getValue().getMessage());
-                // Remove session after notification is complete
                 removeGameSession();
             } else {
                 System.err.println("Failed to send player exit event: " + response.getError().getMessage());
@@ -547,7 +522,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             SfxManager.playBeatmapSfx("failsound.wav");
             notifySpectatorsPlayerExited();
 
-            System.out.println("Game failed, stopping game");
             gameState = GameState.FAILED;
             gameLoop.stop();
             BgmManager.getInstance().stopBgm();
@@ -580,7 +554,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             if (elapsedMillis >= startTime && elapsedMillis <= endTime) {
                 inBreakPeriod = true;
                 if (gameState != GameState.BREAK_PERIOD) {
-                    System.out.println("Entering break period");
                     gameState = GameState.BREAK_PERIOD;
                     notifyListeners(new GameEvent(GameEventType.ENTER_BREAK_PERIOD, null));
                 } else {
@@ -588,7 +561,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                     // check if elapsedMillis has passed half of the break period
                     if (totalBreakTime >= 3000 && elapsedMillis >= startTime + totalBreakTime / 2) {
                         if (!isHalfBreakperiod) {
-                            System.out.println("Half break period reached, notifying listeners");
                             String grade = calculateSectionGrade();
 
                             if (health < 50) {
@@ -603,7 +575,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                     }
 
                     if (elapsedMillis + 1000 >= endTime) {
-                        System.out.println("Exiting break period soon, preparing to resume");
                         if (!isPreExit) {
                             notifyListeners(new GameEvent(GameEventType.PRE_EXIT_BREAK_PERIOD, null));
                             isPreExit = true;
@@ -616,7 +587,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         // Return to playing state if not in break period time
         if (!inBreakPeriod && gameState == GameState.BREAK_PERIOD) {
-            System.out.println("Exiting break period, returning to playing state");
             isHalfBreakperiod = false;
             isPreExit = false;
             gameState = GameState.PLAYING;
@@ -818,7 +788,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                     score, masterComboNumber, highestCombo, accuracy, matchPlayer, AuthManager.getUser());
             matchController.sendMatchScoreEvent(event).thenApply(response -> {
                 if (response.isSuccess()) {
-                    System.out.println("Match score event sent successfully: " + response.getValue().getMessage());
                     // matchScoreEventInProgress = false;
                     if (isMultiplayer && (gameState == GameState.COMPLETED ||
                             gameState == GameState.EXITED))
@@ -844,13 +813,12 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             return;
 
         try {
-            System.out.println("Sending player failed event");
             PlayerFailedEvent event = new PlayerFailedEvent(matchDto.getId(), AuthManager.getUser());
             matchController.sendPlayerFailedEvent(event).thenApply(response -> {
                 if (response.isSuccess()) {
-                    System.out.println("Player failed event sent successfully: " + response.getValue().getMessage());
+                    // System.out.println("Player failed event sent successfully: " + response.getValue().getMessage());
                 } else {
-                    System.err.println("Failed to send player failed event: " + response.getError().getMessage());
+                    // System.err.println("Failed to send player failed event: " + response.getError().getMessage());
                 }
                 return null;
             }).exceptionally(throwable -> {
@@ -868,13 +836,12 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             return;
 
         try {
-            System.out.println("Sending player finished event");
             PlayerFinishedEvent event = new PlayerFinishedEvent(matchDto.getId(), AuthManager.getUser());
             matchController.sendPlayerFinishedEvent(event).thenApply(response -> {
                 if (response.isSuccess()) {
-                    System.out.println("Player finished event sent successfully: " + response.getValue().getMessage());
+                    // System.out.println("Player finished event sent successfully: " + response.getValue().getMessage());
                 } else {
-                    System.err.println("Failed to send player finished event: " + response.getError().getMessage());
+                    // System.err.println("Failed to send player finished event: " + response.getError().getMessage());
                 }
                 return null;
             }).exceptionally(throwable -> {
@@ -1101,7 +1068,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
         // Check for game over (health reaches 0)
         if (health <= 0 && !isFailed) {
-            System.out.println("hp reached 0, stopping game");
             failGame();
         }
     }
@@ -1225,7 +1191,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void onMatchCompletedEvent(MatchCompletedEvent event) {
-        System.out.println("Match completed, notifying view");
         if (gameState == GameState.EXITED)
             return;
         notifyListeners(new GameEvent(GameEventType.MATCH_COMPLETED, multiplayerScores));
@@ -1237,10 +1202,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 System.err.println("Received null match score event or user");
                 return;
             }
-
-            System.out.println("Received match score, user: " + event.getUser().getUsername() +
-                    ", score: " + event.getScore() + ", combo: " + event.getCombo() +
-                    " status: " + event.getMatchPlayer().getStatus());
 
             // Check if multiplayer components are still valid
             if (matchDto == null) {
@@ -1343,7 +1304,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
     @Override
     public void onHit(HitObject hitObject, HitResult result) {
-        System.out.println("on hit");
         notifyHit(hitObject, result);
     }
 
@@ -1368,19 +1328,16 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
     @Override
     public void onSliderTick(HitObject hitObject) {
-        System.out.println("on slider tick");
         notifyHit(hitObject, HitResult.SLIDER_TICK);
     }
 
     @Override
     public void onSliderRepeat(HitObject hitObject) {
-        System.out.println("on slider repeat");
         notifyHit(hitObject, HitResult.SLIDER_REPEAT);
     }
 
     @Override
     public void onSliderEnd(HitObject hitObject) {
-        System.out.println("on slider end");
         notifyHit(hitObject, HitResult.SLIDER_END);
     }
 }

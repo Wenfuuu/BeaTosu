@@ -134,10 +134,7 @@ public class ConfigurationManager {
             orderedProperties.put(key, value);
 
             writeSettingsToFile();
-
-            System.out.println("Updated setting: " + key + " = " + value);
         } catch (Exception e) {
-            System.err.println("Error updating setting " + key + ": " + e.getMessage());
             e.printStackTrace();
         }
     }

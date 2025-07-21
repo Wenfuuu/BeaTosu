@@ -76,8 +76,6 @@ public class InputManager {
     private void handlePlayerInput(Scene scene) {
         scene.setOnKeyPressed(e -> {
             KeyCode keyCode = e.getCode();
-            System.out.println("InputManager - Key pressed: " + keyCode);
-
             if (Objects.requireNonNull(keyCode) == KeyCode.BACK_SPACE) {
                 if (typedChars.length() > 0) {
                     typedChars.deleteCharAt(typedChars.length() - 1);
@@ -87,7 +85,6 @@ public class InputManager {
                 }
             } else if (keyCode == KeyCode.SPACE) {
                 typedChars.append(" ");
-                System.out.println("InputManager - SPACE key added to typedChars: '" + typedChars.toString() + "'");
                 if (!sfxDisabled) {
                     SfxManager.playMenuSfx(SfxType.KEY_PRESS);
                 }

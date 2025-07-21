@@ -550,8 +550,6 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
     private void updateLayout() {
         double paneWidth = root.getWidth();
         double paneHeight = root.getHeight();
-        System.out.println("Pane Width: " + paneWidth);
-        System.out.println("Pane Height: " + paneHeight);
         if (paneWidth <= 0 || paneHeight <= 0) {
             return;
         }
@@ -725,7 +723,6 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
                 break;
             case HEALTH_CHANGED:
                 Double newHealth = event.getData(Double.class);
-                System.out.println("New health: " + newHealth);
                 if (newHealth != null) {
                     uiPane.updateSpectateHealth(newHealth / 100.0);
                 }
@@ -759,7 +756,6 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
                 }
                 break;
             case CURSOR_MOVED:
-                System.out.println("Cursor moved");
                 CursorMoveEvent cursorData = event.getData(CursorMoveEvent.class);
                 if (cursorData != null) {
                     double cursorX = cursorData.getX();
@@ -776,27 +772,21 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
                 sm.stopSpectate();
                 break;
             case ENTER_BREAK_PERIOD:
-                System.out.println("enter break period");
                 enterBreakPeriod();
                 break;
             case EXIT_BREAK_PERIOD:
-                System.out.println("exit break period");
                 exitBreakPeriod();
                 break;
             case PRE_EXIT_BREAK_PERIOD:
-                System.out.println("pre exit break period - showing arrow warning");
                 showArrowWarning();
                 break;
             case SECTION_PASS:
-                System.out.println("section pass - showing section pass effect");
                 showSectionPassEffect();
                 break;
             case SECTION_FAIL:
-                System.out.println("section fail - showing section fail effect");
                 showSectionFailEffect();
                 break;
             case GAME_OFFSET_COMPLETED:
-                System.out.println("game offset completed, decreasing background opacity");
                 exitBreakPeriod();
                 break;
         }
@@ -952,7 +942,6 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
         double refX = (replayX - originalViewportTopLeftX) / originalMasterScaleFactor;
 
         double currentX = currentViewportTopLeftX + (refX * currentMasterScaleFactor);
-        System.out.println("Converted replayY: " + replayX + " to currentY: " + currentX);
 
         return currentX;
     }
@@ -978,7 +967,6 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
         double refY = (replayY - originalViewportTopLeftY) / originalMasterScaleFactor;
 
         double currentY = currentViewportTopLeftY + (refY * currentMasterScaleFactor);
-        System.out.println("Converted replayY: " + replayY + " to currentY: " + currentY);
 
         return currentY;
     }

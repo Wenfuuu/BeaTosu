@@ -32,10 +32,8 @@ public class SessionController {
 
                 Result<?> result = (Result<?>) response;
                 if (result.isSuccess()) {
-                    System.out.println("result success " + result.getValue());
                     return Result.success((GetSessionDataResponse) result.getValue());
                 } else {
-                    System.out.println("result failure " + result.getError().getMessage());
                     return Result.failure(result.getError());
                 }
             } catch (Exception e) {
@@ -54,10 +52,8 @@ public class SessionController {
 
                 Result<?> result = (Result<?>) response;
                 if (result.isSuccess()) {
-                    System.out.println("result success " + result.getValue());
                     return Result.success((CreateSessionDataResponse) result.getValue());
                 } else {
-                    System.out.println("result failure " + result.getError().getMessage());
                     return Result.failure(result.getError());
                 }
             } catch (Exception e) {
@@ -76,10 +72,8 @@ public class SessionController {
 
                 Result<?> result = (Result<?>) response;
                 if (result.isSuccess()) {
-                    System.out.println("result success " + result.getValue());
                     return Result.success((RemoveSessionDataResponse) result.getValue());
                 } else {
-                    System.out.println("result failure " + result.getError().getMessage());
                     return Result.failure(result.getError());
                 }
             } catch (Exception e) {

@@ -175,7 +175,6 @@ public class SpectateController {
                 notifySpectateStatusEvent(event);
             }
         } else if (message.getType() == RealtimeMessageType.PLAYER_EXIT_GAME) {
-            System.out.println("Player exited game notification received");
             if (message.getPayload() instanceof String) {
                 String exitMessage = (String) message.getPayload();
                 notifyPlayerExited(exitMessage);

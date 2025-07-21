@@ -537,8 +537,6 @@ public class GameView extends Page implements GameEventListener {
     private void updateLayout() {
         double paneWidth = root.getWidth();
         double paneHeight = root.getHeight();
-        System.out.println("Pane Width: " + paneWidth);
-        System.out.println("Pane Height: " + paneHeight);
         if (paneWidth <= 0 || paneHeight <= 0) {
             return;
         }
@@ -761,7 +759,6 @@ public class GameView extends Page implements GameEventListener {
                 }
                 break;
             case MATCH_SCORE_CHANGED:
-                System.out.println("Match score changed event received");
                 try {
                     @SuppressWarnings("unchecked")
                     ArrayList<MatchScoreEvent> matchScoreEvents = (ArrayList<MatchScoreEvent>) event
@@ -783,7 +780,6 @@ public class GameView extends Page implements GameEventListener {
                 }
                 break;
             case MATCH_COMPLETED:
-                System.out.println("Match completed event received, showing match results");
                 @SuppressWarnings("unchecked")
                 ArrayList<MatchScoreEvent> matchScores = (ArrayList<MatchScoreEvent>) event.getData(ArrayList.class);
                 if (matchScores != null) {
@@ -799,24 +795,20 @@ public class GameView extends Page implements GameEventListener {
                 });
                 break;
             case GAME_STARTED:
-                System.out.println("resuming all animation");
                 resumeAllAnimations();
                 break;
             case GAME_PAUSED:
-                System.out.println("pausing game, show pause menu here");
                 pauseAllAnimations();
                 pauseOverlay.setVisible(true);
                 inputManager.setSfxDisabled(false);
                 inputManager.clearTypedChars();
                 break;
             case GAME_RESUMED:
-                System.out.println("resuming game, hide pause menu here");
                 resumeAllAnimations();
                 pauseOverlay.setVisible(false);
                 inputManager.setSfxDisabled(true);
                 break;
             case GAME_ENDED:
-                System.out.println("game ended, show result overlay here");
                 GameEndEvent gameEndEvent = event.getData(GameEndEvent.class);
                 this.gameEndEvent = gameEndEvent;
 
@@ -832,31 +824,24 @@ public class GameView extends Page implements GameEventListener {
                 });
                 break;
             case GAME_FAILED:
-                System.out.println("game failed, show fail overlay here");
                 failOverlay.showFailOverlay();
                 break;
             case ENTER_BREAK_PERIOD:
-                System.out.println("enter break period");
                 enterBreakPeriod();
                 break;
             case EXIT_BREAK_PERIOD:
-                System.out.println("exit break period");
                 exitBreakPeriod();
                 break;
             case PRE_EXIT_BREAK_PERIOD:
-                System.out.println("pre exit break period - showing arrow warning");
                 showArrowWarning();
                 break;
             case SECTION_PASS:
-                System.out.println("section pass - showing section pass effect");
                 showSectionPassEffect();
                 break;
             case SECTION_FAIL:
-                System.out.println("section fail - showing section fail effect");
                 showSectionFailEffect();
                 break;
             case GAME_OFFSET_COMPLETED:
-                System.out.println("game offset completed, decreasing background opacity");
                 exitBreakPeriod();
                 break;
         }

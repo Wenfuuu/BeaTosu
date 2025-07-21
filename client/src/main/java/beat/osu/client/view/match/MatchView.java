@@ -225,9 +225,6 @@ public class MatchView extends Page {
                 Toast.error("You cannot spectate yourself!").show();
                 return;
             }
-
-            System.out.println("Player with id " + spectateDto.getPlayingUserId()
-                    + " is playing beatmap with id " + spectateDto.getBeatmapId());
             Beatmap beatmap = fetchBeatmapById(spectateDto.getBeatmapId());
             if (beatmap == null) {
                 Toast.error("You don't have this beatmap").show();
@@ -236,7 +233,7 @@ public class MatchView extends Page {
 
             matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
                 if (result.isSuccess()) {
-                    System.out.println("Successfully updated status to: NOT_READY");
+                    // System.out.println("Successfully updated status to: NOT_READY");
                 } else {
                     Toast.error("Failed to update status: " + result.getError().getMessage()).show();
                 }
@@ -496,7 +493,7 @@ public class MatchView extends Page {
 
         matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
             if (result.isSuccess()) {
-                System.out.println("Successfully updated status to NOT_READY");
+                // System.out.println("Successfully updated status to NOT_READY");
             } else {
                 Toast.error(result.getError().getMessage()).show();
             }
@@ -583,7 +580,7 @@ public class MatchView extends Page {
             if (currentStatus == PlayerStatus.NOT_READY) {
                 matchController.updatePlayerStatus(matchId, PlayerStatus.READY).thenAccept(result -> {
                     if (result.isSuccess()) {
-                        System.out.println("Successfully updated status to: READY");
+                        // System.out.println("Successfully updated status to: READY");
                     } else {
                         Toast.error("Failed to update status: " + result.getError().getMessage()).show();
                     }
@@ -594,7 +591,7 @@ public class MatchView extends Page {
                         case NOT_READY:
                             matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
                                 if (result.isSuccess()) {
-                                    System.out.println("Successfully updated status to: NOT_READY");
+                                    // System.out.println("Successfully updated status to: NOT_READY");
                                 } else {
                                     Toast.error("Failed to update status: " + result.getError().getMessage()).show();
                                 }
@@ -605,9 +602,8 @@ public class MatchView extends Page {
                         case FORCE_START_GAME:
                             matchController.startMatch(matchId).thenApply(response -> {
                                 if (response.isSuccess()) {
-                                    System.out.println("Successfully start match: " + response.getValue().getMessage());
+                                    // System.out.println("Successfully start match: " + response.getValue().getMessage());
                                 } else {
-                                    System.err.println("Failed to start match: " + response.getError().getMessage());
                                     Toast.error("Failed to start match: " + response.getError().getMessage()).show();
                                 }
                                 return null;
@@ -621,7 +617,7 @@ public class MatchView extends Page {
                 } else {
                     matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
                         if (result.isSuccess()) {
-                            System.out.println("Successfully updated status to: NOT_READY");
+                            // System.out.println("Successfully updated status to: NOT_READY");
                         } else {
                             Toast.error("Failed to update status: " + result.getError().getMessage()).show();
                         }
@@ -721,7 +717,6 @@ public class MatchView extends Page {
                     
                     if (result.isSuccess()) {
                         Toast.success("Beatmap updated successfully!").show();
-                        System.out.println("Successfully updated beatmap to: " + selectedBeatmap.getBeatmapSet().getTitle() + " [" + selectedBeatmap.getVersion() + "]");
                     } else {
                         Toast.error(result.getError().getMessage()).show();
                     }
@@ -813,13 +808,10 @@ public class MatchView extends Page {
                     .filter(p -> p.getUserId() == currentUser.getId())
                     .findFirst()
                     .orElse(null);
-            System.out.println("Match started, player status is " + (player != null ? player.getStatus() : "not found"));
             if (player == null) return;
 
             for (MatchPlayerDto matchPlayer : players) {
                 if (matchPlayer.getStatus() == PlayerStatus.READY) matchPlayer.setStatus(PlayerStatus.PLAYING);
-                System.out.println("notifying player status update for user: " + matchPlayer.getUser().getUsername()
-                        + ", status: " + matchPlayer.getStatus());
                 PlayerStatusUpdatedEvent updatedEvent = new PlayerStatusUpdatedEvent(
                         matchId, matchPlayer.getUserId(), matchPlayer.getStatus());
                 onPlayerStatusUpdated(updatedEvent);
@@ -922,7 +914,6 @@ public class MatchView extends Page {
 
     private void onMatchBeatmapUpdated(MatchBeatmapUpdatedEvent event) {
         if (event.getMatchId() == this.matchId) {
-            System.out.println("beatmap updated for this match");
             Platform.runLater(() -> {
                 beatmap = convertBeatmapDtoToBeatmap(event.getNewBeatmapDto());
                 this.isChangingBeatmap = false;
@@ -945,8 +936,6 @@ public class MatchView extends Page {
                             matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
                                 if (!result.isSuccess()) {
                                     System.err.println("Failed to update player status to NOT_READY: " + result.getError().getMessage());
-                                } else {
-                                    System.out.println("Successfully updated player status to NOT_READY");
                                 }
                             });
                         }
@@ -1086,7 +1075,7 @@ public class MatchView extends Page {
         try {
             Result<ChangeMatchSlotResponse> result = matchController.changeMatchSlot(matchId, targetSlotIndex).get();
             if (result.isSuccess()) {
-                System.out.println(result.getValue().getMessage());
+                // System.out.println(result.getValue().getMessage());
             } else {
                 Toast.error("Failed to change slot: " + result.getError().getMessage()).show();
             }
@@ -1112,7 +1101,7 @@ public class MatchView extends Page {
                     Result<UpdateMatchNameResponse> result = matchController.updateMatchName(matchId, newGameName).get();
 
                     if (result.isSuccess()) {
-                        System.out.println(result.getValue().getMessage());
+                        // System.out.println(result.getValue().getMessage());
                     } else {
                         Toast.error("Failed to update match password: " + result.getError().getMessage()).show();
                     }
@@ -1128,13 +1117,12 @@ public class MatchView extends Page {
 
             winConditionComboBox.setOnAction(e -> {
                 SfxManager.playMenuSfx(SfxType.MENU_HIT);
-                System.out.println("Win condition changed to: " + winConditionComboBox.getValue());
                 try {
                     MatchWinCondition newWinCondition = MatchWinCondition.fromString(winConditionComboBox.getValue());
                     Result<UpdateMatchWinConditionResponse> result = matchController.updateMatchWinCondition(matchId, newWinCondition).get();
 
                     if (result.isSuccess()) {
-                        System.out.println(result.getValue().getMessage());
+                        // System.out.println(result.getValue().getMessage());
                     } else {
                         Toast.error("Failed to update match win condition: " + result.getError().getMessage()).show();
                     }
@@ -1314,12 +1302,7 @@ public class MatchView extends Page {
 
                 String expectedDirName = String.format("%d", beatmapDto.getBeatmapSetId());
 
-                for (String dir : validBeatmapDirs) {
-                    System.out.println("Found directory: " + dir);
-                }
-
                 if (!validBeatmapDirs.contains(expectedDirName)) {
-                    System.out.println("Beatmap directory not found in temp directory: " + expectedDirName);
                     return null;
                 }
 

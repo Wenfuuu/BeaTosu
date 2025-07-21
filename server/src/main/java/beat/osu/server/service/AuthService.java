@@ -81,7 +81,6 @@ public class AuthService {
                 return Result.failure(Error.validation("This account is already logged in!"));
             }
 
-            System.out.println("Client " + clientId + " logged in as user: " + user.getUsername());
             sessionService.setSessionData(clientId, "userId", user.getId());
 
             String message = "Successfully logged in as " + user.getUsername() + "!";

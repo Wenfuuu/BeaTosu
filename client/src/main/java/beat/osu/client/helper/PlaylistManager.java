@@ -50,7 +50,6 @@ public class PlaylistManager implements SongEventPublisher {
         try {
             fullPlaylist.clear();
             fullPlaylist.addAll(BeatmapUtils.getBeatmapSongs());
-            System.out.println("Initialized playlist with " + fullPlaylist.size() + " songs");
         } catch (Exception e) {
             System.err.println("Failed to initialize playlist: " + e.getMessage());
         }

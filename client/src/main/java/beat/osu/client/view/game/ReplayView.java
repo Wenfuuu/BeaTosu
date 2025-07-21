@@ -501,8 +501,6 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
     private void updateLayout() {
         double paneWidth = root.getWidth();
         double paneHeight = root.getHeight();
-        System.out.println("Pane Width: " + paneWidth);
-        System.out.println("Pane Height: " + paneHeight);
         if (paneWidth <= 0 || paneHeight <= 0) {
             return;
         }
@@ -718,15 +716,12 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
                 }
                 break;
             case REPLAY_STARTED:
-                System.out.println("Replay started");
                 break;
             case REPLAY_PAUSED:
-                System.out.println("Replay paused");
                 pauseAllAnimations();
                 pauseOverlay.setVisible(true);
                 break;
             case REPLAY_RESUMED:
-                System.out.println("Replay resumed");
                 resumeAllAnimations();
                 pauseOverlay.setVisible(false);
                 break;
@@ -734,7 +729,6 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
                 ViewManager.getInstance().showHomeView();
                 break;
             case CURSOR_MOVED:
-                System.out.println("Cursor moved");
                 CursorMoveEvent cursorData = event.getData(CursorMoveEvent.class);
                 if (cursorData != null) {
                     double cursorX = cursorData.getX();
@@ -748,27 +742,21 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
                 }
                 break;
             case ENTER_BREAK_PERIOD:
-                System.out.println("enter break period");
                 enterBreakPeriod();
                 break;
             case EXIT_BREAK_PERIOD:
-                System.out.println("exit break period");
                 exitBreakPeriod();
                 break;
             case PRE_EXIT_BREAK_PERIOD:
-                System.out.println("pre exit break period - showing arrow warning");
                 showArrowWarning();
                 break;
             case SECTION_PASS:
-                System.out.println("section pass - showing section pass effect");
                 showSectionPassEffect();
                 break;
             case SECTION_FAIL:
-                System.out.println("section fail - showing section fail effect");
                 showSectionFailEffect();
                 break;
             case GAME_OFFSET_COMPLETED:
-                System.out.println("game offset completed, decreasing background opacity");
                 exitBreakPeriod();
                 break;
         }
@@ -795,7 +783,6 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
         double refX = (replayX - originalViewportTopLeftX) / originalMasterScaleFactor;
 
         double currentX = currentViewportTopLeftX + (refX * currentMasterScaleFactor);
-        System.out.println("Converted replayY: " + replayX + " to currentY: " + currentX);
 
         return currentX;
     }
@@ -821,7 +808,6 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
         double refY = (replayY - originalViewportTopLeftY) / originalMasterScaleFactor;
 
         double currentY = currentViewportTopLeftY + (refY * currentMasterScaleFactor);
-        System.out.println("Converted replayY: " + replayY + " to currentY: " + currentY);
 
         return currentY;
     }

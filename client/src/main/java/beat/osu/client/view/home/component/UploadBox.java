@@ -142,7 +142,6 @@ public class UploadBox extends VBox {
                         File tempDir = ResourceManager.getBeatmapDirectory();
                         File outputDir = new File(tempDir, beatmapSetId);
 
-                        System.out.println("extracting beatmap set id: " + beatmapSetId);
                         OszExtractor.extractOsz(file, outputDir);
                         // parse all .osu file in temp folder & insert db
                         File[] files = outputDir.listFiles();
@@ -164,7 +163,6 @@ public class UploadBox extends VBox {
                                 Files.move(detectedAudioFile.toPath(), renamedAudioFile.toPath(),
                                         StandardCopyOption.REPLACE_EXISTING);
                             } catch (IOException e) {
-                                System.out.println("Failed to rename audio file.");
                                 e.printStackTrace();
                             }
                         }
@@ -215,7 +213,6 @@ public class UploadBox extends VBox {
                             }
                         }
                     } catch (IOException e) {
-                        System.out.println("Failed to copy: " + file.getName());
                         throw new RuntimeException(e);
                     }
 

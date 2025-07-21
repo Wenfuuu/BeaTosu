@@ -77,7 +77,6 @@ public class ScoreService {
                     request.getGrade(),
                     request.getDate());
 
-            System.out.println("Score inserted successfully for user ID: " + request.getUserId());
             String message = "Score inserted successfully for user ID: " + request.getUserId() + " on beatmap ID: "
                     + request.getBeatmapId();
             return Result.success(new InsertScoreResponse(message));

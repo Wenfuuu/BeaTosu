@@ -74,8 +74,6 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     private void updateMousePosition(double x, double y) {
         this.currentMouseX = coordinateConverter.convertReplayMouseX(x);
         this.currentMouseY = coordinateConverter.convertReplayMouseY(y);
-        System.out.println("ReplayManager: Original coordinates X=" + x + ", Y=" + y);
-        System.out.println("ReplayManager: Converted coordinates X=" + currentMouseX + ", Y=" + currentMouseY);
         notifyListeners(new GameEvent(GameEventType.CURSOR_MOVED, new CursorMoveEvent(currentMouseX, currentMouseY)));
     }
 
@@ -130,7 +128,6 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
                 && elapsedMillis - replayStartOffset > firstHitObject.getHitTime()) {
                     lastHpDrainMillis = elapsedMillis;
                     health = Math.max(0, health - beatmap.getHpDrainRate());
-                    System.out.println("draining health, health: " + health);
                     notifyListeners(new GameEvent(GameEventType.HEALTH_CHANGED, health));
                 }
 
@@ -139,9 +136,7 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
                     bgmStarted = true;
                 }
 
-                System.out.println("Elapsed replay millis: " + elapsedMillis);
                 if (!replayOffsetCompleted && elapsedMillis >= replayStartOffset) {
-                    System.out.println("Replay offset completed, notifying listeners");
                     notifyListeners(new GameEvent(GameEventType.GAME_OFFSET_COMPLETED, null));
                     replayOffsetCompleted = true;
                 }
@@ -183,7 +178,6 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
     }
 
     private void updateReplay(long elapsedMillis) {
-        System.out.println("Updating replay, elapsed millis: " + elapsedMillis);
         Set<KeyCode> currentKeys = inputManager.getPressedKeys();
         boolean pressedEsc = currentKeys.contains(KeyCode.ESCAPE);
 
@@ -194,7 +188,6 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
             if (elapsedMillis >= startTime && elapsedMillis <= endTime) {
                 inBreakPeriod = true;
                 if (gameState != GameState.BREAK_PERIOD) {
-                    System.out.println("Entering break period");
                     gameState = GameState.BREAK_PERIOD;
                     notifyListeners(new GameEvent(GameEventType.ENTER_BREAK_PERIOD, null));
                 } else {
@@ -202,8 +195,6 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
                     // check if elapsedMillis has passed half of the break period
                     if (totalBreakTime >= 3000 && elapsedMillis >= startTime + totalBreakTime / 2) {
                         if (!isHalfBreakperiod) {
-                            System.out.println("Half break period reached, notifying listeners");
-
                             if (health < 50) {
                                 SfxManager.playBeatmapSfx("sectionfail.wav");
                                 notifyListeners(new GameEvent(GameEventType.SECTION_FAIL, null));
@@ -216,7 +207,6 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
                     }
 
                     if (elapsedMillis + 1000 >= endTime) {
-                        System.out.println("Exiting break period soon, preparing to resume");
                         if (!isPreExit) {
                             notifyListeners(new GameEvent(GameEventType.PRE_EXIT_BREAK_PERIOD, null));
                             isPreExit = true;
@@ -228,7 +218,6 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
         }
 
         if (!inBreakPeriod && gameState == GameState.BREAK_PERIOD) {
-            System.out.println("Exiting break period, returning to playing state");
             isHalfBreakperiod = false;
             isPreExit = false;
             gameState = GameState.PLAYING;
@@ -244,7 +233,6 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
         }
 
         if (replayState != ReplayState.PLAYING) {
-            System.out.println("Replay state is not PLAYING, returning");
             return;
         }
 
@@ -296,8 +284,6 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
 
         // Process all replay events that should have occurred by now
         while (currentReplayEventIndex < replayEvents.size()) {
-            System.out.println("current replay event index: " + currentReplayEventIndex);
-            System.out.println("accumulated replay time: " + accumulatedReplayTime);
             ReplayEvent event = replayEvents.get(currentReplayEventIndex);
 
             // Calculate the time for this event FIRST
@@ -331,11 +317,9 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
             // Detect key press events (transition from not pressed to pressed)
             if (key1Pressed && !wasKey1Pressed) {
                 keyPressed = true;
-                System.out.println("Key 1 pressed at time: " + elapsedMillis);
             }
             if (key2Pressed && !wasKey2Pressed) {
                 keyPressed = true;
-                System.out.println("Key 2 pressed at time: " + elapsedMillis);
             }
 
             // Update previous key states
@@ -646,7 +630,6 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
 
     @Override
     public void onHit(HitObject hitObject, HitResult result) {
-        System.out.println("on hit");
         notifyHit(hitObject, result);
     }
 
@@ -672,19 +655,16 @@ public class ReplayManager implements GameEventPublisher, HitObjectListener {
 
     @Override
     public void onSliderTick(HitObject hitObject) {
-        System.out.println("on slider tick");
         notifyHit(hitObject, HitResult.SLIDER_TICK);
     }
 
     @Override
     public void onSliderRepeat(HitObject hitObject) {
-        System.out.println("on slider repeat");
         notifyHit(hitObject, HitResult.SLIDER_REPEAT);
     }
 
     @Override
     public void onSliderEnd(HitObject hitObject) {
-        System.out.println("on slider end");
         notifyHit(hitObject, HitResult.SLIDER_END);
     }
 }

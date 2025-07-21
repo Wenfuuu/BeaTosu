@@ -126,7 +126,6 @@ public class BackgroundManager {
     }
 
     public static void setGameBackground(Scene scene) {
-        System.out.println("setting game background");
         Beatmap beatmap = OsuParser.getCurrentBeatmap();
         String gameBg = OsuParser.getBgFile();
 
@@ -188,8 +187,6 @@ public class BackgroundManager {
                             )
                     )
             ));
-            
-            System.out.println("Modal beatmap background set successfully for: " + beatmapBg);
         } catch (Exception e) {
             System.err.println("Error setting modal beatmap background: " + e.getMessage());
             e.printStackTrace();

@@ -251,13 +251,10 @@ public class SettingsModal extends StackPane {
 
         this.setOnKeyPressed(event -> {
             SfxManager.playMenuSfx(SfxType.KEY_PRESS);
-
-            System.out.println("Key pressed: " + event.getCode());
             if (currentKeybindButton != null) {
                 currentKeybindButton.getStyleClass().remove("keybind-button-waiting");
                 if (!event.getCode().isLetterKey()) {
                     resetKeybindButton(currentKeybindButton);
-                    System.out.println("Only letters are allowed for keybinds");
                     Toast.error("Only letters are allowed for keybinds").show();
                     return;
                 }
@@ -265,7 +262,6 @@ public class SettingsModal extends StackPane {
                 if (currentKeybindButton == leftClickKeybind) {
                     if (event.getCode() == InputManager.getKeybind2()) {
                         resetKeybindButton(currentKeybindButton);
-                        System.out.println("This key is already bound to another action");
                         Toast.error("This key is already bound to another action").show();
                         return;
                     }
@@ -273,7 +269,6 @@ public class SettingsModal extends StackPane {
                 } else if (currentKeybindButton == rightClickKeybind) {
                     if (event.getCode() == InputManager.getKeybind1()) {
                         resetKeybindButton(currentKeybindButton);
-                        System.out.println("This key is already bound to another action");
                         Toast.error("This key is already bound to another action").show();
                         return;
                     }
@@ -304,7 +299,6 @@ public class SettingsModal extends StackPane {
             SfxManager.playMenuSfx(SfxType.MENU_HIT);
             boolean ignoreHitsounds = ignoreBeatmapHitsoundsCheckBox.isSelected();
             SfxManager.setIgnoreBeatmapSFX(ignoreHitsounds);
-            System.out.println("Ignore beatmap hitsounds: " + ignoreHitsounds);
         });
 
         backButton.setOnMouseClicked(e -> hide());

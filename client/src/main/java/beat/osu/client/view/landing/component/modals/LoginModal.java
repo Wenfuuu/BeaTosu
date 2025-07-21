@@ -224,7 +224,6 @@ public class LoginModal extends StackPane {
                         Platform.runLater(() -> {
                             if (result.isSuccess()) {
                                 LoginResponse response = result.getValue();
-                                System.out.println(response.getMessage());
 
                                 AuthManager.setUser(result.getValue().getUser());
                                 topBar.updateUserInfo(result.getValue().getUser());

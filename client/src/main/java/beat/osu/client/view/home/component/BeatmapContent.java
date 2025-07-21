@@ -263,7 +263,6 @@ public class BeatmapContent extends ScrollPane {
             } else if (onBeatmapSelectedCallback != null) {
                 onBeatmapSelectedCallback.accept(selectedBeatmap);
             } else {
-                System.out.println("Warning: no beatmap selection callbacks are set!");
             }
             
             for (BeatmapCard card : renderedCards.values()) {
@@ -281,10 +280,6 @@ public class BeatmapContent extends ScrollPane {
                 ));
                 delayedEffect.play();
             });
-        } else {
-            System.out.println("Skipping initial selection - isEmpty: " + filteredBeatmaps.isEmpty() + 
-                             ", selectedBeatmap null: " + (selectedBeatmap == null) + 
-                             ", already triggered: " + hasTriggeredInitialSelection);
         }
     }
     

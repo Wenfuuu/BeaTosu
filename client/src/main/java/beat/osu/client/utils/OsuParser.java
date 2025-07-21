@@ -115,8 +115,8 @@ public class OsuParser {
                 creator, timeString, getBPM()).thenApply(
                         response -> {
                             if (response.isSuccess()) {
-                                System.out.println(
-                                        "Beatmap set inserted successfully: " + response.getValue().getMessage());
+                                // System.out.println(
+                                //         "Beatmap set inserted successfully: " + response.getValue().getMessage());
                             } else {
                                 String errorMessage = response.getError().getMessage();
                                 System.err.println("Failed to insert beatmap set: " + errorMessage);
@@ -152,8 +152,8 @@ public class OsuParser {
                 slideMultiplier, sliderTickRate, starRating).thenApply(
                         response -> {
                             if (response.isSuccess()) {
-                                System.out
-                                        .println("Beatmap inserted successfully: " + response.getValue().getMessage());
+                                // System.out
+                                //         .println("Beatmap inserted successfully: " + response.getValue().getMessage());
                             } else {
                                 String errorMessage = response.getError().getMessage();
                                 System.err.println("Failed to insert beatmap: " + errorMessage);

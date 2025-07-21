@@ -52,13 +52,10 @@ public class SessionService {
             return Result.failure(Error.badRequest("Create session data is missing"));
         }
 
-        System.out.println("Current sessions count: " + sessions.size());
-
         setSessionData(clientId, request.getKey(), request.getValue());
 
         String message = "Session created successfully for client ID: " + clientId + " with key: " + request.getKey()
                 + " and value: " + request.getValue();
-        System.out.println(message);
         return Result.success(new CreateSessionDataResponse(message));
     }
 
@@ -70,7 +67,6 @@ public class SessionService {
         removeSessionValue(clientId, request.getKey());
 
         String message = "Session removed successfully for client ID: " + clientId + " with key: " + request.getKey();
-        System.out.println(message);
         return Result.success(new RemoveSessionDataResponse(message));
     }
 
@@ -91,22 +87,17 @@ public class SessionService {
     }
 
     public String getClientIdByUserId(Integer userId) {
-        System.out.println("Looking up clientId for userId: " + userId);
-
         for (Map.Entry<String, Map<String, Object>> entry : sessions.entrySet()) {
             String clientId = entry.getKey();
             Map<String, Object> sessionData = entry.getValue();
 
             if (sessionData == null) {
-                System.out.println("Session data is null for clientId: " + clientId);
                 continue;
             }
 
             Integer sessionUserId = (Integer) sessionData.get("userId");
-            System.out.println("Checking clientId: " + clientId + " with userId: " + sessionUserId);
 
             if (sessionUserId != null && sessionUserId.equals(userId)) {
-                System.out.println("Found match! ClientId: " + clientId + " for userId: " + userId);
                 return clientId;
             }
         }

@@ -130,8 +130,6 @@ public class SubMenuButtons extends VBox {
                         bounceBack.setFromX(button.getTranslateX());
                         hoverOutTransition.play();
                     });
-                } else {
-                    System.out.println("Hovered image not found: " + hoveredImagePath + " (using normal image only)");
                 }
             }
         } catch (Exception e) {
