@@ -102,7 +102,6 @@ public class ResourceManager {
     public static String extractResourceToTempAndGetPath(String resourcePath, String fileName) {
         try (InputStream inputStream = getResourceAsStream(resourcePath)) {
             if (inputStream == null) {
-                System.err.println("Resource not found: " + resourcePath);
                 return null;
             }
 
@@ -114,7 +113,6 @@ public class ResourceManager {
 
             return extractedFile.getAbsolutePath();
         } catch (IOException e) {
-            System.err.println("Failed to extract resource " + resourcePath + " to temp directory: " + e.getMessage());
             e.printStackTrace();
             return null;
         }

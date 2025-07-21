@@ -51,7 +51,7 @@ public class PlaylistManager implements SongEventPublisher {
             fullPlaylist.clear();
             fullPlaylist.addAll(BeatmapUtils.getBeatmapSongs());
         } catch (Exception e) {
-            System.err.println("Failed to initialize playlist: " + e.getMessage());
+            // System.err.println("Failed to initialize playlist: " + e.getMessage());
         }
     }
 
@@ -154,7 +154,7 @@ public class PlaylistManager implements SongEventPublisher {
             BgmManager.getInstance().playAudio(nextSong.getAudioPath());
             setCurrentSong(nextSong);
         } else {
-            System.err.println("No next song available in playlist");
+            // System.err.println("No next song available in playlist");
         }
     }
 
@@ -164,14 +164,13 @@ public class PlaylistManager implements SongEventPublisher {
             BgmManager.getInstance().playAudio(previousSong.getAudioPath());
             setCurrentSong(previousSong);
         } else {
-            System.err.println("No previous song available in playlist");
+            // System.err.println("No previous song available in playlist");
         }
     }
 
     public void playRandomSong() {
         List<Song> playlist = getCurrentPlaylist();
         if (playlist.isEmpty()) {
-            System.err.println("No songs available in playlist");
             return;
         }
         

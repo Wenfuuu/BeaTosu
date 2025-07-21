@@ -264,7 +264,7 @@ public class ChatController {
             try {
                 callback.accept(channel);
             } catch (Exception e) {
-                System.err.println("Error in channel added callback: " + e.getMessage());
+                // System.err.println("Error in channel added callback: " + e.getMessage());
             }
         }
     }
@@ -274,7 +274,7 @@ public class ChatController {
             try {
                 callback.accept(channelId);
             } catch (Exception e) {
-                System.err.println("Error in channel removed callback: " + e.getMessage());
+                // System.err.println("Error in channel removed callback: " + e.getMessage());
             }
         }
     }
@@ -284,7 +284,7 @@ public class ChatController {
             try {
                 callback.accept(privateChat);
             } catch (Exception e) {
-                System.err.println("Error in private chat added callback: " + e.getMessage());
+                // System.err.println("Error in private chat added callback: " + e.getMessage());
             }
         }
     }
@@ -294,7 +294,7 @@ public class ChatController {
             try {
                 callback.accept(otherUserId);
             } catch (Exception e) {
-                System.err.println("Error in private chat removed callback: " + e.getMessage());
+                // System.err.println("Error in private chat removed callback: " + e.getMessage());
             }
         }
     }
@@ -304,7 +304,7 @@ public class ChatController {
             try {
                 callback.accept(channelId);
             } catch (Exception e) {
-                System.err.println("Error in channel messages updated callback: " + e.getMessage());
+                // System.err.println("Error in channel messages updated callback: " + e.getMessage());
             }
         }
     }
@@ -314,7 +314,7 @@ public class ChatController {
             try {
                 callback.accept(otherUserId);
             } catch (Exception e) {
-                System.err.println("Error in private chat messages updated callback: " + e.getMessage());
+                // System.err.println("Error in private chat messages updated callback: " + e.getMessage());
             }
         }
     }
@@ -324,7 +324,7 @@ public class ChatController {
             try {
                 callback.run();
             } catch (Exception e) {
-                System.err.println("Error in joined channels updated callback: " + e.getMessage());
+                // System.err.println("Error in joined channels updated callback: " + e.getMessage());
             }
         }
     }

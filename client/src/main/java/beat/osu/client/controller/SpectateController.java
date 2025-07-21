@@ -187,7 +187,7 @@ public class SpectateController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in spectate event callback: " + e.getMessage());
+                // System.err.println("Error in spectate event callback: " + e.getMessage());
             }
         }
     }
@@ -197,7 +197,7 @@ public class SpectateController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in spectate status event callback: " + e.getMessage());
+                // System.err.println("Error in spectate status event callback: " + e.getMessage());
             }
         }
     }
@@ -207,7 +207,7 @@ public class SpectateController {
             try {
                 callback.accept(message);
             } catch (Exception e) {
-                System.err.println("Error in player exited callback: " + e.getMessage());
+                // System.err.println("Error in player exited callback: " + e.getMessage());
             }
         }
     }

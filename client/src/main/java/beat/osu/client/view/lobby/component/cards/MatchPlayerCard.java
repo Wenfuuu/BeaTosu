@@ -85,8 +85,6 @@ public class MatchPlayerCard extends VBox {
         URL cssUrl = CssManager.getLobbyCssURL("MatchPlayerCard.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file not found!");
         }
     }
 
@@ -100,7 +98,6 @@ public class MatchPlayerCard extends VBox {
                     Main.class.getResource("/assets/images/misc/avatar-guest.png")).toExternalForm());
             profileImageView.setImage(defaultImage);
         } catch (Exception e) {
-            System.err.println("Could not load default avatar: " + e.getMessage());
             profileImageView.setImage(null);
         }
     }
@@ -113,7 +110,6 @@ public class MatchPlayerCard extends VBox {
                     Image userImage = new Image(bis);
                     profileImageView.setImage(userImage);
                 } catch (Exception e) {
-                    System.err.println("Could not load user profile picture: " + e.getMessage());
                     setDefaultProfilePicture();
                 }
             } else {

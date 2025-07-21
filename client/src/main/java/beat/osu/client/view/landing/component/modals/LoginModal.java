@@ -74,15 +74,11 @@ public class LoginModal extends StackPane {
         URL globalCssUrl = CssManager.getGlobalCssURL();
         if (globalCssUrl != null) {
             this.getStylesheets().add(globalCssUrl.toExternalForm());
-        } else {
-            System.err.println("Global css file not found!");
         }
 
         URL cssUrl = CssManager.getLandingCssURL("LoginModal.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("LoginModal.css file not found!");
         }
 
         this.setVisible(false);

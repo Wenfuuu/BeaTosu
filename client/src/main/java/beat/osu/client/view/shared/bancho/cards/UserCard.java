@@ -224,15 +224,11 @@ public class UserCard extends HBox {
         URL globalCssUrl = CssManager.getGlobalCssURL();
         if (globalCssUrl != null) {
             this.getStylesheets().add(globalCssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file not found!");
         }
 
         URL cssUrl = CssManager.getSharedCssURL("UserCard.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file not found!");
         }
     }
 
@@ -242,7 +238,6 @@ public class UserCard extends HBox {
                     Main.class.getResource("/assets/images/misc/avatar-guest.png")).toExternalForm());
             profileImageView.setImage(defaultImage);
         } catch (Exception e) {
-            System.err.println("Could not load default avatar: " + e.getMessage());
             profileImageView.setImage(null);
         }
     }
@@ -255,7 +250,6 @@ public class UserCard extends HBox {
             gamemodeImageView.setFitHeight(40);
             gamemodeImageView.setFitWidth(40);
         } catch (Exception e) {
-            System.err.println("Could not load gamemode icon: " + e.getMessage());
             gamemodeImageView.setImage(null);
         }
     }
@@ -308,7 +302,6 @@ public class UserCard extends HBox {
                 Image userImage = new Image(bis);
                 profileImageView.setImage(userImage);
             } catch (Exception e) {
-                System.err.println("Could not load user profile picture: " + e.getMessage());
                 setDefaultProfilePicture();
             }
         } else {

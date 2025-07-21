@@ -121,8 +121,6 @@ public class GameView extends Page implements GameEventListener {
         URL globalCssUrl = CssManager.getGlobalCssURL();
         if (globalCssUrl != null) {
             scene.getStylesheets().add(globalCssUrl.toExternalForm());
-        } else {
-            System.err.println("Css file not found!");
         }
 
         gm.startGame();
@@ -528,7 +526,6 @@ public class GameView extends Page implements GameEventListener {
         try {
             BackgroundManager.setGameBackground(scene);
         } catch (Exception e) {
-            System.err.println("Error setting background for HomeView: " + e.getMessage());
             e.printStackTrace();
             root.setStyle("-fx-background-color: #121212;");
         }
@@ -769,13 +766,11 @@ public class GameView extends Page implements GameEventListener {
                                 matchScoreContent.populateScores(matchScoreEvents);
                                 // optional animation later
                             } catch (Exception e) {
-                                System.err.println("Error updating match score content: " + e.getMessage());
                                 e.printStackTrace();
                             }
                         });
                     }
                 } catch (Exception e) {
-                    System.err.println("Error processing match score changed event: " + e.getMessage());
                     e.printStackTrace();
                 }
                 break;

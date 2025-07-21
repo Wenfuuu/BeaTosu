@@ -187,7 +187,7 @@ public class ChannelController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in channel message callback: " + e.getMessage());
+                // System.err.println("Error in channel message callback: " + e.getMessage());
             }
         }
     }
@@ -197,7 +197,7 @@ public class ChannelController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in user joined channel callback: " + e.getMessage());
+                // System.err.println("Error in user joined channel callback: " + e.getMessage());
             }
         }
     }
@@ -207,7 +207,7 @@ public class ChannelController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in user left channel callback: " + e.getMessage());
+                // System.err.println("Error in user left channel callback: " + e.getMessage());
             }
         }
     }

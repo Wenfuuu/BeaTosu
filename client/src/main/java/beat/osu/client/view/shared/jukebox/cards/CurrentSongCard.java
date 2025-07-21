@@ -37,15 +37,11 @@ public class CurrentSongCard extends StackPane {
         URL globalCssUrl = CssManager.getGlobalCssURL();
         if (globalCssUrl != null) {
             this.getStylesheets().add(globalCssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file not found!");
         }
 
         URL cssUrl = CssManager.getSharedCssURL("CurrentSongCard.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("Css file not found!");
         }
     }
 
@@ -71,7 +67,7 @@ public class CurrentSongCard extends StackPane {
                 contentBox.setBackground(new Background(bgImage));
             }
         } catch (Exception e) {
-            System.err.println("Failed to load background image: " + e.getMessage());
+            // System.err.println("Failed to load background image: " + e.getMessage());
         }
 
         contentBox.getStyleClass().add("current-song-box");

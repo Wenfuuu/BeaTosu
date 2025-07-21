@@ -252,7 +252,6 @@ public class BeatmapCard extends StackPane {
             gamemodeImageView.setFitHeight(32);
             gamemodeImageView.setFitWidth(32);
         } catch (Exception e) {
-            System.err.println("Could not load gamemode icon: " + e.getMessage());
             gamemodeImageView.setImage(null);
         }
 
@@ -299,8 +298,6 @@ public class BeatmapCard extends StackPane {
         URL cssUrl = CssManager.getMatchCssURL("BeatmapCard.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file not found!");
         }
     }
 

@@ -74,13 +74,7 @@ public class BackgroundManager {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Failed to load background images: " + e.getMessage());
-        }
-
-        if (backgroundFiles.isEmpty()) {
-            System.err.println("No background images found in: " + BACKGROUNDS_DIR);
-        } else {
-            System.out.println("Loaded " + backgroundFiles.size() + " background images");
+            // System.err.println("Failed to load background images: " + e.getMessage());
         }
     }
 
@@ -114,7 +108,6 @@ public class BackgroundManager {
         String randomBg = getRandomBackgroundURL();
         URL imageUrl = Main.class.getResource(BACKGROUNDS_DIR + randomBg);
         if (imageUrl == null) {
-            System.err.println("Background image not found: " + randomBg);
             return;
         }
 
@@ -143,20 +136,17 @@ public class BackgroundManager {
 
             scene.getRoot().setStyle(backgroundStyle);
         } catch (Exception e) {
-            System.err.println("Error setting background image: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     public static void setModalBeatmapBackground(Region backgroundLayer, Beatmap beatmap) {
         if (backgroundLayer == null || beatmap == null) {
-            System.err.println("Background layer or beatmap is null");
             return;
         }
 
         String beatmapBg = OsuParser.getBgFile();
         if (beatmapBg == null || beatmapBg.isEmpty()) {
-            System.err.println("No background file found for the beatmap.");
             return;
         }
 
@@ -166,7 +156,6 @@ public class BackgroundManager {
             File imageFile = new File(beatmapDir, beatmapBg);
             
             if (!imageFile.exists()) {
-                System.err.println("Background image not found: " + imageFile.getAbsolutePath());
                 return;
             }
 
@@ -188,7 +177,6 @@ public class BackgroundManager {
                     )
             ));
         } catch (Exception e) {
-            System.err.println("Error setting modal beatmap background: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -200,7 +188,6 @@ public class BackgroundManager {
 
     private static void updateOverlaySmooth(Scene scene) {
         if (!(scene.getRoot() instanceof StackPane)) {
-            System.err.println("Root is not a StackPane, cannot apply overlay");
             return;
         }
 

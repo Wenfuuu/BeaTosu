@@ -194,8 +194,6 @@ public class HitCountsPanel extends VBox {
         URL cssUrl = CssManager.getGameCssURL("HitCountsPanel.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("HitCountsPanel CSS file not found!");
         }
     }
 

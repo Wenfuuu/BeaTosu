@@ -84,7 +84,6 @@ public class BeatmapCard extends StackPane {
             this.beatmapBgPath = getBgImagePath(beatmap.getBeatmapSetId(), OsuParser.getBgFile());
             setupAvailableMapUI();
         } catch (IOException e) {
-            System.err.println("Error parsing beatmap: " + e.getMessage());
             setupFallbackUI();
         }
     }
@@ -144,7 +143,6 @@ public class BeatmapCard extends StackPane {
             gamemodeImageView.setFitHeight(32);
             gamemodeImageView.setFitWidth(32);
         } catch (Exception e) {
-            System.err.println("Could not load gamemode icon: " + e.getMessage());
             gamemodeImageView.setImage(null);
         }
 
@@ -287,8 +285,6 @@ public class BeatmapCard extends StackPane {
         URL cssUrl = CssManager.getHomeCssURL("BeatmapCard.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("BeatmapCard CSS file not found!");
         }
     }
 

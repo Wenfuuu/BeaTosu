@@ -73,7 +73,7 @@ public class ProfileModal extends VBox {
                 this.getStylesheets().add(cssUrl.toExternalForm());
             }
         } catch (Exception e) {
-            System.err.println("Could not load ProfileModal CSS: " + e.getMessage());
+            // System.err.println("Could not load ProfileModal CSS: " + e.getMessage());
         }
     }
 

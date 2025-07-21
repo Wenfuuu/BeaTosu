@@ -129,8 +129,6 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
         URL globalCssUrl = CssManager.getGlobalCssURL();
         if (globalCssUrl != null) {
             scene.getStylesheets().add(globalCssUrl.toExternalForm());
-        } else {
-            System.err.println("Css file not found!");
         }
 
         rm.startReplay();
@@ -492,7 +490,6 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
         try {
             BackgroundManager.setGameBackground(scene);
         } catch (Exception e) {
-            System.err.println("Error setting background for HomeView: " + e.getMessage());
             e.printStackTrace();
             root.setStyle("-fx-background-color: #121212;");
         }
@@ -824,8 +821,6 @@ public class ReplayView extends Page implements GameEventListener, CoordinateCon
                 String username = "Guest";
                 if (result.isSuccess()) {
                     username = result.getValue().getUsername();
-                } else {
-                    System.err.println("Failed to fetch username: " + result.getError().getMessage());
                 }
 
                 String marqueeText = String.format("REPLAY MODE - Watching %s play %s - %s [%s]",

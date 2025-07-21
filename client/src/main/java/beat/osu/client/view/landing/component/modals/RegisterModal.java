@@ -82,8 +82,6 @@ public class RegisterModal extends StackPane {
         URL cssUrl = CssManager.getLandingCssURL("RegisterModal.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file not found!");
         }
     }
 
@@ -243,7 +241,6 @@ public class RegisterModal extends StackPane {
                 try {
                     profilePicture = Files.readAllBytes(selectedImageFile.toPath());
                 } catch (IOException ex) {
-                    System.err.println("Failed to read profile picture: " + ex.getMessage());
                     return;
                 }
             }

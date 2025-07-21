@@ -166,7 +166,7 @@ public class CreateMatchModal extends VBox {
                 this.getStylesheets().add(cssUrl.toExternalForm());
             }
         } catch (Exception e) {
-            System.err.println("Could not load CreateMatchModal CSS: " + e.getMessage());
+            // System.err.println("Could not load CreateMatchModal CSS: " + e.getMessage());
         }
     }
 

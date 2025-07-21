@@ -12,8 +12,6 @@ public class UrlManager {
     public static void openURL(String url) {
         if (hostServices != null) {
             hostServices.showDocument(url);
-        } else {
-            System.err.println("HostServices not initialized");
         }
     }
 }

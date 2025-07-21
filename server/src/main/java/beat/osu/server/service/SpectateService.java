@@ -91,8 +91,6 @@ public class SpectateService {
                         RealtimeMessageHandler.sendToClient(realtimeMessage, spectatorClientId);
                         sentCount++;
                     } catch (Exception e) {
-                        System.err.println("Failed to send to spectator " + spectatorUserId + ": " + e.getMessage());
-                        // Optional: cleanup if you know it's disconnected now
                         handleDisconnectedSpectator(spectatorUserId, playingUserId);
                     }
                 } else {
@@ -132,7 +130,6 @@ public class SpectateService {
                         RealtimeMessageHandler.sendToClient(realtimeMessage, spectatorClientId);
                         sentCount++;
                     } catch (Exception e) {
-                        System.err.println("Failed to send pause notification to spectator " + spectatorUserId + ": " + e.getMessage());
                         handleDisconnectedSpectator(spectatorUserId, playingUserId);
                     }
                 } else {
@@ -173,7 +170,6 @@ public class SpectateService {
                         RealtimeMessageHandler.sendToClient(realtimeMessage, spectatorClientId);
                         sentCount++;
                     } catch (Exception e) {
-                        System.err.println("Failed to send game exit notification to spectator " + spectatorUserId + ": " + e.getMessage());
                         handleDisconnectedSpectator(spectatorUserId, playingUserId);
                     }
                 } else {

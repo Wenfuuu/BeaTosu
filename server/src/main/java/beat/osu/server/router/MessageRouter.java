@@ -56,7 +56,6 @@ public class MessageRouter {
             channelService.removeUserFromAllChannels(userId);
             spectateService.removeUserFromAllSpectating(userId);
         } catch (Exception e) {
-            System.err.println("Error cleaning up disconnected user " + userId + ": " + e.getMessage());
             e.printStackTrace();
         }
     }

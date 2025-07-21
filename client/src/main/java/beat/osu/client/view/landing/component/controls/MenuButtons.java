@@ -58,7 +58,6 @@ public class MenuButtons extends VBox {
             URL hoveredImageUrl = getClass().getResource(hoveredImagePath);
             
             if (imageUrl == null) {
-                System.err.println("Image not found: " + imagePath);
                 button.setText(imageName.substring(0, imageName.lastIndexOf('.')));
             } else {
                 Image normalImage = new Image(imageUrl.toExternalForm());
@@ -133,7 +132,6 @@ public class MenuButtons extends VBox {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error loading image " + imageName + ": " + e.getMessage());
             button.setText(imageName.substring(0, imageName.lastIndexOf('.')));
         }
 //        button.getStyleClass().add("menu-button");

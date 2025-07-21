@@ -222,7 +222,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                     }
                 }
             } else {
-                System.err.println("Failed to create session: " + response.getError().getMessage());
+                // System.err.println("Failed to create session: " + response.getError().getMessage());
             }
             return null;
         });
@@ -238,7 +238,7 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
             if (response.isSuccess()) {
                 sendMatchScoreEvent();
             } else {
-                System.err.println("Failed to remove session: " + response.getError().getMessage());
+                // System.err.println("Failed to remove session: " + response.getError().getMessage());
             }
             return null;
         });
@@ -448,11 +448,11 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
                 updateUserInDatabase(user);
             } else {
-                System.err.println("Failed to fetch scores for PP calculation: " + scoresResult.getError().getMessage());
+                // System.err.println("Failed to fetch scores for PP calculation: " + scoresResult.getError().getMessage());
                 updateUserInDatabase(user);
             }
         } catch (InterruptedException | ExecutionException e) {
-            System.err.println("Error updating user performance points: " + e.getMessage());
+            // System.err.println("Error updating user performance points: " + e.getMessage());
             updateUserInDatabase(user);
         }
     }
@@ -495,8 +495,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 goodHits, misses, grade, now).thenApply(response -> {
                     if (response.isSuccess()) {
                         notifySpectatorsPlayerExited();
-                    } else {
-                        System.err.println("Failed to insert score: " + response.getError().getMessage());
                     }
                     return null;
                 });
@@ -506,8 +504,6 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
         spectateController.notifySpectatorsPlayerExited().thenApply(response -> {
             if (response.isSuccess()) {
                 removeGameSession();
-            } else {
-                System.err.println("Failed to send player exit event: " + response.getError().getMessage());
             }
             return null;
         });
@@ -750,19 +746,14 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                     // System.out.println("Spectate event sent successfully: " +
                     // response.getValue().getMessage());
                     // spectateEventInProgress = false;
-                } else {
-                    System.err.println("Failed to send spectate event: " + response.getError().getMessage());
                 }
                 return null;
             }).exceptionally(throwable -> {
-                System.err.println("Exception in sendSpectateEvent: " + throwable.getMessage());
                 throwable.printStackTrace();
                 return null;
             });
         } catch (Exception e) {
-            System.err.println("Error creating spectate event: " + e.getMessage());
             e.printStackTrace();
-            // spectateEventInProgress = false;
         }
     }
 
@@ -792,19 +783,14 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                     if (isMultiplayer && (gameState == GameState.COMPLETED ||
                             gameState == GameState.EXITED))
                         sendPlayerFinishedEvent();
-                } else {
-                    System.err.println("Failed to send match score event: " + response.getError().getMessage());
                 }
                 return null;
             }).exceptionally(throwable -> {
-                System.err.println("Exception in sendMatchScoreEvent: " + throwable.getMessage());
                 throwable.printStackTrace();
                 return null;
             });
         } catch (Exception e) {
-            System.err.println("Error creating match score event: " + e.getMessage());
             e.printStackTrace();
-            // matchScoreEventInProgress = false;
         }
     }
 
@@ -822,11 +808,9 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 }
                 return null;
             }).exceptionally(throwable -> {
-                System.err.println("Exception in sendPlayerFailedEvent: " + throwable.getMessage());
                 return null;
             });
         } catch (Exception e) {
-            System.err.println("Error creating player failed event: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -845,11 +829,9 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
                 }
                 return null;
             }).exceptionally(throwable -> {
-                System.err.println("Exception in sendPlayerFinishedEvent: " + throwable.getMessage());
                 return null;
             });
         } catch (Exception e) {
-            System.err.println("Error creating player finished event: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -1199,13 +1181,11 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
     private void updateMatchScoreEvent(MatchScoreEvent event) {
         try {
             if (event == null || event.getUser() == null || event.getMatchPlayer() == null) {
-                System.err.println("Received null match score event or user");
                 return;
             }
 
             // Check if multiplayer components are still valid
             if (matchDto == null) {
-                System.err.println("Match DTO are null, ignoring match score event");
                 return;
             }
 
@@ -1273,16 +1253,8 @@ public class GameManager implements GameEventPublisher, HitObjectListener {
 
             notifyListeners(new GameEvent(GameEventType.MATCH_SCORE_CHANGED, multiplayerScores));
         } catch (Exception e) {
-            System.err.println("Error processing match score event: " + e.getMessage());
             e.printStackTrace();
         }
-        // System.out.println("Updated multiplayer scores. Current leaderboard:");
-        // for (int i = 0; i < multiplayerScores.size(); i++) {
-        // MatchScoreEvent score = multiplayerScores.get(i);
-        // System.out.println((i + 1) + ". " + score.getUser().getUsername() +
-        // " - Score: " + score.getScore() +
-        // " - Combo: " + score.getCombo());
-        // }
     }
 
     @Override

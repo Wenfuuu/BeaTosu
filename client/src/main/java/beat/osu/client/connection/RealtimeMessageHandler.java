@@ -59,7 +59,7 @@ public class RealtimeMessageHandler {
                 Thread.currentThread().interrupt();
                 break;
             } catch (Exception e) {
-                System.err.println("Error processing message from queue: " + e.getMessage());
+                // System.err.println("Error processing message from queue: " + e.getMessage());
                 // Continue processing other messages
             }
         }
@@ -81,7 +81,7 @@ public class RealtimeMessageHandler {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error sending realtime message: " + e.getMessage());
+            // System.err.println("Error sending realtime message: " + e.getMessage());
         }
     }
     
@@ -101,7 +101,7 @@ public class RealtimeMessageHandler {
 
     public void sendRealtimeMessage(RealtimeMessage message) {
         if (!isRunning.get()) {
-            System.err.println("RealtimeMessageHandler is not running, cannot send message");
+            // System.err.println("RealtimeMessageHandler is not running, cannot send message");
             return;
         }
 
@@ -113,7 +113,7 @@ public class RealtimeMessageHandler {
                 handleQueueOverflow(message);
             }
         } catch (Exception e) {
-            System.err.println("Error queuing realtime message: " + e.getMessage());
+            // System.err.println("Error queuing realtime message: " + e.getMessage());
         }
     }
 
@@ -125,13 +125,13 @@ public class RealtimeMessageHandler {
         RealtimeMessage droppedMessage = messageQueue.poll();
         if (droppedMessage != null) {
             boolean offered = messageQueue.offer(newMessage);
-            if (offered) {
-                System.err.println("Queue was full, dropped oldest message to make room for new one");
-            } else {
-                System.err.println("Failed to add message even after dropping oldest - queue might be blocked");
-            }
+            // if (offered) {
+            //     System.err.println("Queue was full, dropped oldest message to make room for new one");
+            // } else {
+            //     System.err.println("Failed to add message even after dropping oldest - queue might be blocked");
+            // }
         } else {
-            System.err.println("Message queue is full and unable to drop messages");
+            // System.err.println("Message queue is full and unable to drop messages");
         }
         
         // Alternative strategies you could implement:
@@ -167,7 +167,7 @@ public class RealtimeMessageHandler {
             try {
                 callback.onRealtimeMessage(message);
             } catch (Exception e) {
-                System.err.println("Error in realtime message callback: " + e.getMessage());
+                // System.err.println("Error in realtime message callback: " + e.getMessage());
             }
         }
     }

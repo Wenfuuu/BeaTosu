@@ -107,7 +107,7 @@ public class MatchesPanel extends VBox {
                 this.getStylesheets().add(cssUrl.toExternalForm());
             }
         } catch (Exception e) {
-            System.err.println("Could not load MatchesPanel CSS: " + e.getMessage());
+            // System.err.println("Could not load MatchesPanel CSS: " + e.getMessage());
         }
     }
 

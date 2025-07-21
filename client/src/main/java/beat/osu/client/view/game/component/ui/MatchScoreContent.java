@@ -68,8 +68,6 @@ public class MatchScoreContent extends ScrollPane {
         URL cssUrl = CssManager.getGameCssURL("MatchScoreContent.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file not found!");
         }
     }
 

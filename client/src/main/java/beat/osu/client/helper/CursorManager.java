@@ -23,7 +23,6 @@ public class CursorManager {
                 cursorImage = new Image(Objects.requireNonNull(Main.class
                         .getResource(CURSOR_IMAGE_PATH)).toExternalForm());
             } catch (Exception e) {
-                System.err.println("Failed to load cursor image: " + e.getMessage());
                 return null;
             }
         }
@@ -49,7 +48,7 @@ public class CursorManager {
                 scene.setCursor(cursor);
             }
         } catch (Exception e) {
-            System.err.println("Failed to apply cursor to scene: " + e.getMessage());
+            // System.err.println("Failed to apply cursor to scene: " + e.getMessage());
         }
     }
 
@@ -61,7 +60,7 @@ public class CursorManager {
                         .getResource(CURSOR_IMAGE_PATH)).toExternalForm(), 32, 32, true, true));
             }
         } catch (Exception e) {
-            System.err.println("Failed to create cursor ImageView: " + e.getMessage());
+            // System.err.println("Failed to create cursor ImageView: " + e.getMessage());
         }
         return null;
     }

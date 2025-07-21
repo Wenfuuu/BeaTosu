@@ -67,7 +67,7 @@ public class Visualizer extends StackPane implements SongEventListener {
             logoView.setImage(new Image(Objects.requireNonNull(Main.class
                     .getResource("/assets/images/misc/osu_logo.png")).toExternalForm()));
         } catch (Exception e) {
-            System.err.println("Error loading logo image: " + e.getMessage());
+            // System.err.println("Error loading logo image: " + e.getMessage());
         }
 
         logoView.setFitWidth(visualizerSize);
@@ -95,8 +95,6 @@ public class Visualizer extends StackPane implements SongEventListener {
         URL cssUrl = CssManager.getLandingCssURL("Visualizer.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file for Visualizer not found!");
         }
     }
 

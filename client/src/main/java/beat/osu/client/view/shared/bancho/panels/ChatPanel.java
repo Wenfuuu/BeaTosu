@@ -61,8 +61,6 @@ public class ChatPanel extends VBox {
         URL cssUrl = CssManager.getSharedCssURL("ChatPanel.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file not found!");
         }
 
         setupUI();
@@ -362,7 +360,7 @@ public class ChatPanel extends VBox {
                         .thenAccept(result -> {
                             Platform.runLater(() -> {
                                 if (!result.isSuccess()) {
-                                    System.err.println("Failed to send message: " + result.getError().getMessage());
+                                    // System.err.println("Failed to send message: " + result.getError().getMessage());
                                 }
                             });
                         });
@@ -372,7 +370,7 @@ public class ChatPanel extends VBox {
                         .thenAccept(result -> {
                             Platform.runLater(() -> {
                                 if (!result.isSuccess()) {
-                                    System.err.println("Failed to send private message: " + result.getError().getMessage());
+                                    // System.err.println("Failed to send private message: " + result.getError().getMessage());
                                 }
                             });
                         });

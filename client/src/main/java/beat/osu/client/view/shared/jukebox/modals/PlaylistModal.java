@@ -153,8 +153,6 @@ public class PlaylistModal extends StackPane implements SongEventListener {
         URL modalCssUrl = CssManager.getSharedCssURL("PlaylistModal.css");
         if (modalCssUrl != null) {
             this.getStylesheets().add(modalCssUrl.toExternalForm());
-        } else {
-            System.err.println("PlaylistModal.css file not found!");
         }
     }
 

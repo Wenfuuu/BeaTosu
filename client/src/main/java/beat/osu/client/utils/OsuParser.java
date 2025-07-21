@@ -119,7 +119,6 @@ public class OsuParser {
                                 //         "Beatmap set inserted successfully: " + response.getValue().getMessage());
                             } else {
                                 String errorMessage = response.getError().getMessage();
-                                System.err.println("Failed to insert beatmap set: " + errorMessage);
 
                                 // Notify UI about the error
                                 if (errorCallback != null) {
@@ -156,7 +155,6 @@ public class OsuParser {
                                 //         .println("Beatmap inserted successfully: " + response.getValue().getMessage());
                             } else {
                                 String errorMessage = response.getError().getMessage();
-                                System.err.println("Failed to insert beatmap: " + errorMessage);
 
                                 // Notify UI about the error
                                 if (errorCallback != null) {

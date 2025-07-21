@@ -26,8 +26,6 @@ public class ChatToggleButton extends Button {
         URL cssUrl = CssManager.getSharedCssURL("BanchoButton.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file not found!");
         }
 
         this.getStyleClass().add("bancho-button");
@@ -45,7 +43,6 @@ public class ChatToggleButton extends Button {
             currentIcon = showChatIcon;
 
         } catch (Exception e) {
-            System.err.println("Failed to load chat toggle icons: " + e.getMessage());
             this.setText("Chat");
         }
     }

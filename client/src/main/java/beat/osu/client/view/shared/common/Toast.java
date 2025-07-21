@@ -103,8 +103,6 @@ public class Toast {
         URL globalCssUrl = CssManager.getGlobalCssURL();
         if (globalCssUrl != null) {
             SceneManager.getInstance().getScene().getStylesheets().add(globalCssUrl.toExternalForm());
-        } else {
-            System.err.println("Css file not found!");
         }
     }
 

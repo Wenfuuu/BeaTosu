@@ -58,7 +58,7 @@ public class UserController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in user updated callback: " + e.getMessage());
+                // System.err.println("Error in user updated callback: " + e.getMessage());
             }
         }
     }

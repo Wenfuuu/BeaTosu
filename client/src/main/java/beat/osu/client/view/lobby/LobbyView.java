@@ -203,21 +203,17 @@ public class LobbyView extends Page {
         URL globalCssUrl = CssManager.getGlobalCssURL();
         if (globalCssUrl != null) {
             scene.getStylesheets().add(globalCssUrl.toExternalForm());
-        } else {
-            System.err.println("Css file not found!");
         }
 
         URL cssUrl = CssManager.getLobbyCssURL("LobbyView.css");
         if (cssUrl != null) {
             scene.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("Css file not found!");
         }
 
         try {
             BackgroundManager.setRandomBackground(scene);
         } catch (Exception e) {
-            System.err.println("Error setting background: " + e.getMessage());
+            // System.err.println("Error setting background: " + e.getMessage());
         }
     }
 
@@ -492,13 +488,10 @@ public class LobbyView extends Page {
                         beatmapDto.getStarRating(),
                         beatmapSet);
 
-            } else {
-                System.err.println("Failed to fetch beatmaps: " + result.getError().getMessage());
             }
 
             return null;
         } catch (Exception e) {
-            System.err.println("Error fetching beatmap: " + e.getMessage());
             return null;
         }
     }

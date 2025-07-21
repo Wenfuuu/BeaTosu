@@ -83,7 +83,7 @@ public class HostActionsModal extends VBox {
                 this.getStylesheets().add(cssUrl.toExternalForm());
             }
         } catch (Exception e) {
-            System.err.println("Could not load JoinMatchModal CSS: " + e.getMessage());
+            // System.err.println("Could not load JoinMatchModal CSS: " + e.getMessage());
         }
     }
 

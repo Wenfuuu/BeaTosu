@@ -109,8 +109,6 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
         URL globalCssUrl = CssManager.getGlobalCssURL();
         if (globalCssUrl != null) {
             scene.getStylesheets().add(globalCssUrl.toExternalForm());
-        } else {
-            System.err.println("Css file not found!");
         }
     }
 
@@ -541,7 +539,6 @@ public class SpectateView extends Page implements GameEventListener, CoordinateC
         try {
             BackgroundManager.setGameBackground(scene);
         } catch (Exception e) {
-            System.err.println("Error setting background for HomeView: " + e.getMessage());
             e.printStackTrace();
             root.setStyle("-fx-background-color: #121212;");
         }

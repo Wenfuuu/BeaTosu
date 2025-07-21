@@ -170,7 +170,7 @@ public class SelectBeatmapModal extends StackPane {
                 this.getStylesheets().add(cssUrl.toExternalForm());
             }
         } catch (Exception e) {
-            System.err.println("Could not load SelectBeatmapModal CSS: " + e.getMessage());
+            // System.err.println("Could not load SelectBeatmapModal CSS: " + e.getMessage());
         }
     }
 
@@ -265,7 +265,7 @@ public class SelectBeatmapModal extends StackPane {
         try {
             OsuParser.parseBeatmap(beatmap);
         } catch (IOException e) {
-            System.err.println("Error parsing beatmap: " + e.getMessage());
+            // System.err.println("Error parsing beatmap: " + e.getMessage());
         }
         
         topBar.updateSongInfo(beatmap);
@@ -323,13 +323,10 @@ public class SelectBeatmapModal extends StackPane {
 
                     beatmaps.add(beatmap);
                 });
-            } else {
-                System.err.println("Failed to fetch beatmaps: " + result.getError().getMessage());
             }
 
             return beatmaps;
         } catch (Exception e) {
-            System.err.println("Error fetching beatmaps: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -374,7 +371,7 @@ public class SelectBeatmapModal extends StackPane {
         if (matchController != null) {
             matchController.updateMatchChangingBeatmap(matchId, true).thenAccept(result -> {
                 if (!result.isSuccess()) {
-                    System.err.println("Failed to set changing beatmap status to true: " + result.getError().getMessage());
+                    // System.err.println("Failed to set changing beatmap status to true: " + result.getError().getMessage());
                 }
             });
         }
@@ -405,7 +402,7 @@ public class SelectBeatmapModal extends StackPane {
         if (matchController != null) {
             matchController.updateMatchChangingBeatmap(matchId, false).thenAccept(result -> {
                 if (!result.isSuccess()) {
-                    System.err.println("Failed to set changing beatmap status to false: " + result.getError().getMessage());
+                    // System.err.println("Failed to set changing beatmap status to false: " + result.getError().getMessage());
                 }
             });
         }

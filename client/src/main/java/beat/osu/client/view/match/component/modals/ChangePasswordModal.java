@@ -108,7 +108,7 @@ public class ChangePasswordModal extends VBox {
                 this.getStylesheets().add(cssUrl.toExternalForm());
             }
         } catch (Exception e) {
-            System.err.println("Could not load ChangePasswordModal CSS: " + e.getMessage());
+            // System.err.println("Could not load ChangePasswordModal CSS: " + e.getMessage());
         }
     }
 

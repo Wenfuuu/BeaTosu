@@ -202,8 +202,6 @@ public class MatchCard extends HBox {
         URL cssUrl = CssManager.getLobbyCssURL("MatchCard.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file not found!");
         }
     }
 
@@ -216,7 +214,6 @@ public class MatchCard extends HBox {
             gamemodeImageView.setFitWidth(45);
             gamemodeImageView.setTranslateY(3);
         } catch (Exception e) {
-            System.err.println("Could not load gamemode icon: " + e.getMessage());
             gamemodeImageView.setImage(null);
         }
     }
@@ -487,7 +484,6 @@ public class MatchCard extends HBox {
         }
 
         if (playerToMove == null) {
-            System.err.println("Player with ID " + userId + " not found for slot move in match card");
             return;
         }
 

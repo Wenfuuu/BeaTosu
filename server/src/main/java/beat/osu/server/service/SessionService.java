@@ -102,15 +102,13 @@ public class SessionService {
             }
         }
 
-        System.err.println("No clientId found for userId: " + userId);
-        System.err.println("Available sessions:");
-        sessions.forEach((id, data) -> {
-            if (data != null) {
-                System.err.println("  ClientId: " + id + " -> userId: " + data.get("userId"));
-            } else {
-                System.err.println("  ClientId: " + id + " -> null session data");
-            }
-        });
+        // sessions.forEach((id, data) -> {
+        //     if (data != null) {
+        //         System.err.println("  ClientId: " + id + " -> userId: " + data.get("userId"));
+        //     } else {
+        //         System.err.println("  ClientId: " + id + " -> null session data");
+        //     }
+        // });
 
         return null;
     }

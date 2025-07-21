@@ -25,8 +25,6 @@ public class MediaControls extends HBox {
         URL globalCssUrl = CssManager.getGlobalCssURL();
         if (globalCssUrl != null) {
             this.getStylesheets().add(globalCssUrl.toExternalForm());
-        } else {
-            System.err.println("index.css file not found!");
         }
 
         initializeComponents();
@@ -61,11 +59,9 @@ public class MediaControls extends HBox {
                 imageView.setPreserveRatio(true);
                 button.setGraphic(imageView);
             } else {
-                System.err.println("Image not found: " + imagePath);
                 button.setText("?");
             }
         } catch (Exception e) {
-            System.err.println("Error loading image: " + imageName + " - " + e.getMessage());
             button.setText("?");
         }
         

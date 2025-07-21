@@ -92,11 +92,11 @@ public class ServerConnection {
                 }
             } catch (java.io.StreamCorruptedException e) {
                 if (connected) {
-                    System.err.println("Stream corruption detected: " + e.getMessage());
+                    // System.err.println("Stream corruption detected: " + e.getMessage());
                     e.printStackTrace();
                     
                     // Specific handling for stream corruption
-                    System.err.println("Stream corruption detected, attempting reconnection...");
+                    // System.err.println("Stream corruption detected, attempting reconnection...");
                     disconnect();
 
                     // Attempt reconnection in a separate thread to avoid blocking
@@ -119,11 +119,11 @@ public class ServerConnection {
                 }
             } catch (java.io.OptionalDataException e) {
                 if (connected) {
-                    System.err.println("Data format error: " + e.getMessage());
+                    // System.err.println("Data format error: " + e.getMessage());
                     e.printStackTrace();
                     
                     // Handle optional data exception which can occur with stream corruption
-                    System.err.println("Data format error detected, attempting reconnection...");
+                    // System.err.println("Data format error detected, attempting reconnection...");
                     disconnect();
 
                     if (canReconnect()) {
@@ -145,7 +145,7 @@ public class ServerConnection {
                 }
             } catch (Exception e) {
                 if (connected) {
-                    System.err.println("Connection lost: " + e.getMessage());
+                    // System.err.println("Connection lost: " + e.getMessage());
                     e.printStackTrace(); // Print full stack trace for debugging
 
                     // Check if it's any kind of stream-related error
@@ -153,7 +153,7 @@ public class ServerConnection {
                         (e.getMessage().contains("invalid type code") ||
                          e.getMessage().contains("stream") ||
                          e.getMessage().contains("protocol"))) {
-                        System.err.println("Stream-related error detected, attempting reconnection...");
+                        // System.err.println("Stream-related error detected, attempting reconnection...");
                         disconnect();
 
                         // Attempt reconnection in a separate thread to avoid blocking
@@ -194,17 +194,17 @@ public class ServerConnection {
             } else if (message instanceof RealtimeMessage) {
                 realtimeHandler.handleIncomingMessage((RealtimeMessage) message);
             } else {
-                System.err.println("Unknown message type received: " + message.getClass());
-                System.err.println("Message content: " + message.toString());
+                // System.err.println("Unknown message type received: " + message.getClass());
+                // System.err.println("Message content: " + message.toString());
             }
         } catch (Exception e) {
-            System.err.println("Error routing message: " + e.getMessage());
+            // System.err.println("Error routing message: " + e.getMessage());
             e.printStackTrace();
 
             // If we get stream corruption errors, disconnect and attempt reconnection
             if (e instanceof java.io.StreamCorruptedException ||
                     e.getMessage().contains("invalid type code")) {
-                System.err.println("Stream corruption detected in message routing, disconnecting...");
+                // System.err.println("Stream corruption detected in message routing, disconnecting...");
                 disconnect();
 
                 // Attempt reconnection in a separate thread
@@ -280,7 +280,7 @@ public class ServerConnection {
                 try {
                     oos.close();
                 } catch (Exception e) {
-                    System.err.println("Error closing ObjectOutputStream: " + e.getMessage());
+                    // System.err.println("Error closing ObjectOutputStream: " + e.getMessage());
                 }
             }
             
@@ -288,7 +288,7 @@ public class ServerConnection {
                 try {
                     ois.close();
                 } catch (Exception e) {
-                    System.err.println("Error closing ObjectInputStream: " + e.getMessage());
+                    // System.err.println("Error closing ObjectInputStream: " + e.getMessage());
                 }
             }
             
@@ -296,14 +296,14 @@ public class ServerConnection {
                 try {
                     socket.close();
                 } catch (Exception e) {
-                    System.err.println("Error closing socket: " + e.getMessage());
+                    // System.err.println("Error closing socket: " + e.getMessage());
                 }
             }
 
             System.out.println("Disconnected from server");
 
         } catch (Exception e) {
-            System.err.println("Error during disconnect: " + e.getMessage());
+            // System.err.println("Error during disconnect: " + e.getMessage());
         } finally {
             // Reset references
             oos = null;
@@ -345,7 +345,6 @@ public class ServerConnection {
             reconnectAttempts = 0;
             System.out.println("Reconnection successful");
         } else if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
-            System.err.println("Max reconnection attempts reached, giving up");
             reconnectAttempts = 0;
         }
 

@@ -76,10 +76,10 @@ public class ConnectedUsersController {
                         notifyUserCountChanged();
                     }
                 } catch (Exception e) {
-                    System.err.println("Error processing user count response: " + e.getMessage());
+                    // System.err.println("Error processing user count response: " + e.getMessage());
                 }
             }).exceptionally(throwable -> {
-                System.err.println("Error requesting user count: " + throwable.getMessage());
+                // System.err.println("Error requesting user count: " + throwable.getMessage());
                 return null;
             });
         }
@@ -108,7 +108,7 @@ public class ConnectedUsersController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in user joined callback: " + e.getMessage());
+                // System.err.println("Error in user joined callback: " + e.getMessage());
             }
         }
     }
@@ -118,7 +118,7 @@ public class ConnectedUsersController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in user left callback: " + e.getMessage());
+                // System.err.println("Error in user left callback: " + e.getMessage());
             }
         }
     }
@@ -128,7 +128,7 @@ public class ConnectedUsersController {
             try {
                 callback.accept(new UserCountChangedEvent(connectedUsers.size()));
             } catch (Exception e) {
-                System.err.println("Error in user count callback: " + e.getMessage());
+                // System.err.println("Error in user count callback: " + e.getMessage());
             }
         }
     }

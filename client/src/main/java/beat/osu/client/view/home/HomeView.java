@@ -154,15 +154,11 @@ public class HomeView extends Page {
         URL globalCssUrl = CssManager.getGlobalCssURL();
         if (globalCssUrl != null) {
             scene.getStylesheets().add(globalCssUrl.toExternalForm());
-        } else {
-            System.err.println("Css file not found!");
         }
 
         URL cssUrl = CssManager.getHomeCssURL("HomeView.css");
         if (cssUrl != null) {
             scene.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("Css file not found!");
         }
     }
 
@@ -356,13 +352,10 @@ public class HomeView extends Page {
                     }
                 } else {
                 }
-            } else {
-                System.err.println("Failed to fetch scores: " + result.getError().getMessage());
             }
 
             return scores;
         } catch (Exception e) {
-            System.err.println("Error fetching scores: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -415,13 +408,10 @@ public class HomeView extends Page {
 
                     beatmaps.add(beatmap);
                 });
-            } else {
-                System.err.println("Failed to fetch beatmaps: " + result.getError().getMessage());
             }
 
             return beatmaps;
         } catch (Exception e) {
-            System.err.println("Error fetching beatmaps: " + e.getMessage());
             return new ArrayList<>();
         }
     }

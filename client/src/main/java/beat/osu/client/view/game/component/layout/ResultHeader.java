@@ -38,8 +38,6 @@ public class ResultHeader extends VBox {
          URL cssUrl = CssManager.getGameCssURL("ResultHeader.css");
          if (cssUrl != null) {
              this.getStylesheets().add(cssUrl.toExternalForm());
-         } else {
-             System.err.println("CSS file not found!");
          }
     }
 

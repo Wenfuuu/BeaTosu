@@ -94,7 +94,7 @@ public class MatchFilters extends HBox {
                 this.getStylesheets().add(cssUrl.toExternalForm());
             }
         } catch (Exception e) {
-            System.err.println("Could not load MatchFilters CSS: " + e.getMessage());
+            // System.err.println("Could not load MatchFilters CSS: " + e.getMessage());
         }
     }
 }

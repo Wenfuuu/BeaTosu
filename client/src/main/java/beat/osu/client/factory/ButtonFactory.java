@@ -71,7 +71,6 @@ public class ButtonFactory {
             URL hoveredImageUrl = Main.class.getResource(hoveredImagePath);
 
             if (normalImageUrl == null) {
-                System.err.println("Image not found: " + normalImagePath);
                 button.setText("〈 back");
             } else {
                 Image normalImage = new Image(normalImageUrl.toExternalForm());
@@ -141,12 +140,9 @@ public class ButtonFactory {
                         hoveredImageView.setVisible(false);
                         scaleDown.play();
                     });
-                } else {
-                    System.err.println("Hovered image not found: " + hoveredImagePath);
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error loading back button images: " + e.getMessage());
             button.setText("〈 back");
             button.getStyleClass().add("back-button");
         }

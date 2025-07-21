@@ -61,7 +61,7 @@ public class RealtimeMessageHandler {
                 Thread.currentThread().interrupt();
                 break;
             } catch (Exception e) {
-                System.err.println("Error processing message from queue for client " + clientId + ": " + e.getMessage());
+                // System.err.println("Error processing message from queue for client " + clientId + ": " + e.getMessage());
                 // Continue processing other messages
             }
         }
@@ -83,7 +83,7 @@ public class RealtimeMessageHandler {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error sending realtime message to client " + clientId + ": " + e.getMessage());
+            // System.err.println("Error sending realtime message to client " + clientId + ": " + e.getMessage());
             // Remove this handler as the connection is likely broken
             activeHandlers.remove(clientId);
         }
@@ -96,7 +96,7 @@ public class RealtimeMessageHandler {
      */
     private void queueMessage(RealtimeMessage message) {
         if (!isRunning.get()) {
-            System.err.println("RealtimeMessageHandler for client " + clientId + " is not running, cannot send message");
+            // System.err.println("RealtimeMessageHandler for client " + clientId + " is not running, cannot send message");
             return;
         }
 
@@ -107,13 +107,13 @@ public class RealtimeMessageHandler {
                 RealtimeMessage droppedMessage = messageQueue.poll();
                 if (droppedMessage != null) {
                     messageQueue.offer(message);
-                    System.err.println("Queue full for client " + clientId + ", dropped oldest message");
+                    // System.err.println("Queue full for client " + clientId + ", dropped oldest message");
                 } else {
-                    System.err.println("Failed to queue message for client " + clientId);
+                    // System.err.println("Failed to queue message for client " + clientId);
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error queuing message for client " + clientId + ": " + e.getMessage());
+            // System.err.println("Error queuing message for client " + clientId + ": " + e.getMessage());
         }
     }
 
@@ -130,7 +130,7 @@ public class RealtimeMessageHandler {
             }
 
         } catch (Exception e) {
-            System.err.println("RealtimeMessageHandler: Error handling message: " + e.getMessage());
+            // System.err.println("RealtimeMessageHandler: Error handling message: " + e.getMessage());
         }
     }
 

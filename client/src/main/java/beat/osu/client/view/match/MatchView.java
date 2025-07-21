@@ -293,21 +293,17 @@ public class MatchView extends Page {
         URL globalCssUrl = CssManager.getGlobalCssURL();
         if (globalCssUrl != null) {
             scene.getStylesheets().add(globalCssUrl.toExternalForm());
-        } else {
-            System.err.println("Css file not found!");
         }
 
         URL cssUrl = CssManager.getMatchCssURL("MatchView.css");
         if (cssUrl != null) {
             scene.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("Css file not found!");
         }
 
         try {
             BackgroundManager.setRandomBackground(scene);
         } catch (Exception e) {
-            System.err.println("Error setting background: " + e.getMessage());
+            // System.err.println("Error setting background: " + e.getMessage());
         }
     }
 
@@ -611,7 +607,6 @@ public class MatchView extends Page {
                             break;
                             
                         default:
-                            System.err.println("Unexpected ready button state for host: " + currentState);
                             break;
                     }
                 } else {
@@ -884,7 +879,7 @@ public class MatchView extends Page {
                 if (currentStatus != PlayerStatus.NO_MAP) {
                     matchController.updatePlayerStatus(matchId, PlayerStatus.NO_MAP).thenAccept(result -> {
                         if (!result.isSuccess()) {
-                            System.err.println("Failed to update player status to NO_MAP: " + result.getError().getMessage());
+                            // System.err.println("Failed to update player status to NO_MAP: " + result.getError().getMessage());
                         }
                     });
                 }
@@ -894,7 +889,7 @@ public class MatchView extends Page {
                     if (currentStatus != PlayerStatus.NOT_READY) {
                         matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
                             if (!result.isSuccess()) {
-                                System.err.println("Failed to update player status to NOT_READY: " + result.getError().getMessage());
+                                // System.err.println("Failed to update player status to NOT_READY: " + result.getError().getMessage());
                             }
                         });
                     }
@@ -925,7 +920,7 @@ public class MatchView extends Page {
                     if (currentStatus != PlayerStatus.NO_MAP) {
                         matchController.updatePlayerStatus(matchId, PlayerStatus.NO_MAP).thenAccept(result -> {
                             if (!result.isSuccess()) {
-                                System.err.println("Failed to update player status to NO_MAP: " + result.getError().getMessage());
+                                // System.err.println("Failed to update player status to NO_MAP: " + result.getError().getMessage());
                             }
                         });
                     }
@@ -935,7 +930,7 @@ public class MatchView extends Page {
                         if (currentStatus != PlayerStatus.NOT_READY) {
                             matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
                                 if (!result.isSuccess()) {
-                                    System.err.println("Failed to update player status to NOT_READY: " + result.getError().getMessage());
+                                    // System.err.println("Failed to update player status to NOT_READY: " + result.getError().getMessage());
                                 }
                             });
                         }
@@ -1327,13 +1322,10 @@ public class MatchView extends Page {
                         beatmapDto.getStarRating(),
                         beatmapSet);
 
-            } else {
-                System.err.println("Failed to fetch beatmaps: " + result.getError().getMessage());
             }
 
             return null;
-        } catch (Exception e) {
-            System.err.println("Error fetching beatmap: " + e.getMessage());
+        } catch (Exception e) {;
             return null;
         }
     }

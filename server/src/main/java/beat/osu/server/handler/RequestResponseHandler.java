@@ -38,8 +38,6 @@ public class RequestResponseHandler {
                 }
             }
         } catch (Exception e) {
-            System.err.println("RequestResponseHandler: Error handling request: " + e.getMessage());
-            
             if (!isConnectionError(e)) {
                 try {
                     ResponseMessage errorResponse = new ResponseMessage(
@@ -52,7 +50,7 @@ public class RequestResponseHandler {
                         outputStream.flush();
                     }
                 } catch (Exception sendError) {
-                    System.err.println("RequestResponseHandler: Failed to send error response: " + sendError.getMessage());
+                    // System.err.println("RequestResponseHandler: Failed to send error response: " + sendError.getMessage());
                 }
             }
         }

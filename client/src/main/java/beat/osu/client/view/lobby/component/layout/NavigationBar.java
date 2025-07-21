@@ -69,7 +69,7 @@ public class NavigationBar extends HBox {
                 this.getStylesheets().add(cssUrl.toExternalForm());
             }
         } catch (Exception e) {
-            System.err.println("Could not load NavigationBar CSS: " + e.getMessage());
+            // System.err.println("Could not load NavigationBar CSS: " + e.getMessage());
         }
     }
 }

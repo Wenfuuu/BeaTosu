@@ -75,7 +75,7 @@ public class PrivateChatController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in private chat message callback: " + e.getMessage());
+                // System.err.println("Error in private chat message callback: " + e.getMessage());
             }
         }
     }

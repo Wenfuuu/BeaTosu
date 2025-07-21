@@ -142,8 +142,6 @@ public class MatchSlotCard extends HBox {
         URL cssUrl = CssManager.getMatchCssURL("MatchSlotCard.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file not found!");
         }
     }
 

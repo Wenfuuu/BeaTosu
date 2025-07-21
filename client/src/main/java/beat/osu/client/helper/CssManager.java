@@ -9,121 +9,114 @@ public class CssManager {
         String path = "/assets/css/global/index.css";
         URL cssUrl = Main.class.getResource(path);
 
-        if (cssUrl == null) {
-            System.err.println("CSS file not found at path: " + path);
-        }
+        // if (cssUrl == null) {
+        //     System.err.println("CSS file not found at path: " + path);
+        // }
 
         return cssUrl;
     }
 
     public static URL getLandingCssURL(String filename) {
         if (filename == null || filename.isEmpty()) {
-            System.err.println("Filename cannot be null or empty.");
             return null;
         }
 
         String path = "/assets/css/landing/" + filename;
         URL cssUrl = Main.class.getResource(path);
 
-        if (cssUrl == null) {
-            System.err.println("CSS file not found at path: " + path);
-        }
+        // if (cssUrl == null) {
+        //     System.err.println("CSS file not found at path: " + path);
+        // }
 
         return cssUrl;
     }
 
     public static URL getSharedCssURL(String filename) {
         if (filename == null || filename.isEmpty()) {
-            System.err.println("Filename cannot be null or empty.");
             return null;
         }
 
         String path = "/assets/css/shared/" + filename;
         URL cssUrl = Main.class.getResource(path);
 
-        if (cssUrl == null) {
-            System.err.println("CSS file not found at path: " + path);
-        }
+        // if (cssUrl == null) {
+        //     System.err.println("CSS file not found at path: " + path);
+        // }
 
         return cssUrl;
     }
 
     public static URL getHomeCssURL(String filename) {
         if (filename == null || filename.isEmpty()) {
-            System.err.println("Filename cannot be null or empty.");
             return null;
         }
 
         String path = "/assets/css/home/" + filename;
         URL cssUrl = Main.class.getResource(path);
 
-        if (cssUrl == null) {
-            System.err.println("CSS file not found at path: " + path);
-        }
+        // if (cssUrl == null) {
+        //     System.err.println("CSS file not found at path: " + path);
+        // }
 
         return cssUrl;
     }
 
     public static URL getGameCssURL(String filename) {
         if (filename == null || filename.isEmpty()) {
-            System.err.println("Filename cannot be null or empty.");
             return null;
         }
 
         String path = "/assets/css/game/" + filename;
         URL cssUrl = Main.class.getResource(path);
 
-        if (cssUrl == null) {
-            System.err.println("CSS file not found at path: " + path);
-        }
+        // if (cssUrl == null) {
+        //     System.err.println("CSS file not found at path: " + path);
+        // }
 
         return cssUrl;
     }
 
     public static URL getCssURL(String filename) {
         if (filename == null || filename.isEmpty()) {
-            System.err.println("Filename cannot be null or empty.");
             return null;
         }
 
         String path = "/assets/css/" + filename;
         URL cssUrl = Main.class.getResource(path);
 
-        if (cssUrl == null) {
-            System.err.println("CSS file not found at path: " + path);
-        }
+        // if (cssUrl == null) {
+        //     System.err.println("CSS file not found at path: " + path);
+        // }
 
         return cssUrl;
     }
 
     public static URL getLobbyCssURL(String filename) {
         if (filename == null || filename.isEmpty()) {
-            System.err.println("Filename cannot be null or empty.");
             return null;
         }
 
         String path = "/assets/css/lobby/" + filename;
         URL cssUrl = Main.class.getResource(path);
 
-        if (cssUrl == null) {
-            System.err.println("CSS file not found at path: " + path);
-        }
+        // if (cssUrl == null) {
+        //     System.err.println("CSS file not found at path: " + path);
+        // }
 
         return cssUrl;
     }
 
     public static URL getMatchCssURL(String filename) {
         if (filename == null || filename.isEmpty()) {
-            System.err.println("Filename cannot be null or empty.");
             return null;
         }
 
         String path = "/assets/css/match/" + filename;
         URL cssUrl = Main.class.getResource(path);
 
-        if (cssUrl == null) {
-            System.err.println("CSS file not found at path: " + path);
-        }
+        // if (cssUrl == null) {
+        //     System.err.println("CSS file not found at path: " + path);
+        // }
 
         return cssUrl;
     }

@@ -64,8 +64,6 @@ public class TopBar extends StackPane {
         URL cssUrl = CssManager.getMatchCssURL("TopBar.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("Css file not found!");
         }
     }
 

@@ -63,18 +63,15 @@ public class ViewUserModal extends VBox {
                     if (sessionValue instanceof Integer) {
                         return (Integer) sessionValue;
                     } else {
-                        System.err.println("Playing beatmap session value is not a number: " + sessionValue.getClass().getSimpleName());
                         return null;
                     }
                 } else {
                     return null;
                 }
             } else {
-                System.err.println("Failed to fetch playing beatmap session: " + result.getError().getMessage());
                 return null;
             }
         } catch (Exception e) {
-            System.err.println("Error fetching beatmap session: " + e.getMessage());
             return null;
         }
     }
@@ -156,13 +153,12 @@ public class ViewUserModal extends VBox {
                 this.getStylesheets().add(cssUrl.toExternalForm());
             }
         } catch (Exception e) {
-            System.err.println("Could not load ViewUserModal CSS: " + e.getMessage());
+            // System.err.println("Could not load ViewUserModal CSS: " + e.getMessage());
         }
     }
 
     public void show() {
         if (userCard == null) {
-            System.err.println("UserCard is not set. Cannot show modal.");
             return;
         }
 

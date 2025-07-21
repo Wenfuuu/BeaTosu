@@ -63,15 +63,11 @@ public class SettingsModal extends StackPane {
         URL globalCssUrl = CssManager.getGlobalCssURL();
         if (globalCssUrl != null) {
             this.getStylesheets().add(globalCssUrl.toExternalForm());
-        } else {
-            System.err.println("Global css file not found!");
         }
 
         URL cssUrl = CssManager.getLandingCssURL("SettingsModal.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("SettingsModal.css file not found!");
         }
 
         this.setVisible(false);

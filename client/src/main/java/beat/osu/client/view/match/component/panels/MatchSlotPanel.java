@@ -99,8 +99,6 @@ public class MatchSlotPanel extends VBox {
         URL cssUrl = CssManager.getMatchCssURL("MatchSlotPanel.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file not found!");
         }
     }
 
@@ -304,7 +302,6 @@ public class MatchSlotPanel extends VBox {
         }
 
         if (playerToMove == null) {
-            System.err.println("Player with ID " + userId + " not found for slot move");
             return;
         }
 

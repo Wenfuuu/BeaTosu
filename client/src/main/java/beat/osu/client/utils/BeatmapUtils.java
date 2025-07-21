@@ -61,7 +61,6 @@ public class BeatmapUtils {
 
             return new Song(id, title, artist, audioPath);
         } catch (Exception e) {
-            System.err.println("Error parsing filename: " + filename);
             return null;
         }
     }

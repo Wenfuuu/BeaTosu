@@ -66,8 +66,6 @@ public class UploadBox extends VBox {
         URL cssUrl = CssManager.getHomeCssURL("UploadBox.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file not found!");
         }
     }
 
@@ -206,7 +204,6 @@ public class UploadBox extends VBox {
                                         Thread.sleep(100);
 
                                     } catch (Exception e) {
-                                        System.err.println("Error processing .osu file: " + f.getName());
                                         e.printStackTrace();
                                     }
                                 }

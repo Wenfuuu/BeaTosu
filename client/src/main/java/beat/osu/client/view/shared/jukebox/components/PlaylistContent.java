@@ -24,8 +24,6 @@ public class PlaylistContent extends ScrollPane {
         URL cssUrl = CssManager.getSharedCssURL("PlaylistContent.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file not found!");
         }
     }
 }

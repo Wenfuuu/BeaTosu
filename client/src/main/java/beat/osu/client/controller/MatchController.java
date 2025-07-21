@@ -218,10 +218,10 @@ public class MatchController {
                         matches = getAllMatchesResponse.getMatches();
                     }
                 } catch (Exception e) {
-                    System.err.println("Error processing get all matches response: " + e.getMessage());
+                    // System.err.println("Error processing get all matches response: " + e.getMessage());
                 }
             }).exceptionally(throwable -> {
-                System.err.println("Error requesting matches: " + throwable.getMessage());
+                // System.err.println("Error requesting matches: " + throwable.getMessage());
                 return null;
             });
         }
@@ -684,7 +684,7 @@ public class MatchController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in match created callback: " + e.getMessage());
+                // System.err.println("Error in match created callback: " + e.getMessage());
             }
         }
     }
@@ -694,7 +694,7 @@ public class MatchController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in user joined match callback: " + e.getMessage());
+                // System.err.println("Error in user joined match callback: " + e.getMessage());
             }
         }
     }
@@ -704,7 +704,7 @@ public class MatchController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in user left match callback: " + e.getMessage());
+                // System.err.println("Error in user left match callback: " + e.getMessage());
             }
         }
     }
@@ -714,7 +714,7 @@ public class MatchController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in player kicked callback: " + e.getMessage());
+                // System.err.println("Error in player kicked callback: " + e.getMessage());
             }
         }
     }
@@ -724,7 +724,7 @@ public class MatchController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in match ended callback: " + e.getMessage());
+                // System.err.println("Error in match ended callback: " + e.getMessage());
             }
         }
     }
@@ -734,7 +734,7 @@ public class MatchController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in host changed callback: " + e.getMessage());
+                // System.err.println("Error in host changed callback: " + e.getMessage());
             }
         }
     }
@@ -746,7 +746,7 @@ public class MatchController {
                 return;
             }
         }
-        System.err.println("Match with ID " + matchId + " not found to add player.");
+        // System.err.println("Match with ID " + matchId + " not found to add player.");
     }
 
     private void removePlayerFromMatch(int matchId, int userId) {
@@ -756,7 +756,7 @@ public class MatchController {
                 return;
             }
         }
-        System.err.println("Match with ID " + matchId + " not found to remove player.");
+        // System.err.println("Match with ID " + matchId + " not found to remove player.");
     }
 
     private void removeMatchFromList(int matchId) {
@@ -776,7 +776,6 @@ public class MatchController {
                 return;
             }
         }
-        System.err.println("Match with ID " + matchId + " not found to update host.");
     }
 
     private void handleHostLeft(int matchId, int previousHostUserId, int newHostUserId) {
@@ -794,7 +793,6 @@ public class MatchController {
                 return;
             }
         }
-        System.err.println("Match with ID " + matchId + " not found to handle host left.");
     }
 
     private void updatePlayerSlot(int matchId, int userId, int newSlotIndex) {
@@ -806,11 +804,9 @@ public class MatchController {
                         return;
                     }
                 }
-                System.err.println("Player with ID " + userId + " not found in match " + matchId + " to update slot.");
                 return;
             }
         }
-        System.err.println("Match with ID " + matchId + " not found to update player slot.");
     }
 
     private void updateMatchNameInList(int matchId, String newName) {
@@ -820,7 +816,6 @@ public class MatchController {
                 return;
             }
         }
-        System.err.println("Match with ID " + matchId + " not found to update name.");
     }
 
     private void updateMatchBeatmapInList(int matchId, BeatmapDto newBeatmapDto) {
@@ -830,7 +825,6 @@ public class MatchController {
                 return;
             }
         }
-        System.err.println("Match with ID " + matchId + " not found to update beatmap.");
     }
 
     private void updateMatchChangingBeatmapInList(int matchId, boolean isChangingBeatmap) {
@@ -840,7 +834,6 @@ public class MatchController {
                 return;
             }
         }
-        System.err.println("Match with ID " + matchId + " not found to update changing beatmap status.");
     }
 
     private void updateMatchWinConditionInList(int matchId, MatchWinCondition newWinCondition) {
@@ -850,7 +843,6 @@ public class MatchController {
                 return;
             }
         }
-        System.err.println("Match with ID " + matchId + " not found to update win condition.");
     }
 
     private void notifyHostLeft(HostLeftEvent event) {
@@ -858,7 +850,7 @@ public class MatchController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in host left callback: " + e.getMessage());
+                // System.err.println("Error in host left callback: " + e.getMessage());
             }
         }
     }
@@ -868,7 +860,7 @@ public class MatchController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in match started callback: " + e.getMessage());
+                // System.err.println("Error in match started callback: " + e.getMessage());
             }
         }
     }
@@ -878,7 +870,7 @@ public class MatchController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in match score event callback: " + e.getMessage());
+                // System.err.println("Error in match score event callback: " + e.getMessage());
             }
         }
     }
@@ -888,7 +880,7 @@ public class MatchController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in match completed callback: " + e.getMessage());
+                // System.err.println("Error in match completed callback: " + e.getMessage());
             }
         }
     }
@@ -898,7 +890,7 @@ public class MatchController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in slot changed callback: " + e.getMessage());
+                // System.err.println("Error in slot changed callback: " + e.getMessage());
             }
         }
     }
@@ -908,7 +900,7 @@ public class MatchController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in match password updated callback: " + e.getMessage());
+                // System.err.println("Error in match password updated callback: " + e.getMessage());
             }
         }
     }
@@ -918,7 +910,7 @@ public class MatchController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in match name updated callback: " + e.getMessage());
+                // System.err.println("Error in match name updated callback: " + e.getMessage());
             }
         }
     }
@@ -928,7 +920,7 @@ public class MatchController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in match beatmap updated callback: " + e.getMessage());
+                // System.err.println("Error in match beatmap updated callback: " + e.getMessage());
             }
         }
     }
@@ -938,7 +930,7 @@ public class MatchController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in match changing beatmap updated callback: " + e.getMessage());
+                // System.err.println("Error in match changing beatmap updated callback: " + e.getMessage());
             }
         }
     }
@@ -949,7 +941,7 @@ public class MatchController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in match win condition updated callback: " + e.getMessage());
+                // System.err.println("Error in match win condition updated callback: " + e.getMessage());
             }
         }
     }
@@ -960,7 +952,7 @@ public class MatchController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in player status updated callback: " + e.getMessage());
+                // System.err.println("Error in player status updated callback: " + e.getMessage());
             }
         }
     }
@@ -970,7 +962,7 @@ public class MatchController {
             try {
                 callback.accept(event);
             } catch (Exception e) {
-                System.err.println("Error in player failed callback: " + e.getMessage());
+                // System.err.println("Error in player failed callback: " + e.getMessage());
             }
         }
     }

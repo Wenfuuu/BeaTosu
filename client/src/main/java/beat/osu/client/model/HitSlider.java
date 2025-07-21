@@ -148,8 +148,8 @@ public class HitSlider extends HitObject {
                 // svMultiplierFromTimingPoint = Double.POSITIVE_INFINITY; // Avoid division by
                 // zero, effectively making duration near zero
                 // Or treat as 1.0? Osu seems to treat 0 as 1x.
-                System.err.println(
-                        "Warning: Inherited timing point with 0 beatLength at " + lastRelevantTPForSV.getTime());
+                // System.err.println(
+                //         "Warning: Inherited timing point with 0 beatLength at " + lastRelevantTPForSV.getTime());
             }
         }
 
@@ -191,19 +191,19 @@ public class HitSlider extends HitObject {
                         int py = Integer.parseInt(coords[1]);
                         this.controlPoints.add(new Point2D(px, py));
                     } catch (NumberFormatException e) {
-                        System.err.println("Error parsing slider control point coordinates: " + curveParts[i] + " in "
-                                + paramsStr);
+                        // System.err.println("Error parsing slider control point coordinates: " + curveParts[i] + " in "
+                        //         + paramsStr);
                     }
                 } else {
-                    System.err.println("Warning: Invalid control point format (expected x:y): " + curveParts[i] + " in "
-                            + paramsStr);
+                    // System.err.println("Warning: Invalid control point format (expected x:y): " + curveParts[i] + " in "
+                    //         + paramsStr);
                 }
             }
         }
         // Ensure there's at least one segment if it's a slider
         if (controlPoints.size() < 2 && this.sliderType != '?') {
-            System.err.println(
-                    "Warning: Slider has less than 2 control points. Adding a dummy endpoint. Params: " + paramsStr);
+            // System.err.println(
+            //         "Warning: Slider has less than 2 control points. Adding a dummy endpoint. Params: " + paramsStr);
             this.controlPoints.add(new Point2D(startX + 100, startY)); // Default offset if only start point given
         }
 
@@ -211,7 +211,7 @@ public class HitSlider extends HitObject {
             try {
                 this.slides = Integer.parseInt(mainParts[1]);
             } catch (NumberFormatException e) {
-                System.err.println("Error parsing slider repeats: " + mainParts[1] + ". Defaulting to 1.");
+                // System.err.println("Error parsing slider repeats: " + mainParts[1] + ". Defaulting to 1.");
                 this.slides = 1;
             }
         } else {
@@ -222,7 +222,7 @@ public class HitSlider extends HitObject {
             try {
                 this.pixelLength = Double.parseDouble(mainParts[2]);
             } catch (NumberFormatException e) {
-                System.err.println("Error parsing slider pixelLength: " + mainParts[2] + ". Defaulting to 0.");
+                // System.err.println("Error parsing slider pixelLength: " + mainParts[2] + ". Defaulting to 0.");
                 this.pixelLength = 0.0;
             }
         } else {
@@ -267,8 +267,8 @@ public class HitSlider extends HitObject {
 
         calculateSliderDuration(sliderMultiplier, OsuParser.getTimingPointsList());
         if (Double.isInfinite(this.duration) || Double.isNaN(this.duration) || this.duration <= 0) {
-            System.err.println("Warning: Invalid slider duration calculated (" + this.duration + ") for slider at "
-                    + getHitTime() + ". Setting to a fallback value.");
+            // System.err.println("Warning: Invalid slider duration calculated (" + this.duration + ") for slider at "
+            //         + getHitTime() + ". Setting to a fallback value.");
             this.duration = 500; // Fallback duration if calculation fails
         }
 
@@ -529,13 +529,13 @@ public class HitSlider extends HitObject {
 
     private Path createSliderPath() {
         if (controlPoints.isEmpty()) {
-            System.err.println(
-                    "Error: Cannot create slider path, control points list is empty for slider at " + getHitTime());
+            // System.err.println(
+            //         "Error: Cannot create slider path, control points list is empty for slider at " + getHitTime());
             return null;
         }
         if (controlPoints.size() < 2 && sliderType != '?') { // Allow '?' (unknown/parsed error) to potentially skip
                                                              // path gen
-            System.err.println("Error: Slider path needs at least 2 control points. Slider at " + getHitTime());
+            // System.err.println("Error: Slider path needs at least 2 control points. Slider at " + getHitTime());
             // Create a minimal path to avoid NPE, though it won't be correct
             Path dummyPath = new Path(new MoveTo(0, 0), new LineTo(1, 0)); // Minimal path
             dummyPath.setStroke(Color.RED); // Indicate error
@@ -589,9 +589,9 @@ public class HitSlider extends HitObject {
                     }
                 }
             } else {
-                System.err.println("Warning: 'P' slider type requires exactly 3 control points (start, middle, end). "
-                        + "Using linear fallback for slider at " + getHitTime() + ", control points: "
-                        + controlPoints.size());
+                // System.err.println("Warning: 'P' slider type requires exactly 3 control points (start, middle, end). "
+                //         + "Using linear fallback for slider at " + getHitTime() + ", control points: "
+                //         + controlPoints.size());
                 for (int i = 1; i < controlPoints.size(); i++) {
                     Point2D p = controlPoints.get(i);
                     path.getElements().add(new LineTo(p.getX() - start.getX(), p.getY() - start.getY()));
@@ -856,8 +856,8 @@ public class HitSlider extends HitObject {
                     interpolatedAbsolutePoint = getPointOnLinear(p0, p1, fractionWithinSegment);
                 }
             } else {
-                System.err
-                        .println("Warning: 'P' slider type requires exactly 3 control points. Using linear fallback.");
+                // System.err
+                //         .println("Warning: 'P' slider type requires exactly 3 control points. Using linear fallback.");
                 interpolatedAbsolutePoint = getPointOnLinear(p0, p1, fractionWithinSegment);
             }
         } else if (sliderType == 'B') {

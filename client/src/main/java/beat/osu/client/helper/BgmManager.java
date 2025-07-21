@@ -105,7 +105,6 @@ public class BgmManager {
         File audioFile = new File(beatmapDir, "audio.mp3");
 
         if (!audioFile.exists()) {
-            System.err.println("BGM file not found: " + audioFile.getAbsolutePath());
             return;
         }
 
@@ -163,7 +162,6 @@ public class BgmManager {
         File audioFile = new File(beatmapDir, "audio.mp3");
 
         if (!audioFile.exists()) {
-            System.err.println("BGM file not found: " + audioFile.getAbsolutePath());
             return;
         }
 
@@ -174,12 +172,12 @@ public class BgmManager {
         currentPlayer.setVolume(BGM_VOLUME);
         currentPlayer.setAutoPlay(false);
 
-        currentPlayer.setOnError(() -> {
-            System.err.println("MediaPlayer error: " + currentPlayer.getError());
-        });
-        media.setOnError(() -> {
-            System.err.println("Media error: " + media.getError());
-        });
+        // currentPlayer.setOnError(() -> {
+        //     System.err.println("MediaPlayer error: " + currentPlayer.getError());
+        // });
+        // media.setOnError(() -> {
+        //     System.err.println("Media error: " + media.getError());
+        // });
 
         currentPlayer.setOnReady(() -> {
         });
@@ -216,7 +214,6 @@ public class BgmManager {
 
             setupEndOfMediaBehavior();
         } catch (Exception e) {
-            System.err.println("Failed to load BGM: " + songFile.getPath());
             e.printStackTrace();
         }
     }

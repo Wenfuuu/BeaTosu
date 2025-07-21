@@ -65,7 +65,6 @@ public class SfxManager {
 
             URL sfxUrl = getSfxResource("gameplay/"+ baseName);
             if (sfxUrl == null) {
-                System.err.println("SFX resource not found: " + baseName);
                 return;
             }
             media = new Media(sfxUrl.toString());
@@ -107,7 +106,6 @@ public class SfxManager {
                 sfxUrl = getSfxResource("menu/select-expand.mp3");
                 break;
             default:
-                System.err.println("Unknown SFX type: " + sfxType);
                 return;
         }
 

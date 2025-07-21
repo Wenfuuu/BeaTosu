@@ -309,12 +309,10 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
                         cleanupSpectateResources();
                         ViewManager.getInstance().goToPreviousPage();
                     } catch (Exception e) {
-                        System.err.println("Error during spectate cleanup: " + e.getMessage());
                         e.printStackTrace();
                     }
                 });
             } else {
-                System.err.println("Failed to stop spectating: " + response.getError().getMessage());
                 spectateStoppingFlag = false;
             }
             return null;
@@ -344,7 +342,6 @@ public class SpectateManager implements GameEventPublisher, HitObjectListener {
             // Clear input manager state
             inputManager.getPressedKeys().clear();
         } catch (Exception e) {
-            System.err.println("Error during spectate resource cleanup: " + e.getMessage());
             e.printStackTrace();
         }
     }

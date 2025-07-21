@@ -114,7 +114,6 @@ public class ClientHandler implements Runnable {
                 sendError("Invalid message format received: " + message.getClass().getSimpleName());
             }
         } catch (Exception e) {
-            System.err.println("ClientHandler: Error routing message: " + e.getMessage());
             sendError("Error processing message: " + e.getMessage());
         }
     }

@@ -206,8 +206,6 @@ public class GameUI extends Pane {
         URL cssUrl = CssManager.getGameCssURL("GameUI.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file not found!");
         }
     }
 

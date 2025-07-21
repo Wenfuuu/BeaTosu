@@ -67,8 +67,6 @@ public class ScoreContent extends ScrollPane {
         URL cssUrl = CssManager.getHomeCssURL("ScoreContent.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file not found!");
         }
     }
 

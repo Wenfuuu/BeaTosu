@@ -331,13 +331,10 @@ public class LandingView extends Page {
                         beatmapDto.getStarRating(),
                         beatmapSet);
 
-            } else {
-                System.err.println("Failed to fetch beatmaps: " + result.getError().getMessage());
             }
 
             return null;
         } catch (Exception e) {
-            System.err.println("Error fetching beatmap: " + e.getMessage());
             return null;
         }
     }
@@ -456,29 +453,23 @@ public class LandingView extends Page {
             String extractedBgmPath = ResourceManager.extractResourceToTempAndGetPath(bgmPath, "default-bgm.mp3");
             if (extractedBgmPath != null) {
                 BgmManager.getInstance().playAudio(extractedBgmPath, PlaybackMode.DEFAULT);
-            } else {
-                System.err.println("Failed to extract default BGM resource: " + bgmPath);
             }
         }
 
         if (BgmManager.getInstance().getCurrentPlayer() != null) {
             visualizer.setupAudioVisualization(BgmManager.getInstance().getCurrentPlayer());
-        } else {
-            System.err.println("Failed to load BGM: " + bgmPath);
         }
 
         scene.setRoot(root);
         URL cssUrl = CssManager.getLandingCssURL("LandingView.css");
         if (cssUrl != null) {
             scene.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("Css file not found!");
         }
 
         try {
             BackgroundManager.setRandomBackground(scene);
         } catch (Exception e) {
-            System.err.println("Error setting background: " + e.getMessage());
+            // System.err.println("Error setting background: " + e.getMessage());
         }
 
         initMenuRevealAnimations();
@@ -524,7 +515,7 @@ public class LandingView extends Page {
         try {
             BackgroundManager.setRandomBackground(scene);
         } catch (Exception e) {
-            System.err.println("Error setting background: " + e.getMessage());
+            // System.err.println("Error setting background: " + e.getMessage());
         }
         visualizer.setupAudioVisualization(BgmManager.getInstance().getCurrentPlayer());
         scene.setRoot(root);

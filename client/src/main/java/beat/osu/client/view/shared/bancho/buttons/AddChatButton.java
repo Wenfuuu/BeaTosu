@@ -31,8 +31,6 @@ public class AddChatButton extends Button {
         URL cssUrl = CssManager.getSharedCssURL("AddChatButton.css");
         if (cssUrl != null) {
             this.getStylesheets().add(cssUrl.toExternalForm());
-        } else {
-            System.err.println("CSS file not found!");
         }
     }
 }
