@@ -925,19 +925,19 @@ public class MatchView extends Page {
                         });
                     }
                 } else {
+                    PlayerStatus currentStatus = getCurrentUserStatus();
+                    if (currentStatus != PlayerStatus.NOT_READY) {
+                        matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
+                            if (result.isSuccess()) {
+                            }
+                        });
+                    }
                     if (PlaylistManager.getInstance().getCurrentSong().getId() != beatmap.getBeatmapSetId()) {
-                        PlayerStatus currentStatus = getCurrentUserStatus();
-                        if (currentStatus != PlayerStatus.NOT_READY) {
-                            matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
-                                if (result.isSuccess()) {
-                                    try {
-                                        OsuParser.parseBeatmap(beatmap);
-                                        BgmManager.getInstance().playPreviewBgm(true);
-                                    } catch (IOException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                }
-                            });
+                        try {
+                            OsuParser.parseBeatmap(beatmap);
+                            BgmManager.getInstance().playPreviewBgm(true);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
                         }
                     }
                 }
