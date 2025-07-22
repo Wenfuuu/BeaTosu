@@ -13,8 +13,6 @@ public class CursorManager {
     private static Image cursorImage;
     private static ImageCursor imageCursor;
 
-    private static final double CURSOR_SIZE = 54.0;
-
     private CursorManager() {
 
     }
@@ -35,16 +33,21 @@ public class CursorManager {
         if (imageCursor == null) {
             Image cursor = getCursorImage();
             if (cursor != null) {
+                double cursorSize = isWindows() ? 32.0 : 64.0;
 
                 Image scaledCursor = new Image(
                         Objects.requireNonNull(Main.class.getResource(CURSOR_IMAGE_PATH)).toExternalForm(),
-                        CURSOR_SIZE, CURSOR_SIZE, true, true
+                        cursorSize, cursorSize, true, true
                 );
 
-                imageCursor = new ImageCursor(scaledCursor, CURSOR_SIZE / 2, CURSOR_SIZE / 2);
+                imageCursor = new ImageCursor(scaledCursor, cursorSize / 2, cursorSize / 2);
             }
         }
         return imageCursor;
+    }
+
+    private static boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase().contains("win");
     }
 
     public static void applyCursor(Scene scene) {
@@ -56,7 +59,6 @@ public class CursorManager {
                 scene.setCursor(cursor);
             }
         } catch (Exception e) {
-            // System.err.println("Failed to apply cursor to scene: " + e.getMessage());
         }
     }
 
@@ -64,8 +66,10 @@ public class CursorManager {
         try {
             Image cursor = getCursorImage();
             if (cursor != null) {
+                double cursorSize = isWindows() ? 32.0 : 64.0;
+
                 return new ImageView(new Image(Objects.requireNonNull(Main.class
-                        .getResource(CURSOR_IMAGE_PATH)).toExternalForm(), CURSOR_SIZE, CURSOR_SIZE, true, true));
+                        .getResource(CURSOR_IMAGE_PATH)).toExternalForm(), cursorSize, cursorSize, true, true));
             }
         } catch (Exception e) {
         }
