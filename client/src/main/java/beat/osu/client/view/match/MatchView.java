@@ -929,17 +929,15 @@ public class MatchView extends Page {
                         PlayerStatus currentStatus = getCurrentUserStatus();
                         if (currentStatus != PlayerStatus.NOT_READY) {
                             matchController.updatePlayerStatus(matchId, PlayerStatus.NOT_READY).thenAccept(result -> {
-                                if (!result.isSuccess()) {
-                                    // System.err.println("Failed to update player status to NOT_READY: " + result.getError().getMessage());
+                                if (result.isSuccess()) {
+                                    try {
+                                        OsuParser.parseBeatmap(beatmap);
+                                        BgmManager.getInstance().playPreviewBgm(true);
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
                                 }
                             });
-                        }
-
-                        try {
-                            OsuParser.parseBeatmap(beatmap);
-                            BgmManager.getInstance().playPreviewBgm(true);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
                         }
                     }
                 }
