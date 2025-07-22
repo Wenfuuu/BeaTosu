@@ -59,6 +59,7 @@ public class SelectBeatmapModal extends StackPane {
     @Setter
     private InputManager inputManager;
     private String lastSearchQuery = "";
+    private String persistedSearchQuery = "";
     private Timeline searchUpdateTimeline;
 
     @Getter
@@ -224,6 +225,7 @@ public class SelectBeatmapModal extends StackPane {
 
         if (!currentQuery.equals(lastSearchQuery)) {
             lastSearchQuery = currentQuery;
+            persistedSearchQuery = currentQuery;
 
             int matchesFound = beatmapContent.filterBeatmaps(currentQuery);
             if (currentQuery.isEmpty()) {
@@ -381,9 +383,19 @@ public class SelectBeatmapModal extends StackPane {
         if (inputManager != null) {
             inputManager.clearTypedChars();
             lastSearchQuery = "";
-            contentLabel.setText("Type to search!");
-            foundLabel.setVisible(false);
-            foundLabel.setManaged(false);
+            
+            if (!persistedSearchQuery.isEmpty()) {
+                int matchesFound = beatmapContent.filterBeatmaps(persistedSearchQuery);
+                inputManager.setTypedChars(persistedSearchQuery);
+                contentLabel.setText(persistedSearchQuery);
+                foundLabel.setText(String.format("%d matches found", matchesFound));
+                foundLabel.setVisible(true);
+                foundLabel.setManaged(true);
+            } else {
+                contentLabel.setText("Type to search!");
+                foundLabel.setVisible(false);
+                foundLabel.setManaged(false);
+            }
         }
         
         this.setVisible(true);
