@@ -13,6 +13,8 @@ public class CursorManager {
     private static Image cursorImage;
     private static ImageCursor imageCursor;
 
+    private static final double CURSOR_SIZE = 54.0;
+
     private CursorManager() {
 
     }
@@ -33,7 +35,13 @@ public class CursorManager {
         if (imageCursor == null) {
             Image cursor = getCursorImage();
             if (cursor != null) {
-                imageCursor = new ImageCursor(cursor, cursor.getWidth() / 2, cursor.getHeight() / 2);
+
+                Image scaledCursor = new Image(
+                        Objects.requireNonNull(Main.class.getResource(CURSOR_IMAGE_PATH)).toExternalForm(),
+                        CURSOR_SIZE, CURSOR_SIZE, true, true
+                );
+
+                imageCursor = new ImageCursor(scaledCursor, CURSOR_SIZE / 2, CURSOR_SIZE / 2);
             }
         }
         return imageCursor;
@@ -57,10 +65,9 @@ public class CursorManager {
             Image cursor = getCursorImage();
             if (cursor != null) {
                 return new ImageView(new Image(Objects.requireNonNull(Main.class
-                        .getResource(CURSOR_IMAGE_PATH)).toExternalForm(), 32, 32, true, true));
+                        .getResource(CURSOR_IMAGE_PATH)).toExternalForm(), CURSOR_SIZE, CURSOR_SIZE, true, true));
             }
         } catch (Exception e) {
-            // System.err.println("Failed to create cursor ImageView: " + e.getMessage());
         }
         return null;
     }
