@@ -10,7 +10,7 @@
 
 **A full-featured osu! rhythm game clone built with Java and JavaFX**
 
-[Features](#-features) • [Architecture](#-architecture) • [Installation](#-installation) • [Usage](#-usage) • [Screenshots](#-screenshots)
+[Features](#features) • [Architecture](#architecture) • [Installation](#installation) • [Usage](#usage) • [Screenshots](#screenshots)
 
 </div>
 
@@ -233,6 +233,17 @@ connection.timeout=5000
 4. **Host** selects the beatmap
 5. Players set status to **Ready**
 6. Host starts the match
+
+---
+
+## Screenshots
+
+<img width="1920" height="1080" alt="Screenshot (201)" src="https://github.com/user-attachments/assets/3edaf107-daed-4513-a831-dcf871fa7428" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7c536d34-2e14-423f-a82b-42a1fbb2b9e3" />
+<img width="1920" height="1080" alt="Screenshot (236)" src="https://github.com/user-attachments/assets/01a95e51-8bbe-4457-a306-012d1d4936cb" />
+<img width="1920" height="1080" alt="Screenshot (239)" src="https://github.com/user-attachments/assets/aed64a7f-8f3c-4898-843f-6cbe2ee765c4" />
+<img width="1920" height="1080" alt="Screenshot (230)" src="https://github.com/user-attachments/assets/9437f329-f302-4a2f-8537-f834ec34636a" />
+<img width="1920" height="1080" alt="Screenshot (208)" src="https://github.com/user-attachments/assets/972d290d-9934-49cb-811c-08a074fd7d63" />
 
 ---
 
